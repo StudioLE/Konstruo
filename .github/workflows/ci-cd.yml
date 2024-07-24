@@ -75,9 +75,9 @@ jobs:
             target/
       - name: Cargo Test
         run: cargo test --release --no-fail-fast
-#      - name: Cargo Check
-#        run: cargo check --release --all-targets --message-format short
-#        continue-on-error: true
+      - name: Cargo Check
+        run: cargo check --release --all-targets --message-format short
+        continue-on-error: true
       - name: Cargo Clippy
         run: cargo clippy --release --all-targets --message-format short
         continue-on-error: true
