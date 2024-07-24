@@ -1,0 +1,117 @@
+name: CI/CD
+on:
+  push:
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  on-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch dependencies
+        run: sudo apt-get update
+      - name: Install dependencies
+        run: >
+          sudo apt-get install 
+          g++
+          pkg-config
+          libx11-dev
+          libasound2-dev
+          libudev-dev
+          libxkbcommon-x11-0
+          libwayland-dev
+          libxkbcommon-dev
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Run Surveyor
+        id: surveyor
+        env:
+          GH_TOKEN: ${{ secrets.SURVEYOR_TOKEN }}
+          SURVEYOR_VERSION: v0.6.1-alpha.3
+        run: |
+          SURVEYOR="Surveyor-linux-x64-${SURVEYOR_VERSION}"
+          gh release download --repo StudioLE/Surveyor "${SURVEYOR_VERSION}" --pattern "${SURVEYOR}" --clobber
+          chmod +x "${SURVEYOR}"
+          VERSION=$("./${SURVEYOR}" version)
+          "./${SURVEYOR}" release-notes > release-notes.md          
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "${VERSION}"
+      - name: Read Version
+        run: echo "${{ steps.surveyor.outputs.version}}"
+      - name: Read Release Notes
+        run: cat "release-notes.md"
+      - name: Set Version
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install cargo-edit
+          cargo set-version ${{ steps.surveyor.outputs.version }}
+        if: ${{ steps.surveyor.outputs.version != ''}}
+      - name: Restore Cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+      - name: Cargo Build
+        run: cargo build --release
+      - name: Save Cache
+        id: cache-save
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+      - name: Cargo Test
+        run: cargo test --release --no-fail-fast
+#      - name: Cargo Check
+#        run: cargo check --release --all-targets --message-format short
+#        continue-on-error: true
+      - name: Cargo Clippy
+        run: cargo clippy --release --all-targets --message-format short
+        continue-on-error: true
+      - name: Cargo Format
+        run: cargo fmt --check
+        continue-on-error: true
+      - name: Create Release
+        if: ${{ steps.surveyor.outputs.version != '' && ! contains(steps.surveyor.outputs.version, '-') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create
+          "v${{ steps.surveyor.outputs.version }}"
+          --title "v${{ steps.surveyor.outputs.version }}"
+          --notes-file release-notes.md
+          --target ${{ github.ref_name }}
+      - name: Create Prerelease
+        if: ${{ steps.surveyor.outputs.version != '' && contains(steps.surveyor.outputs.version, '-') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create
+          "v${{ steps.surveyor.outputs.version }}"
+          --title "v${{ steps.surveyor.outputs.version }}"
+          --notes-file release-notes.md
+          --target ${{ github.ref_name }}
+          --prerelease
+      - name: Upload Release Asset
+        if: ${{ steps.surveyor.outputs.version != ''}}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release upload
+          "v${{ steps.surveyor.outputs.version }}"
+          "target/release/beach_app"
+          --clobber
+          --repo "${{ github.repository }}"

@@ -1,0 +1,9 @@
+[package]
+name = "beach_core"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+bevy = { workspace = true, features = ["dynamic_linking"] }
+kurbo = { workspace = true }
+lazy_static = { workspace = true }
