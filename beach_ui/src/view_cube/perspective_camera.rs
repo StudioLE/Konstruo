@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 use crate::cameras::orbit::Orbit;
+use crate::view_cube::camera::ViewCubeCamera;
 use crate::view_cube::RENDER_LAYER;
 use beach_core::mathematics::spherical_coordinate_system::SphericalCoordinateSystem;
 use bevy::prelude::Projection::Perspective;
 use bevy::prelude::*;
 use bevy::render::camera::Viewport;
 use bevy::render::view::RenderLayers;
-use crate::view_cube::camera::ViewCubeCamera;
 
 /// <https://bevy-cheatbook.github.io/graphics/camera.html?highlight=viewport#viewport>
 pub fn spawn_camera(mut commands: Commands) {

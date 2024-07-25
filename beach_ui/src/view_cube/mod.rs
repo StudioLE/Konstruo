@@ -1,3 +1,4 @@
+mod camera;
 mod corner;
 mod edge;
 mod materials;
@@ -5,7 +6,6 @@ mod meshes;
 mod orthographic_camera;
 mod perspective_camera;
 mod side;
-mod camera;
 
 use crate::view_cube::corner::spawn_corners;
 use crate::view_cube::edge::spawn_edges;
