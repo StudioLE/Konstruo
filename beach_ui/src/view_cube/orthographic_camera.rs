@@ -1,11 +1,11 @@
 use crate::cameras::orbit::Orbit;
+use crate::view_cube::camera::ViewCubeCamera;
 use crate::view_cube::RENDER_LAYER;
 use bevy::prelude::Projection::Orthographic;
 use bevy::prelude::*;
 use bevy::render::camera::ScalingMode::Fixed;
 use bevy::render::camera::Viewport;
 use bevy::render::view::RenderLayers;
-use crate::view_cube::camera::ViewCubeCamera;
 
 /// <https://bevy-cheatbook.github.io/graphics/camera.html?highlight=viewport#viewport>
 pub fn spawn_camera(mut commands: Commands) {

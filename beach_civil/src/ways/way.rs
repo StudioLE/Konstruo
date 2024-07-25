@@ -1,5 +1,5 @@
 use crate::ways::control_line::WayLine;
-use crate::ways::controls::{WayControlBundle};
+use crate::ways::controls::WayControlBundle;
 use crate::ways::edges::WayEdges2d;
 use beach_core::beziers::flatten::flatten_bezier;
 use bevy::math::vec3;
