@@ -35,13 +35,9 @@ pub fn update_cursor_position_internal(
 
 fn get_ray(
     window: Query<&Window, With<PrimaryWindow>>,
-    cameras: &mut Query<(&Camera, &GlobalTransform)>
+    cameras: &mut Query<(&Camera, &GlobalTransform)>,
 ) -> Option<Ray3d> {
-    let (camera, camera_transform) = cameras
-        .iter_mut()
-        .min_by_key(|(camera, _)| camera.order)?;
+    let (camera, camera_transform) = cameras.iter_mut().min_by_key(|(camera, _)| camera.order)?;
     let cursor_position = window.get_single().ok()?.cursor_position()?;
     camera.viewport_to_world(camera_transform, cursor_position)
 }
-
-
