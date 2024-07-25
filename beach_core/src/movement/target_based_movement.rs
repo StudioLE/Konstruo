@@ -17,21 +17,22 @@ pub struct TargetBasedMovement {
 impl TargetBasedMovement {
     /// Move the current position towards the target for a single frame.
     pub fn update(&mut self) {
-        if let Some(target) = self.target {
-            let total_displacement = target - self.current;
-            if is_almost_zero(total_displacement) {
-                self.current = target;
-                self.remove_target();
-                return;
-            }
-            let direction = total_displacement.normalize();
-            let displacement = direction * self.get_speed_per_frame();
-            if displacement.length() >= total_displacement.length() {
-                self.current = target;
-                self.remove_target();
-            } else {
-                self.set_position(self.current + displacement);
-            }
+        let Some(target) = self.target else {
+            return;
+        };
+        let total_displacement = target - self.current;
+        if is_almost_zero(total_displacement) {
+            self.current = target;
+            self.remove_target();
+            return;
+        }
+        let direction = total_displacement.normalize();
+        let displacement = direction * self.get_speed_per_frame();
+        if displacement.length() >= total_displacement.length() {
+            self.current = target;
+            self.remove_target();
+        } else {
+            self.set_position(self.current + displacement);
         }
     }
 

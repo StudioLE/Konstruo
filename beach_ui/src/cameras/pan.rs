@@ -89,13 +89,14 @@ pub fn on_input(
     motion_event: EventReader<MouseMotion>,
     cursor: Res<Cursor>,
 ) {
-    if let Ok(mut orbit) = query.get_single_mut() {
-        let left_shift_pressed = keys.pressed(ShiftLeft);
-        keyboard_input(&mut orbit, keys);
-        mouse_button_input(&mut orbit, buttons, &cursor);
-        if !left_shift_pressed {
-            mouse_motion_input(&mut orbit, motion_event, &cursor);
-        }
+    let Ok(mut orbit) = query.get_single_mut() else {
+        return;
+    };
+    let left_shift_pressed = keys.pressed(ShiftLeft);
+    keyboard_input(&mut orbit, keys);
+    mouse_button_input(&mut orbit, buttons, &cursor);
+    if !left_shift_pressed {
+        mouse_motion_input(&mut orbit, motion_event, &cursor);
     }
 }
 
