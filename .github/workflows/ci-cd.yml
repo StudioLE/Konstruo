@@ -25,6 +25,17 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+      - name: Restore Cargo
+        id: cargo-cache
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
       - name: Run Surveyor
         id: surveyor
         env:
@@ -48,25 +59,14 @@ jobs:
           brew install cargo-edit
           cargo set-version ${{ steps.surveyor.outputs.version }}
         if: ${{ steps.surveyor.outputs.version != ''}}
-      - name: Restore Cache
-        id: cache-restore
-        uses: actions/cache/restore@v4
-        with:
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
       - name: Cargo Build
         run: cargo build --release
-      - name: Save Cache
+      - name: Cache Cargo
         id: cache-save
         if: always()
         uses: actions/cache/save@v4
         with:
-          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+          key: ${{ steps.cargo-cache.outputs.cache-primary-key }}
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
