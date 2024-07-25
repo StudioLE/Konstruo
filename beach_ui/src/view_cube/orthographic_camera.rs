@@ -39,13 +39,17 @@ pub fn spawn_camera(mut commands: Commands) {
 
 pub fn on_orbit_changed(
     orbit: Query<&Orbit, Changed<Orbit>>,
-    mut transform: Query<&mut Transform, With<ViewCubeCamera>>,
+    transform: Query<&mut Transform, With<ViewCubeCamera>>,
 ) {
-    let Ok(orbit) = orbit.get_single() else {
-        return;
-    };
-    let Ok(mut transform) = transform.get_single_mut() else {
-        return;
-    };
+    on_orbit_changed_internal(orbit, transform);
+}
+
+fn on_orbit_changed_internal(
+    orbit: Query<&Orbit, Changed<Orbit>>,
+    mut transform: Query<&mut Transform, With<ViewCubeCamera>>,
+) -> Option<()> {
+    let orbit = orbit.get_single().ok()?;
+    let mut transform = transform.get_single_mut().ok()?;
     *transform = orbit.get_transform();
+    Some(())
 }

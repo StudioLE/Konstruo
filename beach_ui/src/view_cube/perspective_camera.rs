@@ -34,14 +34,17 @@ pub fn spawn_camera(mut commands: Commands) {
 
 pub fn on_orbit_changed(
     orbit: Query<&Orbit, Changed<Orbit>>,
-    mut transform: Query<&mut Transform, With<ViewCubeCamera>>,
+    transform: Query<&mut Transform, With<ViewCubeCamera>>,
 ) {
-    let Ok(orbit) = orbit.get_single() else {
-        return;
-    };
-    let Ok(mut entity_transform) = transform.get_single_mut() else {
-        return;
-    };
+    on_orbit_changed_internal(orbit, transform);
+}
+
+fn on_orbit_changed_internal(
+    orbit: Query<&Orbit, Changed<Orbit>>,
+    mut transform: Query<&mut Transform, With<ViewCubeCamera>>,
+) -> Option<()> {
+    let orbit = orbit.get_single().ok()?;
+    let mut entity_transform = transform.get_single_mut().ok()?;
     let mut transform = orbit.get_transform();
     transform.translation = SphericalCoordinateSystem::spherical_to_cartesian(
         3.0,
@@ -49,4 +52,5 @@ pub fn on_orbit_changed(
         orbit.get_azimuth(),
     );
     *entity_transform = transform;
+    Some(())
 }
