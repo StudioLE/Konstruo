@@ -85,25 +85,27 @@ jobs:
           git config user.name "CI/CD"
           git config user.email "cicd.tbxeq@passmail.com"
 
+      - name: Cargo Format
+        run: |
+          cargo fmt
+          git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
+          git commit -m "style: cargo fmt"
+        continue-on-error: true
+
       - name: Cargo Fix
         run: |
-          cargo fix --release --message-format short
+          cargo fix --release --allow-dirty --message-format short
+          cargo fmt
           git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
           git commit -m "style: cargo fix"
         continue-on-error: true
 
       - name: Cargo Clippy
         run: |
-          cargo clippy --fix --release --message-format short
-          git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
-          git commit -m "style: cargo clippy --fix"
-        continue-on-error: true
-
-      - name: Cargo Format
-        run: |
+          cargo clippy --fix --allow-dirty --release --message-format short
           cargo fmt
           git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
-          git commit -m "style: cargo fmt"
+          git commit -m "style: cargo clippy --fix"
         continue-on-error: true
 
       - name: Git Status
