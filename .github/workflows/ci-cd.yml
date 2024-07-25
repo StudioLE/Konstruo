@@ -7,8 +7,10 @@ jobs:
   on-push:
     runs-on: ubuntu-latest
     steps:
+
       - name: Fetch dependencies
         run: sudo apt-get update
+
       - name: Install dependencies
         run: >
           sudo apt-get install 
@@ -20,11 +22,13 @@ jobs:
           libxkbcommon-x11-0
           libwayland-dev
           libxkbcommon-dev
+
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
+
       - name: Restore Cargo
         id: cargo-cache
         uses: actions/cache/restore@v4
@@ -36,6 +40,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+
       - name: Run Surveyor
         id: surveyor
         env:
@@ -49,20 +54,18 @@ jobs:
           "./${SURVEYOR}" release-notes > release-notes.md          
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "${VERSION}"
-      - name: Read Version
-        run: echo "${{ steps.surveyor.outputs.version}}"
-      - name: Read Release Notes
-        run: cat "release-notes.md"
+
       - name: Set Version
+        if: ${{ steps.surveyor.outputs.version != ''}}
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install cargo-edit
           cargo set-version ${{ steps.surveyor.outputs.version }}
-        if: ${{ steps.surveyor.outputs.version != ''}}
+
       - name: Cargo Build
         run: cargo build --release
+
       - name: Cache Cargo
-        id: cache-save
         if: always()
         uses: actions/cache/save@v4
         with:
@@ -73,17 +76,42 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+
+      - name: Git Config
+        run: |
+          git config user.name "CI/CD"
+          git config user.email "cicd.tbxeq@passmail.com"
+
+      - name: Cargo Fix
+        run: |
+          cargo fix --release --message-format short
+          git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
+          git commit -m "style: cargo fix"
+        continue-on-error: true
+
+      - name: Cargo Clippy
+        run: |
+          cargo clippy --fix --release --message-format short
+          git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
+          git commit -m "style: cargo clippy --fix"
+        continue-on-error: true
+
+      - name: Cargo Format
+        run: |
+          cargo fmt
+          git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
+          git commit -m "style: cargo fmt"
+        continue-on-error: true
+
+      - name: Git Status
+        run: git status
+
+      - name: Git Push
+        run: git push
+
       - name: Cargo Test
         run: cargo test --release --no-fail-fast
-      - name: Cargo Check
-        run: cargo check --release --all-targets --message-format short
-        continue-on-error: true
-      - name: Cargo Clippy
-        run: cargo clippy --release --all-targets --message-format short
-        continue-on-error: true
-      - name: Cargo Format
-        run: cargo fmt --check
-        continue-on-error: true
+
       - name: Create Release
         if: ${{ steps.surveyor.outputs.version != '' && ! contains(steps.surveyor.outputs.version, '-') }}
         env:
@@ -94,6 +122,7 @@ jobs:
           --title "v${{ steps.surveyor.outputs.version }}"
           --notes-file release-notes.md
           --target ${{ github.ref_name }}
+
       - name: Create Prerelease
         if: ${{ steps.surveyor.outputs.version != '' && contains(steps.surveyor.outputs.version, '-') }}
         env:
@@ -105,6 +134,7 @@ jobs:
           --notes-file release-notes.md
           --target ${{ github.ref_name }}
           --prerelease
+
       - name: Upload Release Asset
         if: ${{ steps.surveyor.outputs.version != ''}}
         env:
