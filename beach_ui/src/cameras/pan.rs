@@ -115,7 +115,7 @@ fn keyboard_input(pan: &mut Mut<Pan>, keys: Res<ButtonInput<KeyCode>>) {
             pan.in_direction(Vec3::X, 1.0);
         }
     }
-    if keys.any_just_released([KeyW, KeyA, KeyS, KeyD, Equal, Minus]) {
+    if keys.any_just_released([KeyW, KeyA, KeyS, KeyD]) {
         pan.stop();
     }
 }
