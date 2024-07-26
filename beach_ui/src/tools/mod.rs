@@ -1,7 +1,7 @@
 use crate::tools::cursor::{update_cursor_position, Cursor};
 use crate::tools::gizmos::{
-    configure_gizmos, draw_cursor_gizmo, draw_origin_gizmo, Gizmos100,
-    Gizmos300, Gizmos500, Gizmos700, Gizmos900,
+    configure_gizmos, draw_cursor_gizmo, draw_origin_gizmo, Gizmos100, Gizmos300, Gizmos500,
+    Gizmos700, Gizmos900,
 };
 use crate::tools::grid::spawn_grid;
 use bevy::app::{App, Startup, Update};

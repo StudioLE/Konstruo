@@ -2,7 +2,7 @@ pub mod axis_marker;
 mod materials;
 mod meshes;
 
-use crate::axis_marker::axis_marker::{AxisMarker, on_axis_marker_added};
+use crate::axis_marker::axis_marker::{on_axis_marker_added, AxisMarker};
 use crate::axis_marker::materials::insert_materials;
 use crate::axis_marker::meshes::insert_meshes;
 use bevy::prelude::*;
@@ -15,11 +15,15 @@ pub fn axis_marker_plugin(app: &mut App) {
         .add_systems(Update, on_axis_marker_added);
 }
 
-fn spawn_positive_marker(
-    mut commands: Commands,
-) {
+fn spawn_positive_marker(mut commands: Commands) {
     let transform = Transform::from_translation(Vec3::splat(10.0));
     let spatial = SpatialBundle::from_transform(transform);
     info!("Spawning positive axis marker");
-    commands.spawn((spatial, AxisMarker { thickness: 1.0, length: 10.0 }));
+    commands.spawn((
+        spatial,
+        AxisMarker {
+            thickness: 1.0,
+            length: 10.0,
+        },
+    ));
 }

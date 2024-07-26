@@ -64,7 +64,6 @@ pub fn on_axis_marker_added(
             commands.spawn(x).set_parent(entity);
             commands.spawn(y).set_parent(entity);
             commands.spawn(z).set_parent(entity);
-            
         }
     }
 }

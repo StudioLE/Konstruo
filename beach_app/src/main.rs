@@ -1,10 +1,10 @@
 use beach_civil::ways::ways_plugin;
 use beach_geography::environment_plugin;
+use beach_ui::axis_marker::axis_marker_plugin;
 pub use beach_ui::cameras::cameras_plugin;
 use beach_ui::tools::tools_plugin;
 use beach_ui::view_cube::view_cube_plugin;
 use bevy::prelude::*;
-use beach_ui::axis_marker::axis_marker_plugin;
 
 fn main() {
     App::new()
