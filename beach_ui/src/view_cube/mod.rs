@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::render::view::{Layer, RenderLayers};
-
+use bevy_mod_picking::DefaultPickingPlugins;
 use crate::axis_marker::axis_marker::AxisMarker;
 use crate::view_cube::corner::spawn_corners;
 use crate::view_cube::edge::spawn_edges;
@@ -29,7 +29,8 @@ pub fn view_cube_plugin(app: &mut App) {
         .add_systems(PostStartup, spawn_sides)
         .add_systems(PostStartup, spawn_edges)
         .add_systems(PostStartup, spawn_corners)
-        .add_systems(Update, on_orbit_changed);
+        .add_systems(Update, on_orbit_changed)
+        .add_plugins(DefaultPickingPlugins);
 }
 
 pub fn spawn_axis_marker(mut commands: Commands) {

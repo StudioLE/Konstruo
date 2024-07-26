@@ -60,7 +60,7 @@ impl Orbit {
 
     /// Get the position relative to the origin.
     fn get_position(&self) -> Vec3 {
-        let mut position = SphericalCoordinateSystem::spherical_to_cartesian(
+        let mut position = spherical_to_cartesian(
             self.get_radius(),
             self.get_polar(),
             self.get_azimuth(),

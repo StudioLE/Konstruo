@@ -7,6 +7,7 @@ pub struct ViewCubeMaterials {
     pub side: Handle<StandardMaterial>,
     pub edge: Handle<StandardMaterial>,
     pub corner: Handle<StandardMaterial>,
+    pub corner_over: Handle<StandardMaterial>,
 }
 
 pub fn insert_materials(mut commands: Commands, mut materials: ResMut<Assets<StandardMaterial>>) {
@@ -26,6 +27,12 @@ pub fn insert_materials(mut commands: Commands, mut materials: ResMut<Assets<Sta
         corner: materials.add(StandardMaterial {
             emissive: tailwind::NEUTRAL_700.into(),
             base_color: tailwind::NEUTRAL_700.into(),
+            alpha_mode: AlphaMode::Opaque,
+            ..Default::default()
+        }),
+        corner_over: materials.add(StandardMaterial {
+            emissive: tailwind::BLUE_700.into(),
+            base_color: tailwind::BLUE_700.into(),
             alpha_mode: AlphaMode::Opaque,
             ..Default::default()
         }),

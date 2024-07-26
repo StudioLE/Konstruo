@@ -10,6 +10,7 @@ pub struct ViewSide {
     pub side: Side,
 }
 
+#[derive(Debug)]
 pub enum Side {
     Front,
     Back,

@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 use crate::cameras::orbit::Orbit;
 use crate::view_cube::camera::ViewCubeCamera;
-use crate::view_cube::RENDER_LAYER;
-use beach_core::mathematics::spherical_coordinate_system::SphericalCoordinateSystem;
+use crate::view_cube::RENDER_LAYER;;
 use bevy::prelude::Projection::Perspective;
 use bevy::prelude::*;
 use bevy::render::camera::Viewport;
 use bevy::render::view::RenderLayers;
+use beach_core::mathematics::spherical_coordinate_system::spherical_to_cartesian;
 
 /// <https://bevy-cheatbook.github.io/graphics/camera.html?highlight=viewport#viewport>
 pub fn spawn_camera(mut commands: Commands) {
@@ -46,7 +46,7 @@ fn on_orbit_changed_internal(
     let orbit = orbit.get_single().ok()?;
     let mut entity_transform = transform.get_single_mut().ok()?;
     let mut transform = orbit.get_transform();
-    transform.translation = SphericalCoordinateSystem::spherical_to_cartesian(
+    transform.translation = spherical_to_cartesian(
         3.0,
         orbit.get_polar(),
         orbit.get_azimuth(),
