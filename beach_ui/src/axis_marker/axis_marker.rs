@@ -55,6 +55,7 @@ pub fn on_axis_marker_added(
             )),
             ..default()
         };
+        info!("Spawning axis marker geometry for entity {:?}", entity);
         commands.spawn(x).set_parent(entity);
         commands.spawn(y).set_parent(entity);
         commands.spawn(z).set_parent(entity);
