@@ -1,6 +1,7 @@
 use crate::axis_marker::materials::AxisMarkerMaterials;
 use crate::axis_marker::meshes::AxisMarkerMeshes;
 use bevy::prelude::*;
+use bevy::render::view::RenderLayers;
 
 #[derive(Component, Debug)]
 pub struct AxisMarker {
@@ -22,9 +23,9 @@ pub fn on_axis_marker_added(
     mut commands: Commands,
     meshes: Res<AxisMarkerMeshes>,
     materials: Res<AxisMarkerMaterials>,
-    query: Query<(Entity, &AxisMarker), Added<AxisMarker>>,
+    query: Query<(Entity, &AxisMarker, Option<&RenderLayers>), Added<AxisMarker>>,
 ) {
-    for (entity, marker) in query.iter() {
+    for (entity, marker, layer) in query.iter() {
         let x = PbrBundle {
             mesh: meshes.cuboid.clone(),
             material: materials.x.clone(),
@@ -55,9 +56,15 @@ pub fn on_axis_marker_added(
             )),
             ..default()
         };
-        info!("Spawning axis marker geometry for entity {:?}", entity);
-        commands.spawn(x).set_parent(entity);
-        commands.spawn(y).set_parent(entity);
-        commands.spawn(z).set_parent(entity);
+        if let Some(layer) = layer {
+            commands.spawn((x, layer.clone())).set_parent(entity);
+            commands.spawn((y, layer.clone())).set_parent(entity);
+            commands.spawn((z, layer.clone())).set_parent(entity);
+        } else {
+            commands.spawn(x).set_parent(entity);
+            commands.spawn(y).set_parent(entity);
+            commands.spawn(z).set_parent(entity);
+            
+        }
     }
 }
