@@ -5,13 +5,13 @@ use kurbo::{BezPath, CubicBez, PathSeg, Point, Shape};
 
 /// Convert from a [`Vec3`] to a kurbo [`Point`].
 fn vec3_to_kurbo(vector: Vec3) -> Point {
-    if vector.y != 0.0 {
+    if vector.z != 0.0 {
         warn!(
-            "Kurbo only supports 2D coordinates. Ignoring Y value: {}",
-            vector.y
+            "Kurbo only supports 2D coordinates. Ignoring Z value: {}",
+            vector.z
         );
     }
-    Point::new(f64::from(vector.x), f64::from(vector.z))
+    Point::new(f64::from(vector.x), f64::from(vector.y))
 }
 
 /// Convert from a [`CubicBezier`] to a collection of kurbo [`CubicBez`].

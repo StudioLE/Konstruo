@@ -40,11 +40,11 @@ pub fn polygon_ensure_ccw(vertices: &mut Vec<Vec3>) {
 pub fn create_square(origin: Vec3, size: f32) -> [Vec3; 5] {
     let half_size = size / 2.0;
     [
-        origin + vec3(-half_size, 0.0, -half_size),
-        origin + vec3(half_size, 0.0, -half_size),
-        origin + vec3(half_size, 0.0, half_size),
-        origin + vec3(-half_size, 0.0, half_size),
-        origin + vec3(-half_size, 0.0, -half_size),
+        origin + vec3(-half_size, -half_size, 0.0),
+        origin + vec3(half_size, -half_size, 0.0),
+        origin + vec3(half_size, half_size, 0.0),
+        origin + vec3(-half_size, half_size, 0.0),
+        origin + vec3(-half_size, -half_size, 0.0),
     ]
 }
 
@@ -52,10 +52,10 @@ pub fn create_diamond(origin: Vec3, size: f32) -> [Vec3; 5] {
     let hypotenuse = (2.0 * size.powi(2)).sqrt();
     let half = hypotenuse / 2.0;
     [
-        origin + vec3(0.0, 0.0, -half),
+        origin + vec3(0.0, -half, 0.0),
         origin + vec3(half, 0.0, 0.0),
-        origin + vec3(0.0, 0.0, half),
+        origin + vec3(0.0, half, 0.0),
         origin + vec3(-half, 0.0, 0.0),
-        origin + vec3(0.0, 0.0, -half),
+        origin + vec3(0.0, -half, 0.0),
     ]
 }

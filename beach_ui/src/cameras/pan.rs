@@ -103,13 +103,13 @@ pub fn on_input(
 fn keyboard_input(pan: &mut Mut<Pan>, keys: Res<ButtonInput<KeyCode>>) {
     if !keys.pressed(ShiftLeft) {
         if keys.pressed(KeyW) {
-            pan.in_direction(Vec3::Z * -1.0, 1.0);
+            pan.in_direction(Vec3::Y, 1.0);
         }
         if keys.pressed(KeyA) {
             pan.in_direction(Vec3::X * -1.0, 1.0);
         }
         if keys.pressed(KeyS) {
-            pan.in_direction(Vec3::Z, 1.0);
+            pan.in_direction(Vec3::Y * -1.0, 1.0);
         }
         if keys.pressed(KeyD) {
             pan.in_direction(Vec3::X, 1.0);

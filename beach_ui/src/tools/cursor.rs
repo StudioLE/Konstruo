@@ -24,7 +24,7 @@ pub fn update_cursor_position_internal(
     window: Query<&Window, With<PrimaryWindow>>,
     mut cameras: Query<(&Camera, &GlobalTransform)>,
 ) -> Option<()> {
-    let plane = InfinitePlane3d::new(Vec3::Y);
+    let plane = InfinitePlane3d::new(Vec3::Z);
     let ray = get_ray(window, &mut cameras)?;
     let distance = ray.intersect_plane(Vec3::ZERO, plane)?;
     let position = ray.get_point(distance);

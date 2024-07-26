@@ -40,6 +40,8 @@ pub fn insert_materials(mut commands: Commands, mut materials: ResMut<Assets<Sta
             base_color: basic::WHITE.into(),
             alpha_mode: AlphaMode::Opaque,
             depth_bias: -1.0,
+            double_sided: true,
+            cull_mode: None,
             ..Default::default()
         }),
     });

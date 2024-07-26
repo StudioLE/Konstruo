@@ -54,6 +54,10 @@ pub fn draw_origin_gizmo(gizmos: Gizmos<Gizmos700>) {
     draw_axis_gizmo(gizmos, Vec3::ZERO, ORIGIN_LENGTH);
 }
 
+pub fn draw_positive_gizmo(gizmos: Gizmos<Gizmos700>) {
+    draw_axis_gizmo(gizmos, Vec3::new(10.0,10.0,10.0), 10.0);
+}
+
 pub fn draw_cursor_gizmo(gizmos: Gizmos<Gizmos700>, cursor: Res<Cursor>) {
     draw_axis_gizmo(gizmos, cursor.position, CURSOR_LENGTH);
 }

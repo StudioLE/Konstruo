@@ -30,10 +30,10 @@ pub fn spawn_grid(
     let mut vertices = [Vec::new(), Vec::new(), Vec::new()];
     for i in range {
         let x = i as f32;
-        let start_x = vec3(min + x, 0.0, min);
-        let end_x = vec3(min + x, 0.0, max);
-        let start_z = vec3(min, 0.0, min + x);
-        let end_z = vec3(max, 0.0, min + x);
+        let start_x = vec3(min + x, min, 0.0);
+        let end_x = vec3(min + x, max, 0.0);
+        let start_z = vec3(min, min + x, 0.0);
+        let end_z = vec3(max, min + x, 0.0);
         if i % SPACING[2] == 0 {
             vertices[2].push(start_x);
             vertices[2].push(end_x);

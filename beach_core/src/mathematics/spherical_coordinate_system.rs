@@ -13,8 +13,8 @@ impl SphericalCoordinateSystem {
     /// Convert from spherical to cartesian coordinates.
     pub fn spherical_to_cartesian(radius: f32, polar: f32, azimuth: f32) -> Vec3 {
         let x = radius * azimuth.sin() * polar.sin();
-        let y = radius * polar.cos();
-        let z = radius * azimuth.cos() * polar.sin();
+        let y = radius * azimuth.cos() * polar.sin();
+        let z = radius * polar.cos();
         Vec3::new(x, y, z)
     }
 

@@ -22,12 +22,12 @@ pub enum Side {
 impl Side {
     pub fn get_vector(&self) -> Vec3 {
         match self {
-            Side::Front => Vec3::NEG_Z,
-            Side::Back => Vec3::Z,
+            Side::Front => Vec3::NEG_Y,
+            Side::Back => Vec3::Y,
             Side::Left => Vec3::NEG_X,
             Side::Right => Vec3::X,
-            Side::Top => Vec3::Y,
-            Side::Bottom => Vec3::NEG_Y,
+            Side::Top => Vec3::Z,
+            Side::Bottom => Vec3::NEG_Z,
         }
     }
 }

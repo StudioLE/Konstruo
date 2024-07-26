@@ -21,7 +21,7 @@ impl WayControl {
 
     pub fn get_rotation(&self) -> Quat {
         let angle = self.vector.angle_between(Vec3::X);
-        Quat::from_axis_angle(-Vec3::Y, angle)
+        Quat::from_axis_angle(Vec3::Z, angle)
     }
 }
 
