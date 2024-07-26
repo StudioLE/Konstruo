@@ -7,7 +7,6 @@ use crate::tools::grid::spawn_grid;
 use bevy::app::{App, Startup, Update};
 use bevy::gizmos::AppGizmoBuilder;
 
-pub mod axis_gizmo;
 pub mod cursor;
 pub mod gizmos;
 pub mod grid;
