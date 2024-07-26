@@ -131,8 +131,8 @@ pub fn on_input(
     mouse_button_input(&mut orbit, buttons);
     if left_shift_pressed {
         mouse_motion_input(&mut orbit, motion_event);
-        scroll_wheel_input(&mut orbit, wheel_event);
     }
+    scroll_wheel_input(&mut orbit, wheel_event);
 }
 
 fn keyboard_input(orbit: &mut Mut<Orbit>, keys: Res<ButtonInput<KeyCode>>) {
