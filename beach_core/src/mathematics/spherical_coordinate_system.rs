@@ -11,8 +11,8 @@ pub const AZIMUTHAL_AXIS: Vec3 = Vec3::new(0.0, 0.0, 1.0);
 /// Convert from spherical to cartesian coordinates.
 /// <https://mathworld.wolfram.com/SphericalCoordinates.html>
 pub fn spherical_to_cartesian(radius: f32, polar: f32, azimuth: f32) -> Vec3 {
-    let x = radius * azimuth.sin() * polar.sin();
-    let y = radius * azimuth.cos() * polar.sin();
+    let x = radius * polar.sin() * azimuth.cos();
+    let y = radius * polar.sin() * azimuth.sin();
     let z = radius * polar.cos();
     Vec3::new(fix_floating(x), fix_floating(y), fix_floating(z))
 }
@@ -69,11 +69,11 @@ mod tests {
     fn _spherical_to_cartesian__azimuth() {
         assert_eq!(
             spherical_to_cartesian(1.0, QUARTER_PI, -QUARTER_PI),
-            Vec3::new(-0.5, 0.5, ONE_OVER_ROOT_2)
+            Vec3::new(0.5, -0.5, ONE_OVER_ROOT_2)
         );
         assert_eq!(
             spherical_to_cartesian(1.0, QUARTER_PI, 0.0),
-            Vec3::new(0.0, ONE_OVER_ROOT_2, ONE_OVER_ROOT_2)
+            Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2)
         );
         assert_eq!(
             spherical_to_cartesian(1.0, QUARTER_PI, QUARTER_PI),
@@ -81,19 +81,19 @@ mod tests {
         );
         assert_eq!(
             spherical_to_cartesian(1.0, QUARTER_PI, HALF_PI),
-            Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2)
+            Vec3::new(0.0, ONE_OVER_ROOT_2, ONE_OVER_ROOT_2)
         );
         assert_eq!(
             spherical_to_cartesian(1.0, QUARTER_PI, PI),
-            Vec3::new(0.0, -ONE_OVER_ROOT_2, ONE_OVER_ROOT_2)
-        );
-        assert_eq!(
-            spherical_to_cartesian(1.0, QUARTER_PI, PI + HALF_PI),
             Vec3::new(-ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2)
         );
         assert_eq!(
+            spherical_to_cartesian(1.0, QUARTER_PI, PI + HALF_PI),
+            Vec3::new(0.0, -ONE_OVER_ROOT_2, ONE_OVER_ROOT_2)
+        );
+        assert_eq!(
             spherical_to_cartesian(1.0, QUARTER_PI, TWO_PI),
-            Vec3::new(0.0, ONE_OVER_ROOT_2, ONE_OVER_ROOT_2)
+            Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2)
         );
     }
 

@@ -60,19 +60,16 @@ impl Orbit {
 
     /// Get the position relative to the origin.
     fn get_position(&self) -> Vec3 {
-        let mut position = spherical_to_cartesian(
+        spherical_to_cartesian(
             self.get_radius(),
             self.get_polar(),
             self.get_azimuth(),
-        );
-        position.x *= -1.0;
-        position.y *= -1.0;
-        position
+        )
     }
 
     /// Get the rotation looking to the origin.
     fn get_rotation(&self) -> Quat {
-        let z = (self.get_azimuth()) * -1.0;
+        let z = self.get_azimuth() + HALF_PI;
         let x = self.get_polar();
         Quat::from_euler(EulerRot::ZXY, z, x, 0.0)
     }
@@ -91,7 +88,7 @@ impl Orbit {
     fn in_direction_of_motion(&mut self, mouse: MouseMotion) {
         let direction = mouse.delta.normalize();
         let polar = direction.y * -1.0 * 0.1;
-        let azimuthal = direction.x * 0.04;
+        let azimuthal = direction.x * -1.0 * 0.04;
         let displacement = Vec3::new(0.0, polar, azimuthal);
         self.movement.set_target_relative_to_position(displacement);
     }
@@ -141,13 +138,13 @@ fn keyboard_input(orbit: &mut Mut<Orbit>, keys: Res<ButtonInput<KeyCode>>) {
             orbit.in_direction(POLAR_AXIS * -1.0, 0.1);
         }
         if keys.pressed(KeyA) {
-            orbit.in_direction(AZIMUTHAL_AXIS, 0.1);
+            orbit.in_direction(AZIMUTHAL_AXIS * -1.0, 0.1);
         }
         if keys.pressed(KeyS) {
             orbit.in_direction(POLAR_AXIS, 0.1);
         }
         if keys.pressed(KeyD) {
-            orbit.in_direction(AZIMUTHAL_AXIS * -1.0, 0.1);
+            orbit.in_direction(AZIMUTHAL_AXIS, 0.1);
         }
     }
     if keys.any_just_released([KeyW, KeyA, KeyS, KeyD, Equal, Minus]) {
