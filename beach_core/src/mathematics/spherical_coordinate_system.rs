@@ -25,7 +25,11 @@ pub fn cartesian_to_spherical(vector: Vec3) -> Vec3 {
     let radius = (vector.x.powi(2) + vector.y.powi(2) + vector.z.powi(2)).sqrt();
     let polar = (vector.z / radius).acos();
     let azimuth = vector.y.atan2(vector.x);
-    Vec3::new(fix_floating(radius), fix_floating(polar), fix_floating(azimuth))
+    Vec3::new(
+        fix_floating(radius),
+        fix_floating(polar),
+        fix_floating(azimuth),
+    )
 }
 
 /// Get the cartesian rotation of spherical coordinates.
@@ -102,10 +106,10 @@ mod tests {
         assert_eq!(
             cartesian_to_spherical(Vec3::new(0.0, ONE_OVER_ROOT_2, ONE_OVER_ROOT_2)),
             // Vec3::new(1.0, QUARTER_PI, 0.0)
-            Vec3::new(1.0, QUARTER_PI, HALF_PI)            
+            Vec3::new(1.0, QUARTER_PI, HALF_PI)
         );
         assert_eq!(
-            cartesian_to_spherical(Vec3::new(ONE_OVER_ROOT_2,0.0, ONE_OVER_ROOT_2)),
+            cartesian_to_spherical(Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2)),
             // Vec3::new(1.0, QUARTER_PI, HALF_PI)
             Vec3::new(1.0, QUARTER_PI, 0.0)
         );
@@ -115,11 +119,10 @@ mod tests {
             Vec3::new(1.0, QUARTER_PI, -HALF_PI)
         );
         assert_eq!(
-            cartesian_to_spherical(Vec3::new(-ONE_OVER_ROOT_2,0.0, ONE_OVER_ROOT_2)),
+            cartesian_to_spherical(Vec3::new(-ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2)),
             // Vec3::new(1.0, QUARTER_PI, PI + HALF_PI)
             // Vec3::new(1.0, QUARTER_PI, 0.0)
-            Vec3::new(1.0, QUARTER_PI, PI)
-            // TODO: Incorrect quadrant
+            Vec3::new(1.0, QUARTER_PI, PI) // TODO: Incorrect quadrant
         );
     }
 

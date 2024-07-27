@@ -60,7 +60,7 @@ pub fn fix_floating(value: f32) -> f32 {
         value
     } else if let Some(value) = is_almost_fractional_root_two(value) {
         value
-    }  else {
+    } else {
         round_to(value, EPSILON)
     }
 }

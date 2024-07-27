@@ -1,6 +1,3 @@
-use bevy::prelude::*;
-use bevy::render::view::{Layer, RenderLayers};
-use bevy_mod_picking::DefaultPickingPlugins;
 use crate::axis_marker::axis_marker::AxisMarker;
 use crate::view_cube::corner::spawn_corners;
 use crate::view_cube::edge::spawn_edges;
@@ -8,6 +5,9 @@ use crate::view_cube::materials::insert_materials;
 use crate::view_cube::meshes::insert_meshes;
 use crate::view_cube::orthographic_camera::{on_orbit_changed, spawn_camera};
 use crate::view_cube::side::spawn_sides;
+use bevy::prelude::*;
+use bevy::render::view::{Layer, RenderLayers};
+use bevy_mod_picking::DefaultPickingPlugins;
 
 mod camera;
 mod corner;

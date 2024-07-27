@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use crate::mathematics::floats::fix_floating;
+use bevy::prelude::*;
 
 pub fn is_almost_zero(vector: Vec3) -> bool {
     vector.abs_diff_eq(Vec3::ZERO, f32::EPSILON)

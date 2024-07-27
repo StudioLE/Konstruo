@@ -60,11 +60,7 @@ impl Orbit {
 
     /// Get the position relative to the origin.
     fn get_position(&self) -> Vec3 {
-        spherical_to_cartesian(
-            self.get_radius(),
-            self.get_polar(),
-            self.get_azimuth(),
-        )
+        spherical_to_cartesian(self.get_radius(), self.get_polar(), self.get_azimuth())
     }
 
     /// Get the rotation looking to the origin.
