@@ -1,5 +1,4 @@
 use crate::cameras::orbit::Orbit;
-use crate::view_cube::corner::ViewCorner;
 use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::RENDER_LAYER;
