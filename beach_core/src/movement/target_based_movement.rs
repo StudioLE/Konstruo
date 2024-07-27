@@ -45,9 +45,9 @@ impl TargetBasedMovement {
 
     /// Set the target position
     ///
-    /// Constraints are NOT applied to which can lead to infinite movement.
+    /// Position is clamped to the constraints.
     pub fn set_target(&mut self, target: Vec3) {
-        // target = self.position_clamp.clamp(target);
+        let target = self.clamp.clamp(target);
         if is_almost_equal_to(self.current, target) {
             self.remove_target();
         } else {
