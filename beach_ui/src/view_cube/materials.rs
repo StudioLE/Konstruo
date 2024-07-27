@@ -13,27 +13,27 @@ pub struct ViewCubeMaterials {
 pub fn insert_materials(mut commands: Commands, mut materials: ResMut<Assets<StandardMaterial>>) {
     commands.insert_resource(ViewCubeMaterials {
         side: materials.add(StandardMaterial {
-            emissive: tailwind::NEUTRAL_700.into(),
-            base_color: tailwind::NEUTRAL_700.into(),
-            alpha_mode: AlphaMode::Opaque,
+            emissive: tailwind::GRAY_600.with_alpha(0.6).into(),
+            base_color: tailwind::GRAY_600.with_alpha(0.6).into(),
+            alpha_mode: AlphaMode::Blend,
             ..Default::default()
         }),
         edge: materials.add(StandardMaterial {
-            emissive: tailwind::NEUTRAL_600.into(),
-            base_color: tailwind::NEUTRAL_600.into(),
-            alpha_mode: AlphaMode::Opaque,
+            emissive: tailwind::GRAY_600.with_alpha(0.8).into(),
+            base_color: tailwind::GRAY_600.with_alpha(0.8).into(),
+            alpha_mode: AlphaMode::Blend,
             ..Default::default()
         }),
         corner: materials.add(StandardMaterial {
-            emissive: tailwind::NEUTRAL_700.into(),
-            base_color: tailwind::NEUTRAL_700.into(),
-            alpha_mode: AlphaMode::Opaque,
+            emissive: tailwind::GRAY_600.with_alpha(0.6).into(),
+            base_color: tailwind::GRAY_600.with_alpha(0.6).into(),
+            alpha_mode: AlphaMode::Blend,
             ..Default::default()
         }),
         corner_over: materials.add(StandardMaterial {
             emissive: tailwind::BLUE_700.into(),
             base_color: tailwind::BLUE_700.into(),
-            alpha_mode: AlphaMode::Opaque,
+            alpha_mode: AlphaMode::Blend,
             ..Default::default()
         }),
     });
