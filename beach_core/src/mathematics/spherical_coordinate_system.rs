@@ -19,12 +19,12 @@ pub fn spherical_to_cartesian(radius: f32, polar: f32, azimuth: f32) -> Vec3 {
 
 /// Convert from cartesian to spherical coordinates.
 /// <https://mathworld.wolfram.com/SphericalCoordinates.html>
+/// Uses atan2 because programming is superior to mathematics:
+/// <https://en.wikipedia.org/wiki/Atan2>
 pub fn cartesian_to_spherical(vector: Vec3) -> Vec3 {
     let radius = (vector.x.powi(2) + vector.y.powi(2) + vector.z.powi(2)).sqrt();
     let polar = (vector.z / radius).acos();
-    let angle = vector.y / vector.x;
-    eprintln!("angle: {}", angle);
-    let azimuth = angle.atan();
+    let azimuth = vector.y.atan2(vector.x);
     Vec3::new(fix_floating(radius), fix_floating(polar), fix_floating(azimuth))
 }
 
@@ -117,7 +117,8 @@ mod tests {
         assert_eq!(
             cartesian_to_spherical(Vec3::new(-ONE_OVER_ROOT_2,0.0, ONE_OVER_ROOT_2)),
             // Vec3::new(1.0, QUARTER_PI, PI + HALF_PI)
-            Vec3::new(1.0, QUARTER_PI, 0.0)
+            // Vec3::new(1.0, QUARTER_PI, 0.0)
+            Vec3::new(1.0, QUARTER_PI, PI)
             // TODO: Incorrect quadrant
         );
     }
