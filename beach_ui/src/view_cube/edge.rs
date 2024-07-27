@@ -1,7 +1,10 @@
+use crate::cameras::orbit::Orbit;
+use crate::view_cube::corner::ViewCorner;
 use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::side::{Side, ViewSide};
 use crate::view_cube::RENDER_LAYER;
+use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::asset::Handle;
 use bevy::log::info;
 use bevy::math::Vec3;
@@ -10,9 +13,6 @@ use bevy::prelude::{Commands, Component, Mesh, Query, Res, Transform};
 use bevy::render::view::RenderLayers;
 use bevy_mod_picking::events::{Click, Out, Over, Pointer};
 use bevy_mod_picking::prelude::{Listener, On};
-use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
-use crate::cameras::orbit::Orbit;
-use crate::view_cube::corner::ViewCorner;
 
 #[derive(Component)]
 pub struct ViewEdge {
@@ -109,12 +109,7 @@ fn on_pointer_click(
     let mut spherical = cartesian_to_spherical(vector);
     spherical.x = orbit.movement.current.x;
     orbit.movement.set_target(spherical);
-    info!(
-        "Side {:?} {:?}",
-        edge.sides[0],
-        edge.sides[1]
-    );
+    info!("Side {:?} {:?}", edge.sides[0], edge.sides[1]);
     info!("Cartesian {:?}", vector);
     info!("Spherical {:?}", spherical);
 }
-
