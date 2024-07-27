@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::cameras::orbit::Orbit;
 use crate::view_cube::camera::ViewCubeCamera;
-use crate::view_cube::RENDER_LAYER;;
+use crate::view_cube::RENDER_LAYER;
 use bevy::prelude::Projection::Perspective;
 use bevy::prelude::*;
 use bevy::render::camera::Viewport;
