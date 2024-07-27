@@ -1,8 +1,13 @@
+use crate::cameras::orbit::Orbit;
+use crate::view_cube::corner::ViewCorner;
 use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::RENDER_LAYER;
+use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
+use bevy_mod_picking::events::{Click, Out, Over, Pointer};
+use bevy_mod_picking::prelude::{Listener, On};
 
 #[derive(Component)]
 pub struct ViewSide {
@@ -49,7 +54,10 @@ pub fn spawn_sides(
     for side in sides {
         let bundle = create_view_side(meshes.side.clone(), materials.side.clone(), &side);
         let layer = RenderLayers::layer(RENDER_LAYER);
-        commands.spawn((bundle, layer, ViewSide { side }));
+        let over = On::<Pointer<Over>>::run(on_pointer_over);
+        let out = On::<Pointer<Out>>::run(on_pointer_out);
+        let click = On::<Pointer<Click>>::run(on_pointer_click);
+        commands.spawn((bundle, layer, over, out, click, ViewSide { side }));
     }
 }
 
@@ -67,4 +75,45 @@ fn create_view_side(
         transform,
         ..Default::default()
     }
+}
+
+fn on_pointer_over(
+    mut commands: Commands,
+    event: Listener<Pointer<Over>>,
+    materials: Res<ViewCubeMaterials>,
+) {
+    commands
+        .entity(event.target)
+        .insert(materials.corner_over.clone());
+}
+
+fn on_pointer_out(
+    mut commands: Commands,
+    event: Listener<Pointer<Out>>,
+    materials: Res<ViewCubeMaterials>,
+) {
+    commands
+        .entity(event.target)
+        .insert(materials.corner.clone());
+}
+
+fn on_pointer_click(
+    event: Listener<Pointer<Click>>,
+    side: Query<&ViewSide>,
+    mut orbit: Query<&mut Orbit>,
+) {
+    let side = side.get(event.target).expect("entity should exist");
+    let Ok(mut orbit) = orbit.get_single_mut() else {
+        return;
+    };
+    let vector = side.side.get_vector();
+    let mut spherical = cartesian_to_spherical(vector);
+    spherical.x = orbit.movement.current.x;
+    orbit.movement.set_target(spherical);
+    info!(
+        "Side {:?}",
+        side.side
+    );
+    info!("Cartesian {:?}", vector);
+    info!("Spherical {:?}", spherical);
 }

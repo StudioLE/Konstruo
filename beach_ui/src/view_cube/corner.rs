@@ -103,10 +103,4 @@ fn on_pointer_click(
     let mut spherical = cartesian_to_spherical(vector);
     spherical.x = orbit.movement.current.x;
     orbit.movement.set_target(spherical);
-    info!(
-        "Sides {:?} {:?} {:?}",
-        corner.sides[0], corner.sides[1], corner.sides[2]
-    );
-    info!("Cartesian {:?}", vector);
-    info!("Spherical {:?}", spherical);
 }
