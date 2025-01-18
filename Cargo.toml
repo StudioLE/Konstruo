@@ -10,7 +10,6 @@ members = [
 
 [workspace.dependencies]
 bevy = { version = "0.15.1", features = ["dynamic_linking"] }
-bevy_mod_picking = "0.20.1"
 kurbo = "0.11.0"
 lazy_static = "1.5.0"
 

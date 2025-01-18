@@ -6,7 +6,6 @@ use crate::view_cube::RENDER_LAYER;
 use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
-use bevy_mod_picking::prelude::*;
 
 #[derive(Component)]
 pub struct ViewCorner {
@@ -41,18 +40,11 @@ pub fn spawn_corners(
     for corner in corners {
         let bundle = create_corner(meshes.corner.clone(), materials.corner.clone(), &corner);
         let layer = RenderLayers::layer(RENDER_LAYER);
-        // TODO: Implement v0.15 picking
-        // let over = On::<Pointer<Over>>::run(on_pointer_over);
-        // let out = On::<Pointer<Out>>::run(on_pointer_out);
-        // let click = On::<Pointer<Click>>::run(on_pointer_click);
-        commands.spawn((
-            bundle,
-            layer,
-            // over,
-            // out,
-            // click,
-            ViewCorner { sides: corner },
-        ));
+        commands
+            .spawn((bundle, layer, ViewCorner { sides: corner }))
+            .observe(on_pointer_over)
+            .observe(on_pointer_out)
+            .observe(on_pointer_click);
     }
 }
 fn create_corner(
@@ -71,36 +63,41 @@ fn create_corner(
     }
 }
 
-#[cfg(ignore)]
 fn on_pointer_over(
-    mut commands: Commands,
-    event: Listener<Pointer<Over>>,
+    event: Trigger<Pointer<Over>>,
     materials: Res<ViewCubeMaterials>,
+    mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    commands
-        .entity(event.target)
-        .insert(MeshMaterial3d(materials.corner_over.clone()));
+    let Ok(mut material) = query.get_mut(event.entity()) else {
+        error!("Failed to get material of ViewCorner");
+        return;
+    };
+    *material = MeshMaterial3d(materials.corner_over.clone());
 }
 
-#[cfg(ignore)]
 fn on_pointer_out(
-    mut commands: Commands,
-    event: Listener<Pointer<Out>>,
+    event: Trigger<Pointer<Out>>,
     materials: Res<ViewCubeMaterials>,
+    mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    commands
-        .entity(event.target)
-        .insert(MeshMaterial3d(materials.corner.clone()));
+    let Ok(mut material) = query.get_mut(event.entity()) else {
+        error!("Failed to get material of ViewCorner");
+        return;
+    };
+    *material = MeshMaterial3d(materials.corner.clone());
 }
 
-#[cfg(ignore)]
 fn on_pointer_click(
-    event: Listener<Pointer<Click>>,
+    event: Trigger<Pointer<Click>>,
     corner: Query<&ViewCorner>,
     mut orbit: Query<&mut Orbit>,
 ) {
-    let corner = corner.get(event.target).expect("entity should exist");
+    let Ok(corner) = corner.get(event.entity()) else {
+        error!("Failed to get clicked ViewCorner");
+        return;
+    };
     let Ok(mut orbit) = orbit.get_single_mut() else {
+        error!("Failed to get Orbit");
         return;
     };
     let vector = corner.get_vector();

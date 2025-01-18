@@ -5,8 +5,6 @@ use crate::view_cube::RENDER_LAYER;
 use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
-use bevy_mod_picking::events::{Click, Out, Over, Pointer};
-use bevy_mod_picking::prelude::{Listener, On};
 
 #[derive(Component)]
 pub struct ViewSide {
@@ -53,10 +51,11 @@ pub fn spawn_sides(
     for side in sides {
         let bundle = create_view_side(meshes.side.clone(), materials.side.clone(), &side);
         let layer = RenderLayers::layer(RENDER_LAYER);
-        // let over = On::<Pointer<Over>>::run(on_pointer_over);
-        // let out = On::<Pointer<Out>>::run(on_pointer_out);
-        // let click = On::<Pointer<Click>>::run(on_pointer_click);
-        commands.spawn((bundle, layer, /*over, out, click,*/ ViewSide { side }));
+        commands
+            .spawn((bundle, layer, /*over, out, click,*/ ViewSide { side }))
+            .observe(on_pointer_over)
+            .observe(on_pointer_out)
+            .observe(on_pointer_click);
     }
 }
 
@@ -76,36 +75,41 @@ fn create_view_side(
     }
 }
 
-#[cfg(ignore)]
 fn on_pointer_over(
-    mut commands: Commands,
-    event: Listener<Pointer<Over>>,
+    event: Trigger<Pointer<Over>>,
     materials: Res<ViewCubeMaterials>,
+    mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    commands
-        .entity(event.target)
-        .insert(MeshMaterial3d(materials.corner_over.clone()));
+    let Ok(mut material) = query.get_mut(event.entity()) else {
+        error!("Failed to get material of ViewSide");
+        return;
+    };
+    *material = MeshMaterial3d(materials.corner_over.clone());
 }
 
-#[cfg(ignore)]
 fn on_pointer_out(
-    mut commands: Commands,
-    event: Listener<Pointer<Out>>,
+    event: Trigger<Pointer<Out>>,
     materials: Res<ViewCubeMaterials>,
+    mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    commands
-        .entity(event.target)
-        .insert(materials.corner.clone());
+    let Ok(mut material) = query.get_mut(event.entity()) else {
+        error!("Failed to get material of ViewSide");
+        return;
+    };
+    *material = MeshMaterial3d(materials.corner.clone());
 }
 
-#[cfg(ignore)]
 fn on_pointer_click(
-    event: Listener<Pointer<Click>>,
+    event: Trigger<Pointer<Click>>,
     side: Query<&ViewSide>,
     mut orbit: Query<&mut Orbit>,
 ) {
-    let side = side.get(event.target).expect("entity should exist");
+    let Ok(side) = side.get(event.entity()) else {
+        error!("Failed to get clicked ViewSide");
+        return;
+    };
     let Ok(mut orbit) = orbit.get_single_mut() else {
+        error!("Failed to get Orbit");
         return;
     };
     let vector = side.side.get_vector();

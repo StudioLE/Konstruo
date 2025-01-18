@@ -7,7 +7,6 @@ use crate::view_cube::orthographic_camera::{on_orbit_changed, spawn_camera};
 use crate::view_cube::side::spawn_sides;
 use bevy::prelude::*;
 use bevy::render::view::{Layer, RenderLayers};
-use bevy_mod_picking::DefaultPickingPlugins;
 
 mod camera;
 mod corner;
@@ -29,8 +28,8 @@ pub fn view_cube_plugin(app: &mut App) {
         .add_systems(PostStartup, spawn_sides)
         .add_systems(PostStartup, spawn_edges)
         .add_systems(PostStartup, spawn_corners)
-        .add_systems(Update, on_orbit_changed);
-        // .add_plugins(DefaultPickingPlugins);
+        .add_systems(Update, on_orbit_changed)
+        .add_plugins(MeshPickingPlugin);
 }
 
 pub fn spawn_axis_marker(mut commands: Commands) {

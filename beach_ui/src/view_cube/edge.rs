@@ -8,10 +8,8 @@ use bevy::asset::Handle;
 use bevy::log::info;
 use bevy::math::Vec3;
 use bevy::pbr::{MeshMaterial3d, PbrBundle, StandardMaterial};
-use bevy::prelude::{Commands, Component, Mesh, Mesh3d, Query, Res, Transform};
+use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
-use bevy_mod_picking::events::{Click, Out, Over, Pointer};
-use bevy_mod_picking::prelude::{Listener, On};
 
 #[derive(Component)]
 pub struct ViewEdge {
@@ -50,11 +48,11 @@ pub fn spawn_edges(
     for edge in edges {
         let bundle = create_edge(meshes.edge.clone(), materials.edge.clone(), &edge);
         let layer = RenderLayers::layer(RENDER_LAYER);
-        // TODO: Implement bevy 0.15 picking
-        // let over = On::<Pointer<Over>>::run(on_pointer_over);
-        // let out = On::<Pointer<Out>>::run(on_pointer_out);
-        // let click = On::<Pointer<Click>>::run(on_pointer_click);
-        commands.spawn((bundle, layer, /*over, out, click,*/ ViewEdge { sides: edge }));
+        commands
+            .spawn((bundle, layer, ViewEdge { sides: edge }))
+            .observe(on_pointer_over)
+            .observe(on_pointer_out)
+            .observe(on_pointer_click);
     }
 }
 
@@ -76,36 +74,41 @@ fn create_edge(
     }
 }
 
-#[cfg(ignore)]
 fn on_pointer_over(
-    mut commands: Commands,
-    event: Listener<Pointer<Over>>,
+    event: Trigger<Pointer<Over>>,
     materials: Res<ViewCubeMaterials>,
+    mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    commands
-        .entity(event.target)
-        .insert(MeshMaterial3d(materials.corner_over.clone()));
+    let Ok(mut material) = query.get_mut(event.entity()) else {
+        error!("Failed to get material of ViewEdge");
+        return;
+    };
+    *material = MeshMaterial3d(materials.edge_over.clone());
 }
 
-#[cfg(ignore)]
 fn on_pointer_out(
-    mut commands: Commands,
-    event: Listener<Pointer<Out>>,
+    event: Trigger<Pointer<Out>>,
     materials: Res<ViewCubeMaterials>,
+    mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    commands
-        .entity(event.target)
-        .insert(materials.corner.clone());
+    let Ok(mut material) = query.get_mut(event.entity()) else {
+        error!("Failed to get material of ViewEdge");
+        return;
+    };
+    *material = MeshMaterial3d(materials.edge.clone());
 }
 
-#[cfg(ignore)]
 fn on_pointer_click(
-    event: Listener<Pointer<Click>>,
+    event: Trigger<Pointer<Click>>,
     edge: Query<&ViewEdge>,
     mut orbit: Query<&mut Orbit>,
 ) {
-    let edge = edge.get(event.target).expect("entity should exist");
+    let Ok(edge) = edge.get(event.entity()) else {
+        error!("Failed to get clicked ViewEdge");
+        return;
+    };
     let Ok(mut orbit) = orbit.get_single_mut() else {
+        error!("Failed to get Orbit");
         return;
     };
     let vector = edge.get_vector();
