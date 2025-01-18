@@ -66,21 +66,18 @@ pub fn draw_grid(
     let color = basic::WHITE.with_alpha(0.1);
     // TODO: Visibility by zoom level
     thin.grid(
-        Vec3::ZERO,
         Quat::from_rotation_x(PI / 2.0),
         UVec2::splat(1000),
         Vec2::splat(1.0),
         color,
     );
     medium.grid(
-        Vec3::ZERO,
         Quat::from_rotation_x(PI / 2.0),
         UVec2::splat(100),
         Vec2::splat(10.0),
         color,
     );
     thick.grid(
-        Vec3::ZERO,
         Quat::from_rotation_x(PI / 2.0),
         UVec2::splat(10),
         Vec2::splat(100.0),

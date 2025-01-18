@@ -53,10 +53,10 @@ pub fn spawn_sides(
     for side in sides {
         let bundle = create_view_side(meshes.side.clone(), materials.side.clone(), &side);
         let layer = RenderLayers::layer(RENDER_LAYER);
-        let over = On::<Pointer<Over>>::run(on_pointer_over);
-        let out = On::<Pointer<Out>>::run(on_pointer_out);
-        let click = On::<Pointer<Click>>::run(on_pointer_click);
-        commands.spawn((bundle, layer, over, out, click, ViewSide { side }));
+        // let over = On::<Pointer<Over>>::run(on_pointer_over);
+        // let out = On::<Pointer<Out>>::run(on_pointer_out);
+        // let click = On::<Pointer<Click>>::run(on_pointer_click);
+        commands.spawn((bundle, layer, /*over, out, click,*/ ViewSide { side }));
     }
 }
 
@@ -69,13 +69,14 @@ fn create_view_side(
     let mut transform = Transform::from_translation(side.get_vector() * 0.4);
     transform.look_at(Vec3::ZERO, vector.normalize());
     PbrBundle {
-        mesh,
-        material,
+        mesh: Mesh3d(mesh),
+        material: MeshMaterial3d(material),
         transform,
         ..Default::default()
     }
 }
 
+#[cfg(ignore)]
 fn on_pointer_over(
     mut commands: Commands,
     event: Listener<Pointer<Over>>,
@@ -83,9 +84,10 @@ fn on_pointer_over(
 ) {
     commands
         .entity(event.target)
-        .insert(materials.corner_over.clone());
+        .insert(MeshMaterial3d(materials.corner_over.clone()));
 }
 
+#[cfg(ignore)]
 fn on_pointer_out(
     mut commands: Commands,
     event: Listener<Pointer<Out>>,
@@ -96,6 +98,7 @@ fn on_pointer_out(
         .insert(materials.corner.clone());
 }
 
+#[cfg(ignore)]
 fn on_pointer_click(
     event: Listener<Pointer<Click>>,
     side: Query<&ViewSide>,

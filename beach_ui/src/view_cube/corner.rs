@@ -41,15 +41,16 @@ pub fn spawn_corners(
     for corner in corners {
         let bundle = create_corner(meshes.corner.clone(), materials.corner.clone(), &corner);
         let layer = RenderLayers::layer(RENDER_LAYER);
-        let over = On::<Pointer<Over>>::run(on_pointer_over);
-        let out = On::<Pointer<Out>>::run(on_pointer_out);
-        let click = On::<Pointer<Click>>::run(on_pointer_click);
+        // TODO: Implement v0.15 picking
+        // let over = On::<Pointer<Over>>::run(on_pointer_over);
+        // let out = On::<Pointer<Out>>::run(on_pointer_out);
+        // let click = On::<Pointer<Click>>::run(on_pointer_click);
         commands.spawn((
             bundle,
             layer,
-            over,
-            out,
-            click,
+            // over,
+            // out,
+            // click,
             ViewCorner { sides: corner },
         ));
     }
@@ -63,13 +64,14 @@ fn create_corner(
         .iter()
         .fold(Vec3::ZERO, |acc, side| acc + side.get_vector());
     PbrBundle {
-        mesh,
-        material,
+        mesh: Mesh3d(mesh),
+        material: MeshMaterial3d(material),
         transform: Transform::from_translation(vector * 0.4),
         ..Default::default()
     }
 }
 
+#[cfg(ignore)]
 fn on_pointer_over(
     mut commands: Commands,
     event: Listener<Pointer<Over>>,
@@ -77,9 +79,10 @@ fn on_pointer_over(
 ) {
     commands
         .entity(event.target)
-        .insert(materials.corner_over.clone());
+        .insert(MeshMaterial3d(materials.corner_over.clone()));
 }
 
+#[cfg(ignore)]
 fn on_pointer_out(
     mut commands: Commands,
     event: Listener<Pointer<Out>>,
@@ -87,9 +90,10 @@ fn on_pointer_out(
 ) {
     commands
         .entity(event.target)
-        .insert(materials.corner.clone());
+        .insert(MeshMaterial3d(materials.corner.clone()));
 }
 
+#[cfg(ignore)]
 fn on_pointer_click(
     event: Listener<Pointer<Click>>,
     corner: Query<&ViewCorner>,

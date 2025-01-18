@@ -7,8 +7,8 @@ use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical
 use bevy::asset::Handle;
 use bevy::log::info;
 use bevy::math::Vec3;
-use bevy::pbr::{PbrBundle, StandardMaterial};
-use bevy::prelude::{Commands, Component, Mesh, Query, Res, Transform};
+use bevy::pbr::{MeshMaterial3d, PbrBundle, StandardMaterial};
+use bevy::prelude::{Commands, Component, Mesh, Mesh3d, Query, Res, Transform};
 use bevy::render::view::RenderLayers;
 use bevy_mod_picking::events::{Click, Out, Over, Pointer};
 use bevy_mod_picking::prelude::{Listener, On};
@@ -50,10 +50,11 @@ pub fn spawn_edges(
     for edge in edges {
         let bundle = create_edge(meshes.edge.clone(), materials.edge.clone(), &edge);
         let layer = RenderLayers::layer(RENDER_LAYER);
-        let over = On::<Pointer<Over>>::run(on_pointer_over);
-        let out = On::<Pointer<Out>>::run(on_pointer_out);
-        let click = On::<Pointer<Click>>::run(on_pointer_click);
-        commands.spawn((bundle, layer, over, out, click, ViewEdge { sides: edge }));
+        // TODO: Implement bevy 0.15 picking
+        // let over = On::<Pointer<Over>>::run(on_pointer_over);
+        // let out = On::<Pointer<Out>>::run(on_pointer_out);
+        // let click = On::<Pointer<Click>>::run(on_pointer_click);
+        commands.spawn((bundle, layer, /*over, out, click,*/ ViewEdge { sides: edge }));
     }
 }
 
@@ -68,13 +69,14 @@ fn create_edge(
     let mut transform = Transform::from_translation(vector * 0.4);
     transform.scale = Vec3::splat(0.6) - vector.abs() * 0.4;
     PbrBundle {
-        mesh,
-        material,
+        mesh: Mesh3d(mesh),
+        material: MeshMaterial3d(material),
         transform,
         ..Default::default()
     }
 }
 
+#[cfg(ignore)]
 fn on_pointer_over(
     mut commands: Commands,
     event: Listener<Pointer<Over>>,
@@ -82,9 +84,10 @@ fn on_pointer_over(
 ) {
     commands
         .entity(event.target)
-        .insert(materials.corner_over.clone());
+        .insert(MeshMaterial3d(materials.corner_over.clone()));
 }
 
+#[cfg(ignore)]
 fn on_pointer_out(
     mut commands: Commands,
     event: Listener<Pointer<Out>>,
@@ -95,6 +98,7 @@ fn on_pointer_out(
         .insert(materials.corner.clone());
 }
 
+#[cfg(ignore)]
 fn on_pointer_click(
     event: Listener<Pointer<Click>>,
     edge: Query<&ViewEdge>,

@@ -72,22 +72,22 @@ pub fn spawn_grid(
     let mesh0 = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices[0].clone());
     let bundle0 = MaterialMeshBundle {
-        mesh: meshes.add(mesh0),
-        material: materials.add(material0),
+        mesh: Mesh3d(meshes.add(mesh0)),
+        material: MeshMaterial3d(materials.add(material0)),
         ..default()
     };
     let mesh1 = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices[1].clone());
     let bundle1 = MaterialMeshBundle {
-        mesh: meshes.add(mesh1),
-        material: materials.add(material1),
+        mesh: Mesh3d(meshes.add(mesh1)),
+        material: MeshMaterial3d(materials.add(material1)),
         ..default()
     };
     let mesh2 = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices[2].clone());
     let bundle2 = MaterialMeshBundle {
-        mesh: meshes.add(mesh2),
-        material: materials.add(material2),
+        mesh: Mesh3d(meshes.add(mesh2)),
+        material: MeshMaterial3d(materials.add(material2)),
         ..default()
     };
     commands.spawn((Grid::Minor, bundle0));

@@ -27,8 +27,8 @@ pub fn on_axis_marker_added(
 ) {
     for (entity, marker, layer) in query.iter() {
         let x = PbrBundle {
-            mesh: meshes.cuboid.clone(),
-            material: materials.x.clone(),
+            mesh: Mesh3d(meshes.cuboid.clone()),
+            material: MeshMaterial3d(materials.x.clone()),
             transform: Transform::from_scale(Vec3::new(
                 marker.length,
                 marker.thickness,
@@ -37,8 +37,8 @@ pub fn on_axis_marker_added(
             ..default()
         };
         let y = PbrBundle {
-            mesh: meshes.cuboid.clone(),
-            material: materials.y.clone(),
+            mesh: Mesh3d(meshes.cuboid.clone()),
+            material: MeshMaterial3d(materials.y.clone()),
             transform: Transform::from_scale(Vec3::new(
                 marker.thickness,
                 marker.length,
@@ -47,8 +47,8 @@ pub fn on_axis_marker_added(
             ..default()
         };
         let z = PbrBundle {
-            mesh: meshes.cuboid.clone(),
-            material: materials.z.clone(),
+            mesh: Mesh3d(meshes.cuboid.clone()),
+            material: MeshMaterial3d(materials.z.clone()),
             transform: Transform::from_scale(Vec3::new(
                 marker.thickness,
                 marker.thickness,

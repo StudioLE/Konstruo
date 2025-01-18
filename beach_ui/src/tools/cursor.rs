@@ -39,5 +39,5 @@ fn get_ray(
 ) -> Option<Ray3d> {
     let (camera, camera_transform) = cameras.iter_mut().min_by_key(|(camera, _)| camera.order)?;
     let cursor_position = window.get_single().ok()?.cursor_position()?;
-    camera.viewport_to_world(camera_transform, cursor_position)
+    camera.viewport_to_world(camera_transform, cursor_position).ok()
 }

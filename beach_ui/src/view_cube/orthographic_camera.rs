@@ -24,7 +24,7 @@ pub fn spawn_camera(mut commands: Commands) {
             width: 2.0,
             height: 2.0,
         },
-        ..default()
+        ..OrthographicProjection::default_3d()
     });
     let transform = Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y);
     let camera = Camera3dBundle {

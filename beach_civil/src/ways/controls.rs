@@ -45,14 +45,14 @@ pub fn on_way_control_added(
 ) {
     for (entity, way_control) in query.iter() {
         let bundle = MaterialMeshBundle {
-            mesh: meshes.control_origin.clone(),
-            material: materials.control_origin.clone(),
+            mesh: Mesh3d(meshes.control_origin.clone()),
+            material: MeshMaterial3d(materials.control_origin.clone()),
             ..Default::default()
         };
         commands.spawn(bundle).set_parent(entity);
         let bundle = MaterialMeshBundle {
-            mesh: meshes.control_line.clone(),
-            material: materials.control_line.clone(),
+            mesh: Mesh3d(meshes.control_line.clone()),
+            material: MeshMaterial3d(materials.control_line.clone()),
             transform: Transform {
                 translation: Vec3::ZERO,
                 rotation: way_control.get_rotation(),
@@ -62,8 +62,8 @@ pub fn on_way_control_added(
         };
         commands.spawn(bundle).set_parent(entity);
         let bundle = MaterialMeshBundle {
-            mesh: meshes.control_handle.clone(),
-            material: materials.control_handle.clone(),
+            mesh: Mesh3d(meshes.control_handle.clone()),
+            material: MeshMaterial3d(materials.control_handle.clone()),
             transform: Transform::from_translation(way_control.vector),
             ..Default::default()
         };
