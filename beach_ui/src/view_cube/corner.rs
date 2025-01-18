@@ -1,12 +1,9 @@
-use crate::cameras::orbit::Orbit;
 use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::side::Side;
 use crate::view_cube::RENDER_LAYER;
-use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
-use bevy_mod_picking::prelude::*;
 
 #[derive(Component)]
 pub struct ViewCorner {

@@ -1,17 +1,12 @@
-use crate::cameras::orbit::Orbit;
 use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::side::Side;
 use crate::view_cube::RENDER_LAYER;
-use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::asset::Handle;
-use bevy::log::info;
 use bevy::math::Vec3;
 use bevy::pbr::{MeshMaterial3d, PbrBundle, StandardMaterial};
-use bevy::prelude::{Commands, Component, Mesh, Mesh3d, Query, Res, Transform};
+use bevy::prelude::{Commands, Component, Mesh, Mesh3d, Res, Transform};
 use bevy::render::view::RenderLayers;
-use bevy_mod_picking::events::{Click, Out, Over, Pointer};
-use bevy_mod_picking::prelude::{Listener, On};
 
 #[derive(Component)]
 pub struct ViewEdge {

@@ -7,7 +7,6 @@ use crate::view_cube::orthographic_camera::{on_orbit_changed, spawn_camera};
 use crate::view_cube::side::spawn_sides;
 use bevy::prelude::*;
 use bevy::render::view::{Layer, RenderLayers};
-use bevy_mod_picking::DefaultPickingPlugins;
 
 mod camera;
 mod corner;
