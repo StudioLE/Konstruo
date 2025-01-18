@@ -54,7 +54,11 @@ pub fn spawn_edges(
         // let over = On::<Pointer<Over>>::run(on_pointer_over);
         // let out = On::<Pointer<Out>>::run(on_pointer_out);
         // let click = On::<Pointer<Click>>::run(on_pointer_click);
-        commands.spawn((bundle, layer, /*over, out, click,*/ ViewEdge { sides: edge }));
+        commands.spawn((
+            bundle,
+            layer,
+            /*over, out, click,*/ ViewEdge { sides: edge },
+        ));
     }
 }
 

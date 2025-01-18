@@ -30,7 +30,7 @@ pub fn view_cube_plugin(app: &mut App) {
         .add_systems(PostStartup, spawn_edges)
         .add_systems(PostStartup, spawn_corners)
         .add_systems(Update, on_orbit_changed);
-        // .add_plugins(DefaultPickingPlugins);
+    // .add_plugins(DefaultPickingPlugins);
 }
 
 pub fn spawn_axis_marker(mut commands: Commands) {
