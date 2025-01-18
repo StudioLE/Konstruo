@@ -26,36 +26,21 @@ pub fn on_axis_marker_added(
     query: Query<(Entity, &AxisMarker, Option<&RenderLayers>), Added<AxisMarker>>,
 ) {
     for (entity, marker, layer) in query.iter() {
-        let x = PbrBundle {
-            mesh: Mesh3d(meshes.cuboid.clone()),
-            material: MeshMaterial3d(materials.x.clone()),
-            transform: Transform::from_scale(Vec3::new(
-                marker.length,
-                marker.thickness,
-                marker.thickness,
-            )),
-            ..default()
-        };
-        let y = PbrBundle {
-            mesh: Mesh3d(meshes.cuboid.clone()),
-            material: MeshMaterial3d(materials.y.clone()),
-            transform: Transform::from_scale(Vec3::new(
-                marker.thickness,
-                marker.length,
-                marker.thickness,
-            )),
-            ..default()
-        };
-        let z = PbrBundle {
-            mesh: Mesh3d(meshes.cuboid.clone()),
-            material: MeshMaterial3d(materials.z.clone()),
-            transform: Transform::from_scale(Vec3::new(
-                marker.thickness,
-                marker.thickness,
-                marker.length,
-            )),
-            ..default()
-        };
+        let x = (
+            Mesh3d(meshes.cuboid.clone()),
+            MeshMaterial3d(materials.x.clone()),
+            Transform::from_scale(Vec3::new(marker.length, marker.thickness, marker.thickness)),
+        );
+        let y = (
+            Mesh3d(meshes.cuboid.clone()),
+            MeshMaterial3d(materials.y.clone()),
+            Transform::from_scale(Vec3::new(marker.thickness, marker.length, marker.thickness)),
+        );
+        let z = (
+            Mesh3d(meshes.cuboid.clone()),
+            MeshMaterial3d(materials.z.clone()),
+            Transform::from_scale(Vec3::new(marker.thickness, marker.thickness, marker.length)),
+        );
         if let Some(layer) = layer {
             commands.spawn((x, layer.clone())).set_parent(entity);
             commands.spawn((y, layer.clone())).set_parent(entity);

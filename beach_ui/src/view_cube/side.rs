@@ -49,29 +49,21 @@ pub fn spawn_sides(
         Side::Bottom,
     ];
     for side in sides {
-        let bundle = create_view_side(meshes.side.clone(), materials.side.clone(), &side);
-        let layer = RenderLayers::layer(RENDER_LAYER);
+        let vector = side.get_vector();
+        let mut transform = Transform::from_translation(side.get_vector() * 0.4);
+        transform.look_at(Vec3::ZERO, vector.normalize());
+        let bundle = (
+            ViewSide { side },
+            RenderLayers::layer(RENDER_LAYER),
+            Mesh3d(meshes.side.clone()),
+            MeshMaterial3d(materials.side.clone()),
+            transform,
+        );
         commands
-            .spawn((bundle, layer, /*over, out, click,*/ ViewSide { side }))
+            .spawn(bundle)
             .observe(on_pointer_over)
             .observe(on_pointer_out)
             .observe(on_pointer_click);
-    }
-}
-
-fn create_view_side(
-    mesh: Handle<Mesh>,
-    material: Handle<StandardMaterial>,
-    side: &Side,
-) -> PbrBundle {
-    let vector = side.get_vector();
-    let mut transform = Transform::from_translation(side.get_vector() * 0.4);
-    transform.look_at(Vec3::ZERO, vector.normalize());
-    PbrBundle {
-        mesh: Mesh3d(mesh),
-        material: MeshMaterial3d(material),
-        transform,
-        ..Default::default()
     }
 }
 

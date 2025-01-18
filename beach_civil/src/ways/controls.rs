@@ -44,29 +44,26 @@ pub fn on_way_control_added(
     query: Query<(Entity, &WayControl), Added<WayControl>>,
 ) {
     for (entity, way_control) in query.iter() {
-        let bundle = MaterialMeshBundle {
-            mesh: Mesh3d(meshes.control_origin.clone()),
-            material: MeshMaterial3d(materials.control_origin.clone()),
-            ..Default::default()
-        };
+        let bundle = (
+            Mesh3d(meshes.control_origin.clone()),
+            MeshMaterial3d(materials.control_origin.clone()),
+        );
         commands.spawn(bundle).set_parent(entity);
-        let bundle = MaterialMeshBundle {
-            mesh: Mesh3d(meshes.control_line.clone()),
-            material: MeshMaterial3d(materials.control_line.clone()),
-            transform: Transform {
+        let bundle = (
+            Mesh3d(meshes.control_line.clone()),
+            MeshMaterial3d(materials.control_line.clone()),
+            Transform {
                 translation: Vec3::ZERO,
                 rotation: way_control.get_rotation(),
                 scale: Vec3::new(way_control.get_scale(), 1.0, 1.0),
             },
-            ..Default::default()
-        };
+        );
         commands.spawn(bundle).set_parent(entity);
-        let bundle = MaterialMeshBundle {
-            mesh: Mesh3d(meshes.control_handle.clone()),
-            material: MeshMaterial3d(materials.control_handle.clone()),
-            transform: Transform::from_translation(way_control.vector),
-            ..Default::default()
-        };
+        let bundle = (
+            Mesh3d(meshes.control_handle.clone()),
+            MeshMaterial3d(materials.control_handle.clone()),
+            Transform::from_translation(way_control.vector),
+        );
         commands.spawn(bundle).set_parent(entity);
     }
 }

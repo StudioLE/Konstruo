@@ -35,11 +35,10 @@ pub fn on_way_mesh_added(
     for (entity, way_mesh) in query.iter() {
         let triangle_strip = create_triangle_strip_between_polylines(&way_mesh.polylines);
         let triangle_strip = create_triangle_strip(triangle_strip);
-        let bundle = PbrBundle {
-            mesh: Mesh3d(meshes.add(triangle_strip)),
-            material: MeshMaterial3d(materials.mesh.clone()),
-            ..Default::default()
-        };
+        let bundle = (
+            Mesh3d(meshes.add(triangle_strip)),
+            MeshMaterial3d(materials.mesh.clone()),
+        );
         commands.spawn(bundle).set_parent(entity);
     }
 }

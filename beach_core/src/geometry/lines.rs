@@ -14,10 +14,9 @@ pub fn spawn_line_strip(
         RenderAssetUsages::RENDER_WORLD,
     )
     .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
-    let bundle = MaterialMeshBundle {
-        mesh: Mesh3d(meshes.add(mesh)),
-        material: MeshMaterial3d(material),
-        ..default()
-    };
+    let bundle = (
+        Mesh3d(meshes.add(mesh)),
+        MeshMaterial3d(material),
+    );
     commands.spawn(bundle);
 }

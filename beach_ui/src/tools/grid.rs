@@ -71,26 +71,26 @@ pub fn spawn_grid(
     };
     let mesh0 = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices[0].clone());
-    let bundle0 = MaterialMeshBundle {
-        mesh: Mesh3d(meshes.add(mesh0)),
-        material: MeshMaterial3d(materials.add(material0)),
-        ..default()
-    };
     let mesh1 = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices[1].clone());
-    let bundle1 = MaterialMeshBundle {
-        mesh: Mesh3d(meshes.add(mesh1)),
-        material: MeshMaterial3d(materials.add(material1)),
-        ..default()
-    };
     let mesh2 = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices[2].clone());
-    let bundle2 = MaterialMeshBundle {
-        mesh: Mesh3d(meshes.add(mesh2)),
-        material: MeshMaterial3d(materials.add(material2)),
-        ..default()
-    };
-    commands.spawn((Grid::Minor, bundle0));
-    commands.spawn((Grid::Standard, bundle1));
-    commands.spawn((Grid::Major, bundle2));
+    let bundle0 = (
+        Grid::Minor,
+        Mesh3d(meshes.add(mesh0)),
+        MeshMaterial3d(materials.add(material0)),
+    );
+    let bundle1 = (
+        Grid::Standard,
+        Mesh3d(meshes.add(mesh1)),
+        MeshMaterial3d(materials.add(material1)),
+    );
+    let bundle2 = (
+        Grid::Major,
+        Mesh3d(meshes.add(mesh2)),
+        MeshMaterial3d(materials.add(material2))
+    );
+    commands.spawn(bundle0);
+    commands.spawn(bundle1);
+    commands.spawn(bundle2);
 }

@@ -38,28 +38,20 @@ pub fn spawn_corners(
         [Side::Back, Side::Right, Side::Bottom],
     ];
     for corner in corners {
-        let bundle = create_corner(meshes.corner.clone(), materials.corner.clone(), &corner);
-        let layer = RenderLayers::layer(RENDER_LAYER);
+        let vector = corner
+            .iter()
+            .fold(Vec3::ZERO, |acc, side| acc + side.get_vector());
+        let bundle = (
+            Mesh3d(meshes.corner.clone()),
+            MeshMaterial3d(materials.corner.clone()),
+            Transform::from_translation(vector * 0.4),
+            RenderLayers::layer(RENDER_LAYER),
+        );
         commands
-            .spawn((bundle, layer, ViewCorner { sides: corner }))
+            .spawn(bundle)
             .observe(on_pointer_over)
             .observe(on_pointer_out)
             .observe(on_pointer_click);
-    }
-}
-fn create_corner(
-    mesh: Handle<Mesh>,
-    material: Handle<StandardMaterial>,
-    sides: &[Side; 3],
-) -> PbrBundle {
-    let vector = sides
-        .iter()
-        .fold(Vec3::ZERO, |acc, side| acc + side.get_vector());
-    PbrBundle {
-        mesh: Mesh3d(mesh),
-        material: MeshMaterial3d(material),
-        transform: Transform::from_translation(vector * 0.4),
-        ..Default::default()
     }
 }
 

@@ -10,10 +10,10 @@ pub fn spawn_ground(
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
 ) {
-    let bundle = PbrBundle {
-        mesh: Mesh3d(meshes.add(Plane3d::default().mesh().size(1000.0, 1000.0))),
-        material: MeshMaterial3d(materials.add(StandardMaterial::from_color(tailwind::LIME_800))),
-        ..default()
-    };
-    commands.spawn((bundle, Ground));
+    let bundle = (
+        Ground,
+        Mesh3d(meshes.add(Plane3d::default().mesh().size(1000.0, 1000.0))),
+        MeshMaterial3d(materials.add(StandardMaterial::from_color(tailwind::LIME_800))),
+    );
+    commands.spawn(bundle);
 }

@@ -30,12 +30,10 @@ pub fn on_way_line_added(
     query: Query<(Entity, &WayLine), Added<WayLine>>,
 ) {
     for (entity, way_line) in query.iter() {
-        let mesh = Mesh3d(meshes.add(create_linestrip(way_line.polyline.clone())));
-        let bundle = MaterialMeshBundle {
-            mesh,
-            material: MeshMaterial3d(materials.control_line.clone()),
-            ..Default::default()
-        };
+        let bundle = (
+            Mesh3d(meshes.add(create_linestrip(way_line.polyline.clone()))),
+            MeshMaterial3d(materials.control_line.clone()),
+        );
         commands.spawn(bundle).set_parent(entity);
     }
 }

@@ -4,10 +4,9 @@ use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::side::Side;
 use crate::view_cube::RENDER_LAYER;
 use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
-use bevy::asset::Handle;
 use bevy::log::info;
 use bevy::math::Vec3;
-use bevy::pbr::{MeshMaterial3d, PbrBundle, StandardMaterial};
+use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 
@@ -46,31 +45,23 @@ pub fn spawn_edges(
         [Side::Right, Side::Bottom],
     ];
     for edge in edges {
-        let bundle = create_edge(meshes.edge.clone(), materials.edge.clone(), &edge);
-        let layer = RenderLayers::layer(RENDER_LAYER);
+        let vector = edge
+            .iter()
+            .fold(Vec3::ZERO, |acc, side| acc + side.get_vector());
+        let mut transform = Transform::from_translation(vector * 0.4);
+        transform.scale = Vec3::splat(0.6) - vector.abs() * 0.4;
+        let bundle = (
+            ViewEdge { sides: edge },
+            Mesh3d(meshes.edge.clone()),
+            MeshMaterial3d(materials.edge.clone()),
+            transform,
+            RenderLayers::layer(RENDER_LAYER),
+        );
         commands
-            .spawn((bundle, layer, ViewEdge { sides: edge }))
+            .spawn(bundle)
             .observe(on_pointer_over)
             .observe(on_pointer_out)
             .observe(on_pointer_click);
-    }
-}
-
-fn create_edge(
-    mesh: Handle<Mesh>,
-    material: Handle<StandardMaterial>,
-    sides: &[Side; 2],
-) -> PbrBundle {
-    let vector = sides
-        .iter()
-        .fold(Vec3::ZERO, |acc, side| acc + side.get_vector());
-    let mut transform = Transform::from_translation(vector * 0.4);
-    transform.scale = Vec3::splat(0.6) - vector.abs() * 0.4;
-    PbrBundle {
-        mesh: Mesh3d(mesh),
-        material: MeshMaterial3d(material),
-        transform,
-        ..Default::default()
     }
 }
 

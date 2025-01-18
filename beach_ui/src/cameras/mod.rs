@@ -18,18 +18,21 @@ pub fn cameras_plugin(app: &mut App) {
 
 fn spawn_camera(mut commands: Commands) {
     let pan = Pan::default();
-    let bundle = SpatialBundle {
-        transform: pan.get_transform(),
-        ..Default::default()
-    };
-    let pan = commands.spawn((bundle, pan)).id();
+    let transform = pan.get_transform();
+    let bundle = (
+        pan,
+        transform,
+    );
+    let pan = commands.spawn(bundle).id();
     let orbit = Orbit::default();
     // let mut orbit = OrbitState::default();
     // let target = Vec3::new(100.0, 0.0, QUARTER_PI);
     // orbit.movement.set_target(target);
-    let bundle = Camera3dBundle {
-        transform: orbit.get_transform(),
-        ..Default::default()
-    };
-    commands.spawn((bundle, orbit)).set_parent(pan);
+    let transform = orbit.get_transform();
+    let bundle = (
+        orbit,
+        transform,
+        Camera3d::default(),
+    );
+    commands.spawn(bundle).set_parent(pan);
 }
