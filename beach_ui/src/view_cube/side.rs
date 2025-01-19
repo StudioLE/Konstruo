@@ -76,7 +76,7 @@ fn on_pointer_over(
         error!("Failed to get material of ViewSide");
         return;
     };
-    *material = MeshMaterial3d(materials.corner_over.clone());
+    *material = MeshMaterial3d(materials.side_over.clone());
 }
 
 fn on_pointer_out(
