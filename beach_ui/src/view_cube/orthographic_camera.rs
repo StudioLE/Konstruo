@@ -14,27 +14,25 @@ pub fn spawn_camera(mut commands: Commands) {
         physical_size: UVec2::new(150, 150),
         ..default()
     });
-    let camera = Camera {
-        order: 2,
-        viewport,
-        ..default()
-    };
-    let projection = Orthographic(OrthographicProjection {
-        scaling_mode: Fixed {
-            width: 2.0,
-            height: 2.0,
+    let bundle = (
+        ViewCubeCamera,
+        Camera3d::default(),
+        Camera {
+            order: 2,
+            viewport,
+            ..default()
         },
-        ..OrthographicProjection::default_3d()
-    });
-    let transform = Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y);
-    let camera = Camera3dBundle {
-        camera,
-        projection,
-        transform,
-        ..default()
-    };
-    let layers = RenderLayers::layer(RENDER_LAYER);
-    commands.spawn((camera, layers, ViewCubeCamera));
+        Orthographic(OrthographicProjection {
+            scaling_mode: Fixed {
+                width: 2.0,
+                height: 2.0,
+            },
+            ..OrthographicProjection::default_3d()
+        }),
+        Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y),
+        RenderLayers::layer(RENDER_LAYER),
+    );
+    commands.spawn(bundle);
 }
 
 pub fn on_orbit_changed(

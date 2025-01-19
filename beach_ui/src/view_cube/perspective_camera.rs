@@ -15,21 +15,19 @@ pub fn spawn_camera(mut commands: Commands) {
         physical_size: UVec2::new(150, 150),
         ..default()
     });
-    let camera = Camera {
-        order: 2,
-        viewport,
-        ..default()
-    };
-    let projection = Perspective(PerspectiveProjection { ..default() });
-    let transform = Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y);
-    let camera = Camera3dBundle {
-        camera,
-        projection,
-        transform,
-        ..default()
-    };
-    let layers = RenderLayers::layer(RENDER_LAYER);
-    commands.spawn((camera, layers, ViewCubeCamera));
+    let bundle = (
+        ViewCubeCamera,
+        Camera3d::default(),
+        Camera {
+            order: 2,
+            viewport,
+            ..default()
+        },
+        Perspective(PerspectiveProjection::default()),
+        Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y),
+        RenderLayers::layer(RENDER_LAYER),
+    );
+    commands.spawn(bundle);
 }
 
 pub fn on_orbit_changed(
