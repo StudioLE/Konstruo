@@ -26,7 +26,7 @@ impl Default for Pan {
                     z: ClampFloat::Fixed(-1000.0, 1000.0),
                 },
                 target: None,
-                speed: Vec3::splat(200.0),
+                speed: Vec3::splat(500.0),
             },
             drag_origin: None,
         }
