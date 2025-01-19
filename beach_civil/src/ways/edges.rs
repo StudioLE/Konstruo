@@ -8,6 +8,7 @@ use std::cmp::Ordering;
 
 /// Line representation of the edge of a [Way].
 #[derive(Component)]
+#[require(Transform)]
 pub struct WayEdges2d {
     /// Cubic bezier curves of the edges.
     curves: [Vec<[Vec3; 4]>; 2],
@@ -78,7 +79,7 @@ pub fn on_way_edges_added(
     for (entity, way_edges) in query.iter() {
         let mesh = WayMesh2d::from_way_edges(way_edges);
         commands
-            .spawn((mesh, SpatialBundle::default()))
+            .spawn(mesh)
             .set_parent(entity);
     }
 }

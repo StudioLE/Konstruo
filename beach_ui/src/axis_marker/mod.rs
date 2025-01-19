@@ -16,14 +16,13 @@ pub fn axis_marker_plugin(app: &mut App) {
 }
 
 fn spawn_positive_marker(mut commands: Commands) {
-    let transform = Transform::from_translation(Vec3::splat(10.0));
-    let spatial = SpatialBundle::from_transform(transform);
     info!("Spawning positive axis marker");
-    commands.spawn((
-        spatial,
+    let bundle = (
         AxisMarker {
             thickness: 1.0,
             length: 10.0,
         },
-    ));
+        Transform::from_translation(Vec3::splat(10.0)),
+    );
+    commands.spawn(bundle);
 }

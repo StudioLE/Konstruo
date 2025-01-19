@@ -1,11 +1,12 @@
 use crate::ways::control_line::WayLine;
-use crate::ways::controls::WayControlBundle;
+use crate::ways::controls::WayControl;
 use crate::ways::edges::WayEdges2d;
 use beach_core::beziers::flatten::flatten_bezier;
 use bevy::math::vec3;
 use bevy::prelude::*;
 
 #[derive(Component)]
+#[require(Transform)]
 pub struct Way {
     pub curve: Vec<[Vec3; 4]>,
     pub width: f32,
@@ -59,24 +60,24 @@ pub fn spawn_way_example(mut commands: Commands) {
         depth: 1.0,
         ..Way::default()
     };
-    commands.spawn((way, SpatialBundle::default()));
+    commands.spawn(way);
 }
 
 /// System to create [`WayLine`], [`WayEdges2d`], and [`WayControl`] when a [`Way`] is added.
 pub fn on_way_added(mut commands: Commands, query: Query<(Entity, &Way), Added<Way>>) {
     for (entity, way) in query.iter() {
         commands
-            .spawn((WayLine::from_way(way), SpatialBundle::default()))
+            .spawn(WayLine::from_way(way))
             .set_parent(entity);
         commands
-            .spawn((WayEdges2d::from_way(way), SpatialBundle::default()))
+            .spawn(WayEdges2d::from_way(way))
             .set_parent(entity);
         for p in way.curve.clone() {
             commands
-                .spawn(WayControlBundle::new(p[0], p[1]))
+                .spawn(WayControl::new(p[0], p[1]))
                 .set_parent(entity);
             commands
-                .spawn(WayControlBundle::new(p[3], p[2]))
+                .spawn(WayControl::new(p[3], p[2]))
                 .set_parent(entity);
         }
     }

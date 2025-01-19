@@ -5,6 +5,7 @@ use bevy::prelude::*;
 
 /// Line representation of a [`Way`].
 #[derive(Component)]
+#[require(Transform)]
 pub struct WayLine {
     pub polyline: Vec<Vec3>,
 }

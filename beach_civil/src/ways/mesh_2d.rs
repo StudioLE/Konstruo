@@ -7,6 +7,7 @@ use bevy::prelude::*;
 
 /// Line representation of the edge of a [`Way`].
 #[derive(Component)]
+#[require(Transform)]
 pub struct WayMesh2d {
     polylines: [Vec<Vec3>; 2],
 }

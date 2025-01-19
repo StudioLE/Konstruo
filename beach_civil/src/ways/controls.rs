@@ -4,17 +4,22 @@ use bevy::prelude::*;
 
 /// A control point that manipulates a [`Way`].
 #[derive(Component)]
+#[require(Transform)]
 pub struct WayControl {
+    // TODO: Remove vector and use Transform instead
     vector: Vec3,
 }
 
-#[derive(Bundle)]
-pub struct WayControlBundle {
-    way_control: WayControl,
-    spatial: SpatialBundle,
-}
-
 impl WayControl {
+    pub fn new(origin: Vec3, control: Vec3) -> (Self, Transform) {
+        let vector = control - origin;
+        let transform = Transform::from_translation(origin);
+        (
+            WayControl { vector },
+            transform,
+        )
+    }
+
     pub fn get_scale(&self) -> f32 {
         self.vector.length()
     }
@@ -22,17 +27,6 @@ impl WayControl {
     pub fn get_rotation(&self) -> Quat {
         let angle = self.vector.angle_between(Vec3::X);
         Quat::from_axis_angle(Vec3::Z, angle)
-    }
-}
-
-impl WayControlBundle {
-    pub fn new(origin: Vec3, control: Vec3) -> Self {
-        let vector = control - origin;
-        let transform = Transform::from_translation(origin);
-        WayControlBundle {
-            way_control: WayControl { vector },
-            spatial: SpatialBundle::from_transform(transform),
-        }
     }
 }
 

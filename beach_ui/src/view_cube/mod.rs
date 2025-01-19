@@ -33,13 +33,12 @@ pub fn view_cube_plugin(app: &mut App) {
 }
 
 pub fn spawn_axis_marker(mut commands: Commands) {
-    let layer = RenderLayers::layer(RENDER_LAYER);
-    commands.spawn((
-        SpatialBundle::default(),
-        layer,
+    let bundle = (
         AxisMarker {
             length: 1.1,
             thickness: 0.2,
         },
-    ));
+        RenderLayers::layer(RENDER_LAYER)
+    );
+    commands.spawn(bundle);
 }

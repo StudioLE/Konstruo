@@ -4,6 +4,7 @@ use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 
 #[derive(Component, Debug)]
+#[require(Transform)]
 pub struct AxisMarker {
     pub thickness: f32,
     pub length: f32,
