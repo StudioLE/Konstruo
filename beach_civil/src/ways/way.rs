@@ -66,12 +66,8 @@ pub fn spawn_way_example(mut commands: Commands) {
 /// System to create [`WayLine`], [`WayEdges2d`], and [`WayControl`] when a [`Way`] is added.
 pub fn on_way_added(mut commands: Commands, query: Query<(Entity, &Way), Added<Way>>) {
     for (entity, way) in query.iter() {
-        commands
-            .spawn(WayLine::from_way(way))
-            .set_parent(entity);
-        commands
-            .spawn(WayEdges2d::from_way(way))
-            .set_parent(entity);
+        commands.spawn(WayLine::from_way(way)).set_parent(entity);
+        commands.spawn(WayEdges2d::from_way(way)).set_parent(entity);
         for p in way.curve.clone() {
             commands
                 .spawn(WayControl::new(p[0], p[1]))

@@ -38,7 +38,7 @@ pub fn spawn_axis_marker(mut commands: Commands) {
             length: 1.1,
             thickness: 0.2,
         },
-        RenderLayers::layer(RENDER_LAYER)
+        RenderLayers::layer(RENDER_LAYER),
     );
     commands.spawn(bundle);
 }

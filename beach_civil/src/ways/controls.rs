@@ -14,10 +14,7 @@ impl WayControl {
     pub fn new(origin: Vec3, control: Vec3) -> (Self, Transform) {
         let vector = control - origin;
         let transform = Transform::from_translation(origin);
-        (
-            WayControl { vector },
-            transform,
-        )
+        (WayControl { vector }, transform)
     }
 
     pub fn get_scale(&self) -> f32 {

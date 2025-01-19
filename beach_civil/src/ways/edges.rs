@@ -78,8 +78,6 @@ pub fn on_way_edges_added(
 ) {
     for (entity, way_edges) in query.iter() {
         let mesh = WayMesh2d::from_way_edges(way_edges);
-        commands
-            .spawn(mesh)
-            .set_parent(entity);
+        commands.spawn(mesh).set_parent(entity);
     }
 }

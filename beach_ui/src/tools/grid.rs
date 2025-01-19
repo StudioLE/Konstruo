@@ -88,7 +88,7 @@ pub fn spawn_grid(
     let bundle2 = (
         Grid::Major,
         Mesh3d(meshes.add(mesh2)),
-        MeshMaterial3d(materials.add(material2))
+        MeshMaterial3d(materials.add(material2)),
     );
     commands.spawn(bundle0);
     commands.spawn(bundle1);
