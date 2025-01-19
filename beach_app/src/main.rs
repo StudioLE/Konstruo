@@ -11,6 +11,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(axis_marker_plugin)
         .add_plugins(cameras_plugin)
+        // .add_plugins(debug_plugin)
         .add_plugins(environment_plugin)
         .add_plugins(tools_plugin)
         .add_plugins(view_cube_plugin)

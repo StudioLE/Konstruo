@@ -8,7 +8,7 @@ use std::cmp::Ordering;
 
 /// Line representation of the edge of a [Way].
 #[derive(Component)]
-#[require(Transform)]
+#[require(InheritedVisibility, Transform)]
 pub struct WayEdges2d {
     /// Cubic bezier curves of the edges.
     curves: [Vec<[Vec3; 4]>; 2],

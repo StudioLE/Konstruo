@@ -8,6 +8,7 @@ use KeyCode::*;
 
 /// Pan state of the camera.
 #[derive(Component)]
+#[require(InheritedVisibility)]
 pub struct Pan {
     pub movement: TargetBasedMovement,
     pub drag_origin: Option<Vec3>,

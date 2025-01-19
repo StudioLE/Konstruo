@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 /// A control point that manipulates a [`Way`].
 #[derive(Component)]
-#[require(Transform)]
+#[require(InheritedVisibility, Transform)]
 pub struct WayControl {
     // TODO: Remove vector and use Transform instead
     vector: Vec3,

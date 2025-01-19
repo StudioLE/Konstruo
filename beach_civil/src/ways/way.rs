@@ -6,7 +6,7 @@ use bevy::math::vec3;
 use bevy::prelude::*;
 
 #[derive(Component)]
-#[require(Transform)]
+#[require(InheritedVisibility, Transform)]
 pub struct Way {
     pub curve: Vec<[Vec3; 4]>,
     pub width: f32,
