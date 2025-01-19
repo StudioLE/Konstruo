@@ -1,3 +1,4 @@
+use crate::constraints::clamp_float::ClampFloat;
 use crate::constraints::clamp_vec3::ClampVec3;
 use crate::geometry::vectors::{is_almost_equal_to, is_almost_zero};
 use bevy::prelude::*;
@@ -20,7 +21,7 @@ impl TargetBasedMovement {
         let Some(target) = self.target else {
             return;
         };
-        let total_displacement = target - self.current;
+        let total_displacement = self.get_displacement_to(target);
         if is_almost_zero(total_displacement) {
             self.current = target;
             self.remove_target();
@@ -79,5 +80,23 @@ impl TargetBasedMovement {
         // TODO: Get current FPS
         let fps = 60.0;
         self.speed / fps
+    }
+
+    /// Get the total displacement from current to the target
+    ///
+    /// If an axis is wrapped then take in to account it may be quicker in the other direction
+    fn get_displacement_to(&self, target: Vec3) -> Vec3 {
+        let mut displacement = target - self.current;
+        fn adjust(displacement: &mut f32, clamp: &ClampFloat) {
+            if let ClampFloat::Wrapped(max) = clamp {
+                if displacement.abs() > (max / 2.0) {
+                    *displacement *= -1.0;
+                }
+            }
+        }
+        adjust(&mut displacement.x, &self.clamp.x);
+        adjust(&mut displacement.y, &self.clamp.y);
+        adjust(&mut displacement.z, &self.clamp.z);
+        displacement
     }
 }
