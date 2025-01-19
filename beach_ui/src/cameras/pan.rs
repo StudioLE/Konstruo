@@ -1,3 +1,4 @@
+use crate::cameras::orbit::Orbit;
 use crate::tools::cursor::Cursor;
 use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
@@ -25,7 +26,7 @@ impl Default for Pan {
                     z: ClampFloat::Fixed(-1000.0, 1000.0),
                 },
                 target: None,
-                speed: Vec3::new(100.0, 100.0, 100.0),
+                speed: Vec3::splat(200.0),
             },
             drag_origin: None,
         }
@@ -84,41 +85,58 @@ pub fn on_changed(mut query: Query<(&mut Transform, &Pan), Changed<Pan>>) {
 
 /// Respond to input events.
 pub fn on_input(
-    mut query: Query<&mut Pan>,
+    mut pan: Query<(&mut Pan, &Children)>,
+    orbits: Query<&Orbit>,
     keys: Res<ButtonInput<KeyCode>>,
     buttons: Res<ButtonInput<MouseButton>>,
     motion_event: EventReader<MouseMotion>,
     cursor: Res<Cursor>,
 ) {
-    let Ok(mut orbit) = query.get_single_mut() else {
+    let Ok((mut pan, children)) = pan.get_single_mut() else {
+        warn!("Failed to get Pan");
+        return;
+    };
+    let Some(orbit) = children.iter().find_map(|&child| orbits.get(child).ok()) else {
+        warn!("Failed to get Orbit from Pan");
         return;
     };
     let left_shift_pressed = keys.pressed(ShiftLeft);
-    keyboard_input(&mut orbit, keys);
-    mouse_button_input(&mut orbit, buttons, &cursor);
+    keyboard_input(&mut pan, orbit, keys);
+    mouse_button_input(&mut pan, buttons, &cursor);
     if !left_shift_pressed {
-        mouse_motion_input(&mut orbit, motion_event, &cursor);
+        mouse_motion_input(&mut pan, motion_event, &cursor);
     }
 }
 
-fn keyboard_input(pan: &mut Mut<Pan>, keys: Res<ButtonInput<KeyCode>>) {
+fn keyboard_input(pan: &mut Mut<Pan>, orbit: &Orbit, keys: Res<ButtonInput<KeyCode>>) {
     if !keys.pressed(ShiftLeft) {
         if keys.pressed(KeyW) {
-            pan.in_direction(Vec3::Y, 1.0);
+            pan.in_direction(relative_direction(orbit, Vec3::Y), 1.0);
         }
         if keys.pressed(KeyA) {
-            pan.in_direction(Vec3::X * -1.0, 1.0);
+            pan.in_direction(relative_direction(orbit, Vec3::X) * -1.0, 1.0);
         }
         if keys.pressed(KeyS) {
-            pan.in_direction(Vec3::Y * -1.0, 1.0);
+            pan.in_direction(relative_direction(orbit, Vec3::Y) * -1.0, 1.0);
         }
         if keys.pressed(KeyD) {
-            pan.in_direction(Vec3::X, 1.0);
+            pan.in_direction(relative_direction(orbit, Vec3::X), 1.0);
         }
     }
     if keys.any_just_released([KeyW, KeyA, KeyS, KeyD]) {
         pan.stop();
     }
+}
+
+/// Get a direction relative to the camera position
+///
+/// Project it on the XY plane
+pub fn relative_direction(orbit: &Orbit, direction: Vec3) -> Vec3 {
+    orbit
+        .get_rotation()
+        .mul_vec3(direction)
+        .with_z(0.0)
+        .normalize()
 }
 
 fn mouse_button_input(

@@ -59,12 +59,12 @@ impl Orbit {
     }
 
     /// Get the position relative to the origin.
-    fn get_position(&self) -> Vec3 {
+    pub fn get_position(&self) -> Vec3 {
         spherical_to_cartesian(self.get_radius(), self.get_polar(), self.get_azimuth())
     }
 
     /// Get the rotation looking to the origin.
-    fn get_rotation(&self) -> Quat {
+    pub fn get_rotation(&self) -> Quat {
         let z = self.get_azimuth() + HALF_PI;
         let x = self.get_polar();
         Quat::from_euler(EulerRot::ZXY, z, x, 0.0)
