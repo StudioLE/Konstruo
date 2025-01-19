@@ -13,3 +13,40 @@ impl ClampFloat {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clamp_fixed() {
+        // Arrange
+        let min = -1.0;
+        let max = 1.0;
+        let clamp = ClampFloat::Fixed(min, max);
+
+        // Act
+        // Assert
+        assert_eq!(clamp.clamp(max), max);
+        assert_eq!(clamp.clamp(1.1), max);
+        assert_eq!(clamp.clamp(0.9999), 0.9999);
+        assert_eq!(clamp.clamp(0.0), 0.0);
+        assert_eq!(clamp.clamp(min), min);
+        assert_eq!(clamp.clamp(-1.1), min);
+    }
+
+    #[test]
+    fn clamp_wrapped() {
+        // Arrange
+        let max = 1.0;
+        let clamp = ClampFloat::Wrapped(max);
+
+        // Act
+        // Assert
+        assert_eq!(clamp.clamp(max), 0.0);
+        assert_eq!(clamp.clamp(1.1), 0.100000024);
+        assert_eq!(clamp.clamp(0.9999), 0.9999);
+        assert_eq!(clamp.clamp(0.0), 0.0);
+        assert_eq!(clamp.clamp(-1.1), 0.9);
+    }
+}

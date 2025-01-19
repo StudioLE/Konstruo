@@ -81,10 +81,17 @@ mod tests {
     fn _modulo() {
         assert_eq!(modulo(0.0, 1.0), 0.0);
         assert_eq!(modulo(0.1, 1.0), 0.1);
+        assert_eq!(modulo(0.5, 1.0), 0.5);
         assert_eq!(modulo(0.9, 1.0), 0.9);
         assert_eq!(modulo(1.0, 1.0), 0.0);
+        assert_eq!(modulo(2.0, 1.0), 0.0);
+        assert_eq!(modulo(2.9, 1.0), 0.9000001);
+        assert_eq!(modulo(999.9, 1.0), 0.9000244);
         assert_eq!(modulo(-0.0, 1.0), 0.0);
         assert_eq!(modulo(-0.1, 1.0), 0.9);
+        assert_eq!(modulo(-0.5, 1.0), 0.5);
+        assert_eq!(modulo(-2.9, 1.0), 0.099999905);
+        assert_eq!(modulo(-999.9, 1.0), 0.099975586);
         // assert_eq!(fix_floating_points(modulo(-0.9, 1.0)), 0.1);
         assert_eq!(modulo(-1.0, 1.0), 0.0);
     }
