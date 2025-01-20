@@ -1,6 +1,5 @@
 use crate::tools::gizmos::{
-    configure_gizmos, draw_cursor_gizmo, draw_origin_gizmo, Gizmos100, Gizmos300, Gizmos500,
-    Gizmos700, Gizmos900,
+    configure_gizmos, draw_origin_gizmo, Gizmos100, Gizmos300, Gizmos500, Gizmos700, Gizmos900,
 };
 use crate::tools::grid::spawn_grid;
 use bevy::app::{App, Startup, Update};
@@ -18,10 +17,10 @@ pub fn tools_plugin(app: &mut App) {
         .init_gizmo_group::<Gizmos700>()
         .init_gizmo_group::<Gizmos900>()
         .add_systems(Startup, configure_gizmos)
-        // .add_systems(Startup, spawn_origin_gizmo)
         .add_systems(Startup, spawn_grid)
-        .add_systems(Update, draw_origin_gizmo)
-        // .add_systems(Update, draw_grid)
-        // .add_systems(Update, draw_curve)
-        .add_systems(Update, draw_cursor_gizmo);
+        .add_systems(Update, draw_origin_gizmo);
+    // .add_systems(Startup, spawn_origin_gizmo)
+    // .add_systems(Update, draw_grid)
+    // .add_systems(Update, draw_curve)
+    // .add_systems(Update, draw_cursor_gizmo);
 }
