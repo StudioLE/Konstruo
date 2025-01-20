@@ -1,8 +1,10 @@
 pub mod orbit;
 mod pan;
+pub mod primary_camera;
 
 use crate::cameras::orbit::Orbit;
 use crate::cameras::pan::Pan;
+use crate::cameras::primary_camera::PrimaryCamera;
 use bevy::prelude::*;
 
 /// Register systems for cameras.
@@ -26,6 +28,6 @@ fn spawn_camera(mut commands: Commands) {
     // let target = Vec3::new(100.0, 0.0, QUARTER_PI);
     // orbit.movement.set_target(target);
     let transform = orbit.get_transform();
-    let bundle = (orbit, transform, Camera3d::default());
+    let bundle = (PrimaryCamera, orbit, transform, Camera3d::default());
     commands.spawn(bundle).set_parent(pan);
 }

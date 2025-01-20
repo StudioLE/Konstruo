@@ -1,45 +1,31 @@
+use crate::cameras::primary_camera::PrimaryCamera;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use CursorPositionError::*;
 
-#[derive(Resource, Default)]
-pub struct Cursor {
-    /// Current position in world space coordinates
-    pub position: Vec3,
-
-    /// Change in position since the last frame
-    pub delta: Vec3,
-}
-
-pub fn update_cursor_position(
-    cursor: ResMut<Cursor>,
-    window: Query<&Window, With<PrimaryWindow>>,
-    cameras: Query<(&Camera, &GlobalTransform)>,
-) {
-    update_cursor_position_internal(cursor, window, cameras);
+#[derive(Debug)]
+pub enum CursorPositionError {
+    NoPrimaryWindow,
+    NoPrimaryCamera,
+    CursorOutsideWindow,
+    InvalidRay,
+    NoIntersection,
 }
 
 /// <https://bevy-cheatbook.github.io/cookbook/cursor2world.html>
-pub fn update_cursor_position_internal(
-    mut cursor: ResMut<Cursor>,
-    window: Query<&Window, With<PrimaryWindow>>,
-    mut cameras: Query<(&Camera, &GlobalTransform)>,
-) -> Option<()> {
-    let plane = InfinitePlane3d::new(Vec3::Z);
-    let ray = get_ray(window, &mut cameras)?;
-    let distance = ray.intersect_plane(Vec3::ZERO, plane)?;
-    let position = ray.get_point(distance);
-    cursor.delta = position - cursor.position;
-    cursor.position = position;
-    Some(())
-}
-
-fn get_ray(
-    window: Query<&Window, With<PrimaryWindow>>,
-    cameras: &mut Query<(&Camera, &GlobalTransform)>,
-) -> Option<Ray3d> {
-    let (camera, camera_transform) = cameras.iter_mut().min_by_key(|(camera, _)| camera.order)?;
-    let cursor_position = window.get_single().ok()?.cursor_position()?;
-    camera
+pub fn get_cursor_position(
+    window: &Query<&Window, With<PrimaryWindow>>,
+    camera: &Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
+) -> Result<Vec3, CursorPositionError> {
+    let window = window.get_single().map_err(|_| NoPrimaryWindow)?;
+    let (camera, camera_transform) = camera.get_single().map_err(|_| NoPrimaryCamera)?;
+    let cursor_position = window.cursor_position().ok_or(CursorOutsideWindow)?;
+    let ray = camera
         .viewport_to_world(camera_transform, cursor_position)
-        .ok()
+        .map_err(|_| InvalidRay)?;
+    let plane = InfinitePlane3d::new(Vec3::Z);
+    let distance = ray
+        .intersect_plane(Vec3::ZERO, plane)
+        .ok_or(NoIntersection)?;
+    Ok(ray.get_point(distance))
 }

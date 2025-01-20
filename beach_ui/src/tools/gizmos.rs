@@ -1,6 +1,8 @@
-use crate::tools::cursor::Cursor;
+use crate::cameras::primary_camera::PrimaryCamera;
+use crate::tools::cursor::get_cursor_position;
 use bevy::color::palettes::*;
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use std::f32::consts::PI;
 
 const ORIGIN_LENGTH: f32 = 100.0;
@@ -54,8 +56,17 @@ pub fn draw_origin_gizmo(gizmos: Gizmos<Gizmos700>) {
     draw_axis_gizmo(gizmos, Vec3::ZERO, ORIGIN_LENGTH);
 }
 
-pub fn draw_cursor_gizmo(gizmos: Gizmos<Gizmos700>, cursor: Res<Cursor>) {
-    draw_axis_gizmo(gizmos, cursor.position, CURSOR_LENGTH);
+pub fn draw_cursor_gizmo(
+    gizmos: Gizmos<Gizmos700>,
+    window: Query<&Window, With<PrimaryWindow>>,
+    camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
+) {
+    match get_cursor_position(&window, &camera) {
+        Ok(position) => draw_axis_gizmo(gizmos, position, CURSOR_LENGTH),
+        Err(e) => {
+            warn!("{e:?}");
+        }
+    };
 }
 
 pub fn draw_grid(

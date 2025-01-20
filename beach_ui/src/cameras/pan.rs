@@ -1,10 +1,12 @@
 use crate::cameras::orbit::Orbit;
-use crate::tools::cursor::Cursor;
+use crate::cameras::primary_camera::PrimaryCamera;
+use crate::tools::cursor::get_cursor_position;
 use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
 use beach_core::movement::target_based_movement::TargetBasedMovement;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use KeyCode::*;
 
 /// Pan state of the camera.
@@ -59,8 +61,8 @@ impl Pan {
         self.movement.set_target_relative_to_position(displacement);
     }
 
-    fn by_grab(&mut self, cursor: &Res<Cursor>) {
-        let translation = self.drag_origin.expect("Drag already confirmed.") - cursor.position;
+    fn by_grab(&mut self, cursor_position: Vec3) {
+        let translation = self.drag_origin.expect("Drag already confirmed.") - cursor_position;
         self.movement.set_target_relative_to_position(translation);
     }
 
@@ -87,10 +89,11 @@ pub fn on_changed(mut query: Query<(&mut Transform, &Pan), Changed<Pan>>) {
 pub fn on_input(
     mut pan: Query<(&mut Pan, &Children)>,
     orbits: Query<&Orbit>,
+    window: Query<&Window, With<PrimaryWindow>>,
+    camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     keys: Res<ButtonInput<KeyCode>>,
     buttons: Res<ButtonInput<MouseButton>>,
-    motion_event: EventReader<MouseMotion>,
-    cursor: Res<Cursor>,
+    motion: EventReader<MouseMotion>,
 ) {
     let Ok((mut pan, children)) = pan.get_single_mut() else {
         warn!("Failed to get Pan");
@@ -102,9 +105,9 @@ pub fn on_input(
     };
     let left_shift_pressed = keys.pressed(ShiftLeft);
     keyboard_input(&mut pan, orbit, keys);
-    mouse_button_input(&mut pan, buttons, &cursor);
+    mouse_button_input(&mut pan, &window, &camera, buttons);
     if !left_shift_pressed {
-        mouse_motion_input(&mut pan, motion_event, &cursor);
+        mouse_motion_input(&mut pan, &window, &camera, motion);
     }
 }
 
@@ -141,11 +144,17 @@ pub fn relative_direction(orbit: &Orbit, direction: Vec3) -> Vec3 {
 
 fn mouse_button_input(
     pan: &mut Mut<Pan>,
+    window: &Query<&Window, With<PrimaryWindow>>,
+    camera: &Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     buttons: Res<ButtonInput<MouseButton>>,
-    cursor: &Res<Cursor>,
 ) {
     if buttons.just_pressed(MouseButton::Middle) {
-        pan.drag_origin = Some(cursor.position);
+        match get_cursor_position(window, camera) {
+            Ok(position) => pan.drag_origin = Some(position),
+            Err(e) => {
+                warn!("{e:?}");
+            }
+        };
     }
     if buttons.just_released(MouseButton::Middle) {
         pan.drag_origin = None;
@@ -155,10 +164,16 @@ fn mouse_button_input(
 
 fn mouse_motion_input(
     pan: &mut Mut<Pan>,
-    mut motion_event: EventReader<MouseMotion>,
-    cursor: &Res<Cursor>,
+    window: &Query<&Window, With<PrimaryWindow>>,
+    camera: &Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
+    mut motion: EventReader<MouseMotion>,
 ) {
-    if pan.drag_origin.is_some() && motion_event.read().next().is_some() {
-        pan.by_grab(cursor);
+    if pan.drag_origin.is_some() && motion.read().next().is_some() {
+        match get_cursor_position(window, camera) {
+            Ok(position) => pan.by_grab(position),
+            Err(e) => {
+                warn!("{e:?}");
+            }
+        };
     }
 }
