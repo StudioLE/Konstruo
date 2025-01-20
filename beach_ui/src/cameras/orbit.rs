@@ -70,10 +70,6 @@ impl Orbit {
         Quat::from_euler(EulerRot::ZXY, z, x, 0.0)
     }
 
-    fn update(&mut self) {
-        self.movement.update();
-    }
-
     /// Orbit the camera in direction relative to the Azimuth.
     fn in_direction(&mut self, direction: Vec3, modifier: f32) {
         let velocity = direction * self.movement.speed * modifier;
@@ -95,16 +91,11 @@ impl Orbit {
 }
 
 /// Update the movement once per frame.
-pub fn on_update(mut query: Query<&mut Orbit>) {
-    for mut orbit in &mut query {
-        orbit.update();
-    }
-}
-
-/// Update the transform if the position changes.
-pub fn on_changed(mut query: Query<(&mut Transform, &Orbit), Changed<Orbit>>) {
-    for (mut transform, orbit) in &mut query {
-        *transform = orbit.get_transform();
+pub fn on_update(mut query: Query<(&mut Orbit, &mut Transform)>) {
+    for (mut orbit, mut transform) in &mut query {
+        if orbit.movement.update() {
+            *transform = orbit.get_transform();
+        }
     }
 }
 

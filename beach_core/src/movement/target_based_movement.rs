@@ -17,15 +17,18 @@ pub struct TargetBasedMovement {
 
 impl TargetBasedMovement {
     /// Move the current position towards the target for a single frame.
-    pub fn update(&mut self) {
+    ///
+    /// Returns `true` if the current position has changed
+    #[must_use]
+    pub fn update(&mut self) -> bool {
         let Some(target) = self.target else {
-            return;
+            return false;
         };
         let total_displacement = self.get_displacement_to(target);
         if is_almost_zero(total_displacement) {
             self.current = target;
             self.remove_target();
-            return;
+            return true;
         }
         let direction = total_displacement.normalize();
         let displacement = direction * self.get_speed_per_frame();
@@ -35,6 +38,7 @@ impl TargetBasedMovement {
         } else {
             self.set_position(self.current + displacement);
         }
+        true
     }
 
     /// Set the current position

@@ -41,10 +41,6 @@ impl Pan {
         Transform::from_translation(self.movement.current)
     }
 
-    fn update(&mut self) {
-        self.movement.update();
-    }
-
     /// Orbit the camera in direction relative to the Azimuth.
     fn in_direction(&mut self, direction: Vec3, modifier: f32) {
         let velocity = direction * self.movement.speed * modifier;
@@ -72,16 +68,11 @@ impl Pan {
 }
 
 /// Update the movement once per frame.
-pub fn on_update(mut query: Query<&mut Pan>) {
-    for mut pan in &mut query {
-        pan.update();
-    }
-}
-
-/// Update the transform if the position changes.
-pub fn on_changed(mut query: Query<(&mut Transform, &Pan), Changed<Pan>>) {
-    for (mut transform, pan) in &mut query {
-        *transform = pan.get_transform();
+pub fn on_update(mut query: Query<(&mut Pan, &mut Transform)>) {
+    for (mut pan, mut transform) in &mut query {
+        if pan.movement.update() {
+            *transform = pan.get_transform();
+        }
     }
 }
 
