@@ -17,7 +17,6 @@ pub fn axis_marker_plugin(app: &mut App) {
 }
 
 fn spawn_positive_marker(mut commands: Commands) {
-    info!("Spawning positive axis marker");
     let bundle = (
         AxisMarker {
             thickness: 1.0,
