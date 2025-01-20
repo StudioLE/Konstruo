@@ -61,11 +61,8 @@ pub fn draw_cursor_gizmo(
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
 ) {
-    match get_cursor_position(&window, &camera) {
-        Ok(position) => draw_axis_gizmo(gizmos, position, CURSOR_LENGTH),
-        Err(e) => {
-            warn!("{e:?}");
-        }
+    if let Ok(position) = get_cursor_position(&window, &camera) {
+        draw_axis_gizmo(gizmos, position, CURSOR_LENGTH);
     };
 }
 

@@ -149,11 +149,8 @@ fn mouse_button_input(
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
     if buttons.just_pressed(MouseButton::Middle) {
-        match get_cursor_position(window, camera) {
-            Ok(position) => pan.drag_origin = Some(position),
-            Err(e) => {
-                warn!("{e:?}");
-            }
+        if let Ok(position) = get_cursor_position(window, camera) {
+            pan.drag_origin = Some(position)
         };
     }
     if buttons.just_released(MouseButton::Middle) {
@@ -169,11 +166,8 @@ fn mouse_motion_input(
     mut motion: EventReader<MouseMotion>,
 ) {
     if pan.drag_origin.is_some() && motion.read().next().is_some() {
-        match get_cursor_position(window, camera) {
-            Ok(position) => pan.by_grab(position),
-            Err(e) => {
-                warn!("{e:?}");
-            }
+        if let Ok(position) = get_cursor_position(window, camera) {
+            pan.by_grab(position)
         };
     }
 }
