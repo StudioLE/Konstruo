@@ -1,5 +1,4 @@
 use beach_core::geometry::meshes::create_linestrip;
-use beach_core::geometry::polygons::{create_diamond, create_square};
 use bevy::math::vec3;
 use bevy::prelude::*;
 
@@ -17,12 +16,11 @@ pub struct WayMeshes {
 }
 
 pub fn insert_meshes(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
-    let way_control_origin = create_square(Vec3::ZERO, 0.5).to_vec();
-    let way_control_handle = create_diamond(Vec3::ZERO, 0.5).to_vec();
-    let way_control_line = vec![Vec3::ZERO, vec3(1.0, 0.0, 0.0)];
+    let node = Cuboid::from_size(vec3(1.0, 1.0, 0.25));
+    let line = vec![Vec3::ZERO, vec3(1.0, 0.0, 0.0)];
     commands.insert_resource(WayMeshes {
-        control_origin: meshes.add(create_linestrip(way_control_origin)),
-        control_line: meshes.add(create_linestrip(way_control_line)),
-        control_handle: meshes.add(create_linestrip(way_control_handle)),
+        control_origin: meshes.add(node),
+        control_line: meshes.add(create_linestrip(line)),
+        control_handle: meshes.add(node),
     });
 }

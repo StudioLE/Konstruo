@@ -15,8 +15,8 @@ pub struct ViewCubeMaterials {
 pub fn insert_materials(mut commands: Commands, mut materials: ResMut<Assets<StandardMaterial>>) {
     commands.insert_resource(ViewCubeMaterials {
         side: materials.add(StandardMaterial {
-            emissive: tailwind::GRAY_600.with_alpha(0.6).into(),
-            base_color: tailwind::GRAY_600.with_alpha(0.6).into(),
+            emissive: tailwind::SLATE_600.with_alpha(0.6).into(),
+            base_color: tailwind::SLATE_600.with_alpha(0.6).into(),
             alpha_mode: AlphaMode::Blend,
             ..Default::default()
         }),
