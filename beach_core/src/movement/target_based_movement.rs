@@ -44,8 +44,19 @@ impl TargetBasedMovement {
     /// Set the current position
     ///
     /// Position is clamped to the constraints.
+    /// 
+    /// Note: set_position does not update the Transform
     pub fn set_position(&mut self, position: Vec3) {
         self.current = self.clamp.clamp(position);
+    }
+
+    /// Set the current position by adding the displacement to the current position.
+    ///
+    /// Position is clamped to the constraints.
+    ///
+    /// Note: set_position_relative does not update the Transform
+    pub fn set_position_relative(&mut self, displacement: Vec3) {
+        self.set_position(self.current + displacement);
     }
 
     /// Set the target position

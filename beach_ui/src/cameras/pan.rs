@@ -14,7 +14,9 @@ use KeyCode::*;
 #[require(InheritedVisibility)]
 pub struct Pan {
     pub movement: TargetBasedMovement,
-    pub drag_origin: Option<Vec3>,
+    /// Is dragging mode currently active?
+    /// The value is the cursor position on the XY plane when dragging was started.
+    pub dragging: Option<Vec3>,
 }
 
 impl Default for Pan {
@@ -30,7 +32,7 @@ impl Default for Pan {
                 target: None,
                 speed: Vec3::splat(500.0),
             },
-            drag_origin: None,
+            dragging: None,
         }
     }
 }
@@ -57,9 +59,19 @@ impl Pan {
         self.movement.set_target_relative_to_position(displacement);
     }
 
-    fn by_grab(&mut self, cursor_position: Vec3) {
-        let translation = self.drag_origin.expect("Drag already confirmed.") - cursor_position;
+    fn by_grab(
+        &mut self,
+        mut transform: Mut<Transform>,
+        cursor_position: Vec3,
+    ) {
+        let Some(drag_origin) = self.dragging else {
+            warn!("Failed to get drag origin");
+            return;
+        };
+        let translation = drag_origin - cursor_position;    
         self.movement.set_target_relative_to_position(translation);
+        let target = self.movement.current + translation;
+        *transform = Transform::from_translation(target);
     }
 
     fn stop(&mut self) {
@@ -77,8 +89,9 @@ pub fn on_update(mut query: Query<(&mut Pan, &mut Transform)>) {
 }
 
 /// Respond to input events.
+#[allow(clippy::too_many_arguments)]
 pub fn on_input(
-    mut pan: Query<(&mut Pan, &Children)>,
+    mut pan: Query<(&mut Pan, &mut Transform, &Children)>,
     orbits: Query<&Orbit>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
@@ -86,7 +99,7 @@ pub fn on_input(
     buttons: Res<ButtonInput<MouseButton>>,
     motion: EventReader<MouseMotion>,
 ) {
-    let Ok((mut pan, children)) = pan.get_single_mut() else {
+    let Ok((mut pan, transform, children)) = pan.get_single_mut() else {
         warn!("Failed to get Pan");
         return;
     };
@@ -98,7 +111,7 @@ pub fn on_input(
     keyboard_input(&mut pan, orbit, keys);
     mouse_button_input(&mut pan, &window, &camera, buttons);
     if !left_shift_pressed {
-        mouse_motion_input(&mut pan, &window, &camera, motion);
+        mouse_motion_input(&mut pan, transform, &window, &camera, motion);
     }
 }
 
@@ -141,24 +154,25 @@ fn mouse_button_input(
 ) {
     if buttons.just_pressed(MouseButton::Middle) {
         if let Ok(position) = get_cursor_position(window, camera) {
-            pan.drag_origin = Some(position)
+            pan.dragging = Some(position)
         };
     }
     if buttons.just_released(MouseButton::Middle) {
-        pan.drag_origin = None;
+        pan.dragging = None;
         pan.stop();
     }
 }
 
 fn mouse_motion_input(
     pan: &mut Mut<Pan>,
+    transform: Mut<Transform>,
     window: &Query<&Window, With<PrimaryWindow>>,
     camera: &Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     mut motion: EventReader<MouseMotion>,
 ) {
-    if pan.drag_origin.is_some() && motion.read().next().is_some() {
+    if pan.dragging.is_some() && motion.read().next().is_some() {
         if let Ok(position) = get_cursor_position(window, camera) {
-            pan.by_grab(position)
+            pan.by_grab(transform, position)
         };
     }
 }
