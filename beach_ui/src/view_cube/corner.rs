@@ -42,6 +42,7 @@ pub fn spawn_corners(
             .iter()
             .fold(Vec3::ZERO, |acc, side| acc + side.get_vector());
         let bundle = (
+            ViewCorner { sides: corner },
             Mesh3d(meshes.corner.clone()),
             MeshMaterial3d(materials.corner.clone()),
             Transform::from_translation(vector * 0.4),
