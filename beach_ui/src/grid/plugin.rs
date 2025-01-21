@@ -1,11 +1,13 @@
+use crate::grid::materials::GridMaterials;
 use crate::grid::Grid;
-use bevy::app::{App, Plugin, Startup};
+use bevy::prelude::*;
 
 /// Plugin to display a geometric grid.
 pub struct GridPlugin;
 
 impl Plugin for GridPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, Grid::startup_system);
+        app.add_systems(Startup, GridMaterials::startup_system)
+            .add_systems(PostStartup, Grid::startup_system);
     }
 }
