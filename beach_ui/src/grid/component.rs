@@ -8,7 +8,7 @@ const LENGTH: i32 = 1000;
 const SPACING: [i32; 3] = [1, 10, 100];
 
 #[allow(clippy::integer_division)]
-const COUNT: i32 = LENGTH / SPACING[0];
+const COUNT: i32 = LENGTH / SPACING[0] + 1;
 
 #[derive(Component)]
 pub(super) enum Grid {
