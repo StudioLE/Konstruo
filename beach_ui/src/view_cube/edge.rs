@@ -3,7 +3,6 @@ use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::RENDER_LAYER;
 use beach_core::geometry::Orientation;
-use beach_core::geometry::Orientation::*;
 use bevy::math::Vec3;
 use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;
@@ -21,21 +20,7 @@ impl ViewCubeEdge {
         meshes: Res<ViewCubeMeshes>,
         materials: Res<ViewCubeMaterials>,
     ) {
-        let orientations = [
-            [Front, Left],
-            [Front, Right],
-            [Front, Top],
-            [Front, Bottom],
-            [Back, Left],
-            [Back, Right],
-            [Back, Top],
-            [Back, Bottom],
-            [Left, Top],
-            [Left, Bottom],
-            [Right, Top],
-            [Right, Bottom],
-        ];
-        for orientation in orientations {
+        for orientation in Orientation::get_all_edges() {
             let vector = Orientation::get_vector(&orientation);
             let mut transform = Transform::from_translation(vector * 0.4);
             transform.scale = Vec3::splat(0.6) - vector.abs() * 0.4;

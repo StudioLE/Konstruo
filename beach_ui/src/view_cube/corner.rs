@@ -3,7 +3,6 @@ use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::RENDER_LAYER;
 use beach_core::geometry::Orientation;
-use beach_core::geometry::Orientation::*;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 
@@ -19,17 +18,7 @@ impl ViewCubeCorner {
         meshes: Res<ViewCubeMeshes>,
         materials: Res<ViewCubeMaterials>,
     ) {
-        let orientations = [
-            [Front, Left, Top],
-            [Front, Right, Top],
-            [Front, Left, Bottom],
-            [Front, Right, Bottom],
-            [Back, Left, Top],
-            [Back, Right, Top],
-            [Back, Left, Bottom],
-            [Back, Right, Bottom],
-        ];
-        for orientation in orientations {
+        for orientation in Orientation::get_all_corners() {
             let vector = Orientation::get_vector(&orientation);
             let bundle = (
                 ViewCubeCorner { orientation },
