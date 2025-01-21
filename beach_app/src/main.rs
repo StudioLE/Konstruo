@@ -1,7 +1,7 @@
 use beach_civil::ways::ways_plugin;
 use beach_geography::environment_plugin;
 use beach_ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
-pub use beach_ui::cameras::cameras_plugin;
+use beach_ui::pan_orbit::PanOrbitCameraPlugin;
 use beach_ui::tools::tools_plugin;
 use beach_ui::view_cube::view_cube_plugin;
 use bevy::prelude::*;
@@ -10,7 +10,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(AxisMarkerPlugin)
-        .add_plugins(cameras_plugin)
+        .add_plugins(PanOrbitCameraPlugin)
         // .add_plugins(debug_plugin)
         .add_plugins(environment_plugin)
         .add_plugins(tools_plugin)

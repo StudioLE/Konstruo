@@ -1,4 +1,4 @@
-use crate::cameras::orbit::Orbit;
+use crate::pan_orbit::Orbit;
 use beach_core::mathematics::spherical_coordinate_system::{
     AZIMUTHAL_AXIS, POLAR_AXIS, RADIAL_AXIS,
 };
@@ -8,7 +8,7 @@ use bevy::prelude::KeyCode::{Equal, KeyA, KeyD, KeyS, KeyW, Minus, ShiftLeft};
 use bevy::prelude::*;
 
 impl Orbit {
-    /// System to respond to input events.
+    /// System to update [`Orbit`] in response to input events.
     pub fn input_system(
         mut query: Query<&mut Orbit>,
         keys: Res<ButtonInput<KeyCode>>,

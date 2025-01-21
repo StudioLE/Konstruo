@@ -1,6 +1,6 @@
-use crate::cameras::orbit::Orbit;
-use crate::cameras::pan::Pan;
-use crate::cameras::primary_camera::PrimaryCamera;
+use crate::pan_orbit::pan::Pan;
+use crate::pan_orbit::primary_camera::PrimaryCamera;
+use crate::pan_orbit::Orbit;
 use crate::tools::cursor::get_cursor_position;
 use bevy::hierarchy::Children;
 use bevy::input::mouse::MouseMotion;
@@ -15,9 +15,9 @@ use bevy::prelude::{
 use bevy::window::PrimaryWindow;
 
 impl Pan {
-    /// System to respond to input events.
+    /// System to update [`Pan`] in response to input events.
     #[allow(clippy::too_many_arguments)]
-    pub fn input_system(
+    pub(super) fn input_system(
         mut pan: Query<(&mut Pan, &mut Transform, &Children)>,
         orbits: Query<&Orbit>,
         window: Query<&Window, With<PrimaryWindow>>,
@@ -99,7 +99,7 @@ fn mouse_motion_input(
 /// Project it on the XY plane
 fn relative_direction(orbit: &Orbit, direction: Vec3) -> Vec3 {
     orbit
-        .get_rotation()
+        .get_orientation()
         .mul_vec3(direction)
         .with_z(0.0)
         .normalize()

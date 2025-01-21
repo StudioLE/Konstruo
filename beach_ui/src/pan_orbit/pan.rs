@@ -4,20 +4,29 @@ use beach_core::movement::direct::DirectMovement;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
-/// Pan state of the camera.
+/// 2D translation of the [`PanOrbitCameraPlugin`] on the XY plane.
+///
+/// The [`Orbit`] entity is a child of the [`Pan`] entity.
+/// Therefore any translation of [`Pan`] will affect [`Orbit`].
+///
+/// Cartesian coordiantes are used.
 #[derive(Component)]
 #[require(InheritedVisibility)]
 pub struct Pan {
-    pub movement: DirectMovement,
+    /// Translation on the XY plane.
+    ///
+    /// Cartesian coordinates are used.
+    pub(super) translation: DirectMovement,
     /// Is dragging mode currently active?
-    /// The value is the cursor position on the XY plane when dragging was started.
-    pub dragging: Option<Vec3>,
+    ///
+    /// The value is the cursor translation on the XY plane when dragging was started.
+    pub(super) dragging: Option<Vec3>,
 }
 
 impl Default for Pan {
     fn default() -> Self {
         Self {
-            movement: DirectMovement {
+            translation: DirectMovement {
                 current: Vec3::ZERO,
                 clamp: ClampVec3 {
                     x: ClampFloat::Fixed(-1000.0, 1000.0),
@@ -33,15 +42,15 @@ impl Default for Pan {
 }
 
 impl Pan {
-    /// Get the position.
+    /// Get the current translation as a transform.
     pub fn get_transform(&self) -> Transform {
-        Transform::from_translation(self.movement.current)
+        Transform::from_translation(self.translation.current)
     }
 
     /// Orbit the camera in direction relative to the Azimuth.
     pub(crate) fn in_direction(&mut self, direction: Vec3, modifier: f32) {
-        let velocity = direction * self.movement.speed * modifier;
-        self.movement.set_target_relative_to_position(velocity);
+        let velocity = direction * self.translation.speed * modifier;
+        self.translation.set_target_relative_to_position(velocity);
     }
 
     /// Orbit the camera in the direction of the mouse motion.
@@ -51,21 +60,23 @@ impl Pan {
         let polar = direction.y * -1.0 * 0.1;
         let azimuthal = direction.x * -1.0 * 0.04;
         let displacement = Vec3::new(0.0, polar, azimuthal);
-        self.movement.set_target_relative_to_position(displacement);
+        self.translation
+            .set_target_relative_to_position(displacement);
     }
 
-    pub(crate) fn by_grab(&mut self, mut transform: Mut<Transform>, cursor_position: Vec3) {
-        let Some(drag_origin) = self.dragging else {
+    pub(crate) fn by_grab(&mut self, mut transform: Mut<Transform>, cursor: Vec3) {
+        let Some(start) = self.dragging else {
             warn!("Failed to get drag origin");
             return;
         };
-        let translation = drag_origin - cursor_position;
-        self.movement.set_target_relative_to_position(translation);
-        let target = self.movement.current + translation;
+        let translation = start - cursor;
+        self.translation
+            .set_target_relative_to_position(translation);
+        let target = self.translation.current + translation;
         *transform = Transform::from_translation(target);
     }
 
     pub(crate) fn stop(&mut self) {
-        self.movement.remove_target();
+        self.translation.remove_target();
     }
 }

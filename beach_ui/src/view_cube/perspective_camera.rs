@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use crate::cameras::orbit::Orbit;
+use crate::pan_orbit::Orbit;
 use crate::view_cube::camera::ViewCubeCamera;
 use crate::view_cube::RENDER_LAYER;
 use beach_core::mathematics::spherical_coordinate_system::spherical_to_cartesian;
@@ -43,7 +43,7 @@ fn on_orbit_changed_internal(
 ) -> Option<()> {
     let orbit = orbit.get_single().ok()?;
     let mut entity_transform = transform.get_single_mut().ok()?;
-    let mut transform = orbit.get_transform();
+    let mut transform = orbit.get_cartesian_transform();
     transform.translation = spherical_to_cartesian(3.0, orbit.get_polar(), orbit.get_azimuth());
     *entity_transform = transform;
     Some(())

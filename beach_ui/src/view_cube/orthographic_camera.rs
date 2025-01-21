@@ -1,4 +1,4 @@
-use crate::cameras::orbit::Orbit;
+use crate::pan_orbit::Orbit;
 use crate::view_cube::camera::ViewCubeCamera;
 use crate::view_cube::RENDER_LAYER;
 use bevy::prelude::Projection::Orthographic;
@@ -48,6 +48,6 @@ fn on_orbit_changed_internal(
 ) -> Option<()> {
     let orbit = orbit.get_single().ok()?;
     let mut transform = transform.get_single_mut().ok()?;
-    *transform = orbit.get_transform();
+    *transform = orbit.get_cartesian_transform();
     Some(())
 }

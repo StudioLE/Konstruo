@@ -1,4 +1,4 @@
-use crate::cameras::primary_camera::PrimaryCamera;
+use crate::pan_orbit::PrimaryCamera;
 use crate::tools::cursor::get_cursor_position;
 use bevy::color::palettes::*;
 use bevy::prelude::*;

@@ -1,4 +1,4 @@
-use crate::cameras::primary_camera::PrimaryCamera;
+use crate::pan_orbit::PrimaryCamera;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use CursorPositionError::*;

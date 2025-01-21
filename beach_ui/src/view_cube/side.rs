@@ -1,4 +1,4 @@
-use crate::cameras::orbit::Orbit;
+use crate::pan_orbit::Orbit;
 use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::RENDER_LAYER;
@@ -106,8 +106,8 @@ fn on_pointer_click(
     };
     let vector = side.side.get_vector();
     let mut spherical = cartesian_to_spherical(vector);
-    spherical.x = orbit.movement.current.x;
-    orbit.movement.set_target(spherical);
+    spherical.x = orbit.translation.current.x;
+    orbit.translation.set_target(spherical);
     info!("Side {:?}", side.side);
     info!("Cartesian {:?}", vector);
     info!("Spherical {:?}", spherical);
