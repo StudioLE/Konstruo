@@ -7,6 +7,9 @@ use beach_core::movement::direct::DirectMovement;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
+pub(super) const DEFAULT_RADIUS: f32 = 250.0;
+pub(super) const SPEED_MODIFIER: f32 = 2.0;
+
 /// 3D orbital translation of the [`PanOrbitCameraPlugin`] around an origin.
 ///
 /// The [`Orbit`] entity is a child of the [`Pan`] entity.
@@ -27,14 +30,14 @@ impl Default for Orbit {
     fn default() -> Self {
         Self {
             translation: DirectMovement {
-                current: Vec3::new(250.0, 0.0, 0.0),
+                current: Vec3::new(DEFAULT_RADIUS, 0.0, 0.0),
                 clamp: ClampVec3 {
                     x: ClampFloat::Fixed(10.0, 2500.0),
                     y: ClampFloat::Fixed(0.0, PI),
                     z: ClampFloat::Wrapped(TWO_PI),
                 },
                 target: None,
-                speed: Vec3::new(250.0, HALF_PI, PI),
+                speed: Vec3::new(DEFAULT_RADIUS * SPEED_MODIFIER, HALF_PI, PI),
             },
             dragging: false,
         }

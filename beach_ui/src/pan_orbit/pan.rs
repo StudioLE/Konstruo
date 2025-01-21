@@ -1,8 +1,11 @@
+use crate::pan_orbit::orbit::DEFAULT_RADIUS;
 use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
 use beach_core::movement::direct::DirectMovement;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
+
+pub(super) const SPEED_MODIFIER: f32 = 2.0;
 
 /// 2D translation of the [`PanOrbitCameraPlugin`] on the XY plane.
 ///
@@ -34,7 +37,7 @@ impl Default for Pan {
                     z: ClampFloat::Fixed(-1000.0, 1000.0),
                 },
                 target: None,
-                speed: Vec3::splat(500.0),
+                speed: Vec3::splat(DEFAULT_RADIUS * SPEED_MODIFIER),
             },
             dragging: None,
         }

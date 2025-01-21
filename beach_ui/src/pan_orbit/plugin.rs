@@ -8,6 +8,7 @@ impl Plugin for PanOrbitCameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_camera)
             .add_systems(Update, Pan::update_system)
+            .add_systems(Update, Pan::orbit_changed_system)
             .add_systems(Update, Pan::input_system)
             .add_systems(Update, Orbit::update_system)
             .add_systems(Update, Orbit::input_system);
