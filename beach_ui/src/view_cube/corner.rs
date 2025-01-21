@@ -1,58 +1,52 @@
 use crate::pan_orbit::Orbit;
 use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
-use crate::view_cube::side::Side;
 use crate::view_cube::RENDER_LAYER;
+use beach_core::geometry::Orientation;
+use beach_core::geometry::Orientation::*;
 use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 
 #[derive(Component)]
-pub struct ViewCorner {
-    #[allow(dead_code)]
-    pub sides: [Side; 3],
+pub(super) struct ViewCubeCorner {
+    orientation: [Orientation; 3],
 }
 
-impl ViewCorner {
-    fn get_vector(&self) -> Vec3 {
-        self.sides
-            .iter()
-            .fold(Vec3::ZERO, |acc, side| acc + side.get_vector())
-            .normalize()
-    }
-}
-
-pub fn spawn_corners(
-    mut commands: Commands,
-    meshes: Res<ViewCubeMeshes>,
-    materials: Res<ViewCubeMaterials>,
-) {
-    let corners = [
-        [Side::Front, Side::Left, Side::Top],
-        [Side::Front, Side::Right, Side::Top],
-        [Side::Front, Side::Left, Side::Bottom],
-        [Side::Front, Side::Right, Side::Bottom],
-        [Side::Back, Side::Left, Side::Top],
-        [Side::Back, Side::Right, Side::Top],
-        [Side::Back, Side::Left, Side::Bottom],
-        [Side::Back, Side::Right, Side::Bottom],
-    ];
-    for corner in corners {
-        let vector = corner
-            .iter()
-            .fold(Vec3::ZERO, |acc, side| acc + side.get_vector());
-        let bundle = (
-            ViewCorner { sides: corner },
-            Mesh3d(meshes.corner.clone()),
-            MeshMaterial3d(materials.corner.clone()),
-            Transform::from_translation(vector * 0.4),
-            RenderLayers::layer(RENDER_LAYER),
-        );
-        commands
-            .spawn(bundle)
-            .observe(on_pointer_over)
-            .observe(on_pointer_out)
-            .observe(on_pointer_click);
+impl ViewCubeCorner {
+    /// System to spawn [`ViewCubeCorner`] on startup.
+    pub(super) fn startup_system(
+        mut commands: Commands,
+        meshes: Res<ViewCubeMeshes>,
+        materials: Res<ViewCubeMaterials>,
+    ) {
+        let orientations = [
+            [Front, Left, Top],
+            [Front, Right, Top],
+            [Front, Left, Bottom],
+            [Front, Right, Bottom],
+            [Back, Left, Top],
+            [Back, Right, Top],
+            [Back, Left, Bottom],
+            [Back, Right, Bottom],
+        ];
+        for orientation in orientations {
+            let vector = Orientation::get_vector(&orientation);
+            let bundle = (
+                ViewCubeCorner {
+                    orientation,
+                },
+                Mesh3d(meshes.corner.clone()),
+                MeshMaterial3d(materials.corner.clone()),
+                Transform::from_translation(vector * 0.4),
+                RenderLayers::layer(RENDER_LAYER),
+            );
+            commands
+                .spawn(bundle)
+                .observe(on_pointer_over)
+                .observe(on_pointer_out)
+                .observe(on_pointer_click);
+        }
     }
 }
 
@@ -82,7 +76,7 @@ fn on_pointer_out(
 
 fn on_pointer_click(
     event: Trigger<Pointer<Click>>,
-    corner: Query<&ViewCorner>,
+    corner: Query<&ViewCubeCorner>,
     mut orbit: Query<&mut Orbit>,
 ) {
     let Ok(corner) = corner.get(event.entity()) else {
@@ -93,7 +87,7 @@ fn on_pointer_click(
         error!("Failed to get Orbit");
         return;
     };
-    let vector = corner.get_vector();
+    let vector = Orientation::get_vector(&corner.orientation).normalize();
     let mut spherical = cartesian_to_spherical(vector);
     spherical.x = orbit.translation.current.x;
     orbit.translation.set_target(spherical);

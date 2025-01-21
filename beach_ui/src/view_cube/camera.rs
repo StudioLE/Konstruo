@@ -1,4 +1,58 @@
-use bevy::prelude::Component;
+use crate::pan_orbit::Orbit;
+use crate::view_cube::RENDER_LAYER;
+use bevy::prelude::Projection::Orthographic;
+use bevy::prelude::*;
+use bevy::render::camera::ScalingMode::Fixed;
+use bevy::render::camera::Viewport;
+use bevy::render::view::RenderLayers;
 
+/// A camera looking at a geoemtric view cube that rotates according to [`Orbit`].
 #[derive(Component)]
-pub struct ViewCubeCamera;
+pub(super) struct ViewCubeCamera;
+
+impl ViewCubeCamera {
+    /// System to spawn a [`ViewCubeCamera`] on startup
+    /// <https://bevy-cheatbook.github.io/graphics/camera.html?highlight=viewport#viewport>
+    pub(super) fn startup_system(mut commands: Commands) {
+        let viewport = Some(Viewport {
+            physical_position: UVec2::new(0, 0),
+            physical_size: UVec2::new(150, 150),
+            ..default()
+        });
+        let bundle = (
+            ViewCubeCamera,
+            Camera3d::default(),
+            Camera {
+                order: 2,
+                viewport,
+                ..default()
+            },
+            Orthographic(OrthographicProjection {
+                scaling_mode: Fixed {
+                    width: 2.0,
+                    height: 2.0,
+                },
+                ..OrthographicProjection::default_3d()
+            }),
+            Transform::from_xyz(0.0, 0.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y),
+            RenderLayers::layer(RENDER_LAYER),
+        );
+        commands.spawn(bundle);
+    }
+
+    /// System to rotate the [`ViewCubeCamera`] when [`Orbit`] is changed.
+    pub fn update_system(
+        orbit: Query<&Orbit, Changed<Orbit>>,
+        mut transform: Query<&mut Transform, With<ViewCubeCamera>>,
+    ) {
+        let Ok(orbit) = orbit.get_single() else {
+            warn!("Failed to get Orbit");
+            return;
+        };
+        let Ok(mut transform) = transform.get_single_mut() else {
+            warn!("Failed to get ViewCubeCamera");
+            return;
+        };
+        *transform = orbit.get_cartesian_transform();
+    }
+}

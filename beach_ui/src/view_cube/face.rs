@@ -3,49 +3,32 @@ use crate::view_cube::materials::ViewCubeMaterials;
 use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::RENDER_LAYER;
 use beach_core::geometry::Orientation;
-use beach_core::geometry::Orientation::*;
 use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
-use bevy::math::Vec3;
-use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 
 #[derive(Component)]
-pub(super) struct ViewCubeEdge {
-    orientation: [Orientation; 2],
+pub(super) struct ViewCubeFace {
+    orientation: Orientation,
 }
 
-impl ViewCubeEdge {
-    /// System to spawn [`ViewCubeEdge`] on startup.
+impl ViewCubeFace {
+    /// System to spawn [`ViewCubeFace`] on startup.
     pub(super) fn startup_system(
         mut commands: Commands,
         meshes: Res<ViewCubeMeshes>,
         materials: Res<ViewCubeMaterials>,
     ) {
-        let orientations = [
-            [Front, Left],
-            [Front, Right],
-            [Front, Top],
-            [Front, Bottom],
-            [Back, Left],
-            [Back, Right],
-            [Back, Top],
-            [Back, Bottom],
-            [Left, Top],
-            [Left, Bottom],
-            [Right, Top],
-            [Right, Bottom],
-        ];
-        for orientation in orientations {
-            let vector = Orientation::get_vector(&orientation);
+        for orientation in Orientation::get_all() {
+            let vector = orientation.to_vector();
             let mut transform = Transform::from_translation(vector * 0.4);
-            transform.scale = Vec3::splat(0.6) - vector.abs() * 0.4;
+            transform.look_at(Vec3::ZERO, vector.normalize());
             let bundle = (
-                ViewCubeEdge { orientation },
-                Mesh3d(meshes.edge.clone()),
-                MeshMaterial3d(materials.edge.clone()),
-                transform,
+                ViewCubeFace { orientation },
                 RenderLayers::layer(RENDER_LAYER),
+                Mesh3d(meshes.face.clone()),
+                MeshMaterial3d(materials.face.clone()),
+                transform,
             );
             commands
                 .spawn(bundle)
@@ -62,10 +45,10 @@ fn on_pointer_over(
     mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
     let Ok(mut material) = query.get_mut(event.entity()) else {
-        error!("Failed to get material of ViewEdge");
+        error!("Failed to get material of ViewCubeSide");
         return;
     };
-    *material = MeshMaterial3d(materials.edge_over.clone());
+    *material = MeshMaterial3d(materials.face_over.clone());
 }
 
 fn on_pointer_out(
@@ -74,26 +57,26 @@ fn on_pointer_out(
     mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
     let Ok(mut material) = query.get_mut(event.entity()) else {
-        error!("Failed to get material of ViewEdge");
+        error!("Failed to get material of ViewCubeSide");
         return;
     };
-    *material = MeshMaterial3d(materials.edge.clone());
+    *material = MeshMaterial3d(materials.face.clone());
 }
 
 fn on_pointer_click(
     event: Trigger<Pointer<Click>>,
-    edge: Query<&ViewCubeEdge>,
+    side: Query<&ViewCubeFace>,
     mut orbit: Query<&mut Orbit>,
 ) {
-    let Ok(edge) = edge.get(event.entity()) else {
-        error!("Failed to get clicked ViewEdge");
+    let Ok(side) = side.get(event.entity()) else {
+        error!("Failed to get clicked ViewCubeSide");
         return;
     };
     let Ok(mut orbit) = orbit.get_single_mut() else {
         error!("Failed to get Orbit");
         return;
     };
-    let vector = Orientation::get_vector(&edge.orientation).normalize();
+    let vector = side.orientation.to_vector();
     let mut spherical = cartesian_to_spherical(vector);
     spherical.x = orbit.translation.current.x;
     orbit.translation.set_target(spherical);
