@@ -3,7 +3,7 @@ use crate::cameras::primary_camera::PrimaryCamera;
 use crate::tools::cursor::get_cursor_position;
 use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
-use beach_core::movement::target_based_movement::TargetBasedMovement;
+use beach_core::movement::direct::DirectMovement;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -13,7 +13,7 @@ use KeyCode::*;
 #[derive(Component)]
 #[require(InheritedVisibility)]
 pub struct Pan {
-    pub movement: TargetBasedMovement,
+    pub movement: DirectMovement,
     /// Is dragging mode currently active?
     /// The value is the cursor position on the XY plane when dragging was started.
     pub dragging: Option<Vec3>,
@@ -22,7 +22,7 @@ pub struct Pan {
 impl Default for Pan {
     fn default() -> Self {
         Self {
-            movement: TargetBasedMovement {
+            movement: DirectMovement {
                 current: Vec3::ZERO,
                 clamp: ClampVec3 {
                     x: ClampFloat::Fixed(-1000.0, 1000.0),

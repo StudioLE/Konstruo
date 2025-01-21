@@ -4,7 +4,7 @@ use crate::geometry::vectors::{is_almost_equal_to, is_almost_zero};
 use bevy::prelude::*;
 
 /// Move towards a target position.
-pub struct TargetBasedMovement {
+pub struct DirectMovement {
     /// Current position.
     pub current: Vec3,
     /// Target position to move towards.
@@ -15,7 +15,7 @@ pub struct TargetBasedMovement {
     pub speed: Vec3,
 }
 
-impl TargetBasedMovement {
+impl DirectMovement {
     /// Move the current position towards the target for a single frame.
     ///
     /// Returns `true` if the current position has changed

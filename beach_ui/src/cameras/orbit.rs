@@ -2,7 +2,7 @@ use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
 use beach_core::mathematics::constants::*;
 use beach_core::mathematics::spherical_coordinate_system::*;
-use beach_core::movement::target_based_movement::TargetBasedMovement;
+use beach_core::movement::direct::DirectMovement;
 use bevy::input::mouse::{MouseMotion, MouseScrollUnit, MouseWheel};
 use bevy::prelude::*;
 use KeyCode::*;
@@ -10,14 +10,14 @@ use KeyCode::*;
 /// Orbital state of the camera.
 #[derive(Component)]
 pub struct Orbit {
-    pub movement: TargetBasedMovement,
+    pub movement: DirectMovement,
     pub dragging: bool,
 }
 
 impl Default for Orbit {
     fn default() -> Self {
         Self {
-            movement: TargetBasedMovement {
+            movement: DirectMovement {
                 current: Vec3::new(250.0, 0.0, 0.0),
                 clamp: ClampVec3 {
                     x: ClampFloat::Fixed(10.0, 2500.0),
