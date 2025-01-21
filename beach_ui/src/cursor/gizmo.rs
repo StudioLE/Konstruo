@@ -1,6 +1,6 @@
 use crate::cursor::Cursor;
+use crate::gizmos::{AxisGizmo, Bold};
 use crate::pan_orbit::PrimaryCamera;
-use crate::tools::gizmos::{draw_axis_gizmo, Gizmos700};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
@@ -16,11 +16,11 @@ impl Plugin for CursorGizmoPlugin {
 
 /// A system to draw the cursor as an axis marker gizmo.
 fn axis_gizmo_system(
-    gizmos: Gizmos<Gizmos700>,
+    gizmos: Gizmos<Bold>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
 ) {
     if let Ok(position) = Cursor::on_ground(&window, &camera) {
-        draw_axis_gizmo(gizmos, position, GIZMO_LENGTH);
+        AxisGizmo::draw_at(gizmos, position, GIZMO_LENGTH);
     };
 }
