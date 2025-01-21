@@ -4,7 +4,6 @@ use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::RENDER_LAYER;
 use beach_core::geometry::Orientation;
 use beach_core::geometry::Orientation::*;
-use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::math::Vec3;
 use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;
@@ -62,7 +61,7 @@ fn on_pointer_over(
     mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
     let Ok(mut material) = query.get_mut(event.entity()) else {
-        error!("Failed to get material of ViewEdge");
+        error!("Failed to get material of ViewCubeEdge");
         return;
     };
     *material = MeshMaterial3d(materials.edge_over.clone());
@@ -74,7 +73,7 @@ fn on_pointer_out(
     mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
     let Ok(mut material) = query.get_mut(event.entity()) else {
-        error!("Failed to get material of ViewEdge");
+        error!("Failed to get material of ViewCubeEdge");
         return;
     };
     *material = MeshMaterial3d(materials.edge.clone());
@@ -86,15 +85,12 @@ fn on_pointer_click(
     mut orbit: Query<&mut Orbit>,
 ) {
     let Ok(edge) = edge.get(event.entity()) else {
-        error!("Failed to get clicked ViewEdge");
+        error!("Failed to get clicked ViewCubeEdge");
         return;
     };
     let Ok(mut orbit) = orbit.get_single_mut() else {
         error!("Failed to get Orbit");
         return;
     };
-    let vector = Orientation::get_vector(&edge.orientation).normalize();
-    let mut spherical = cartesian_to_spherical(vector);
-    spherical.x = orbit.translation.current.x;
-    orbit.translation.set_target(spherical);
+    orbit.orientate(&edge.orientation);
 }

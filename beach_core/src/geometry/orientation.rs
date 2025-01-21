@@ -1,7 +1,14 @@
 use bevy::math::Vec3;
 use Orientation::*;
 
-#[derive(Debug)]
+/// Orientation terminology according to the six sides of a cuboid.
+/// 
+/// A face is defined by a single orientation.
+///
+/// An edge is defined by two orientations.
+///
+/// A corner is defined by three orientations. 
+#[derive(Clone, Debug)]
 pub enum Orientation {
     Front,
     Back,

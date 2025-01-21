@@ -1,5 +1,6 @@
 use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
+use beach_core::geometry::Orientation;
 use beach_core::mathematics::constants::*;
 use beach_core::mathematics::spherical_coordinate_system::*;
 use beach_core::movement::direct::DirectMovement;
@@ -17,7 +18,7 @@ pub struct Orbit {
     /// 3D oribtal translation.
     ///
     /// Spherical coordinates are used.
-    pub(crate) translation: DirectMovement,
+    pub(super) translation: DirectMovement,
     /// Is dragging mode currently active?
     pub(super) dragging: bool,
 }
@@ -101,6 +102,13 @@ impl Orbit {
         let displacement = Vec3::new(0.0, polar, azimuthal);
         self.translation
             .set_target_relative_to_position(displacement);
+    }
+
+    /// Orbit the camera to the specified orientation.
+    pub(crate) fn orientate(&mut self, orientation: &[Orientation]) {
+        let vector = Orientation::get_vector(orientation).normalize();
+        let spherical = cartesian_to_spherical(vector).with_x(self.get_radius());
+        self.translation.set_target(spherical);
     }
 
     /// Stop movement by removing the target.

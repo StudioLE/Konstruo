@@ -4,7 +4,6 @@ use crate::view_cube::meshes::ViewCubeMeshes;
 use crate::view_cube::RENDER_LAYER;
 use beach_core::geometry::Orientation;
 use beach_core::geometry::Orientation::*;
-use beach_core::mathematics::spherical_coordinate_system::cartesian_to_spherical;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 
@@ -33,9 +32,7 @@ impl ViewCubeCorner {
         for orientation in orientations {
             let vector = Orientation::get_vector(&orientation);
             let bundle = (
-                ViewCubeCorner {
-                    orientation,
-                },
+                ViewCubeCorner { orientation },
                 Mesh3d(meshes.corner.clone()),
                 MeshMaterial3d(materials.corner.clone()),
                 Transform::from_translation(vector * 0.4),
@@ -80,15 +77,12 @@ fn on_pointer_click(
     mut orbit: Query<&mut Orbit>,
 ) {
     let Ok(corner) = corner.get(event.entity()) else {
-        error!("Failed to get clicked ViewCorner");
+        error!("Failed to get clicked ViewCubeCorner");
         return;
     };
     let Ok(mut orbit) = orbit.get_single_mut() else {
         error!("Failed to get Orbit");
         return;
     };
-    let vector = Orientation::get_vector(&corner.orientation).normalize();
-    let mut spherical = cartesian_to_spherical(vector);
-    spherical.x = orbit.translation.current.x;
-    orbit.translation.set_target(spherical);
+    orbit.orientate(&corner.orientation);
 }
