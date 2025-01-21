@@ -1,5 +1,9 @@
 pub mod orbit;
+mod orbit_input;
+mod orbit_update;
 mod pan;
+mod pan_input;
+mod pan_update;
 pub mod primary_camera;
 
 use crate::cameras::orbit::Orbit;
@@ -10,10 +14,10 @@ use bevy::prelude::*;
 /// Register systems for cameras.
 pub fn cameras_plugin(app: &mut App) {
     app.add_systems(Startup, spawn_camera)
-        .add_systems(Update, pan::on_update)
-        .add_systems(Update, pan::on_input)
-        .add_systems(Update, orbit::on_update)
-        .add_systems(Update, orbit::on_input);
+        .add_systems(Update, Pan::update_system)
+        .add_systems(Update, Pan::input_system)
+        .add_systems(Update, Orbit::update_system)
+        .add_systems(Update, Orbit::input_system);
 }
 
 fn spawn_camera(mut commands: Commands) {

@@ -44,7 +44,7 @@ impl DirectMovement {
     /// Set the current position
     ///
     /// Position is clamped to the constraints.
-    /// 
+    ///
     /// Note: set_position does not update the Transform
     pub fn set_position(&mut self, position: Vec3) {
         self.current = self.clamp.clamp(position);

@@ -3,9 +3,8 @@ use beach_core::constraints::clamp_vec3::ClampVec3;
 use beach_core::mathematics::constants::*;
 use beach_core::mathematics::spherical_coordinate_system::*;
 use beach_core::movement::direct::DirectMovement;
-use bevy::input::mouse::{MouseMotion, MouseScrollUnit, MouseWheel};
+use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
-use KeyCode::*;
 
 /// Orbital state of the camera.
 #[derive(Component)]
@@ -71,13 +70,13 @@ impl Orbit {
     }
 
     /// Orbit the camera in direction relative to the Azimuth.
-    fn in_direction(&mut self, direction: Vec3, modifier: f32) {
+    pub(crate) fn in_direction(&mut self, direction: Vec3, modifier: f32) {
         let velocity = direction * self.movement.speed * modifier;
         self.movement.set_target_relative_to_position(velocity);
     }
 
     /// Orbit the camera in the direction of the mouse motion.
-    fn in_direction_of_motion(&mut self, mouse: MouseMotion) {
+    pub(crate) fn in_direction_of_motion(&mut self, mouse: MouseMotion) {
         let direction = mouse.delta.normalize();
         let polar = direction.y * -1.0 * 0.1;
         let azimuthal = direction.x * -1.0 * 0.04;
@@ -85,97 +84,7 @@ impl Orbit {
         self.movement.set_target_relative_to_position(displacement);
     }
 
-    fn stop(&mut self) {
+    pub(crate) fn stop(&mut self) {
         self.movement.remove_target();
-    }
-}
-
-/// Update the movement once per frame.
-pub fn on_update(mut query: Query<(&mut Orbit, &mut Transform)>) {
-    for (mut orbit, mut transform) in &mut query {
-        if orbit.movement.update() {
-            *transform = orbit.get_transform();
-        }
-    }
-}
-
-/// Respond to input events.
-pub fn on_input(
-    mut query: Query<&mut Orbit>,
-    keys: Res<ButtonInput<KeyCode>>,
-    buttons: Res<ButtonInput<MouseButton>>,
-    wheel_event: EventReader<MouseWheel>,
-    motion_event: EventReader<MouseMotion>,
-) {
-    let Ok(mut orbit) = query.get_single_mut() else {
-        return;
-    };
-    let left_shift_pressed = keys.pressed(ShiftLeft);
-    keyboard_input(&mut orbit, keys);
-    mouse_button_input(&mut orbit, buttons);
-    if left_shift_pressed {
-        mouse_motion_input(&mut orbit, motion_event);
-    }
-    scroll_wheel_input(&mut orbit, wheel_event);
-}
-
-fn keyboard_input(orbit: &mut Mut<Orbit>, keys: Res<ButtonInput<KeyCode>>) {
-    if keys.pressed(ShiftLeft) {
-        if keys.pressed(KeyW) {
-            orbit.in_direction(POLAR_AXIS * -1.0, 0.1);
-        }
-        if keys.pressed(KeyA) {
-            orbit.in_direction(AZIMUTHAL_AXIS * -1.0, 0.1);
-        }
-        if keys.pressed(KeyS) {
-            orbit.in_direction(POLAR_AXIS, 0.1);
-        }
-        if keys.pressed(KeyD) {
-            orbit.in_direction(AZIMUTHAL_AXIS, 0.1);
-        }
-    }
-    if keys.any_just_released([KeyW, KeyA, KeyS, KeyD, Equal, Minus]) {
-        orbit.stop();
-    }
-    if keys.pressed(Minus) {
-        orbit.in_direction(RADIAL_AXIS, 0.1);
-    }
-    if keys.pressed(Equal) {
-        orbit.in_direction(RADIAL_AXIS * -1.0, 0.1);
-    }
-}
-
-fn mouse_button_input(orbit: &mut Mut<Orbit>, buttons: Res<ButtonInput<MouseButton>>) {
-    if buttons.just_pressed(MouseButton::Middle) {
-        orbit.dragging = true;
-    }
-    if buttons.just_released(MouseButton::Middle) {
-        orbit.dragging = false;
-        orbit.stop();
-    }
-}
-
-fn mouse_motion_input(orbit: &mut Mut<Orbit>, mut motion_event: EventReader<MouseMotion>) {
-    for motion in motion_event.read() {
-        if orbit.dragging {
-            orbit.in_direction_of_motion(*motion);
-        }
-    }
-}
-
-fn scroll_wheel_input(orbit: &mut Mut<Orbit>, mut wheel_event: EventReader<MouseWheel>) {
-    for scroll_wheel in wheel_event.read() {
-        let vertical = match scroll_wheel.unit {
-            MouseScrollUnit::Line => scroll_wheel.y,
-            MouseScrollUnit::Pixel => scroll_wheel.y,
-        };
-        let direction = if vertical == 0.0 {
-            return;
-        } else if vertical > 0.0 {
-            -1.0
-        } else {
-            1.0
-        };
-        orbit.in_direction(RADIAL_AXIS * direction, 0.2);
     }
 }
