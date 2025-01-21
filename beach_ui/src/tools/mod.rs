@@ -3,8 +3,6 @@ use crate::tools::gizmos::{
 };
 use bevy::app::{App, Startup, Update};
 use bevy::gizmos::AppGizmoBuilder;
-
-pub mod cursor;
 pub mod gizmos;
 
 /// Register systems for tools.

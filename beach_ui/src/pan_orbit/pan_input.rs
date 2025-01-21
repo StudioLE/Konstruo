@@ -1,7 +1,7 @@
+use crate::cursor::Cursor;
 use crate::pan_orbit::pan::Pan;
 use crate::pan_orbit::primary_camera::PrimaryCamera;
 use crate::pan_orbit::Orbit;
-use crate::tools::cursor::get_cursor_position;
 use bevy::hierarchy::Children;
 use bevy::input::mouse::MouseMotion;
 use bevy::input::ButtonInput;
@@ -70,7 +70,7 @@ fn mouse_button_input(
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
     if buttons.just_pressed(MouseButton::Middle) {
-        if let Ok(position) = get_cursor_position(window, camera) {
+        if let Ok(position) = Cursor::on_ground(window, camera) {
             pan.dragging = Some(position)
         };
     }
@@ -88,7 +88,7 @@ fn mouse_motion_input(
     mut motion: EventReader<MouseMotion>,
 ) {
     if pan.dragging.is_some() && motion.read().next().is_some() {
-        if let Ok(position) = get_cursor_position(window, camera) {
+        if let Ok(position) = Cursor::on_ground(window, camera) {
             pan.by_grab(transform, position)
         };
     }

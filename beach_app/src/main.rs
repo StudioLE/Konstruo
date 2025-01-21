@@ -1,6 +1,7 @@
 use beach_civil::ways::ways_plugin;
 use beach_geography::environment_plugin;
 use beach_ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
+use beach_ui::cursor::CursorGizmoPlugin;
 use beach_ui::grid::GridPlugin;
 use beach_ui::pan_orbit::PanOrbitCameraPlugin;
 use beach_ui::tools::tools_plugin;
@@ -13,6 +14,7 @@ fn main() {
         .add_plugins(AxisMarkerPlugin)
         .add_plugins(PanOrbitCameraPlugin)
         .add_plugins(GridPlugin)
+        .add_plugins(CursorGizmoPlugin)
         // .add_plugins(debug_plugin)
         .add_plugins(environment_plugin)
         .add_plugins(tools_plugin)
