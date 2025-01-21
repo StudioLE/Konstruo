@@ -47,13 +47,13 @@ impl Pan {
         Transform::from_translation(self.translation.current)
     }
 
-    /// Orbit the camera in direction relative to the Azimuth.
-    pub(crate) fn in_direction(&mut self, direction: Vec3, modifier: f32) {
-        let velocity = direction * self.translation.speed * modifier;
+    /// Pan the camera in direction.
+    pub(crate) fn in_direction(&mut self, direction: Vec3) {
+        let velocity = direction * self.translation.speed;
         self.translation.set_target_relative_to_position(velocity);
     }
 
-    /// Orbit the camera in the direction of the mouse motion.
+    /// Pan the camera in the direction of the mouse motion.
     #[allow(dead_code)]
     fn in_direction_of_motion(&mut self, mouse: MouseMotion) {
         let direction = mouse.delta.normalize();
@@ -64,6 +64,7 @@ impl Pan {
             .set_target_relative_to_position(displacement);
     }
 
+    /// Pan the camera by translation from the start of the drag
     pub(crate) fn by_grab(&mut self, mut transform: Mut<Transform>, cursor: Vec3) {
         let Some(start) = self.dragging else {
             warn!("Failed to get drag origin");

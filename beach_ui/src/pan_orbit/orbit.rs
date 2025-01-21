@@ -89,9 +89,10 @@ impl Orbit {
     }
 
     /// Orbit the camera in direction relative to the Azimuth.
-    pub(super) fn in_direction(&mut self, direction: Vec3, modifier: f32) {
-        let velocity = direction * self.translation.speed * modifier;
-        self.translation.set_target_relative_to_position(velocity);
+    pub(super) fn in_direction(&mut self, direction: Vec3) {
+        let distance = self.translation.speed * 0.1;
+        self.translation
+            .set_target_relative_to_position(direction * distance);
     }
 
     /// Orbit the camera in the direction of the mouse motion.

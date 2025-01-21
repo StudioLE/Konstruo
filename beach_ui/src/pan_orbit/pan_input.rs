@@ -44,18 +44,28 @@ impl Pan {
 }
 
 fn keyboard_input(pan: &mut Mut<Pan>, orbit: &Orbit, keys: Res<ButtonInput<KeyCode>>) {
-    if !keys.pressed(ShiftLeft) {
+    if !keys.pressed(ShiftLeft) && keys.any_pressed([KeyW, KeyA, KeyS, KeyD]) {
+        let mut direction = Vec3::ZERO;
         if keys.pressed(KeyW) {
-            pan.in_direction(relative_direction(orbit, Vec3::Y), 1.0);
-        }
-        if keys.pressed(KeyA) {
-            pan.in_direction(relative_direction(orbit, Vec3::X) * -1.0, 1.0);
+            direction += Vec3::Y;
         }
         if keys.pressed(KeyS) {
-            pan.in_direction(relative_direction(orbit, Vec3::Y) * -1.0, 1.0);
+            direction += Vec3::NEG_Y;
+        }
+        if keys.pressed(KeyA) {
+            direction += Vec3::NEG_X;
         }
         if keys.pressed(KeyD) {
-            pan.in_direction(relative_direction(orbit, Vec3::X), 1.0);
+            direction += Vec3::X;
+        }
+        direction = direction.normalize_or_zero();
+        if direction != Vec3::ZERO {
+            direction = orbit
+                .get_orientation()
+                .mul_vec3(direction.normalize())
+                .with_z(0.0)
+                .normalize();
+            pan.in_direction(direction);
         }
     }
     if keys.any_just_released([KeyW, KeyA, KeyS, KeyD]) {
@@ -92,15 +102,4 @@ fn mouse_motion_input(
             pan.by_grab(transform, position)
         };
     }
-}
-
-/// Get a direction relative to the camera position
-///
-/// Project it on the XY plane
-fn relative_direction(orbit: &Orbit, direction: Vec3) -> Vec3 {
-    orbit
-        .get_orientation()
-        .mul_vec3(direction)
-        .with_z(0.0)
-        .normalize()
 }

@@ -31,28 +31,33 @@ impl Orbit {
 }
 
 fn keyboard_input(orbit: &mut Mut<Orbit>, keys: Res<ButtonInput<KeyCode>>) {
-    if keys.pressed(ShiftLeft) {
+    if keys.pressed(ShiftLeft) && keys.any_pressed([KeyW, KeyA, KeyS, KeyD]) {
+        let mut direction = Vec3::ZERO;
         if keys.pressed(KeyW) {
-            orbit.in_direction(POLAR_AXIS * -1.0, 0.1);
-        }
-        if keys.pressed(KeyA) {
-            orbit.in_direction(AZIMUTHAL_AXIS * -1.0, 0.1);
+            direction += POLAR_AXIS * -1.0;
         }
         if keys.pressed(KeyS) {
-            orbit.in_direction(POLAR_AXIS, 0.1);
+            direction += POLAR_AXIS;
+        }
+        if keys.pressed(KeyA) {
+            direction += AZIMUTHAL_AXIS * -1.0;
         }
         if keys.pressed(KeyD) {
-            orbit.in_direction(AZIMUTHAL_AXIS, 0.1);
+            direction += AZIMUTHAL_AXIS;
+        }
+        direction = direction.normalize_or_zero();
+        if direction != Vec3::ZERO {
+            orbit.in_direction(direction);
         }
     }
     if keys.any_just_released([KeyW, KeyA, KeyS, KeyD, Equal, Minus]) {
         orbit.stop();
     }
     if keys.pressed(Minus) {
-        orbit.in_direction(RADIAL_AXIS, 0.1);
+        orbit.in_direction(RADIAL_AXIS);
     }
     if keys.pressed(Equal) {
-        orbit.in_direction(RADIAL_AXIS * -1.0, 0.1);
+        orbit.in_direction(RADIAL_AXIS * -1.0);
     }
 }
 
@@ -87,6 +92,6 @@ fn scroll_wheel_input(orbit: &mut Mut<Orbit>, mut wheel_event: EventReader<Mouse
         } else {
             1.0
         };
-        orbit.in_direction(RADIAL_AXIS * direction, 0.2);
+        orbit.in_direction(RADIAL_AXIS * direction);
     }
 }
