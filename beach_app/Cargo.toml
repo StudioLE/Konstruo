@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 beach_civil = { path = "../beach_civil" }
+beach_core = { path = "../beach_core" }
 beach_geography = { path = "../beach_geography" }
 beach_ui = { path = "../beach_ui" }
 bevy = { workspace = true, features = ["dynamic_linking"] }

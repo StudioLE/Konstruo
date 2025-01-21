@@ -5,8 +5,11 @@ pub struct AxisMarkerMeshes {
     pub cuboid: Handle<Mesh>,
 }
 
-pub fn insert_meshes(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
-    commands.insert_resource(AxisMarkerMeshes {
-        cuboid: meshes.add(Cuboid::from_length(1.0)),
-    });
+impl AxisMarkerMeshes {
+    /// System to insert the [`AxisMarkerMeshes`] resource on startup.
+    pub(super) fn startup_system(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
+        commands.insert_resource(AxisMarkerMeshes {
+            cuboid: meshes.add(Cuboid::from_length(1.0)),
+        });
+    }
 }

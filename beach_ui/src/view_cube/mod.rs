@@ -1,4 +1,4 @@
-use crate::axis_marker::axis_marker::AxisMarker;
+use crate::axis_marker::AxisMarker;
 use crate::view_cube::corner::spawn_corners;
 use crate::view_cube::edge::spawn_edges;
 use crate::view_cube::materials::insert_materials;

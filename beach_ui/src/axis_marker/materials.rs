@@ -13,26 +13,32 @@ pub struct AxisMarkerMaterials {
     pub z: Handle<StandardMaterial>,
 }
 
-pub fn insert_materials(mut commands: Commands, mut materials: ResMut<Assets<StandardMaterial>>) {
-    let resource = AxisMarkerMaterials {
-        x: materials.add(StandardMaterial {
-            emissive: COLOR_X.into(),
-            base_color: COLOR_X.into(),
-            alpha_mode: AlphaMode::Opaque,
-            ..Default::default()
-        }),
-        y: materials.add(StandardMaterial {
-            emissive: COLOR_Y.into(),
-            base_color: COLOR_Y.into(),
-            alpha_mode: AlphaMode::Opaque,
-            ..Default::default()
-        }),
-        z: materials.add(StandardMaterial {
-            emissive: COLOR_Z.into(),
-            base_color: COLOR_Z.into(),
-            alpha_mode: AlphaMode::Opaque,
-            ..Default::default()
-        }),
-    };
-    commands.insert_resource(resource);
+impl AxisMarkerMaterials {
+    /// System to insert the [`AxisMarkerMaterials`] resource on startup.
+    pub(super) fn startup_system(
+        mut commands: Commands,
+        mut materials: ResMut<Assets<StandardMaterial>>,
+    ) {
+        let resource = AxisMarkerMaterials {
+            x: materials.add(StandardMaterial {
+                emissive: COLOR_X.into(),
+                base_color: COLOR_X.into(),
+                alpha_mode: AlphaMode::Opaque,
+                ..Default::default()
+            }),
+            y: materials.add(StandardMaterial {
+                emissive: COLOR_Y.into(),
+                base_color: COLOR_Y.into(),
+                alpha_mode: AlphaMode::Opaque,
+                ..Default::default()
+            }),
+            z: materials.add(StandardMaterial {
+                emissive: COLOR_Z.into(),
+                base_color: COLOR_Z.into(),
+                alpha_mode: AlphaMode::Opaque,
+                ..Default::default()
+            }),
+        };
+        commands.insert_resource(resource);
+    }
 }
