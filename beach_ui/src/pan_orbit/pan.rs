@@ -1,7 +1,7 @@
 use crate::pan_orbit::orbit::DEFAULT_RADIUS;
 use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
-use beach_core::movement::direct::DirectMovement;
+use beach_core::kinematics::Translation;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
@@ -19,7 +19,7 @@ pub struct Pan {
     /// Translation on the XY plane.
     ///
     /// Cartesian coordinates are used.
-    pub(super) translation: DirectMovement,
+    pub(super) translation: Translation,
     /// Is dragging mode currently active?
     ///
     /// The value is the cursor translation on the XY plane when dragging was started.
@@ -29,7 +29,7 @@ pub struct Pan {
 impl Default for Pan {
     fn default() -> Self {
         Self {
-            translation: DirectMovement {
+            translation: Translation {
                 current: Vec3::ZERO,
                 clamp: ClampVec3 {
                     x: ClampFloat::Fixed(-1000.0, 1000.0),
@@ -53,7 +53,7 @@ impl Pan {
     /// Pan the camera in direction.
     pub(crate) fn in_direction(&mut self, direction: Vec3) {
         let velocity = direction * self.translation.speed;
-        self.translation.set_target_relative_to_position(velocity);
+        self.translation.set_target_relative_to_current(velocity);
     }
 
     /// Pan the camera in the direction of the mouse motion.
@@ -64,7 +64,7 @@ impl Pan {
         let azimuthal = direction.x * -1.0 * 0.04;
         let displacement = Vec3::new(0.0, polar, azimuthal);
         self.translation
-            .set_target_relative_to_position(displacement);
+            .set_target_relative_to_current(displacement);
     }
 
     /// Pan the camera by translation from the start of the drag
@@ -74,8 +74,7 @@ impl Pan {
             return;
         };
         let translation = start - cursor;
-        self.translation
-            .set_target_relative_to_position(translation);
+        self.translation.set_target_relative_to_current(translation);
         let target = self.translation.current + translation;
         *transform = Transform::from_translation(target);
     }

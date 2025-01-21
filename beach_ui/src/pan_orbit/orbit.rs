@@ -1,9 +1,9 @@
 use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
 use beach_core::geometry::Orientation;
+use beach_core::kinematics::Translation;
 use beach_core::mathematics::constants::*;
 use beach_core::mathematics::spherical_coordinate_system::*;
-use beach_core::movement::direct::DirectMovement;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
@@ -21,7 +21,7 @@ pub struct Orbit {
     /// 3D oribtal translation.
     ///
     /// Spherical coordinates are used.
-    pub(super) translation: DirectMovement,
+    pub(super) translation: Translation,
     /// Is dragging mode currently active?
     pub(super) dragging: bool,
 }
@@ -29,7 +29,7 @@ pub struct Orbit {
 impl Default for Orbit {
     fn default() -> Self {
         Self {
-            translation: DirectMovement {
+            translation: Translation {
                 current: Vec3::new(DEFAULT_RADIUS, 0.0, 0.0),
                 clamp: ClampVec3 {
                     x: ClampFloat::Fixed(10.0, 2500.0),
@@ -95,7 +95,7 @@ impl Orbit {
     pub(super) fn in_direction(&mut self, direction: Vec3) {
         let distance = self.translation.speed * 0.1;
         self.translation
-            .set_target_relative_to_position(direction * distance);
+            .set_target_relative_to_current(direction * distance);
     }
 
     /// Orbit the camera in the direction of the mouse motion.
@@ -105,7 +105,7 @@ impl Orbit {
         let azimuthal = direction.x * -1.0 * 0.04;
         let displacement = Vec3::new(0.0, polar, azimuthal);
         self.translation
-            .set_target_relative_to_position(displacement);
+            .set_target_relative_to_current(displacement);
     }
 
     /// Orbit the camera to the specified orientation.

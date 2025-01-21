@@ -3,22 +3,22 @@ use crate::constraints::clamp_vec3::ClampVec3;
 use crate::geometry::vectors::{is_almost_equal_to, is_almost_zero};
 use bevy::prelude::*;
 
-/// Move towards a target position.
-pub struct DirectMovement {
-    /// Current position.
+/// A system to move the current translation to a target.
+pub struct Translation {
+    /// Current translation.
     pub current: Vec3,
-    /// Target position to move towards.
+    /// Target to move towards.
     pub target: Option<Vec3>,
-    /// Constraints for the position.
+    /// Constraints for the translation.
     pub clamp: ClampVec3,
     /// Speed in metres per second.
     pub speed: Vec3,
 }
 
-impl DirectMovement {
-    /// Move the current position towards the target for a single frame.
+impl Translation {
+    /// Move the current translation towards the target for a single frame.
     ///
-    /// Returns `true` if the current position has changed
+    /// Returns `true` if the current translation has changed
     #[must_use]
     pub fn update(&mut self) -> bool {
         let Some(target) = self.target else {
@@ -36,32 +36,32 @@ impl DirectMovement {
             self.current = target;
             self.remove_target();
         } else {
-            self.set_position(self.current + displacement);
+            self.set_current(self.current + displacement);
         }
         true
     }
 
-    /// Set the current position
+    /// Set the current translation
     ///
-    /// Position is clamped to the constraints.
+    /// Translation is clamped to the constraints.
     ///
-    /// Note: set_position does not update the Transform
-    pub fn set_position(&mut self, position: Vec3) {
-        self.current = self.clamp.clamp(position);
+    /// Note: set_translation does not update the Transform
+    pub fn set_current(&mut self, translation: Vec3) {
+        self.current = self.clamp.clamp(translation);
     }
 
-    /// Set the current position by adding the displacement to the current position.
+    /// Set the current translation by adding the displacement.
     ///
-    /// Position is clamped to the constraints.
+    /// Translation is clamped to the constraints.
     ///
-    /// Note: set_position_relative does not update the Transform
-    pub fn set_position_relative(&mut self, displacement: Vec3) {
-        self.set_position(self.current + displacement);
+    /// Note: set_translation_relative does not update the Transform
+    pub fn set_current_relative(&mut self, displacement: Vec3) {
+        self.set_current(self.current + displacement);
     }
 
-    /// Set the target position
+    /// Set the target translation
     ///
-    /// Position is clamped to the constraints.
+    /// Translation is clamped to the constraints.
     pub fn set_target(&mut self, target: Vec3) {
         let target = self.clamp.clamp(target);
         if is_almost_equal_to(self.current, target) {
@@ -71,12 +71,12 @@ impl DirectMovement {
         }
     }
 
-    /// Set the target position by adding the displacement to the current position.
-    pub fn set_target_relative_to_position(&mut self, displacement: Vec3) {
+    /// Set the target translation by combining the current translation and the displacement.
+    pub fn set_target_relative_to_current(&mut self, displacement: Vec3) {
         self.set_target(self.current + displacement);
     }
 
-    /// Set the target position by adding the displacement to the target position.
+    /// Set the target translation by adding the displacement.
     pub fn set_target_relative(&mut self, displacement: Vec3) {
         if let Some(target) = self.target {
             self.set_target(target + displacement);
@@ -85,7 +85,7 @@ impl DirectMovement {
         }
     }
 
-    /// Remove the target position.
+    /// Remove the target translation.
     pub fn remove_target(&mut self) {
         self.target = None;
     }
