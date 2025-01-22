@@ -1,5 +1,5 @@
 use beach_civil::ways::ways_plugin;
-use beach_geography::environment_plugin;
+use beach_geography::{GroundPlugin, SunPlugin};
 use beach_ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
 use beach_ui::gizmos::GizmoPlugin;
 use beach_ui::grid::GridPlugin;
@@ -14,10 +14,11 @@ fn main() {
         // .add_plugins(CursorGizmoPlugin)
         .add_plugins(GizmoPlugin)
         .add_plugins(GridPlugin)
+        .add_plugins(GroundPlugin)
         .add_plugins(PanOrbitCameraPlugin)
+        .add_plugins(SunPlugin)
         .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)
-        .add_plugins(environment_plugin)
         .add_plugins(ways_plugin)
         .add_systems(Startup, spawn_positive_marker)
         .run();
