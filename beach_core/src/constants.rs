@@ -2,7 +2,7 @@
 pub const CAMERA_MAX: f32 = 2_500.0;
 
 /// Extent of the grid.
-pub const GRID_MAX: u32 = 5_000;
+pub const GRID_MAX: u32 = 10_000;
 
 /// Extent of the ground and sky.
 pub const ENVIRONMENT_MAX: f32 = 10_000.0;

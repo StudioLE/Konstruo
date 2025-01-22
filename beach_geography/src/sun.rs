@@ -26,14 +26,17 @@ impl Plugin for SunPlugin {
 
 fn create_light() -> DirectionalLight {
     DirectionalLight {
+        illuminance: 3_000.0,
         // illuminance: light_consts::lux::OVERCAST_DAY,
-        illuminance: 5000.0,
+        // illuminance: light_consts::lux::AMBIENT_DAYLIGHT,
+        // illuminance: light_consts::lux::FULL_DAYLIGHT,
         shadows_enabled: true,
         ..default()
     }
 }
 
 fn create_transform() -> Transform {
-    let translation = spherical_to_cartesian(ENVIRONMENT_MAX, EIGHTH_PI, QUARTER_PI);
+    let translation = spherical_to_cartesian(ENVIRONMENT_MAX - 1000.0, EIGHTH_PI, QUARTER_PI);
+    info!("{translation}");
     Transform::from_translation(translation).looking_at(Vec3::ZERO, Vec3::Z)
 }

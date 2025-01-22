@@ -2,6 +2,7 @@ use beach_core::ENVIRONMENT_MAX;
 use bevy::asset::Assets;
 use bevy::color::palettes::*;
 use bevy::prelude::*;
+use bevy::render::render_resource::Face;
 
 /// A graphical representation of the ground as a flat plane mesh.
 #[derive(Component)]
@@ -27,7 +28,7 @@ impl Ground {
             perceptual_roughness: 1.0,
             depth_bias: -2.0,
             double_sided: true,
-            cull_mode: None,
+            cull_mode: Some(Face::Back),
             ..default()
         };
         let bundle = (

@@ -20,18 +20,21 @@ impl GridMaterials {
                 emissive: basic::WHITE.into(),
                 base_color: basic::WHITE.with_alpha(0.05).into(),
                 alpha_mode: AlphaMode::Blend,
+                perceptual_roughness: 1.0,
                 ..Default::default()
             }),
             medium: materials.add(StandardMaterial {
                 emissive: basic::WHITE.into(),
                 base_color: basic::WHITE.with_alpha(0.2).into(),
                 alpha_mode: AlphaMode::Blend,
+                perceptual_roughness: 1.0,
                 ..Default::default()
             }),
             major: materials.add(StandardMaterial {
                 emissive: basic::WHITE.into(),
                 base_color: basic::WHITE.with_alpha(0.35).into(),
                 alpha_mode: AlphaMode::Blend,
+                perceptual_roughness: 1.0,
                 ..Default::default()
             }),
         });
