@@ -15,12 +15,15 @@ pub struct WayMeshes {
     pub control_handle: Handle<Mesh>,
 }
 
-pub fn insert_meshes(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
-    let node = Cuboid::from_size(vec3(1.0, 1.0, 0.25));
-    let line = vec![Vec3::ZERO, vec3(1.0, 0.0, 0.0)];
-    commands.insert_resource(WayMeshes {
-        control_origin: meshes.add(node),
-        control_line: meshes.add(create_linestrip(line)),
-        control_handle: meshes.add(node),
-    });
+impl WayMeshes {
+    /// System to insert [`WayMeshes`] on startup.
+    pub(super) fn startup_system(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
+        let node = Cuboid::from_size(vec3(1.0, 1.0, 0.25));
+        let line = vec![Vec3::ZERO, vec3(1.0, 0.0, 0.0)];
+        commands.insert_resource(WayMeshes {
+            control_origin: meshes.add(node),
+            control_line: meshes.add(create_linestrip(line)),
+            control_handle: meshes.add(node),
+        });
+    }
 }

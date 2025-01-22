@@ -38,49 +38,49 @@ impl WayControl {
         let angle = self.vector.angle_between(Vec3::X);
         Quat::from_axis_angle(Vec3::Z, angle)
     }
-}
 
-/// System to add the visual representation of a [`WayControl`] entity.
-pub fn on_way_control_added(
-    mut commands: Commands,
-    meshes: Res<WayMeshes>,
-    materials: Res<WayMaterials>,
-    query: Query<(Entity, &WayControl), Added<WayControl>>,
-) {
-    for (entity, way_control) in query.iter() {
-        let bundle = (
-            WayControlOrigin,
-            Mesh3d(meshes.control_origin.clone()),
-            MeshMaterial3d(materials.control_node.clone()),
-            Transform::from_rotation(Quat::from_rotation_z(QUARTER_PI)),
-        );
-        commands
-            .spawn(bundle)
-            .observe(on_pointer_over)
-            .observe(on_pointer_out)
-            .set_parent(entity);
-        let bundle = (
-            WayControlLine,
-            Mesh3d(meshes.control_line.clone()),
-            MeshMaterial3d(materials.control_line.clone()),
-            Transform {
-                translation: Vec3::ZERO,
-                rotation: way_control.get_rotation(),
-                scale: Vec3::new(way_control.get_scale(), 1.0, 1.0),
-            },
-        );
-        commands.spawn(bundle).set_parent(entity);
-        let bundle = (
-            WayControlHandle,
-            Mesh3d(meshes.control_handle.clone()),
-            MeshMaterial3d(materials.control_node.clone()),
-            Transform::from_translation(way_control.vector),
-        );
-        commands
-            .spawn(bundle)
-            .observe(on_pointer_over)
-            .observe(on_pointer_out)
-            .set_parent(entity);
+    /// System to add the visual representation of a [`WayControl`] entity.
+    pub(super) fn added_system(
+        mut commands: Commands,
+        meshes: Res<WayMeshes>,
+        materials: Res<WayMaterials>,
+        query: Query<(Entity, &WayControl), Added<WayControl>>,
+    ) {
+        for (entity, way_control) in query.iter() {
+            let bundle = (
+                WayControlOrigin,
+                Mesh3d(meshes.control_origin.clone()),
+                MeshMaterial3d(materials.control_node.clone()),
+                Transform::from_rotation(Quat::from_rotation_z(QUARTER_PI)),
+            );
+            commands
+                .spawn(bundle)
+                .observe(on_pointer_over)
+                .observe(on_pointer_out)
+                .set_parent(entity);
+            let bundle = (
+                WayControlLine,
+                Mesh3d(meshes.control_line.clone()),
+                MeshMaterial3d(materials.control_line.clone()),
+                Transform {
+                    translation: Vec3::ZERO,
+                    rotation: way_control.get_rotation(),
+                    scale: Vec3::new(way_control.get_scale(), 1.0, 1.0),
+                },
+            );
+            commands.spawn(bundle).set_parent(entity);
+            let bundle = (
+                WayControlHandle,
+                Mesh3d(meshes.control_handle.clone()),
+                MeshMaterial3d(materials.control_node.clone()),
+                Transform::from_translation(way_control.vector),
+            );
+            commands
+                .spawn(bundle)
+                .observe(on_pointer_over)
+                .observe(on_pointer_out)
+                .set_parent(entity);
+        }
     }
 }
 

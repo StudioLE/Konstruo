@@ -1,10 +1,11 @@
-use beach_civil::ways::ways_plugin;
+use beach_civil::ways::{Way, WaysPlugin};
 use beach_geography::{GroundPlugin, SkyPlugin, SunPlugin};
 use beach_ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
 use beach_ui::gizmos::GizmoPlugin;
 use beach_ui::grid::GridPlugin;
 use beach_ui::pan_orbit::PanOrbitCameraPlugin;
 use beach_ui::view_cube::ViewCubePlugin;
+use bevy::math::vec3;
 use bevy::prelude::*;
 
 fn main() {
@@ -20,8 +21,9 @@ fn main() {
         .add_plugins(SunPlugin)
         .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)
-        .add_plugins(ways_plugin)
+        .add_plugins(WaysPlugin)
         .add_systems(Startup, spawn_positive_marker)
+        .add_systems(Startup, spawn_way_example)
         .run();
 }
 
@@ -34,4 +36,28 @@ fn spawn_positive_marker(mut commands: Commands) {
         Transform::from_translation(Vec3::splat(10.0)),
     );
     commands.spawn(bundle);
+}
+
+fn spawn_way_example(mut commands: Commands) {
+    let vertices = vec![
+        [
+            vec3(0.0, 70.0, 0.0),
+            vec3(30.0, 70.0, 0.0),
+            vec3(30.0, 40.0, 0.0),
+            vec3(50.0, 40.0, 0.0),
+        ],
+        [
+            vec3(50.0, 40.0, 0.0),
+            vec3(70.0, 40.0, 0.0),
+            vec3(70.0, 15.0, 0.0),
+            vec3(70.0, 0.0, 0.0),
+        ],
+    ];
+    let way = Way {
+        curve: vertices,
+        width: 5.0,
+        depth: 1.0,
+        ..Way::default()
+    };
+    commands.spawn(way);
 }

@@ -24,22 +24,21 @@ impl WayMesh2d {
             polylines: way_edges2d.get_polylines(),
         }
     }
-}
-
-/// System to create mesh geometry when a [`WayMesh2d`] is added.
-pub fn on_way_mesh_added(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    materials: Res<WayMaterials>,
-    query: Query<(Entity, &WayMesh2d), Added<WayMesh2d>>,
-) {
-    for (entity, way_mesh) in query.iter() {
-        let triangle_strip = create_triangle_strip_between_polylines(&way_mesh.polylines);
-        let triangle_strip = create_triangle_strip(triangle_strip);
-        let bundle = (
-            Mesh3d(meshes.add(triangle_strip)),
-            MeshMaterial3d(materials.mesh.clone()),
-        );
-        commands.spawn(bundle).set_parent(entity);
+    /// System to create mesh geometry when a [`WayMesh2d`] is added.
+    pub(super) fn added_system(
+        mut commands: Commands,
+        mut meshes: ResMut<Assets<Mesh>>,
+        materials: Res<WayMaterials>,
+        query: Query<(Entity, &WayMesh2d), Added<WayMesh2d>>,
+    ) {
+        for (entity, way_mesh) in query.iter() {
+            let triangle_strip = create_triangle_strip_between_polylines(&way_mesh.polylines);
+            let triangle_strip = create_triangle_strip(triangle_strip);
+            let bundle = (
+                Mesh3d(meshes.add(triangle_strip)),
+                MeshMaterial3d(materials.mesh.clone()),
+            );
+            commands.spawn(bundle).set_parent(entity);
+        }
     }
 }

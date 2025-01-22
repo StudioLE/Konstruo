@@ -69,15 +69,15 @@ impl WayEdges2d {
         }
         polylines
     }
-}
 
-/// System to create [`WayMesh2d`] when a [`WayEdges2d`] is added.
-pub fn on_way_edges_added(
-    mut commands: Commands,
-    query: Query<(Entity, &WayEdges2d), Added<WayEdges2d>>,
-) {
-    for (entity, way_edges) in query.iter() {
-        let mesh = WayMesh2d::from_way_edges(way_edges);
-        commands.spawn(mesh).set_parent(entity);
+    /// System to create [`WayMesh2d`] when a [`WayEdges2d`] is added.
+    pub(super) fn added_system(
+        mut commands: Commands,
+        query: Query<(Entity, &WayEdges2d), Added<WayEdges2d>>,
+    ) {
+        for (entity, way_edges) in query.iter() {
+            let mesh = WayMesh2d::from_way_edges(way_edges);
+            commands.spawn(mesh).set_parent(entity);
+        }
     }
 }

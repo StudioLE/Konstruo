@@ -1,8 +1,7 @@
-use crate::ways::control_line::WayLine;
 use crate::ways::controls::WayControl;
 use crate::ways::edges::WayEdges2d;
+use crate::ways::line::WayLine;
 use beach_core::beziers::flatten::flatten_bezier;
-use bevy::math::vec3;
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -37,44 +36,20 @@ impl Way {
     pub fn get_polyline(&self) -> Vec<Vec3> {
         flatten_bezier(&self.get_curve(), self.flatten_tolerance)
     }
-}
 
-pub fn spawn_way_example(mut commands: Commands) {
-    let vertices = vec![
-        [
-            vec3(0.0, 70.0, 0.0),
-            vec3(30.0, 70.0, 0.0),
-            vec3(30.0, 40.0, 0.0),
-            vec3(50.0, 40.0, 0.0),
-        ],
-        [
-            vec3(50.0, 40.0, 0.0),
-            vec3(70.0, 40.0, 0.0),
-            vec3(70.0, 15.0, 0.0),
-            vec3(70.0, 0.0, 0.0),
-        ],
-    ];
-    let way = Way {
-        curve: vertices,
-        width: 5.0,
-        depth: 1.0,
-        ..Way::default()
-    };
-    commands.spawn(way);
-}
-
-/// System to create [`WayLine`], [`WayEdges2d`], and [`WayControl`] when a [`Way`] is added.
-pub fn on_way_added(mut commands: Commands, query: Query<(Entity, &Way), Added<Way>>) {
-    for (entity, way) in query.iter() {
-        commands.spawn(WayLine::from_way(way)).set_parent(entity);
-        commands.spawn(WayEdges2d::from_way(way)).set_parent(entity);
-        for p in way.curve.clone() {
-            commands
-                .spawn(WayControl::new(p[0], p[1]))
-                .set_parent(entity);
-            commands
-                .spawn(WayControl::new(p[3], p[2]))
-                .set_parent(entity);
+    /// System to create [`WayLine`], [`WayEdges2d`], and [`WayControl`] when a [`Way`] is added.
+    pub fn added_system(mut commands: Commands, query: Query<(Entity, &Way), Added<Way>>) {
+        for (entity, way) in query.iter() {
+            commands.spawn(WayLine::from_way(way)).set_parent(entity);
+            commands.spawn(WayEdges2d::from_way(way)).set_parent(entity);
+            for p in way.curve.clone() {
+                commands
+                    .spawn(WayControl::new(p[0], p[1]))
+                    .set_parent(entity);
+                commands
+                    .spawn(WayControl::new(p[3], p[2]))
+                    .set_parent(entity);
+            }
         }
     }
 }
