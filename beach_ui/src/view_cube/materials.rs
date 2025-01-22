@@ -4,7 +4,9 @@ use bevy::prelude::*;
 #[allow(clippy::struct_field_names)]
 #[derive(Resource)]
 pub(super) struct ViewCubeMaterials {
-    pub face: Handle<StandardMaterial>,
+    pub face_x: Handle<StandardMaterial>,
+    pub face_y: Handle<StandardMaterial>,
+    pub face_z: Handle<StandardMaterial>,
     pub edge: Handle<StandardMaterial>,
     pub corner: Handle<StandardMaterial>,
     pub face_over: Handle<StandardMaterial>,
@@ -26,8 +28,22 @@ impl ViewCubeMaterials {
             ..Default::default()
         });
         commands.insert_resource(ViewCubeMaterials {
-            face: materials.add(StandardMaterial {
-                base_color: tailwind::ZINC_900.into(),
+            face_x: materials.add(StandardMaterial {
+                base_color: tailwind::RED_900.into(),
+                alpha_mode: AlphaMode::Opaque,
+                perceptual_roughness: 1.0,
+                unlit: true,
+                ..Default::default()
+            }),
+            face_y: materials.add(StandardMaterial {
+                base_color: tailwind::GREEN_900.into(),
+                alpha_mode: AlphaMode::Opaque,
+                perceptual_roughness: 1.0,
+                unlit: true,
+                ..Default::default()
+            }),
+            face_z: materials.add(StandardMaterial {
+                base_color: tailwind::BLUE_900.into(),
                 alpha_mode: AlphaMode::Opaque,
                 perceptual_roughness: 1.0,
                 unlit: true,

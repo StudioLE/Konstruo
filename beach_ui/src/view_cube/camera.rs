@@ -15,8 +15,8 @@ impl ViewCubeCamera {
     /// <https://bevy-cheatbook.github.io/graphics/camera.html?highlight=viewport#viewport>
     pub(super) fn startup_system(mut commands: Commands) {
         let viewport = Some(Viewport {
-            physical_position: UVec2::new(0, 0),
-            physical_size: UVec2::new(150, 150),
+            physical_position: UVec2::splat(10),
+            physical_size: UVec2::splat(100),
             ..default()
         });
         let bundle = (
