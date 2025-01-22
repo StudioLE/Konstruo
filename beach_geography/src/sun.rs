@@ -1,5 +1,6 @@
 use beach_core::mathematics::constants::{EIGHTH_PI, QUARTER_PI};
 use beach_core::mathematics::spherical_coordinate_system::spherical_to_cartesian;
+use beach_core::ENVIRONMENT_MAX;
 use bevy::prelude::*;
 
 /// A directional light source representing the sun.
@@ -33,6 +34,6 @@ fn create_light() -> DirectionalLight {
 }
 
 fn create_transform() -> Transform {
-    let translation = spherical_to_cartesian(10_000.0, EIGHTH_PI, QUARTER_PI);
+    let translation = spherical_to_cartesian(ENVIRONMENT_MAX, EIGHTH_PI, QUARTER_PI);
     Transform::from_translation(translation).looking_at(Vec3::ZERO, Vec3::Z)
 }

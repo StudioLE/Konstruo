@@ -1,10 +1,11 @@
 use crate::grid::GridMaterials;
+use beach_core::GRID_MAX;
 use bevy::math::vec3;
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 
-const RADIUS: u32 = 2_500;
+const RADIUS: u32 = GRID_MAX / 2;
 const SPACING: [u32; 3] = [1, 10, 100];
 
 #[allow(clippy::integer_division)]

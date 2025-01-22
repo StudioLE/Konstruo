@@ -2,6 +2,7 @@ use crate::pan_orbit::orbit::DEFAULT_RADIUS;
 use beach_core::constraints::clamp_float::ClampFloat;
 use beach_core::constraints::clamp_vec3::ClampVec3;
 use beach_core::kinematics::Translation;
+use beach_core::CAMERA_MAX;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
@@ -32,9 +33,9 @@ impl Default for Pan {
             translation: Translation {
                 current: Vec3::ZERO,
                 clamp: ClampVec3 {
-                    x: ClampFloat::Fixed(-1000.0, 1000.0),
-                    y: ClampFloat::Fixed(-1000.0, 1000.0),
-                    z: ClampFloat::Fixed(-1000.0, 1000.0),
+                    x: ClampFloat::Fixed(-CAMERA_MAX, CAMERA_MAX),
+                    y: ClampFloat::Fixed(-CAMERA_MAX, CAMERA_MAX),
+                    z: ClampFloat::Fixed(-CAMERA_MAX, CAMERA_MAX),
                 },
                 target: None,
                 speed: Vec3::splat(DEFAULT_RADIUS * SPEED_MODIFIER),

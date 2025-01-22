@@ -4,6 +4,7 @@ use beach_core::geometry::Orientation;
 use beach_core::kinematics::Translation;
 use beach_core::mathematics::constants::*;
 use beach_core::mathematics::spherical_coordinate_system::*;
+use beach_core::CAMERA_MAX;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
@@ -32,7 +33,7 @@ impl Default for Orbit {
             translation: Translation {
                 current: Vec3::new(DEFAULT_RADIUS, 0.0, 0.0),
                 clamp: ClampVec3 {
-                    x: ClampFloat::Fixed(10.0, 2500.0),
+                    x: ClampFloat::Fixed(10.0, CAMERA_MAX),
                     y: ClampFloat::Fixed(0.0, PI),
                     z: ClampFloat::Wrapped(TWO_PI),
                 },

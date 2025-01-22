@@ -1,3 +1,4 @@
+use beach_core::ENVIRONMENT_MAX;
 use bevy::asset::Assets;
 use bevy::color::palettes::*;
 use bevy::prelude::*;
@@ -20,7 +21,7 @@ impl Ground {
             normal: Dir3::Z,
             ..default()
         };
-        let mesh = plane.mesh().size(5_000.0, 5_000.0);
+        let mesh = plane.mesh().size(ENVIRONMENT_MAX, ENVIRONMENT_MAX);
         let material = StandardMaterial {
             base_color: tailwind::LIME_800.into(),
             perceptual_roughness: 1.0,
