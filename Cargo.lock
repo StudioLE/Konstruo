@@ -316,6 +316,7 @@ name = "beach_civil"
 version = "0.0.0"
 dependencies = [
  "beach_core",
+ "beach_ui",
  "bevy",
 ]
 

@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 beach_core = { path = "../beach_core" }
+beach_ui = { path = "../beach_ui" }
 bevy = { workspace = true, features = ["dynamic_linking"] }

@@ -10,6 +10,9 @@ pub struct WayMaterials {
     /// Material for the over state of [`WayControlHandle`] and [`WayControlOrigin`].
     pub control_node_over: Handle<StandardMaterial>,
 
+    /// Material for the over state of [`WayControlHandle`] and [`WayControlOrigin`].
+    pub control_node_drag: Handle<StandardMaterial>,
+
     /// Material for the line from origin to handle of a way control.
     pub control_line: Handle<StandardMaterial>,
 
@@ -50,6 +53,13 @@ impl WayMaterials {
             control_node_over: materials.add(StandardMaterial {
                 emissive: tailwind::BLUE_700.into(),
                 base_color: tailwind::BLUE_700.into(),
+                alpha_mode: AlphaMode::Opaque,
+                depth_bias: 1.0,
+                ..Default::default()
+            }),
+            control_node_drag: materials.add(StandardMaterial {
+                emissive: tailwind::RED_600.into(),
+                base_color: tailwind::RED_600.into(),
                 alpha_mode: AlphaMode::Opaque,
                 depth_bias: 1.0,
                 ..Default::default()
