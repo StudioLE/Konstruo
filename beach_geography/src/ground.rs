@@ -1,4 +1,4 @@
-use beach_core::ENVIRONMENT_MAX;
+use beach_core::{ENVIRONMENT_MAX, GROUND_HEIGHT};
 use bevy::asset::Assets;
 use bevy::color::palettes::*;
 use bevy::prelude::*;
@@ -35,7 +35,7 @@ impl Ground {
             Ground,
             Mesh3d(meshes.add(mesh)),
             MeshMaterial3d(materials.add(material)),
-            Transform::from_xyz(0.0, 0.0, -0.050),
+            Transform::from_xyz(0.0, 0.0, GROUND_HEIGHT),
         );
         commands.spawn(bundle);
     }

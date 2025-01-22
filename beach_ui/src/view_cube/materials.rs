@@ -5,10 +5,10 @@ use bevy::prelude::*;
 #[derive(Resource)]
 pub(super) struct ViewCubeMaterials {
     pub face: Handle<StandardMaterial>,
-    pub face_over: Handle<StandardMaterial>,
     pub edge: Handle<StandardMaterial>,
-    pub edge_over: Handle<StandardMaterial>,
     pub corner: Handle<StandardMaterial>,
+    pub face_over: Handle<StandardMaterial>,
+    pub edge_over: Handle<StandardMaterial>,
     pub corner_over: Handle<StandardMaterial>,
 }
 
@@ -18,43 +18,38 @@ impl ViewCubeMaterials {
         mut commands: Commands,
         mut materials: ResMut<Assets<StandardMaterial>>,
     ) {
+        let over = materials.add(StandardMaterial {
+            base_color: tailwind::BLUE_700.into(),
+            alpha_mode: AlphaMode::Blend,
+            perceptual_roughness: 1.0,
+            unlit: true,
+            ..Default::default()
+        });
         commands.insert_resource(ViewCubeMaterials {
             face: materials.add(StandardMaterial {
-                emissive: tailwind::SLATE_600.with_alpha(0.6).into(),
-                base_color: tailwind::SLATE_600.with_alpha(0.6).into(),
-                alpha_mode: AlphaMode::Blend,
-                ..Default::default()
-            }),
-            face_over: materials.add(StandardMaterial {
-                emissive: tailwind::BLUE_700.into(),
-                base_color: tailwind::BLUE_700.into(),
-                alpha_mode: AlphaMode::Blend,
+                base_color: tailwind::ZINC_900.into(),
+                alpha_mode: AlphaMode::Opaque,
+                perceptual_roughness: 1.0,
+                unlit: true,
                 ..Default::default()
             }),
             edge: materials.add(StandardMaterial {
-                emissive: tailwind::GRAY_600.with_alpha(0.8).into(),
-                base_color: tailwind::GRAY_600.with_alpha(0.8).into(),
-                alpha_mode: AlphaMode::Blend,
-                ..Default::default()
-            }),
-            edge_over: materials.add(StandardMaterial {
-                emissive: tailwind::BLUE_700.into(),
-                base_color: tailwind::BLUE_700.into(),
-                alpha_mode: AlphaMode::Blend,
+                base_color: tailwind::ZINC_800.into(),
+                alpha_mode: AlphaMode::Opaque,
+                perceptual_roughness: 1.0,
+                unlit: true,
                 ..Default::default()
             }),
             corner: materials.add(StandardMaterial {
-                emissive: tailwind::GRAY_600.with_alpha(0.6).into(),
-                base_color: tailwind::GRAY_600.with_alpha(0.6).into(),
-                alpha_mode: AlphaMode::Blend,
+                base_color: tailwind::ZINC_900.into(),
+                alpha_mode: AlphaMode::Opaque,
+                perceptual_roughness: 1.0,
+                unlit: true,
                 ..Default::default()
             }),
-            corner_over: materials.add(StandardMaterial {
-                emissive: tailwind::BLUE_700.into(),
-                base_color: tailwind::BLUE_700.into(),
-                alpha_mode: AlphaMode::Blend,
-                ..Default::default()
-            }),
+            face_over: over.clone(),
+            edge_over: over.clone(),
+            corner_over: over,
         });
     }
 }

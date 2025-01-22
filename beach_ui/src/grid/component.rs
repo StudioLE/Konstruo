@@ -1,5 +1,5 @@
 use crate::grid::GridMaterials;
-use beach_core::GRID_MAX;
+use beach_core::{GRID_HEIGHT, GRID_MAX};
 use bevy::math::vec3;
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
@@ -57,10 +57,10 @@ fn create_lines() -> (Vec<Vec3>, Vec<Vec3>, Vec<Vec3>) {
     for i in range {
         let a = i as f32 - radius;
         let b = (radius.powi(2) - a.powi(2)).sqrt();
-        let start_x = vec3(a, b, 0.0);
-        let end_x = vec3(a, -b, 0.0);
-        let start_y = vec3(-b, a, 0.0);
-        let end_y = vec3(b, a, 0.0);
+        let start_x = vec3(a, b, GRID_HEIGHT);
+        let end_x = vec3(a, -b, GRID_HEIGHT);
+        let start_y = vec3(-b, a, GRID_HEIGHT);
+        let end_y = vec3(b, a, GRID_HEIGHT);
         if i % SPACING[2] == 0 {
             major.push(start_x);
             major.push(end_x);

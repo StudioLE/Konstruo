@@ -17,24 +17,24 @@ impl GridMaterials {
     ) {
         commands.insert_resource(GridMaterials {
             minor: materials.add(StandardMaterial {
-                emissive: basic::WHITE.into(),
-                base_color: basic::WHITE.with_alpha(0.05).into(),
+                base_color: tailwind::LIME_900.with_alpha(0.3).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
+                unlit: true,
                 ..Default::default()
             }),
             medium: materials.add(StandardMaterial {
-                emissive: basic::WHITE.into(),
-                base_color: basic::WHITE.with_alpha(0.2).into(),
+                base_color: tailwind::LIME_900.with_alpha(0.6).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
+                unlit: true,
                 ..Default::default()
             }),
             major: materials.add(StandardMaterial {
-                emissive: basic::WHITE.into(),
-                base_color: basic::WHITE.with_alpha(0.35).into(),
+                base_color: tailwind::LIME_700.with_alpha(0.4).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
+                unlit: true,
                 ..Default::default()
             }),
         });
