@@ -37,6 +37,5 @@ fn create_light() -> DirectionalLight {
 
 fn create_transform() -> Transform {
     let translation = spherical_to_cartesian(ENVIRONMENT_MAX - 1000.0, EIGHTH_PI, QUARTER_PI);
-    info!("{translation}");
     Transform::from_translation(translation).looking_at(Vec3::ZERO, Vec3::Z)
 }
