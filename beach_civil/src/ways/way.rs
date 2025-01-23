@@ -35,6 +35,31 @@ impl Way {
         Self { spline }
     }
 
+    /// System to update everything when a control point is moved.
+    #[allow(clippy::too_many_arguments)]
+    pub fn regenerate(
+        commands: &mut Commands,
+        mut meshes: ResMut<Assets<Mesh>>,
+        materials: Res<WayMaterials>,
+        surfaces: Query<(Entity, &Parent), With<WaySurface>>,
+        way: &Way,
+        way_entity: Entity,
+        mut mesh: Mut<Mesh3d>,
+    ) {
+        let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
+        *mesh = Mesh3d(meshes.add(create_linestrip(polyline)));
+        let Some((entity, _)) = surfaces
+            .into_iter()
+            .find(|(_, parent)| parent.get() == way_entity)
+        else {
+            warn!("Failed to get WaySurface");
+            return;
+        };
+        commands.entity(entity).despawn_recursive();
+        let surface = WaySurface::from_center(way, 5.0);
+        WaySurface::spawn(commands, &mut meshes, &materials, surface, way_entity);
+    }
+
     /// System to create [`Mesh3d`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
     pub fn added_system(
         mut commands: Commands,
@@ -49,9 +74,9 @@ impl Way {
                 Mesh3d(meshes.add(create_linestrip(polyline))),
                 MeshMaterial3d(materials.control_line.clone()),
             );
-            commands.spawn(bundle).set_parent(entity);
+            commands.entity(entity).insert(bundle);
             let surface = WaySurface::from_center(way, 5.0);
-            WaySurface::spawn(&mut commands, &mut meshes, &materials, surface);
+            WaySurface::spawn(&mut commands, &mut meshes, &materials, surface, entity);
             WayControl::spawn(&mut commands, &way_meshes, &materials, way, entity);
         }
     }

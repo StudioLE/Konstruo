@@ -1,6 +1,6 @@
 use crate::ways::materials::WayMaterials;
 use crate::ways::meshes::WayMeshes;
-use crate::ways::Way;
+use crate::ways::{Way, WaySurface};
 use beach_ui::cursor::Cursor;
 use beach_ui::pan_orbit::PrimaryCamera;
 use bevy::prelude::*;
@@ -13,7 +13,7 @@ use ControlType::*;
 pub struct WayControl {
     /// Index of the cubic bezier within the cubic bezier spline of the [`Way`].
     #[allow(dead_code)]
-    curve: usize,
+    id: usize,
     /// Type of the control.
     #[allow(dead_code)]
     control: ControlType,
@@ -31,7 +31,7 @@ pub enum ControlType {
 impl WayControl {
     fn new(curve: usize, control: ControlType) -> Self {
         Self {
-            curve,
+            id: curve,
             control,
             drag: None,
         }
@@ -43,7 +43,7 @@ impl WayControl {
         meshes: &Res<WayMeshes>,
         materials: &Res<WayMaterials>,
         way: &Way,
-        entity: Entity,
+        parent: Entity,
     ) {
         for (i, bezier) in way.spline.curves.iter().enumerate() {
             let start = if i == 0 {
@@ -77,7 +77,7 @@ impl WayControl {
             if let Some(start) = start {
                 commands
                     .spawn(start)
-                    .set_parent(entity)
+                    .set_parent(parent)
                     .observe(on_pointer_over)
                     .observe(on_pointer_out)
                     .observe(on_pointer_drag_start)
@@ -86,7 +86,7 @@ impl WayControl {
             }
             commands
                 .spawn(start_handle)
-                .set_parent(entity)
+                .set_parent(parent)
                 .observe(on_pointer_over)
                 .observe(on_pointer_out)
                 .observe(on_pointer_drag_start)
@@ -94,7 +94,7 @@ impl WayControl {
                 .observe(on_pointer_drag_end);
             commands
                 .spawn(end_handle)
-                .set_parent(entity)
+                .set_parent(parent)
                 .observe(on_pointer_over)
                 .observe(on_pointer_out)
                 .observe(on_pointer_drag_start)
@@ -102,7 +102,7 @@ impl WayControl {
                 .observe(on_pointer_drag_end);
             commands
                 .spawn(end)
-                .set_parent(entity)
+                .set_parent(parent)
                 .observe(on_pointer_over)
                 .observe(on_pointer_out)
                 .observe(on_pointer_drag_start)
@@ -157,22 +157,62 @@ fn on_pointer_drag_start(
     *material = MeshMaterial3d(materials.control_node_drag.clone());
 }
 
+#[allow(clippy::too_many_arguments)]
 fn on_pointer_drag(
     event: Trigger<Pointer<Drag>>,
-    mut control: Query<(&WayControl, &mut Transform)>,
+    mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
+    mut ways: Query<(&mut Way, Entity, &mut Mesh3d)>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
+    mut commands: Commands,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: Res<WayMaterials>,
+    surfaces: Query<(Entity, &Parent), With<WaySurface>>,
 ) {
-    let Ok((_control, mut transform)) = control.get_mut(event.entity()) else {
+    let Ok((control, parent, mut transform)) = controls.get_mut(event.entity()) else {
         error!("Failed to get WayControl");
         return;
     };
-    let Ok(global) = Cursor::on_ground(&window, &camera) else {
+    let Ok(translation) = Cursor::on_ground(&window, &camera) else {
         warn!("Failed to get cursor on ground");
         return;
     };
-    transform.translation = global;
-    // TODO: Get the parent way and trigger an update of ALL vertices.
+    transform.translation = translation;
+    let Ok((mut way, entity, mesh)) = ways.get_mut(parent.get()) else {
+        warn!("Failed to get Way");
+        return;
+    };
+    // TODO: Move this to the CubicBezierSpline
+    // TODO: If anchor is moved then also move the next anchor
+    // TODO: If handle is moved then also update the rotation of the reflected handle
+    let curve = control.id / 4;
+    let control = control.id % 4;
+    let mut spline = way.spline.clone();
+    match control {
+        0 => {
+            spline.curves[curve].start = translation;
+        }
+        1 => {
+            spline.curves[curve].start_handle = translation;
+        }
+        2 => {
+            spline.curves[curve].end_handle = translation;
+        }
+        3 => {
+            spline.curves[curve].end = translation;
+        }
+        _ => panic!("Unexpected id"),
+    };
+    way.spline = spline;
+    Way::regenerate(
+        &mut commands,
+        meshes,
+        materials,
+        surfaces,
+        &way,
+        entity,
+        mesh,
+    );
 }
 
 fn on_pointer_drag_end(

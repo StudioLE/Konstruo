@@ -41,6 +41,7 @@ impl WaySurface {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &Res<WayMaterials>,
         surface: WaySurface,
+        parent: Entity,
     ) {
         let polylines = surface.get_polylines();
         let triangle_strip = create_triangle_strip_between_polylines(&polylines);
@@ -50,7 +51,7 @@ impl WaySurface {
             Mesh3d(meshes.add(triangle_strip)),
             MeshMaterial3d(materials.mesh.clone()),
         );
-        commands.spawn(bundle);
+        commands.spawn(bundle).set_parent(parent);
     }
 
     /// Get the polylines of each edge.
