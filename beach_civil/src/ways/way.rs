@@ -50,9 +50,8 @@ impl Way {
                 MeshMaterial3d(materials.control_line.clone()),
             );
             commands.spawn(bundle).set_parent(entity);
-            commands
-                .spawn(WaySurface::from_center(way, 5.0))
-                .set_parent(entity);
+            let surface = WaySurface::from_center(way, 5.0);
+            WaySurface::spawn(&mut commands, &mut meshes, &materials, surface);
             WayControl::spawn(&mut commands, &way_meshes, &materials, way, entity);
         }
     }

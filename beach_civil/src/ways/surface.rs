@@ -35,6 +35,24 @@ impl WaySurface {
         Self::from_offsets(way, [width * -0.5, width * 0.5])
     }
 
+    /// Spawn a [`WaySurface`] with its mesh geometry.
+    pub(super) fn spawn(
+        commands: &mut Commands,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        materials: &Res<WayMaterials>,
+        surface: WaySurface,
+    ) {
+        let polylines = surface.get_polylines();
+        let triangle_strip = create_triangle_strip_between_polylines(&polylines);
+        let triangle_strip = create_triangle_strip(triangle_strip);
+        let bundle = (
+            surface,
+            Mesh3d(meshes.add(triangle_strip)),
+            MeshMaterial3d(materials.mesh.clone()),
+        );
+        commands.spawn(bundle);
+    }
+
     /// Get the polylines of each edge.
     ///
     /// The polylines will have the same number of vertices.
@@ -56,24 +74,5 @@ impl WaySurface {
             Ordering::Equal => {}
         }
         polylines
-    }
-
-    /// System to create mesh geometry for [`WaySurface`].
-    pub(super) fn added_system(
-        mut commands: Commands,
-        mut meshes: ResMut<Assets<Mesh>>,
-        materials: Res<WayMaterials>,
-        query: Query<(Entity, &WaySurface), Added<WaySurface>>,
-    ) {
-        for (entity, surface) in query.iter() {
-            let polylines = surface.get_polylines();
-            let triangle_strip = create_triangle_strip_between_polylines(&polylines);
-            let triangle_strip = create_triangle_strip(triangle_strip);
-            let bundle = (
-                Mesh3d(meshes.add(triangle_strip)),
-                MeshMaterial3d(materials.mesh.clone()),
-            );
-            commands.spawn(bundle).set_parent(entity);
-        }
     }
 }
