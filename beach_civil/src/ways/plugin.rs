@@ -1,4 +1,4 @@
-use crate::ways::{Way, WayControl, WayEdges2d, WayLine, WayMaterials, WayMesh2d, WayMeshes};
+use crate::ways::{Way, WayControl, WayLine, WayMaterials, WayMeshes, WaySurface};
 use bevy::app::{App, Startup, Update};
 use bevy::prelude::*;
 
@@ -11,7 +11,6 @@ impl Plugin for WaysPlugin {
             .add_systems(Update, Way::added_system)
             .add_systems(Update, WayControl::added_system)
             .add_systems(Update, WayLine::added_system)
-            .add_systems(Update, WayEdges2d::added_system)
-            .add_systems(Update, WayMesh2d::added_system);
+            .add_systems(Update, WaySurface::added_system);
     }
 }

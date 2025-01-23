@@ -1,6 +1,6 @@
 use crate::ways::controls::WayControl;
 use crate::ways::line::WayLine;
-use crate::ways::WayEdges2d;
+use crate::ways::WaySurface;
 use beach_core::beziers::CubicBezierSpline;
 use bevy::prelude::*;
 
@@ -36,12 +36,12 @@ impl Way {
         Self { spline }
     }
 
-    /// System to create [`WayLine`], [`WayEdges2d`], and [`WayControl`] when a [`Way`] is added.
+    /// System to create [`WayLine`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
     pub fn added_system(mut commands: Commands, query: Query<(Entity, &Way), Added<Way>>) {
         for (entity, way) in query.iter() {
             commands.spawn(WayLine::from_way(way)).set_parent(entity);
             commands
-                .spawn(WayEdges2d::from_way(way, 5.0))
+                .spawn(WaySurface::from_center(way, 5.0))
                 .set_parent(entity);
             for bezier in way.spline.curves.clone() {
                 commands
