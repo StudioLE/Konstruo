@@ -39,7 +39,7 @@ fn spawn_positive_marker(mut commands: Commands) {
 }
 
 fn spawn_way_example(mut commands: Commands) {
-    let vertices = vec![
+    let curves = vec![
         [
             vec3(0.0, 70.0, 0.0),
             vec3(30.0, 70.0, 0.0),
@@ -53,11 +53,6 @@ fn spawn_way_example(mut commands: Commands) {
             vec3(70.0, 0.0, 0.0),
         ],
     ];
-    let way = Way {
-        curve: vertices,
-        width: 5.0,
-        depth: 1.0,
-        ..Way::default()
-    };
+    let way = Way::new(curves);
     commands.spawn(way);
 }
