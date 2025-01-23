@@ -1,4 +1,4 @@
-use crate::ways::{WayControl, WayMaterials, WaySurface};
+use crate::ways::{WayControl, WayMaterials, WayMeshes, WaySurface};
 use beach_core::beziers::CubicBezierSpline;
 use beach_core::geometry::meshes::create_linestrip;
 use bevy::prelude::*;
@@ -39,6 +39,7 @@ impl Way {
     pub fn added_system(
         mut commands: Commands,
         mut meshes: ResMut<Assets<Mesh>>,
+        way_meshes: Res<WayMeshes>,
         materials: Res<WayMaterials>,
         query: Query<(Entity, &Way), Added<Way>>,
     ) {
@@ -52,14 +53,7 @@ impl Way {
             commands
                 .spawn(WaySurface::from_center(way, 5.0))
                 .set_parent(entity);
-            for bezier in way.spline.curves.clone() {
-                commands
-                    .spawn(WayControl::new(bezier.start, bezier.start_handle))
-                    .set_parent(entity);
-                commands
-                    .spawn(WayControl::new(bezier.end, bezier.end_handle))
-                    .set_parent(entity);
-            }
+            WayControl::spawn(&mut commands, &way_meshes, &materials, way, entity);
         }
     }
 }
