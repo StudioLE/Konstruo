@@ -1,4 +1,5 @@
 use beach_civil::ways::{Way, WaysPlugin};
+use beach_core::beziers::{CubicBezier, CubicBezierSpline};
 use beach_geography::{GroundPlugin, SkyPlugin, SunPlugin};
 use beach_ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
 use beach_ui::gizmos::GizmoPlugin;
@@ -39,20 +40,22 @@ fn spawn_positive_marker(mut commands: Commands) {
 }
 
 fn spawn_way_example(mut commands: Commands) {
-    let curves = vec![
-        [
-            vec3(0.0, 70.0, 0.0),
-            vec3(30.0, 70.0, 0.0),
-            vec3(30.0, 40.0, 0.0),
-            vec3(50.0, 40.0, 0.0),
+    let curves = CubicBezierSpline {
+        curves: vec![
+            CubicBezier {
+                start: vec3(0.0, 70.0, 0.0),
+                start_handle: vec3(30.0, 70.0, 0.0),
+                end_handle: vec3(30.0, 40.0, 0.0),
+                end: vec3(50.0, 40.0, 0.0),
+            },
+            CubicBezier {
+                start: vec3(50.0, 40.0, 0.0),
+                start_handle: vec3(70.0, 40.0, 0.0),
+                end_handle: vec3(70.0, 15.0, 0.0),
+                end: vec3(70.0, 0.0, 0.0),
+            },
         ],
-        [
-            vec3(50.0, 40.0, 0.0),
-            vec3(70.0, 40.0, 0.0),
-            vec3(70.0, 15.0, 0.0),
-            vec3(70.0, 0.0, 0.0),
-        ],
-    ];
+    };
     let way = Way::new(curves);
     commands.spawn(way);
 }

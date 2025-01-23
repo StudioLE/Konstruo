@@ -1,7 +1,7 @@
 use crate::ways::controls::WayControl;
 use crate::ways::line::WayLine;
 use crate::ways::WayEdges2d;
-use beach_core::beziers::flatten::flatten_bezier;
+use beach_core::beziers::CubicBezierSpline;
 use bevy::prelude::*;
 
 /// Tolerance with which the bezier is flattened into a polyline.
@@ -27,23 +27,13 @@ pub const OFFSET_ACCURACY: f32 = 1.0;
 pub struct Way {
     /// Get the cubic bezier curves of the way.
     /// All vectors are
-    curves: Vec<[Vec3; 4]>,
+    pub(super) spline: CubicBezierSpline,
 }
 
 impl Way {
     /// Create a [`Way`]
-    pub fn new(curves: Vec<[Vec3; 4]>) -> Self {
-        Self { curves }
-    }
-
-    /// Get the cubic bezier curve of the way.
-    pub fn get_curve(&self) -> CubicBezier<Vec3> {
-        CubicBezier::new(self.curves.clone())
-    }
-
-    /// Get the polyline of the way by flattening the bezier curve.
-    pub fn get_polyline(&self) -> Vec<Vec3> {
-        flatten_bezier(&self.get_curve(), FLATTEN_TOLERANCE)
+    pub fn new(spline: CubicBezierSpline) -> Self {
+        Self { spline }
     }
 
     /// System to create [`WayLine`], [`WayEdges2d`], and [`WayControl`] when a [`Way`] is added.
@@ -53,12 +43,12 @@ impl Way {
             commands
                 .spawn(WayEdges2d::from_way(way, 5.0))
                 .set_parent(entity);
-            for curve in way.curves.clone() {
+            for bezier in way.spline.curves.clone() {
                 commands
-                    .spawn(WayControl::new(curve[0], curve[1]))
+                    .spawn(WayControl::new(bezier.start, bezier.start_handle))
                     .set_parent(entity);
                 commands
-                    .spawn(WayControl::new(curve[3], curve[2]))
+                    .spawn(WayControl::new(bezier.end, bezier.end_handle))
                     .set_parent(entity);
             }
         }

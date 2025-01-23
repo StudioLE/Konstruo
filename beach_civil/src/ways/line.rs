@@ -1,5 +1,5 @@
-use crate::ways::Way;
 use crate::ways::WayMaterials;
+use crate::ways::{Way, FLATTEN_TOLERANCE};
 use beach_core::geometry::meshes::create_linestrip;
 use bevy::prelude::*;
 
@@ -19,7 +19,7 @@ impl WayLine {
     /// Create a new instance of [`WayLine`] from a [`Way`].
     pub fn from_way(way: &Way) -> Self {
         Self {
-            polyline: way.get_polyline(),
+            polyline: way.spline.flatten(FLATTEN_TOLERANCE),
         }
     }
 
