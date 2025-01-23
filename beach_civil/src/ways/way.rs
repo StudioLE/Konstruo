@@ -1,7 +1,6 @@
-use crate::ways::controls::WayControl;
-use crate::ways::line::WayLine;
-use crate::ways::WaySurface;
+use crate::ways::{WayControl, WayMaterials, WaySurface};
 use beach_core::beziers::CubicBezierSpline;
+use beach_core::geometry::meshes::create_linestrip;
 use bevy::prelude::*;
 
 /// Tolerance with which the bezier is flattened into a polyline.
@@ -36,10 +35,20 @@ impl Way {
         Self { spline }
     }
 
-    /// System to create [`WayLine`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
-    pub fn added_system(mut commands: Commands, query: Query<(Entity, &Way), Added<Way>>) {
+    /// System to create [`Mesh3d`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
+    pub fn added_system(
+        mut commands: Commands,
+        mut meshes: ResMut<Assets<Mesh>>,
+        materials: Res<WayMaterials>,
+        query: Query<(Entity, &Way), Added<Way>>,
+    ) {
         for (entity, way) in query.iter() {
-            commands.spawn(WayLine::from_way(way)).set_parent(entity);
+            let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
+            let bundle = (
+                Mesh3d(meshes.add(create_linestrip(polyline))),
+                MeshMaterial3d(materials.control_line.clone()),
+            );
+            commands.spawn(bundle).set_parent(entity);
             commands
                 .spawn(WaySurface::from_center(way, 5.0))
                 .set_parent(entity);
