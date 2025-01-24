@@ -20,8 +20,8 @@ impl CubicBezierSpline {
     /// Update the location of a control point at `index`.
     ///
     /// If the control point is:
-    /// -  an anchor: the next or previous anchor is also moved.
-    /// -  a handle: the opposing handle the movement is reflected but its distance from anchor unchanged.
+    /// -  an anchor: the next or previous anchor and handles are moved.
+    /// -  a handle: the opposing handle is rotated but its distance from anchor unchanged.
     pub fn update_control(&mut self, index: usize, point: Vec3) {
         let curve = index / 4;
         let control = index % 4;
@@ -33,9 +33,12 @@ impl CubicBezierSpline {
         let is_last = curve == self.curves.len() - 1;
         match control {
             0 => {
+                let translation = point - self.curves[curve].start;
                 self.curves[curve].start = point;
+                self.curves[curve].start_handle += translation;
                 if !is_first {
                     self.curves[curve - 1].end = point;
+                    self.curves[curve - 1].end_handle += translation;
                 }
             }
             1 => {
@@ -57,12 +60,15 @@ impl CubicBezierSpline {
                 }
             }
             3 => {
+                let translation = point - self.curves[curve].end;
                 self.curves[curve].end = point;
+                self.curves[curve].end_handle += translation;
                 if !is_last {
                     self.curves[curve + 1].start = point;
+                    self.curves[curve + 1].start_handle += translation;
                 }
             }
-            _ => panic!("Failed to move control point. Id of control is out of range"),
+            _ => panic!("Failed to move control point. Index of control is out of range"),
         };
     }
 
