@@ -1,6 +1,7 @@
 use crate::ways::{WayControl, WayControlLine, WayMaterials, WayMeshes, WaySurface};
 use beach_core::beziers::CubicBezierSpline;
 use beach_core::geometry::meshes::create_linestrip;
+use beach_core::mathematics::constants::QUARTER_PI;
 use bevy::prelude::*;
 
 /// Tolerance with which the bezier is flattened into a polyline.
@@ -59,7 +60,13 @@ impl Way {
                 continue;
             }
             if let Some(translation) = control_points.get(control.index) {
-                *transform = Transform::from_translation(*translation);
+                let index = control.index % 4;
+                if index == 0 || index == 3 {
+                    *transform = Transform::from_translation(*translation)
+                        .with_rotation(Quat::from_rotation_z(QUARTER_PI));
+                } else {
+                    *transform = Transform::from_translation(*translation)
+                }
             } else {
                 warn!(
                     "Failed to set WayControl transform. Index does not exist: {}",

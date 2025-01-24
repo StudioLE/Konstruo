@@ -1,6 +1,7 @@
 use crate::ways::materials::WayMaterials;
 use crate::ways::meshes::WayMeshes;
 use crate::ways::{Way, WayControlLine, WaySurface};
+use beach_core::mathematics::constants::QUARTER_PI;
 use beach_ui::cursor::Cursor;
 use beach_ui::pan_orbit::PrimaryCamera;
 use bevy::prelude::*;
@@ -33,7 +34,8 @@ impl WayControl {
             let start = if i == 0 {
                 Some((
                     WayControl::new(i * 4),
-                    Transform::from_translation(bezier.start),
+                    Transform::from_translation(bezier.start)
+                        .with_rotation(Quat::from_rotation_z(QUARTER_PI)),
                     Mesh3d(meshes.control_origin.clone()),
                     MeshMaterial3d(materials.control_node.clone()),
                 ))
@@ -54,7 +56,8 @@ impl WayControl {
             );
             let end = (
                 WayControl::new(i * 4 + 3),
-                Transform::from_translation(bezier.end),
+                Transform::from_translation(bezier.end)
+                    .with_rotation(Quat::from_rotation_z(QUARTER_PI)),
                 Mesh3d(meshes.control_origin.clone()),
                 MeshMaterial3d(materials.control_node.clone()),
             );
