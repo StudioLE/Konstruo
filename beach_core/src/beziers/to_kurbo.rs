@@ -4,6 +4,8 @@ use bevy::log::warn;
 use bevy::math::Vec3;
 use kurbo::{BezPath, CubicBez, PathSeg, Point, Shape};
 
+const KURBO_EPSILON: f32 = 0.000_1;
+
 impl CubicBezier {
     /// Convert to a kurbo [`CubicBez`].
     pub fn to_kurbo(&self) -> CubicBez {
@@ -34,7 +36,7 @@ impl CubicBezierSpline {
 
 /// Convert from a [`Vec3`] to a kurbo [`Point`].
 fn vec3_to_kurbo(vector: Vec3) -> Point {
-    if vector.z != 0.0 {
+    if vector.z.abs() > KURBO_EPSILON {
         warn!(
             "Kurbo only supports 2D coordinates. Ignoring Z value: {}",
             vector.z

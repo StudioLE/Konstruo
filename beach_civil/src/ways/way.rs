@@ -1,4 +1,4 @@
-use crate::ways::{WayControl, WayMaterials, WayMeshes, WaySurface};
+use crate::ways::{WayControl, WayControlLine, WayMaterials, WayMeshes, WaySurface};
 use beach_core::beziers::CubicBezierSpline;
 use beach_core::geometry::meshes::create_linestrip;
 use bevy::prelude::*;
@@ -42,13 +42,16 @@ impl Way {
         mut meshes: ResMut<Assets<Mesh>>,
         materials: Res<WayMaterials>,
         mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
+        mut lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
         surfaces: Query<(Entity, &Parent), With<WaySurface>>,
         way: &Way,
         way_entity: Entity,
         mut mesh: Mut<Mesh3d>,
     ) {
+        // Mesh3d
         let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
         *mesh = Mesh3d(meshes.add(create_linestrip(polyline)));
+        // WayControl
         let control_points = way.spline.get_controls();
         for (control, parent, mut transform) in controls.iter_mut() {
             if parent.get() != way_entity {
@@ -63,6 +66,28 @@ impl Way {
                 );
             };
         }
+        // WayControlLine
+        for (line, parent, mut mesh) in lines.iter_mut() {
+            if parent.get() != way_entity {
+                continue;
+            }
+            if let Some(anchor) = control_points.get(line.anchor) {
+                if let Some(handle) = control_points.get(line.handle) {
+                    *mesh = Mesh3d(meshes.add(create_linestrip(vec![*anchor, *handle])));
+                } else {
+                    warn!(
+                        "Failed to set WayControlLine. Index does not exist: {}",
+                        line.handle
+                    );
+                };
+            } else {
+                warn!(
+                    "Failed to set WayControlLine. Index does not exist: {}",
+                    line.anchor
+                );
+            };
+        }
+        // WaySurface
         let Some((entity, _)) = surfaces
             .into_iter()
             .find(|(_, parent)| parent.get() == way_entity)
@@ -93,6 +118,7 @@ impl Way {
             let surface = WaySurface::from_center(way, 5.0);
             WaySurface::spawn(&mut commands, &mut meshes, &materials, surface, entity);
             WayControl::spawn(&mut commands, &way_meshes, &materials, way, entity);
+            WayControlLine::spawn(&mut commands, &mut meshes, &materials, way, entity);
         }
     }
 }

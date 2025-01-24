@@ -1,6 +1,6 @@
 use crate::ways::materials::WayMaterials;
 use crate::ways::meshes::WayMeshes;
-use crate::ways::{Way, WaySurface};
+use crate::ways::{Way, WayControlLine, WaySurface};
 use beach_ui::cursor::Cursor;
 use beach_ui::pan_orbit::PrimaryCamera;
 use bevy::prelude::*;
@@ -151,6 +151,7 @@ fn on_pointer_drag(
     mut commands: Commands,
     meshes: ResMut<Assets<Mesh>>,
     materials: Res<WayMaterials>,
+    lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
     surfaces: Query<(Entity, &Parent), With<WaySurface>>,
 ) {
     let Ok((control, parent, _transform)) = controls.get(event.entity()) else {
@@ -171,6 +172,7 @@ fn on_pointer_drag(
         meshes,
         materials,
         controls,
+        lines,
         surfaces,
         &way,
         entity,
