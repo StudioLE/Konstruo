@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 impl CubicBezierSpline {
     pub fn to_bevy(&self) -> BevyCubicBezier<Vec3> {
-        BevyCubicBezier::new(self.get_controls())
+        let controls: Vec<_> = self.curves.iter().map(|x| x.get_controls()).collect();
+        BevyCubicBezier::new(controls)
     }
 }

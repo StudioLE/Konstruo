@@ -13,8 +13,8 @@ pub struct CubicBezierSpline {
 
 impl CubicBezierSpline {
     /// Get the control points.
-    pub fn get_controls(&self) -> Vec<[Vec3; 4]> {
-        self.curves.iter().map(|x| x.get_controls()).collect()
+    pub fn get_controls(&self) -> Vec<Vec3> {
+        self.curves.iter().flat_map(|x| x.get_controls()).collect()
     }
 
     /// Update the location of a control point at `index`.

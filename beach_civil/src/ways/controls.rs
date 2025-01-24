@@ -5,36 +5,20 @@ use beach_ui::cursor::Cursor;
 use beach_ui::pan_orbit::PrimaryCamera;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use ControlType::*;
 
 /// A control point that manipulates a [`Way`].
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct WayControl {
-    /// Index of the cubic bezier within the cubic bezier spline of the [`Way`].
-    #[allow(dead_code)]
-    id: usize,
-    /// Type of the control.
-    #[allow(dead_code)]
-    control: ControlType,
+    /// Index of the control point in the spline of the [`Way`].
+    pub index: usize,
     /// Translation at the start of the drag operation.
     drag: Option<Vec3>,
 }
 
-pub enum ControlType {
-    Start,
-    StartHandle,
-    EndHandle,
-    End,
-}
-
 impl WayControl {
-    fn new(curve: usize, control: ControlType) -> Self {
-        Self {
-            id: curve,
-            control,
-            drag: None,
-        }
+    fn new(index: usize) -> Self {
+        Self { index, drag: None }
     }
 
     /// Factory method to spawn [`WayControl`] for each control point in a [`Way`]
@@ -48,7 +32,7 @@ impl WayControl {
         for (i, bezier) in way.spline.curves.iter().enumerate() {
             let start = if i == 0 {
                 Some((
-                    WayControl::new(i * 4, Start),
+                    WayControl::new(i * 4),
                     Transform::from_translation(bezier.start),
                     Mesh3d(meshes.control_origin.clone()),
                     MeshMaterial3d(materials.control_node.clone()),
@@ -57,19 +41,19 @@ impl WayControl {
                 None
             };
             let start_handle = (
-                WayControl::new(i * 4 + 1, StartHandle),
+                WayControl::new(i * 4 + 1),
                 Transform::from_translation(bezier.start_handle),
                 Mesh3d(meshes.control_handle.clone()),
                 MeshMaterial3d(materials.control_node.clone()),
             );
             let end_handle = (
-                WayControl::new(i * 4 + 2, EndHandle),
+                WayControl::new(i * 4 + 2),
                 Transform::from_translation(bezier.end_handle),
                 Mesh3d(meshes.control_handle.clone()),
                 MeshMaterial3d(materials.control_node.clone()),
             );
             let end = (
-                WayControl::new(i * 4 + 3, End),
+                WayControl::new(i * 4 + 3),
                 Transform::from_translation(bezier.end),
                 Mesh3d(meshes.control_origin.clone()),
                 MeshMaterial3d(materials.control_node.clone()),
@@ -160,7 +144,7 @@ fn on_pointer_drag_start(
 #[allow(clippy::too_many_arguments)]
 fn on_pointer_drag(
     event: Trigger<Pointer<Drag>>,
-    mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
+    controls: Query<(&WayControl, &Parent, &mut Transform)>,
     mut ways: Query<(&mut Way, Entity, &mut Mesh3d)>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
@@ -169,7 +153,7 @@ fn on_pointer_drag(
     materials: Res<WayMaterials>,
     surfaces: Query<(Entity, &Parent), With<WaySurface>>,
 ) {
-    let Ok((control, parent, mut transform)) = controls.get_mut(event.entity()) else {
+    let Ok((control, parent, _transform)) = controls.get(event.entity()) else {
         error!("Failed to get WayControl");
         return;
     };
@@ -177,16 +161,16 @@ fn on_pointer_drag(
         warn!("Failed to get cursor on ground");
         return;
     };
-    transform.translation = translation;
     let Ok((mut way, entity, mesh)) = ways.get_mut(parent.get()) else {
         warn!("Failed to get Way");
         return;
     };
-    way.spline.update_control(control.id, translation);
+    way.spline.update_control(control.index, translation);
     Way::regenerate(
         &mut commands,
         meshes,
         materials,
+        controls,
         surfaces,
         &way,
         entity,

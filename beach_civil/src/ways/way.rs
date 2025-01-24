@@ -41,6 +41,7 @@ impl Way {
         commands: &mut Commands,
         mut meshes: ResMut<Assets<Mesh>>,
         materials: Res<WayMaterials>,
+        mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
         surfaces: Query<(Entity, &Parent), With<WaySurface>>,
         way: &Way,
         way_entity: Entity,
@@ -48,6 +49,20 @@ impl Way {
     ) {
         let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
         *mesh = Mesh3d(meshes.add(create_linestrip(polyline)));
+        let control_points = way.spline.get_controls();
+        for (control, parent, mut transform) in controls.iter_mut() {
+            if parent.get() != way_entity {
+                continue;
+            }
+            if let Some(translation) = control_points.get(control.index) {
+                *transform = Transform::from_translation(*translation);
+            } else {
+                warn!(
+                    "Failed to set WayControl transform. Index does not exist: {}",
+                    control.index
+                );
+            };
+        }
         let Some((entity, _)) = surfaces
             .into_iter()
             .find(|(_, parent)| parent.get() == way_entity)
