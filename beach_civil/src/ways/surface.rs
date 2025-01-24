@@ -6,6 +6,7 @@ use beach_core::geometry::primitives::create_triangle_strip_between_polylines;
 use beach_core::geometry::triangles::add_vertices_by_spliting_longest_edge;
 use bevy::prelude::*;
 use std::cmp::Ordering;
+use SurfaceType::*;
 
 /// A surface formed by two lines from a [Way].
 #[derive(Component)]
@@ -13,17 +14,29 @@ use std::cmp::Ordering;
 pub struct WaySurface {
     /// Offsets from the way.
     offsets: [f32; 2],
+
+    /// Offsets from the way.
+    purpose: SurfaceType,
+}
+
+pub enum SurfaceType {
+    /// - <https://en.wikipedia.org/wiki/Carriageway>
+    Carriageway,
+    /// - <https://en.wikipedia.org/wiki/Footway>
+    Footway,
+    /// - <https://en.wikipedia.org/wiki/Road_verge>
+    Verge,
 }
 
 impl WaySurface {
     /// Create a new [`WaySurface`] offset from [`Way`].
-    pub fn new(offsets: [f32; 2]) -> Self {
-        Self { offsets }
+    pub fn new(offsets: [f32; 2], purpose: SurfaceType) -> Self {
+        Self { offsets, purpose }
     }
 
     /// Create a new [`WaySurface`] centered at [`Way`].
-    pub fn centered(width: f32) -> Self {
-        Self::new([width * -0.5, width * 0.5])
+    pub fn centered(width: f32, purpose: SurfaceType) -> Self {
+        Self::new([width * -0.5, width * 0.5], purpose)
     }
 
     /// Regenerate the mesh geometry.
@@ -41,11 +54,12 @@ impl WaySurface {
         parent: Entity,
     ) {
         let mesh = self.get_mesh(way);
-        let bundle = (
-            self,
-            Mesh3d(meshes.add(mesh)),
-            MeshMaterial3d(materials.mesh.clone()),
-        );
+        let material = match self.purpose {
+            Carriageway => materials.carriageway.clone(),
+            Footway => materials.footway.clone(),
+            Verge => materials.verge.clone(),
+        };
+        let bundle = (self, Mesh3d(meshes.add(mesh)), MeshMaterial3d(material));
         commands.spawn(bundle).set_parent(parent);
     }
 

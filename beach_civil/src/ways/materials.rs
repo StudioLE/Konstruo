@@ -16,8 +16,14 @@ pub struct WayMaterials {
     /// Material for the line from origin to handle of a way control.
     pub control_line: Handle<StandardMaterial>,
 
-    /// Material for the mesh of a way.
-    pub mesh: Handle<StandardMaterial>,
+    /// Material for a road [`WaySurface`].
+    pub carriageway: Handle<StandardMaterial>,
+
+    /// Material for a road [`WaySurface`].
+    pub footway: Handle<StandardMaterial>,
+
+    /// Material for a road [`WaySurface`].
+    pub verge: Handle<StandardMaterial>,
 }
 
 impl WayMaterials {
@@ -34,22 +40,6 @@ impl WayMaterials {
                 depth_bias: 1.0,
                 ..Default::default()
             }),
-            control_line: materials.add(StandardMaterial {
-                emissive: tailwind::SLATE_500.into(),
-                base_color: tailwind::SLATE_500.into(),
-                alpha_mode: AlphaMode::Opaque,
-                depth_bias: 1.0,
-                ..Default::default()
-            }),
-            mesh: materials.add(StandardMaterial {
-                emissive: basic::WHITE.into(),
-                base_color: basic::WHITE.into(),
-                alpha_mode: AlphaMode::Opaque,
-                depth_bias: -1.0,
-                double_sided: true,
-                cull_mode: None,
-                ..Default::default()
-            }),
             control_node_over: materials.add(StandardMaterial {
                 emissive: tailwind::BLUE_700.into(),
                 base_color: tailwind::BLUE_700.into(),
@@ -62,6 +52,43 @@ impl WayMaterials {
                 base_color: tailwind::RED_600.into(),
                 alpha_mode: AlphaMode::Opaque,
                 depth_bias: 1.0,
+                ..Default::default()
+            }),
+            control_line: materials.add(StandardMaterial {
+                emissive: tailwind::SLATE_500.into(),
+                base_color: tailwind::SLATE_500.into(),
+                alpha_mode: AlphaMode::Opaque,
+                depth_bias: 1.0,
+                ..Default::default()
+            }),
+            // TODO: Investigate why WaySurface appear dark unless `unlit: true`
+            carriageway: materials.add(StandardMaterial {
+                // base_color: tailwind::STONE_800.into(),
+                base_color: tailwind::STONE_400.into(),
+                perceptual_roughness: 1.0,
+                depth_bias: -1.0,
+                double_sided: true,
+                cull_mode: None,
+                unlit: true,
+                ..Default::default()
+            }),
+            footway: materials.add(StandardMaterial {
+                // base_color: tailwind::STONE_700.into(),
+                base_color: tailwind::STONE_300.into(),
+                perceptual_roughness: 1.0,
+                depth_bias: -1.0,
+                double_sided: true,
+                cull_mode: None,
+                unlit: true,
+                ..Default::default()
+            }),
+            verge: materials.add(StandardMaterial {
+                base_color: tailwind::LIME_900.into(),
+                perceptual_roughness: 1.0,
+                depth_bias: -1.0,
+                double_sided: true,
+                cull_mode: None,
+                unlit: true,
                 ..Default::default()
             }),
         });

@@ -1,3 +1,4 @@
+use beach_civil::ways::SurfaceType::*;
 use beach_civil::ways::{Way, WayMaterials, WaySurface, WaysPlugin};
 use beach_core::beziers::{CubicBezier, CubicBezierSpline};
 use beach_geography::{GroundPlugin, SkyPlugin, SunPlugin};
@@ -61,11 +62,11 @@ fn spawn_way_example(
         ],
     };
     let way = Way::new(curves);
-    let road = WaySurface::centered(4.8);
+    let road = WaySurface::centered(4.8, Carriageway);
     let entity = commands.spawn(way.clone()).id();
     road.spawn(&mut commands, &mut meshes, &materials, &way, entity);
-    let pavement = WaySurface::new([3.4, 5.4]);
-    pavement.spawn(&mut commands, &mut meshes, &materials, &way, entity);
-    let pavement = WaySurface::new([-3.4, -5.4]);
-    pavement.spawn(&mut commands, &mut meshes, &materials, &way, entity);
+    let footway = WaySurface::new([2.4, 4.4], Footway);
+    footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);
+    let footway = WaySurface::new([-2.4, -4.4], Footway);
+    footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);
 }
