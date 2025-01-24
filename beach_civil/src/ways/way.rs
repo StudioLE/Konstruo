@@ -21,7 +21,7 @@ pub const OFFSET_ACCURACY: f32 = 1.0;
 /// distributed alongside.
 ///
 /// The way does not have a transform. Its geometry is defined by the control points of its cubic bezier curves.
-#[derive(Component)]
+#[derive(Clone, Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct Way {
     /// Get the cubic bezier curves of the way.
@@ -36,14 +36,15 @@ impl Way {
     }
 
     /// System to update everything when a control point is moved.
-    #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::too_many_arguments, clippy::type_complexity)]
     pub fn regenerate(
-        commands: &mut Commands,
         mut meshes: ResMut<Assets<Mesh>>,
-        materials: Res<WayMaterials>,
         mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
         mut lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
-        surfaces: Query<(Entity, &Parent), With<WaySurface>>,
+        mut surfaces: Query<
+            (&WaySurface, &Parent, &mut Mesh3d),
+            (Without<Way>, Without<WayControlLine>),
+        >,
         way: &Way,
         way_entity: Entity,
         mut mesh: Mut<Mesh3d>,
@@ -87,17 +88,13 @@ impl Way {
                 );
             };
         }
-        // WaySurface
-        let Some((entity, _)) = surfaces
-            .into_iter()
-            .find(|(_, parent)| parent.get() == way_entity)
-        else {
-            warn!("Failed to get WaySurface");
-            return;
-        };
-        commands.entity(entity).despawn_recursive();
-        let surface = WaySurface::from_center(way, 5.0);
-        WaySurface::spawn(commands, &mut meshes, &materials, surface, way_entity);
+        // WayControlLine
+        for (surface, parent, mesh) in surfaces.iter_mut() {
+            if parent.get() != way_entity {
+                continue;
+            }
+            surface.regenerate(&mut meshes, mesh, way);
+        }
     }
 
     /// System to create [`Mesh3d`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
@@ -115,8 +112,6 @@ impl Way {
                 MeshMaterial3d(materials.control_line.clone()),
             );
             commands.entity(entity).insert(bundle);
-            let surface = WaySurface::from_center(way, 5.0);
-            WaySurface::spawn(&mut commands, &mut meshes, &materials, surface, entity);
             WayControl::spawn(&mut commands, &way_meshes, &materials, way, entity);
             WayControlLine::spawn(&mut commands, &mut meshes, &materials, way, entity);
         }

@@ -141,18 +141,16 @@ fn on_pointer_drag_start(
     *material = MeshMaterial3d(materials.control_node_drag.clone());
 }
 
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn on_pointer_drag(
     event: Trigger<Pointer<Drag>>,
     controls: Query<(&WayControl, &Parent, &mut Transform)>,
     mut ways: Query<(&mut Way, Entity, &mut Mesh3d)>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
-    mut commands: Commands,
     meshes: ResMut<Assets<Mesh>>,
-    materials: Res<WayMaterials>,
     lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
-    surfaces: Query<(Entity, &Parent), With<WaySurface>>,
+    surfaces: Query<(&WaySurface, &Parent, &mut Mesh3d), (Without<Way>, Without<WayControlLine>)>,
 ) {
     let Ok((control, parent, _transform)) = controls.get(event.entity()) else {
         error!("Failed to get WayControl");
@@ -167,17 +165,7 @@ fn on_pointer_drag(
         return;
     };
     way.spline.update_control(control.index, translation);
-    Way::regenerate(
-        &mut commands,
-        meshes,
-        materials,
-        controls,
-        lines,
-        surfaces,
-        &way,
-        entity,
-        mesh,
-    );
+    Way::regenerate(meshes, controls, lines, surfaces, &way, entity, mesh);
 }
 
 fn on_pointer_drag_end(

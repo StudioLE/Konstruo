@@ -1,4 +1,4 @@
-use beach_civil::ways::{Way, WaysPlugin};
+use beach_civil::ways::{Way, WayMaterials, WaySurface, WaysPlugin};
 use beach_core::beziers::{CubicBezier, CubicBezierSpline};
 use beach_geography::{GroundPlugin, SkyPlugin, SunPlugin};
 use beach_ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
@@ -24,7 +24,7 @@ fn main() {
         // .add_plugins(debug_plugin)
         .add_plugins(WaysPlugin)
         .add_systems(Startup, spawn_positive_marker)
-        .add_systems(Startup, spawn_way_example)
+        .add_systems(PostStartup, spawn_way_example)
         .run();
 }
 
@@ -39,7 +39,11 @@ fn spawn_positive_marker(mut commands: Commands) {
     commands.spawn(bundle);
 }
 
-fn spawn_way_example(mut commands: Commands) {
+fn spawn_way_example(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    materials: Res<WayMaterials>,
+) {
     let curves = CubicBezierSpline {
         curves: vec![
             CubicBezier {
@@ -57,5 +61,11 @@ fn spawn_way_example(mut commands: Commands) {
         ],
     };
     let way = Way::new(curves);
-    commands.spawn(way);
+    let road = WaySurface::centered(4.8);
+    let entity = commands.spawn(way.clone()).id();
+    road.spawn(&mut commands, &mut meshes, &materials, &way, entity);
+    let pavement = WaySurface::new([3.4, 5.4]);
+    pavement.spawn(&mut commands, &mut meshes, &materials, &way, entity);
+    let pavement = WaySurface::new([-3.4, -5.4]);
+    pavement.spawn(&mut commands, &mut meshes, &materials, &way, entity);
 }

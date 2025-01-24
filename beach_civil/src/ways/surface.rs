@@ -12,55 +12,59 @@ use std::cmp::Ordering;
 #[require(InheritedVisibility, Transform)]
 pub struct WaySurface {
     /// Offsets from the way.
-    #[allow(dead_code)]
     offsets: [f32; 2],
-    /// Cubic bezier splines of the edges.
-    splines: [CubicBezierSpline; 2],
 }
 
 impl WaySurface {
     /// Create a new [`WaySurface`] offset from [`Way`].
-    pub fn from_offsets(way: &Way, offsets: [f32; 2]) -> Self {
-        Self {
-            offsets,
-            splines: [
-                way.spline.offset(offsets[0], OFFSET_ACCURACY),
-                way.spline.offset(offsets[1], OFFSET_ACCURACY),
-            ],
-        }
+    pub fn new(offsets: [f32; 2]) -> Self {
+        Self { offsets }
     }
 
-    /// Create a new [`WaySurface`] from the center of [`Way`].
-    pub fn from_center(way: &Way, width: f32) -> Self {
-        Self::from_offsets(way, [width * -0.5, width * 0.5])
+    /// Create a new [`WaySurface`] centered at [`Way`].
+    pub fn centered(width: f32) -> Self {
+        Self::new([width * -0.5, width * 0.5])
+    }
+
+    /// Regenerate the mesh geometry.
+    pub fn regenerate(&self, meshes: &mut ResMut<Assets<Mesh>>, mut mesh: Mut<Mesh3d>, way: &Way) {
+        *mesh = Mesh3d(meshes.add(self.get_mesh(way)));
     }
 
     /// Spawn a [`WaySurface`] with its mesh geometry.
-    pub(super) fn spawn(
+    pub fn spawn(
+        self,
         commands: &mut Commands,
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &Res<WayMaterials>,
-        surface: WaySurface,
+        way: &Way,
         parent: Entity,
     ) {
-        let polylines = surface.get_polylines();
-        let triangle_strip = create_triangle_strip_between_polylines(&polylines);
-        let triangle_strip = create_triangle_strip(triangle_strip);
+        let mesh = self.get_mesh(way);
         let bundle = (
-            surface,
-            Mesh3d(meshes.add(triangle_strip)),
+            self,
+            Mesh3d(meshes.add(mesh)),
             MeshMaterial3d(materials.mesh.clone()),
         );
         commands.spawn(bundle).set_parent(parent);
     }
 
+    /// Get the splines of each edge.
+    fn get_splines(&self, way: &Way) -> [CubicBezierSpline; 2] {
+        [
+            way.spline.offset(self.offsets[0], OFFSET_ACCURACY),
+            way.spline.offset(self.offsets[1], OFFSET_ACCURACY),
+        ]
+    }
+
     /// Get the polylines of each edge.
     ///
     /// The polylines will have the same number of vertices.
-    pub(super) fn get_polylines(&self) -> [Vec<Vec3>; 2] {
+    fn get_polylines(&self, way: &Way) -> [Vec<Vec3>; 2] {
+        let splines = self.get_splines(way);
         let mut polylines = [
-            self.splines[0].flatten(FLATTEN_TOLERANCE),
-            self.splines[1].flatten(FLATTEN_TOLERANCE),
+            splines[0].flatten(FLATTEN_TOLERANCE),
+            splines[1].flatten(FLATTEN_TOLERANCE),
         ];
         #[allow(clippy::cast_possible_wrap)]
         let difference = polylines[0].len() as isize - polylines[1].len() as isize;
@@ -75,5 +79,12 @@ impl WaySurface {
             Ordering::Equal => {}
         }
         polylines
+    }
+
+    /// Get the [`Mesh`].
+    fn get_mesh(&self, way: &Way) -> Mesh {
+        let polylines = self.get_polylines(way);
+        let triangle_strip = create_triangle_strip_between_polylines(&polylines);
+        create_triangle_strip(triangle_strip)
     }
 }
