@@ -182,28 +182,7 @@ fn on_pointer_drag(
         warn!("Failed to get Way");
         return;
     };
-    // TODO: Move this to the CubicBezierSpline
-    // TODO: If anchor is moved then also move the next anchor
-    // TODO: If handle is moved then also update the rotation of the reflected handle
-    let curve = control.id / 4;
-    let control = control.id % 4;
-    let mut spline = way.spline.clone();
-    match control {
-        0 => {
-            spline.curves[curve].start = translation;
-        }
-        1 => {
-            spline.curves[curve].start_handle = translation;
-        }
-        2 => {
-            spline.curves[curve].end_handle = translation;
-        }
-        3 => {
-            spline.curves[curve].end = translation;
-        }
-        _ => panic!("Unexpected id"),
-    };
-    way.spline = spline;
+    way.spline.update_control(control.id, translation);
     Way::regenerate(
         &mut commands,
         meshes,
