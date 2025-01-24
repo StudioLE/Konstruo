@@ -1,11 +1,11 @@
-pub use controls::*;
+pub use control::*;
 pub use materials::*;
 pub use meshes::*;
 pub use plugin::*;
 pub use surface::*;
 pub use way::*;
 
-mod controls;
+mod control;
 mod materials;
 mod meshes;
 mod plugin;
