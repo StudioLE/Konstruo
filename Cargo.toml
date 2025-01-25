@@ -1,11 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-    "beach_app",
-    "beach_civil",
-    "beach_core",
-    "beach_geography",
-    "beach_ui",
+    "app",
+    "core",
+    "environment",
+    "infrastructure",
+    "ui",
 ]
 
 [workspace.dependencies]

@@ -149,6 +149,6 @@ jobs:
         run: >
           gh release upload
           "v${{ steps.surveyor.outputs.version }}"
-          "target/release/beach_app"
+          "target/release/geometrician"
           --clobber
           --repo "${{ github.repository }}"

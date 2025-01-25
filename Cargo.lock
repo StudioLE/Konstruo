@@ -301,51 +301,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
-name = "beach_app"
-version = "0.0.0"
-dependencies = [
- "beach_civil",
- "beach_core",
- "beach_geography",
- "beach_ui",
- "bevy",
-]
-
-[[package]]
-name = "beach_civil"
-version = "0.0.0"
-dependencies = [
- "beach_core",
- "beach_ui",
- "bevy",
-]
-
-[[package]]
-name = "beach_core"
-version = "0.0.0"
-dependencies = [
- "bevy",
- "kurbo",
- "lazy_static",
-]
-
-[[package]]
-name = "beach_geography"
-version = "0.0.0"
-dependencies = [
- "beach_core",
- "bevy",
-]
-
-[[package]]
-name = "beach_ui"
-version = "0.0.0"
-dependencies = [
- "beach_core",
- "bevy",
-]
-
-[[package]]
 name = "bevy"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2095,6 +2050,51 @@ dependencies = [
  "futures-io",
  "parking",
  "pin-project-lite",
+]
+
+[[package]]
+name = "geometrician"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "geometrician_core",
+ "geometrician_environment",
+ "geometrician_infrastructure",
+ "geometrician_ui",
+]
+
+[[package]]
+name = "geometrician_core"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "kurbo",
+ "lazy_static",
+]
+
+[[package]]
+name = "geometrician_environment"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "geometrician_core",
+]
+
+[[package]]
+name = "geometrician_infrastructure"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "geometrician_core",
+ "geometrician_ui",
+]
+
+[[package]]
+name = "geometrician_ui"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "geometrician_core",
 ]
 
 [[package]]

@@ -1,0 +1,8 @@
+[package]
+name = "geometrician_ui"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+geometrician_core = { path = "../core" }
+bevy = { workspace = true, features = ["dynamic_linking"] }

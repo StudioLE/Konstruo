@@ -1,9 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+    <option name="buildProfileId" value="dev" />
     <option name="command" value="run" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <envs>
-      <env name="RUST_LOG" value="bevy=trace,bevy_render=info,wgpu_core=info,beach=trace" />
+      <env name="RUST_LOG" value="bevy=trace,bevy_render=info,wgpu_core=info,geometrician=trace" />
     </envs>
     <option name="emulateTerminal" value="true" />
     <option name="channel" value="DEFAULT" />
