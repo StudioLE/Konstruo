@@ -304,10 +304,6 @@ jobs:
       with:
         name: release-notes.md
 
-    - uses: actions/download-artifact@v4
-      with:
-        name: release-notes.md
-
     - name: Create Release
       if: needs.release.outputs.version != '' && ! contains(needs.release.outputs.version, '-')
       env:
@@ -342,7 +338,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: >
         gh release upload
-        "v${{ needs.release.outputs.version }}"
-        "geometrician-${{ needs.release.outputs.version }}-*"
+        v${{ needs.release.outputs.version }}
+        geometrician-${{ needs.release.outputs.version }}-*
         --clobber
         --repo "${{ github.repository }}"
