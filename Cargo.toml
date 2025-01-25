@@ -5,8 +5,12 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-bevy = { version = "0.15.1", features = ["dynamic_linking"] }
+bevy = { version = "0.15.1" }
 kurbo = "0.11.0"
+
+[features]
+default = ["dynamic"]
+dynamic = ["bevy/dynamic_linking"]
 
 [profile.dev]
 opt-level = 1
