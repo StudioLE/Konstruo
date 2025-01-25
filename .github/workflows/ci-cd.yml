@@ -1,167 +1,312 @@
 name: CI/CD
 on:
   push:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-latest
+
+  release:
+    name: Determine Version
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.release.outputs.version }}
     steps:
 
-      - name: Fetch dependencies
-        run: sudo apt-get update
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
 
-      - name: Install dependencies
-        run: >
-          sudo apt-get install 
-          g++
-          pkg-config
-          libx11-dev
-          libasound2-dev
-          libudev-dev
-          libxkbcommon-x11-0
-          libwayland-dev
-          libxkbcommon-dev
+    - name: Run Surveyor
+      id: release
+      env:
+        GH_TOKEN: ${{ secrets.SURVEYOR_TOKEN }}
+        SURVEYOR_VERSION: v0.6.1-alpha.3
+      run: |
+        SURVEYOR="${{ runner.temp }}/surveyor"
+        gh release download "${SURVEYOR_VERSION}" \
+          --repo StudioLE/Surveyor \
+          --pattern "Surveyor-linux-x64-${SURVEYOR_VERSION}" \
+          --output "${SURVEYOR}"
+        chmod +x "${SURVEYOR}"
+        VERSION=$("${SURVEYOR}" version)
+        "${SURVEYOR}" release-notes > "${{ runner.temp }}/release-notes.md"
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "${VERSION}"
 
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
+    - run: echo "# ${{ steps.release.outputs.version}}" >> $GITHUB_STEP_SUMMARY
 
-      - name: Restore Cargo
-        id: cargo-cache
-        uses: actions/cache/restore@v4
-        with:
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            cargo-${{ runner.os }}-
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
+    - run: cat ${{ runner.temp }}/release-notes.md >> $GITHUB_STEP_SUMMARY
 
-      - name: Run Surveyor
-        id: surveyor
-        env:
-          GH_TOKEN: ${{ secrets.SURVEYOR_TOKEN }}
-          SURVEYOR_VERSION: v0.6.1-alpha.3
-        run: |
-          SURVEYOR="${{ runner.temp }}/surveyor"
-          gh release download "${SURVEYOR_VERSION}" \
-            --repo StudioLE/Surveyor \
-            --pattern "Surveyor-linux-x64-${SURVEYOR_VERSION}" \
-            --output "${SURVEYOR}"
-          chmod +x "${SURVEYOR}"
-          VERSION=$("${SURVEYOR}" version)
-          "${SURVEYOR}" release-notes > "${{ runner.temp }}/RELEASE-NOTES.md"
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "${VERSION}"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: release-notes.md
+        path: ${{ runner.temp }}/release-notes.md
 
-      - name: Set Version
-        if: ${{ steps.surveyor.outputs.version != ''}}
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install cargo-edit
-          cargo set-version ${{ steps.surveyor.outputs.version }}
+    - run: /home/linuxbrew/.linuxbrew/bin/brew install cargo-edit
+      if: steps.release.outputs.version != ''
 
-      - name: Cargo Build
-        run: cargo build --release
+    - run: /home/linuxbrew/.linuxbrew/bin/cargo-set-version set-version ${{ steps.release.outputs.version }}
+      if: steps.release.outputs.version != ''
 
-      - name: Cache Cargo
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ steps.cargo-cache.outputs.cache-primary-key }}
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
+    - run: git --no-pager diff --color
 
-      - name: Git Config
-        run: |
-          git config user.name "CI/CD"
-          git config user.email "cicd.tbxeq@passmail.com"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Cargo.toml
+        path: Cargo.toml
 
-      - name: Cargo Format
-        run: |
-          cargo fmt
-          git add --all -- ':!Cargo.toml' ':!Cargo.lock'
-          if ! git diff --cached --exit-code
-          then
-            echo "::warning title=Cargo Format::Please review the output for details."
-            git commit -m "style: Apply code style with `cargo fmt`"
-          fi
-        continue-on-error: true
 
-      - name: Cargo Fix
-        run: |
-          cargo fix --release --allow-dirty --message-format short
-          cargo fmt
-          git add --all -- ':!Cargo.toml' ':!Cargo.lock'
-          if ! git diff --cached --exit-code
-          then
-            echo "::warning title=Cargo Fix::Please review the output for details."
-            git commit -m "style: Apply code style with `cargo fix`"
-          fi
-        continue-on-error: true
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    needs:
+    - release
+    steps:
 
-      - name: Cargo Clippy
-        run: |
-          cargo clippy --release --fix --allow-dirty --message-format short
-          cargo fmt
-          git add --all -- ':!Cargo.toml' ':!Cargo.lock'
-          if ! git diff --cached --exit-code
-          then
-            echo "::warning title=Cargo Clippy::Please review the output for details."
-            git commit -m "style: Apply code style with `cargo clippy --fix`"
-          fi
-        continue-on-error: true
+    - name: Fetch dependencies
+      run: sudo apt-get update
 
-      - name: Git Status
-        run: git status
+    - name: Install dependencies
+      run: >
+        sudo apt-get install 
+        g++
+        pkg-config
+        libx11-dev
+        libasound2-dev
+        libudev-dev
+        libxkbcommon-x11-0
+        libwayland-dev
+        libxkbcommon-dev
 
-      - name: Git Push
-        run: git push
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
 
-      - name: Cargo Test
-        run: cargo test --release --no-fail-fast
+    - name: Restore Cargo
+      id: cargo-cache
+      uses: actions/cache/restore@v4
+      with:
+        key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          cargo-${{ runner.os }}-
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
 
-      - name: Create Release
-        if: ${{ steps.surveyor.outputs.version != '' && ! contains(steps.surveyor.outputs.version, '-') }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create
-          "v${{ steps.surveyor.outputs.version }}"
-          --title "v${{ steps.surveyor.outputs.version }}"
-          --notes-file "${{ runner.temp }}/RELEASE-NOTES.md"
-          --target ${{ github.ref_name }}
+    - uses: actions/download-artifact@v4
+      with:
+        name: Cargo.toml
 
-      - name: Create Prerelease
-        if: ${{ steps.surveyor.outputs.version != '' && contains(steps.surveyor.outputs.version, '-') }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create
-          "v${{ steps.surveyor.outputs.version }}"
-          --title "v${{ steps.surveyor.outputs.version }}"
-          --notes-file "${{ runner.temp }}/RELEASE-NOTES.md"
-          --target ${{ github.ref_name }}
-          --prerelease
+    - name: Cargo Build
+      run: cargo build --release
 
-      - name: Upload Release Asset
-        if: ${{ steps.surveyor.outputs.version != ''}}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release upload
-          "v${{ steps.surveyor.outputs.version }}"
-          "target/release/geometrician"
-          --clobber
-          --repo "${{ github.repository }}"
+    - name: Cache Cargo
+      if: always()
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cargo-cache.outputs.cache-primary-key }}
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+
+    - name: Git Config
+      run: |
+        git config user.name "CI/CD"
+        git config user.email "cicd.tbxeq@passmail.com"
+
+    - name: Cargo Format
+      run: |
+        cargo fmt
+        git add --all -- ':!Cargo.toml' ':!Cargo.lock'
+        if ! git diff --cached --exit-code
+        then
+          echo "::warning title=Cargo Format::Please review the output for details."
+          git commit -m "style: Apply code style with `cargo fmt`"
+        fi
+      continue-on-error: true
+
+    - name: Cargo Fix
+      run: |
+        cargo fix --release --allow-dirty --message-format short
+        cargo fmt
+        git add --all -- ':!Cargo.toml' ':!Cargo.lock'
+        if ! git diff --cached --exit-code
+        then
+          echo "::warning title=Cargo Fix::Please review the output for details."
+          git commit -m "style: Apply code style with `cargo fix`"
+        fi
+      continue-on-error: true
+
+    - name: Cargo Clippy
+      run: |
+        cargo clippy --release --fix --allow-dirty --message-format short
+        cargo fmt
+        git add --all -- ':!Cargo.toml' ':!Cargo.lock'
+        if ! git diff --cached --exit-code
+        then
+          echo "::warning title=Cargo Clippy::Please review the output for details."
+          git commit -m "style: Apply code style with `cargo clippy --fix`"
+        fi
+      continue-on-error: true
+
+    - name: Git Status
+      run: git status
+
+    - name: Git Push
+      run: git push
+
+    - name: Cargo Test
+      run: cargo test --release --no-fail-fast
+
+
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    needs:
+    - release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: ubuntu-24.04
+          target: x86_64-unknown-linux-gnu
+    steps:
+
+    - name: Fetch dependencies
+      if: contains(matrix.os, 'ubuntu')
+      run: sudo apt-get update
+
+    - name: Install dependencies
+      if: contains(matrix.os, 'ubuntu')
+      run: >
+        sudo apt-get install 
+        g++
+        pkg-config
+        libx11-dev
+        libasound2-dev
+        libudev-dev
+        libxkbcommon-x11-0
+        libwayland-dev
+        libxkbcommon-dev
+
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: Restore Cargo
+      id: cargo-cache
+      uses: actions/cache/restore@v4
+      with:
+        key: cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          cargo-${{ matrix.target }}-
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: Cargo.toml
+
+    - name: Add target
+      run: rustup target add ${{ matrix.target }}
+
+    - name: Cargo Build
+      run: cargo build --no-default-features --release
+
+    - name: Cache Cargo
+      if: always()
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cargo-cache.outputs.cache-primary-key }}
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+
+    - run: >
+        mkdir artifacts
+        cp target/${{ matrix.target }}/release/geometrician 
+        artifacts/geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}
+        path: artifacts/geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}
+
+
+
+  github-release:
+    name: Release
+    runs-on: ubuntu-24.04
+    if: needs.release.outputs.version != ''
+    needs:
+    - test
+    - build
+    steps:
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: release-notes.md
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: release-notes.md
+
+    - name: Create Release
+      if: needs.release.outputs.version != '' && ! contains(needs.release.outputs.version, '-')
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: >
+        gh release create
+        "v${{ needs.release.outputs.versionn }}"
+        --title "v${{ needs.release.outputs.version }}"
+        --notes-file "release-notes.md"
+        --target ${{ github.ref_name }}
+
+    - name: Create Prerelease
+      if: needs.release.outputs.version != '' && contains(needs.release.outputs.version, '-')
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: >
+        gh release create
+        "v${{ needs.release.outputs.version }}"
+        --title "v${{ needs.release.outputs.version }}"
+        --notes-file "release-notes.md"
+        --target ${{ github.ref_name }}
+        --prerelease
+
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: geometrician-${{ needs.release.outputs.version }}-*
+        merge-multiple: true
+
+    - name: Upload Release Asset
+      if: needs.release.outputs.version != ''
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: >
+        gh release upload
+        "v${{ needs.release.outputs.version }}"
+        "geometrician-${{ needs.release.outputs.version }}-*"
+        --clobber
+        --repo "${{ github.repository }}"
