@@ -92,8 +92,9 @@ jobs:
       id: cargo-cache
       uses: actions/cache/restore@v4
       with:
-        key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+        key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}-${{ needs.release.outputs.version }}
         restore-keys: |
+          cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}-
           cargo-${{ runner.os }}-
         path: |
           ~/.cargo/bin/
@@ -211,8 +212,9 @@ jobs:
       id: cargo-cache
       uses: actions/cache/restore@v4
       with:
-        key: cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+        key: cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}-${{ needs.release.outputs.version }}
         restore-keys: |
+          cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}-
           cargo-${{ matrix.target }}-
         path: |
           ~/.cargo/bin/
@@ -261,6 +263,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: needs.release.outputs.version != ''
     needs:
+    - release
     - test
     - build
     steps:
