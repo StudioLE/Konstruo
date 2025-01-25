@@ -4,7 +4,8 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  on-push:
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
 
@@ -90,24 +91,36 @@ jobs:
       - name: Cargo Format
         run: |
           cargo fmt
-          git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
-          git commit -m "style: cargo fmt"
+          git add --all -- ':!Cargo.toml' ':!Cargo.lock'
+          if ! git diff --cached --exit-code
+          then
+            echo "::warning title=Cargo Format::Please review the output for details."
+            git commit -m "style: Apply code style with `cargo fmt`"
+          fi
         continue-on-error: true
 
       - name: Cargo Fix
         run: |
           cargo fix --release --allow-dirty --message-format short
           cargo fmt
-          git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
-          git commit -m "style: cargo fix"
+          git add --all -- ':!Cargo.toml' ':!Cargo.lock'
+          if ! git diff --cached --exit-code
+          then
+            echo "::warning title=Cargo Fix::Please review the output for details."
+            git commit -m "style: Apply code style with `cargo fix`"
+          fi
         continue-on-error: true
 
       - name: Cargo Clippy
         run: |
-          cargo clippy --fix --allow-dirty --release --message-format short
+          cargo clippy --release --fix --allow-dirty --message-format short
           cargo fmt
-          git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
-          git commit -m "style: cargo clippy --fix"
+          git add --all -- ':!Cargo.toml' ':!Cargo.lock'
+          if ! git diff --cached --exit-code
+          then
+            echo "::warning title=Cargo Clippy::Please review the output for details."
+            git commit -m "style: Apply code style with `cargo clippy --fix`"
+          fi
         continue-on-error: true
 
       - name: Git Status
