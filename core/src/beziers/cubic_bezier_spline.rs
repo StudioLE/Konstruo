@@ -13,8 +13,12 @@ pub struct CubicBezierSpline {
 
 impl CubicBezierSpline {
     /// Get the control points.
+    #[must_use]
     pub fn get_controls(&self) -> Vec<Vec3> {
-        self.curves.iter().flat_map(|x| x.get_controls()).collect()
+        self.curves
+            .iter()
+            .flat_map(CubicBezier::get_controls)
+            .collect()
     }
 
     /// Update the location of a control point at `index`.
@@ -74,6 +78,7 @@ impl CubicBezierSpline {
 
     /// Flatten a [`CubicBezier`] into a polyline.
     /// - <https://raphlinus.github.io/graphics/curves/2019/12/23/flatten-quadbez.html>
+    #[must_use]
     pub fn flatten(&self, tolerance: f32) -> Vec<Vec3> {
         let path = self.to_kurbo_bez_path();
         let mut points = Vec::new();
@@ -89,6 +94,7 @@ impl CubicBezierSpline {
 
     /// Offset a bezier curve by a given distance.    ///
     /// - <https://raphlinus.github.io/curves/2022/09/09/parallel-beziers.html>
+    #[must_use]
     pub fn offset(&self, distance: f32, accuracy: f32) -> CubicBezierSpline {
         let kurbo_bezier = self.to_kurbo();
         let segments: Vec<CubicBez> = kurbo_bezier
@@ -102,6 +108,7 @@ impl CubicBezierSpline {
         CubicBezierSpline::from_kurbo(segments)
     }
 
+    #[must_use]
     pub fn stroke(&self, distance: f32, tolerance: f32) -> Self {
         let path = self.to_kurbo_bez_path();
         // let style = Stroke::new(distance);

@@ -10,6 +10,7 @@ pub const AZIMUTHAL_AXIS: Vec3 = Vec3::new(0.0, 0.0, 1.0);
 
 /// Convert from spherical to cartesian coordinates.
 /// <https://mathworld.wolfram.com/SphericalCoordinates.html>
+#[must_use]
 pub fn spherical_to_cartesian(radius: f32, polar: f32, azimuth: f32) -> Vec3 {
     let x = radius * polar.sin() * azimuth.cos();
     let y = radius * polar.sin() * azimuth.sin();
@@ -21,6 +22,7 @@ pub fn spherical_to_cartesian(radius: f32, polar: f32, azimuth: f32) -> Vec3 {
 /// <https://mathworld.wolfram.com/SphericalCoordinates.html>
 /// Uses atan2 because programming is superior to mathematics:
 /// <https://en.wikipedia.org/wiki/Atan2>
+#[must_use]
 pub fn cartesian_to_spherical(vector: Vec3) -> Vec3 {
     let radius = (vector.x.powi(2) + vector.y.powi(2) + vector.z.powi(2)).sqrt();
     let polar = (vector.z / radius).acos();
@@ -34,6 +36,7 @@ pub fn cartesian_to_spherical(vector: Vec3) -> Vec3 {
 
 /// Get the cartesian rotation of spherical coordinates.
 /// <https://mathworld.wolfram.com/SphericalCoordinates.html>
+#[must_use]
 pub fn get_cartesian_rotation(polar: f32, azimuth: f32) -> Vec3 {
     let x = (HALF_PI - polar) * -1.0;
     Vec3::new(x, azimuth, 0.0)

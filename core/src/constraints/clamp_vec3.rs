@@ -8,6 +8,7 @@ pub struct ClampVec3 {
 }
 
 impl ClampVec3 {
+    #[must_use]
     pub fn clamp(&self, position: Vec3) -> Vec3 {
         Vec3::new(
             self.x.clamp(position.x),

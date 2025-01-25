@@ -1,26 +1,31 @@
 use crate::mathematics::constants::*;
 
 /// <https://stackoverflow.com/a/6400477/247218>
+#[must_use]
 pub fn modulo(a: f32, b: f32) -> f32 {
     a - b * (a / b).floor()
 }
 
 /// Round to the nearest multiple.
+#[must_use]
 pub fn round_to(value: f32, multiple: f32) -> f32 {
     (value / multiple).round() * multiple
 }
 
 /// Determine if two floating point numbers are almost equal.
+#[must_use]
 pub fn is_almost_equal_to(a: f32, b: f32) -> bool {
     (a - b).abs() < EPSILON
 }
 
 /// Determine if two floating point numbers are almost equal.
+#[must_use]
 pub fn is_almost_zero(value: f32) -> bool {
     value.abs() < EPSILON
 }
 
 /// Determine if a floating point number is close to an integer.
+#[must_use]
 pub fn is_almost_integer(value: f32) -> Option<f32> {
     let integer = value.round();
     if is_almost_equal_to(value, integer) {
@@ -31,6 +36,7 @@ pub fn is_almost_integer(value: f32) -> Option<f32> {
 }
 
 /// Determine if a floating point number is close to a fraction of PI.
+#[must_use]
 pub fn is_almost_fractional_pi(value: f32) -> Option<f32> {
     let rounded = round_to(value, EIGHTH_PI);
     if is_almost_equal_to(value, rounded) {
@@ -41,6 +47,7 @@ pub fn is_almost_fractional_pi(value: f32) -> Option<f32> {
 }
 
 /// Determine if a floating point number is close to a fraction of root two.
+#[must_use]
 pub fn is_almost_fractional_root_two(value: f32) -> Option<f32> {
     let rounded = round_to(value, ONE_OVER_ROOT_2);
     if is_almost_equal_to(value, rounded) {
@@ -53,6 +60,7 @@ pub fn is_almost_fractional_root_two(value: f32) -> Option<f32> {
 /// Attempt to remove floating point errors by rounding to [`EPSILON`] unless:
 /// - it's a fraction of π
 /// - it's a fraction of √2
+#[must_use]
 pub fn fix_floating(value: f32) -> f32 {
     if is_almost_zero(value) {
         0.0

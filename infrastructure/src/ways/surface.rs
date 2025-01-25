@@ -30,11 +30,13 @@ pub enum SurfaceType {
 
 impl WaySurface {
     /// Create a new [`WaySurface`] offset from [`Way`].
+    #[must_use]
     pub fn new(offsets: [f32; 2], purpose: SurfaceType) -> Self {
         Self { offsets, purpose }
     }
 
     /// Create a new [`WaySurface`] centered at [`Way`].
+    #[must_use]
     pub fn centered(width: f32, purpose: SurfaceType) -> Self {
         Self::new([width * -0.5, width * 0.5], purpose)
     }

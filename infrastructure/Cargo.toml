@@ -7,3 +7,6 @@ edition = "2021"
 geometrician_core = { path = "../core" }
 geometrician_ui = { path = "../ui" }
 bevy = { workspace = true, features = ["dynamic_linking"] }
+
+[lints]
+workspace = true

@@ -47,6 +47,7 @@ impl Default for Pan {
 
 impl Pan {
     /// Get the current translation as a transform.
+    #[must_use]
     pub fn get_transform(&self) -> Transform {
         Transform::from_translation(self.translation.current)
     }

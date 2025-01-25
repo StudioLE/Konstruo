@@ -9,3 +9,6 @@ geometrician_core = { path = "../core" }
 geometrician_environment = { path = "../environment" }
 geometrician_ui = { path = "../ui" }
 bevy = { workspace = true, features = ["dynamic_linking"] }
+
+[lints]
+workspace = true

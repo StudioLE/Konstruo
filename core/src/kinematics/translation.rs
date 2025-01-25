@@ -45,7 +45,7 @@ impl Translation {
     ///
     /// Translation is clamped to the constraints.
     ///
-    /// Note: set_translation does not update the Transform
+    /// Note: `set_translation` does not update the Transform
     pub fn set_current(&mut self, translation: Vec3) {
         self.current = self.clamp.clamp(translation);
     }
@@ -54,7 +54,7 @@ impl Translation {
     ///
     /// Translation is clamped to the constraints.
     ///
-    /// Note: set_translation_relative does not update the Transform
+    /// Note: `set_translation_relative` does not update the Transform
     pub fn set_current_relative(&mut self, displacement: Vec3) {
         self.set_current(self.current + displacement);
     }

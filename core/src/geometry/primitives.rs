@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
 
 /// Extract the primitive topology from vertices.
+#[must_use]
 pub fn extract_topology(vertices: Vec<Vec3>, topology: PrimitiveTopology) -> Vec<Vec<Vec3>> {
     match topology {
         PrimitiveTopology::PointList => point_list(vertices),
@@ -15,6 +16,7 @@ pub fn extract_topology(vertices: Vec<Vec3>, topology: PrimitiveTopology) -> Vec
 /// Create a [`PrimitiveTopology::TriangleStrip`] between from two parallel polylines.
 ///
 /// The polylines must have equal number of vertices.
+#[must_use]
 pub fn create_triangle_strip_between_polylines(polylines: &[Vec<Vec3>; 2]) -> Vec<Vec3> {
     let count_0 = polylines[0].len();
     let count_1 = polylines[1].len();

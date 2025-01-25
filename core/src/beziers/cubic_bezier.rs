@@ -11,6 +11,7 @@ pub struct CubicBezier {
 
 impl CubicBezier {
     /// Get the four controls.
+    #[must_use]
     pub fn get_controls(&self) -> [Vec3; 4] {
         [self.start, self.start_handle, self.end_handle, self.end]
     }

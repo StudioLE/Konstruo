@@ -10,6 +10,7 @@ pub fn vector_to_2d(vector: Vec3) -> Vec2 {
     Vec2::new(vector.x, vector.y)
 }
 
+#[must_use]
 pub fn vectors_to_2d(vertices: Vec<Vec3>) -> Vec<Vec2> {
     vertices
         .iter()

@@ -47,6 +47,7 @@ impl Default for Orbit {
 
 impl Orbit {
     /// Distance from the origin in metres.
+    #[must_use]
     pub fn get_radius(&self) -> f32 {
         self.translation.current.x
     }
@@ -58,23 +59,27 @@ impl Orbit {
     /// - <https://mathworld.wolfram.com/ZenithAngle.html>
     ///
     /// Zenith is the positive Z axis or north pole.
+    #[must_use]
     pub fn get_polar(&self) -> f32 {
         self.translation.current.y
     }
 
     /// Angle from the horizon in radians.
     /// - <https://mathworld.wolfram.com/Colatitude.html>
+    #[must_use]
     pub fn get_altitude(&self) -> f32 {
         HALF_PI - self.get_polar()
     }
 
     /// Angle from the X axis in the XY plane.
     /// -<https://mathworld.wolfram.com/Azimuth.html>
+    #[must_use]
     pub fn get_azimuth(&self) -> f32 {
         self.translation.current.z
     }
 
     /// Get the orientation looking to the origin.
+    #[must_use]
     pub fn get_orientation(&self) -> Quat {
         let z = self.get_azimuth() + HALF_PI;
         let x = self.get_polar();
@@ -82,11 +87,13 @@ impl Orbit {
     }
 
     /// Get the cartesian translation from the origin.
+    #[must_use]
     pub fn get_cartesian_translation(&self) -> Vec3 {
         spherical_to_cartesian(self.get_radius(), self.get_polar(), self.get_azimuth())
     }
 
     /// Get the cartesian translation and orientation looking to the origin.
+    #[must_use]
     pub fn get_cartesian_transform(&self) -> Transform {
         Transform::from_translation(self.get_cartesian_translation())
             .with_rotation(self.get_orientation())

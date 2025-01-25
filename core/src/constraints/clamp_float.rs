@@ -6,6 +6,7 @@ pub enum ClampFloat {
 }
 
 impl ClampFloat {
+    #[must_use]
     pub fn clamp(&self, number: f32) -> f32 {
         match self {
             ClampFloat::Fixed(min, max) => number.clamp(*min, *max),

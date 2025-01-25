@@ -9,6 +9,7 @@ pub fn vec3_from_kurbo(point: Point) -> Vec3 {
 
 impl CubicBezier {
     /// Convert from a collection of Kurbo [`CubicBez`] to a [`CubicBezier`].
+    #[must_use]
     pub fn from_kurbo(bezier: &CubicBez) -> CubicBezier {
         CubicBezier {
             start: vec3_from_kurbo(bezier.p0),

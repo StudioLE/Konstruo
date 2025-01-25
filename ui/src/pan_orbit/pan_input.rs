@@ -81,7 +81,7 @@ fn mouse_button_input(
 ) {
     if buttons.just_pressed(MouseButton::Middle) {
         if let Ok(position) = Cursor::on_ground(window, camera) {
-            pan.dragging = Some(position)
+            pan.dragging = Some(position);
         };
     }
     if buttons.just_released(MouseButton::Middle) {
@@ -99,7 +99,7 @@ fn mouse_motion_input(
 ) {
     if pan.dragging.is_some() && motion.read().next().is_some() {
         if let Ok(position) = Cursor::on_ground(window, camera) {
-            pan.by_grab(transform, position)
+            pan.by_grab(transform, position);
         };
     }
 }

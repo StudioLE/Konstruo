@@ -8,6 +8,7 @@ const KURBO_EPSILON: f32 = 0.000_1;
 
 impl CubicBezier {
     /// Convert to a kurbo [`CubicBez`].
+    #[must_use]
     pub fn to_kurbo(&self) -> CubicBez {
         CubicBez::new(
             vec3_to_kurbo(self.start),
@@ -21,10 +22,14 @@ impl CubicBezier {
 impl CubicBezierSpline {
     /// Convert to a collection of kurbo [`CubicBez`].
     pub(super) fn to_kurbo(&self) -> Vec<CubicBez> {
-        self.curves.iter().map(|bezier| bezier.to_kurbo()).collect()
+        self.curves
+            .iter()
+            .map(super::cubic_bezier::CubicBezier::to_kurbo)
+            .collect()
     }
 
     /// Convert to a kurbo [`BezPath`].
+    #[must_use]
     pub fn to_kurbo_bez_path(&self) -> BezPath {
         let segments = self
             .to_kurbo()

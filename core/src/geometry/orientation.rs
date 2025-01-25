@@ -22,11 +22,13 @@ impl Orientation {}
 
 impl Orientation {
     /// Get all [`Orientation`]
+    #[must_use]
     pub fn get_all() -> [Orientation; 6] {
         [Front, Back, Left, Right, Top, Bottom]
     }
 
     /// Get all edges as [`Orientation`] pairs.
+    #[must_use]
     pub fn get_all_edges() -> [[Orientation; 2]; 12] {
         [
             [Front, Left],
@@ -45,6 +47,7 @@ impl Orientation {
     }
 
     /// Get all corners as [`Orientation`] triplets.
+    #[must_use]
     pub fn get_all_corners() -> [[Orientation; 3]; 8] {
         [
             [Front, Left, Top],
@@ -59,6 +62,7 @@ impl Orientation {
     }
 
     /// Get the vector facing in the orientation
+    #[must_use]
     pub fn to_vector(&self) -> Vec3 {
         match self {
             Front => Vec3::NEG_Y,
@@ -71,6 +75,7 @@ impl Orientation {
     }
 
     /// Get the vector facing in the combined orientation
+    #[must_use]
     pub fn get_vector(orientation: &[Orientation]) -> Vec3 {
         orientation
             .iter()

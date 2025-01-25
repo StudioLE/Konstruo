@@ -32,6 +32,7 @@ pub struct Way {
 
 impl Way {
     /// Create a [`Way`]
+    #[must_use]
     pub fn new(spline: CubicBezierSpline) -> Self {
         Self { spline }
     }
@@ -55,7 +56,7 @@ impl Way {
         *mesh = Mesh3d(meshes.add(create_linestrip(polyline)));
         // WayControl
         let control_points = way.spline.get_controls();
-        for (control, parent, mut transform) in controls.iter_mut() {
+        for (control, parent, mut transform) in &mut controls {
             if parent.get() != way_entity {
                 continue;
             }
@@ -65,7 +66,7 @@ impl Way {
                     *transform = Transform::from_translation(*translation)
                         .with_rotation(Quat::from_rotation_z(QUARTER_PI));
                 } else {
-                    *transform = Transform::from_translation(*translation)
+                    *transform = Transform::from_translation(*translation);
                 }
             } else {
                 warn!(
@@ -75,7 +76,7 @@ impl Way {
             };
         }
         // WayControlLine
-        for (line, parent, mut mesh) in lines.iter_mut() {
+        for (line, parent, mut mesh) in &mut lines {
             if parent.get() != way_entity {
                 continue;
             }
@@ -96,7 +97,7 @@ impl Way {
             };
         }
         // WayControlLine
-        for (surface, parent, mesh) in surfaces.iter_mut() {
+        for (surface, parent, mesh) in &mut surfaces {
             if parent.get() != way_entity {
                 continue;
             }
