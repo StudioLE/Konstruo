@@ -229,7 +229,7 @@ jobs:
       run: rustup target add ${{ matrix.target }}
 
     - name: Cargo Build
-      run: cargo build --no-default-features --release
+      run: cargo build --no-default-features --release --target ${{ matrix.target }}
 
     - name: Cache Cargo
       if: always()
