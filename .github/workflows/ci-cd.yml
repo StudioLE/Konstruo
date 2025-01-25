@@ -243,8 +243,9 @@ jobs:
           ~/.cargo/git/db/
           target/
 
+    - run: mkdir artifacts
+
     - run: >
-        mkdir artifacts
         cp target/${{ matrix.target }}/release/geometrician 
         artifacts/geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}
 
