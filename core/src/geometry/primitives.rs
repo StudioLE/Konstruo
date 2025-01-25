@@ -1,13 +1,17 @@
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
+use std::fmt::{Display, Formatter};
+use ExtractTopologyError::*;
 
 /// Extract the primitive topology from vertices.
-#[must_use]
-pub fn extract_topology(vertices: Vec<Vec3>, topology: PrimitiveTopology) -> Vec<Vec<Vec3>> {
+pub fn extract_topology(
+    vertices: Vec<Vec3>,
+    topology: PrimitiveTopology,
+) -> Result<Vec<Vec<Vec3>>, ExtractTopologyError> {
     match topology {
-        PrimitiveTopology::PointList => point_list(vertices),
+        PrimitiveTopology::PointList => Ok(point_list(vertices)),
         PrimitiveTopology::LineList => line_list(vertices),
-        PrimitiveTopology::LineStrip => vec![vertices],
+        PrimitiveTopology::LineStrip => Ok(vec![vertices]),
         PrimitiveTopology::TriangleList => triangle_list(vertices),
         PrimitiveTopology::TriangleStrip => triangle_strip(vertices),
     }
@@ -16,16 +20,19 @@ pub fn extract_topology(vertices: Vec<Vec3>, topology: PrimitiveTopology) -> Vec
 /// Create a [`PrimitiveTopology::TriangleStrip`] between from two parallel polylines.
 ///
 /// The polylines must have equal number of vertices.
-#[must_use]
-pub fn create_triangle_strip_between_polylines(polylines: &[Vec<Vec3>; 2]) -> Vec<Vec3> {
-    let count_0 = polylines[0].len();
-    let count_1 = polylines[1].len();
-    assert_eq!(count_0, count_1, "Failed to create triangle strip between polylines. Vertices count must be equal. {count_0} != {count_1}");
-    polylines[0]
+pub fn create_triangle_strip_between_polylines(
+    polylines: &[Vec<Vec3>; 2],
+) -> Result<Vec<Vec3>, TriangleStripError> {
+    let left = polylines[0].len();
+    let right = polylines[1].len();
+    if left != right {
+        return Err(TriangleStripError::InEqual { left, right });
+    }
+    Ok(polylines[0]
         .iter()
         .zip(polylines[1].iter())
         .flat_map(|(&a, &b)| [a, b])
-        .collect()
+        .collect())
 }
 
 fn point_list(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
@@ -37,12 +44,12 @@ fn point_list(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
 }
 
 #[allow(clippy::indexing_slicing)]
-fn line_list(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
+fn line_list(vertices: Vec<Vec3>) -> Result<Vec<Vec<Vec3>>, ExtractTopologyError> {
     let count = vertices.len();
     if count < 2 {
-        panic!("Failed to extract lines. Vertices count must be at least 2.")
+        return Err(VerticesMin { count, min: 2 });
     } else if count % 2 != 0 {
-        panic!("Failed to extract lines. Vertices count must be an even number.")
+        return Err(VerticesDivision { count, divisor: 2 });
     }
     let mut lines = Vec::new();
     for i in 1..count {
@@ -50,16 +57,16 @@ fn line_list(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
         let end = vertices[i];
         lines.push(vec![start, end]);
     }
-    lines
+    Ok(lines)
 }
 
 #[allow(clippy::indexing_slicing)]
-fn triangle_list(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
+fn triangle_list(vertices: Vec<Vec3>) -> Result<Vec<Vec<Vec3>>, ExtractTopologyError> {
     let count = vertices.len();
     if count < 3 {
-        panic!("Failed to extract triangles. Vertices count must be at least 3.")
+        return Err(VerticesMin { count, min: 3 });
     } else if count % 3 != 0 {
-        panic!("Failed to extract triangles. Vertices count must be a multiple of 3.")
+        return Err(VerticesDivision { count, divisor: 3 });
     }
     #[allow(clippy::integer_division)]
     let count = count / 3;
@@ -71,16 +78,16 @@ fn triangle_list(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
         let c = vertices[i + 2];
         triangles.push(vec![a, b, c]);
     }
-    triangles
+    Ok(triangles)
 }
 
 #[allow(clippy::indexing_slicing)]
-fn triangle_strip(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
+fn triangle_strip(vertices: Vec<Vec3>) -> Result<Vec<Vec<Vec3>>, ExtractTopologyError> {
     let count = vertices.len();
     if count < 3 {
-        panic!("Failed to extract triangles. Vertices count must be at least 3.")
+        return Err(VerticesMin { count, min: 3 });
     } else if count % 3 != 0 {
-        panic!("Failed to extract triangles. Vertices count must be a multiple of 3.")
+        return Err(VerticesDivision { count, divisor: 3 });
     }
     let mut triangles = Vec::new();
     for i in 2..count {
@@ -89,5 +96,43 @@ fn triangle_strip(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
         let c = vertices[i];
         triangles.push(vec![a, b, c]);
     }
-    triangles
+    Ok(triangles)
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ExtractTopologyError {
+    VerticesMin { count: usize, min: usize },
+    VerticesDivision { count: usize, divisor: usize },
+}
+
+impl Display for ExtractTopologyError {
+    #[allow(clippy::absolute_paths)]
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        let output = match self {
+            VerticesMin { count, min } => {
+                format!("Vertices count must be at least {min}: {count}")
+            }
+            VerticesDivision { count, divisor } => {
+                format!("Vertices count must be divisible by {divisor}: {count}")
+            }
+        };
+        output.fmt(formatter)
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum TriangleStripError {
+    InEqual { left: usize, right: usize },
+}
+
+impl Display for TriangleStripError {
+    #[allow(clippy::absolute_paths)]
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        let output = match self {
+            TriangleStripError::InEqual { left, right } => {
+                format!("Polyline lengths were not equal: {left} != {right}")
+            }
+        };
+        output.fmt(formatter)
+    }
 }

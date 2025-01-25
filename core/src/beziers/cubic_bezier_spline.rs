@@ -26,6 +26,7 @@ impl CubicBezierSpline {
     /// If the control point is:
     /// -  an anchor: the next or previous anchor and handles are moved.
     /// -  a handle: the opposing handle is rotated but its distance from anchor unchanged.
+    #[allow(clippy::indexing_slicing, clippy::integer_division, clippy::panic)]
     pub fn update_control(&mut self, index: usize, point: Vec3) {
         let curve = index / 4;
         let control = index % 4;
@@ -72,19 +73,22 @@ impl CubicBezierSpline {
                     self.curves[curve + 1].start_handle += translation;
                 }
             }
-            _ => panic!("Failed to move control point. Index of control is out of range"),
+            i => {
+                error!("Failed to update control point. Control point index is out of range: {i}");
+            }
         };
     }
 
     /// Flatten a [`CubicBezier`] into a polyline.
     /// - <https://raphlinus.github.io/graphics/curves/2019/12/23/flatten-quadbez.html>
+    /// - TODO: Flatten may panic
     #[must_use]
+    #[allow(clippy::panic)]
     pub fn flatten(&self, tolerance: f32) -> Vec<Vec3> {
         let path = self.to_kurbo_bez_path();
         let mut points = Vec::new();
         flatten(path, f64::from(tolerance), &mut |segment| match segment {
-            PathEl::LineTo(point) => points.push(vec3_from_kurbo(point)),
-            PathEl::MoveTo(point) => points.push(vec3_from_kurbo(point)),
+            PathEl::MoveTo(point) | PathEl::LineTo(point) => points.push(vec3_from_kurbo(point)),
             PathEl::QuadTo(_, _) => panic!("Failed to flatten CubicBezier. Unexpected QuadTo"),
             PathEl::CurveTo(_, _, _) => panic!("Failed to flatten CubicBezier. Unexpected CurveTo"),
             PathEl::ClosePath => panic!("Failed to flatten CubicBezier. Unexpected ClosePath"),

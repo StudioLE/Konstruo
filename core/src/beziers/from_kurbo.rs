@@ -3,6 +3,7 @@ use bevy::math::Vec3;
 use kurbo::{CubicBez, Point};
 
 /// Convert from a Kurbo [`Point`] to a [`Vec3`].
+#[allow(clippy::as_conversions, clippy::cast_possible_truncation)]
 pub fn vec3_from_kurbo(point: Point) -> Vec3 {
     Vec3::new(point.x as f32, point.y as f32, 0.0)
 }

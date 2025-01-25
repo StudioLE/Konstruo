@@ -20,6 +20,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[allow(clippy::float_cmp)]
     fn clamp_fixed() {
         // Arrange
         let min = -1.0;
@@ -37,6 +38,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::float_cmp)]
     fn clamp_wrapped() {
         // Arrange
         let max = 1.0;
@@ -45,7 +47,7 @@ mod tests {
         // Act
         // Assert
         assert_eq!(clamp.clamp(max), 0.0);
-        assert_eq!(clamp.clamp(1.1), 0.100000024);
+        assert_eq!(clamp.clamp(1.1), 0.100_000_024);
         assert_eq!(clamp.clamp(0.9999), 0.9999);
         assert_eq!(clamp.clamp(0.0), 0.0);
         assert_eq!(clamp.clamp(-1.1), 0.9);

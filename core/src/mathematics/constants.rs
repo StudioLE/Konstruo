@@ -4,6 +4,7 @@ pub const EPSILON: f32 = 0.000_001;
 
 /// Represents the ratio of the circumference of a circle to its diameter, specified by the constant, π.
 /// π radians = 180°
+#[allow(clippy::absolute_paths)]
 pub const PI: f32 = std::f32::consts::PI;
 
 /// π/180 radians = 1°

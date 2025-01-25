@@ -45,12 +45,9 @@ fn match_material(
     orientation: &Orientation,
 ) -> Handle<StandardMaterial> {
     match orientation {
-        Front => materials.face_y.clone(),
-        Back => materials.face_y.clone(),
-        Left => materials.face_x.clone(),
-        Right => materials.face_x.clone(),
-        Top => materials.face_z.clone(),
-        Bottom => materials.face_z.clone(),
+        Front | Back => materials.face_y.clone(),
+        Left | Right => materials.face_x.clone(),
+        Top | Bottom => materials.face_z.clone(),
     }
 }
 

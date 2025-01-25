@@ -31,17 +31,15 @@ impl WayControl {
         parent: Entity,
     ) {
         for (i, bezier) in way.spline.curves.iter().enumerate() {
-            let start = if i == 0 {
-                Some((
+            let start = (i == 0).then(|| {
+                (
                     WayControl::new(i * 4),
                     Transform::from_translation(bezier.start)
                         .with_rotation(Quat::from_rotation_z(QUARTER_PI)),
                     Mesh3d(meshes.control_origin.clone()),
                     MeshMaterial3d(materials.control_node.clone()),
-                ))
-            } else {
-                None
-            };
+                )
+            });
             let start_handle = (
                 WayControl::new(i * 4 + 1),
                 Transform::from_translation(bezier.start_handle),

@@ -82,8 +82,8 @@ fn mouse_motion_input(orbit: &mut Mut<Orbit>, mut motion_event: EventReader<Mous
 fn scroll_wheel_input(orbit: &mut Mut<Orbit>, mut wheel_event: EventReader<MouseWheel>) {
     for scroll_wheel in wheel_event.read() {
         let vertical = match scroll_wheel.unit {
-            MouseScrollUnit::Line => scroll_wheel.y,
-            MouseScrollUnit::Pixel => scroll_wheel.y,
+            // TODO: Increase speed when scroll unit is pixel
+            MouseScrollUnit::Line | MouseScrollUnit::Pixel => scroll_wheel.y,
         };
         let direction = if vertical == 0.0 {
             return;

@@ -102,16 +102,17 @@ impl Translation {
     /// If an axis is wrapped then take in to account it may be quicker in the other direction
     fn get_displacement_to(&self, target: Vec3) -> Vec3 {
         let mut displacement = target - self.current;
-        fn adjust(displacement: &mut f32, clamp: &ClampFloat) {
-            if let ClampFloat::Wrapped(max) = clamp {
-                if displacement.abs() > (max / 2.0) {
-                    *displacement *= -1.0;
-                }
-            }
-        }
         adjust(&mut displacement.x, &self.clamp.x);
         adjust(&mut displacement.y, &self.clamp.y);
         adjust(&mut displacement.z, &self.clamp.z);
         displacement
+    }
+}
+
+fn adjust(displacement: &mut f32, clamp: &ClampFloat) {
+    if let ClampFloat::Wrapped(max) = clamp {
+        if displacement.abs() > (max / 2.0) {
+            *displacement *= -1.0;
+        }
     }
 }

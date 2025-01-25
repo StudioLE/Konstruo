@@ -76,20 +76,23 @@ impl WaySurface {
     /// Get the polylines of each edge.
     ///
     /// The polylines will have the same number of vertices.
+    #[allow(
+        clippy::as_conversions,
+        clippy::cast_possible_wrap,
+        clippy::cast_sign_loss
+    )]
     fn get_polylines(&self, way: &Way) -> [Vec<Vec3>; 2] {
         let splines = self.get_splines(way);
         let mut polylines = [
             splines[0].flatten(FLATTEN_TOLERANCE),
             splines[1].flatten(FLATTEN_TOLERANCE),
         ];
-        #[allow(clippy::cast_possible_wrap)]
         let difference = polylines[0].len() as isize - polylines[1].len() as isize;
         match difference.cmp(&0) {
             Ordering::Less => {
                 add_vertices_by_spliting_longest_edge(&mut polylines[0], difference.unsigned_abs());
             }
             Ordering::Greater => {
-                #[allow(clippy::cast_sign_loss)]
                 add_vertices_by_spliting_longest_edge(&mut polylines[1], difference as usize);
             }
             Ordering::Equal => {}
@@ -100,7 +103,8 @@ impl WaySurface {
     /// Get the [`Mesh`].
     fn get_mesh(&self, way: &Way) -> Mesh {
         let polylines = self.get_polylines(way);
-        let triangle_strip = create_triangle_strip_between_polylines(&polylines);
+        let triangle_strip = create_triangle_strip_between_polylines(&polylines)
+            .expect("polylines should have equal length");
         create_triangle_strip(triangle_strip)
     }
 }

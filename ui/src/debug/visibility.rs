@@ -17,7 +17,7 @@ pub fn debug_visibility_hierarchy(
         println!(
             "Entity: {:?}, Parent: {:?}, Visibility: {:?}, InheritedVisibility: {:?}",
             entity,
-            parent.map(bevy::prelude::Parent::get),
+            parent.map(Parent::get),
             visibility.is_some(),
             inherited_visibility.is_some()
         );

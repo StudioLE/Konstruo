@@ -5,6 +5,7 @@ use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 use geometrician_core::{GRID_HEIGHT, GRID_MAX};
 
+#[allow(clippy::integer_division)]
 const RADIUS: u32 = GRID_MAX / 2;
 const SPACING: [u32; 3] = [1, 10, 100];
 
@@ -48,6 +49,7 @@ impl Grid {
     }
 }
 
+#[allow(clippy::as_conversions, clippy::cast_precision_loss)]
 fn create_lines() -> (Vec<Vec3>, Vec<Vec3>, Vec<Vec3>) {
     let range = 0..COUNT;
     let radius = RADIUS as f32;
