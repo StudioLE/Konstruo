@@ -2,11 +2,11 @@
 <module type="EMPTY_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/app/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/core/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/environment/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/infrastructure/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/ui/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/core/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/environment/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/infrastructure/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/ui/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

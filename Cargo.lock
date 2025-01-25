@@ -2057,43 +2057,7 @@ name = "geometrician"
 version = "0.0.0"
 dependencies = [
  "bevy",
- "geometrician_core",
- "geometrician_environment",
- "geometrician_infrastructure",
- "geometrician_ui",
-]
-
-[[package]]
-name = "geometrician_core"
-version = "0.0.0"
-dependencies = [
- "bevy",
  "kurbo",
-]
-
-[[package]]
-name = "geometrician_environment"
-version = "0.0.0"
-dependencies = [
- "bevy",
- "geometrician_core",
-]
-
-[[package]]
-name = "geometrician_infrastructure"
-version = "0.0.0"
-dependencies = [
- "bevy",
- "geometrician_core",
- "geometrician_ui",
-]
-
-[[package]]
-name = "geometrician_ui"
-version = "0.0.0"
-dependencies = [
- "bevy",
- "geometrician_core",
 ]
 
 [[package]]
