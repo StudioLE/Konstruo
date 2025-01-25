@@ -6,4 +6,3 @@ edition = "2021"
 [dependencies]
 bevy = { workspace = true, features = ["dynamic_linking"] }
 kurbo = { workspace = true }
-lazy_static = { workspace = true }

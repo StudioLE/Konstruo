@@ -2069,7 +2069,6 @@ version = "0.0.0"
 dependencies = [
  "bevy",
  "kurbo",
- "lazy_static",
 ]
 
 [[package]]
