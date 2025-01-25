@@ -96,7 +96,7 @@ jobs:
 
       - name: Cargo Clippy
         run: |
-          cargo clippy --no-default-fatures --release --fix --allow-dirty --message-format short
+          cargo clippy --no-default-features --release --fix --allow-dirty --message-format short
           cargo fmt
           git add --all -- ':!**/Cargo.toml' ':!Cargo.lock'
           git commit -m "style: cargo clippy --fix"
@@ -109,7 +109,7 @@ jobs:
         run: git push
 
       - name: Cargo Test
-        run: cargo test --no-default-fatures --release --no-fail-fast
+        run: cargo test --no-default-features --release --no-fail-fast
 
       - name: Create Release
         if: ${{ steps.surveyor.outputs.version != '' && ! contains(steps.surveyor.outputs.version, '-') }}
