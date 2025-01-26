@@ -1,5 +1,5 @@
-use crate::{GRID_HEIGHT, GRID_MAX};
 use crate::ui::grid::GridMaterials;
+use crate::{GRID_HEIGHT, GRID_MAX};
 use bevy::math::vec3;
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;

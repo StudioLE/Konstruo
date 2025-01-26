@@ -1,8 +1,8 @@
 use crate::constraints::clamp_float::ClampFloat;
 use crate::constraints::clamp_vec3::ClampVec3;
 use crate::kinematics::Translation;
-use crate::CAMERA_MAX;
 use crate::ui::pan_orbit::orbit::DEFAULT_RADIUS;
+use crate::CAMERA_MAX;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 

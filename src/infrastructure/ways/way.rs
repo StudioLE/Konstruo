@@ -1,9 +1,9 @@
 use crate::beziers::CubicBezierSpline;
 use crate::geometry::meshes::create_linestrip;
-use crate::mathematics::QUARTER_PI;
 use crate::infrastructure::ways::{
     WayControl, WayControlLine, WayMaterials, WayMeshes, WaySurface,
 };
+use crate::mathematics::QUARTER_PI;
 use bevy::prelude::*;
 
 /// Tolerance with which the bezier is flattened into a polyline.

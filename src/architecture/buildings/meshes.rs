@@ -1,6 +1,4 @@
-use crate::geometry::meshes::{
-    create_triangle_list, create_triangular_prism,
-};
+use crate::geometry::meshes::{create_triangle_list, create_triangular_prism};
 use bevy::prelude::*;
 
 #[allow(clippy::struct_field_names)]

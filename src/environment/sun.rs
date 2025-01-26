@@ -1,5 +1,5 @@
-use crate::mathematics::{EIGHTH_PI, QUARTER_PI};
 use crate::mathematics::spherical_coordinate_system::spherical_to_cartesian;
+use crate::mathematics::{EIGHTH_PI, QUARTER_PI};
 use crate::ENVIRONMENT_MAX;
 use bevy::prelude::*;
 

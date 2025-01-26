@@ -1,5 +1,5 @@
-use crate::mathematics::HALF_PI;
 use crate::mathematics::floats::fix_floating;
+use crate::mathematics::HALF_PI;
 use bevy::prelude::*;
 
 pub const RADIAL_AXIS: Vec3 = Vec3::new(1.0, 0.0, 0.0);

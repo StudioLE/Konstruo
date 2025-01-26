@@ -26,7 +26,10 @@ impl TriangleStrip {
         let difference = polylines[0].len() as isize - polylines[1].len() as isize;
         match difference.cmp(&0) {
             Ordering::Less => {
-                add_vertices_by_splitting_longest_edge(&mut polylines[0], difference.unsigned_abs());
+                add_vertices_by_splitting_longest_edge(
+                    &mut polylines[0],
+                    difference.unsigned_abs(),
+                );
             }
             Ordering::Greater => {
                 add_vertices_by_splitting_longest_edge(&mut polylines[1], difference as usize);

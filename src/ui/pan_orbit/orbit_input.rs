@@ -1,6 +1,4 @@
-use crate::mathematics::spherical_coordinate_system::{
-    AZIMUTHAL_AXIS, POLAR_AXIS, RADIAL_AXIS,
-};
+use crate::mathematics::spherical_coordinate_system::{AZIMUTHAL_AXIS, POLAR_AXIS, RADIAL_AXIS};
 use crate::ui::pan_orbit::Orbit;
 use bevy::input::mouse::{MouseMotion, MouseScrollUnit, MouseWheel};
 use bevy::input::ButtonInput;
