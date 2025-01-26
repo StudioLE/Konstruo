@@ -1,9 +1,7 @@
+use crate::geometry::LineList;
 use crate::ui::grid::GridMaterials;
 use crate::{GRID_HEIGHT, GRID_MAX};
-use bevy::math::vec3;
 use bevy::prelude::*;
-use bevy::render::mesh::PrimitiveTopology;
-use bevy::render::render_asset::RenderAssetUsages;
 
 #[allow(clippy::integer_division)]
 const RADIUS: u32 = GRID_MAX / 2;
@@ -27,20 +25,20 @@ impl Grid {
         mut meshes: ResMut<Assets<Mesh>>,
         materials: ResMut<GridMaterials>,
     ) {
-        let (minor, medium, major) = create_lines();
+        let [minor, medium, major] = create_lines();
         let minor = (
             Grid::Minor,
-            create_mesh(&mut meshes, minor),
+            Mesh3d(meshes.add(minor.to_mesh())),
             MeshMaterial3d(materials.minor.clone()),
         );
         let medium = (
             Grid::Medium,
-            create_mesh(&mut meshes, medium),
+            Mesh3d(meshes.add(medium.to_mesh())),
             MeshMaterial3d(materials.medium.clone()),
         );
         let major = (
             Grid::Major,
-            create_mesh(&mut meshes, major),
+            Mesh3d(meshes.add(major.to_mesh())),
             MeshMaterial3d(materials.major.clone()),
         );
         commands.spawn(minor);
@@ -50,7 +48,7 @@ impl Grid {
 }
 
 #[allow(clippy::as_conversions, clippy::cast_precision_loss)]
-fn create_lines() -> (Vec<Vec3>, Vec<Vec3>, Vec<Vec3>) {
+fn create_lines() -> [LineList; 3] {
     let range = 0..COUNT;
     let radius = RADIUS as f32;
     let mut minor = Vec::new();
@@ -59,32 +57,24 @@ fn create_lines() -> (Vec<Vec3>, Vec<Vec3>, Vec<Vec3>) {
     for i in range {
         let a = i as f32 - radius;
         let b = (radius.powi(2) - a.powi(2)).sqrt();
-        let start_x = vec3(a, b, GRID_HEIGHT);
-        let end_x = vec3(a, -b, GRID_HEIGHT);
-        let start_y = vec3(-b, a, GRID_HEIGHT);
-        let end_y = vec3(b, a, GRID_HEIGHT);
+        let start_x = Vec3::new(a, b, GRID_HEIGHT);
+        let end_x = Vec3::new(a, -b, GRID_HEIGHT);
+        let start_y = Vec3::new(-b, a, GRID_HEIGHT);
+        let end_y = Vec3::new(b, a, GRID_HEIGHT);
         if i % SPACING[2] == 0 {
-            major.push(start_x);
-            major.push(end_x);
-            major.push(start_y);
-            major.push(end_y);
+            major.push([start_x, end_x]);
+            major.push([start_y, end_y]);
         } else if i % SPACING[1] == 0 {
-            medium.push(start_x);
-            medium.push(end_x);
-            medium.push(start_y);
-            medium.push(end_y);
+            medium.push([start_x, end_x]);
+            medium.push([start_y, end_y]);
         } else {
-            minor.push(start_x);
-            minor.push(end_x);
-            minor.push(start_y);
-            minor.push(end_y);
+            minor.push([start_x, end_x]);
+            minor.push([start_y, end_y]);
         }
     }
-    (minor, medium, major)
-}
-
-fn create_mesh(meshes: &mut ResMut<Assets<Mesh>>, vertices: Vec<Vec3>) -> Mesh3d {
-    let mesh = Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
-        .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
-    Mesh3d(meshes.add(mesh))
+    [
+        LineList::new(minor),
+        LineList::new(medium),
+        LineList::new(major),
+    ]
 }

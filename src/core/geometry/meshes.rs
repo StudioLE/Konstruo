@@ -2,14 +2,6 @@ use bevy::prelude::*;
 use bevy::render::mesh::{Indices, PrimitiveTopology};
 use bevy::render::render_asset::RenderAssetUsages;
 
-/// Create a [`PrimitiveTopology::LineList`] from vertices.
-#[must_use]
-pub fn create_line_list(lines: &[[Vec3; 2]]) -> Mesh {
-    let vertices: Vec<Vec3> = lines.iter().flatten().copied().collect();
-    Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
-        .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
-}
-
 /// Create a [`PrimitiveTopology::TriangleList`] from vertices.
 #[must_use]
 #[allow(clippy::as_conversions, clippy::cast_possible_truncation)]
