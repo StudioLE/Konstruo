@@ -20,7 +20,11 @@ pub enum ModularBuildingFactoryError {
 
 impl ModularBuildingFactory {
     /// Factory method to spawn a [`BuildingPlot`] containing [`BuildingModule`]
-    #[allow(clippy::as_conversions, clippy::cast_precision_loss)]
+    #[allow(
+        clippy::as_conversions,
+        clippy::cast_precision_loss,
+        clippy::cast_possible_wrap
+    )]
     pub fn spawn(
         commands: &mut Commands,
         meshes: &Res<BuildingMeshes>,
@@ -37,14 +41,18 @@ impl ModularBuildingFactory {
             plot,
         );
         let parent = commands.spawn(bundle).id();
-        for stack in stacks {
+        for (index, stack) in stacks.iter().enumerate() {
             for level in 0..stack.levels {
                 if level == stack.levels {
                     // TODO: Create a roof
                     debug!("TODO: Create a roof");
                 } else {
-                    let mut module = stack.definition.clone();
-                    module.height = stack.level_height;
+                    let module = BuildingModule {
+                        index,
+                        level: level as isize,
+                        height: stack.level_height,
+                        ..stack.definition
+                    };
                     let translation = Vec3::new(
                         module.front_offset + module.length * 0.5,
                         module.width * 0.5,
