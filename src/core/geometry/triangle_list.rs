@@ -18,42 +18,28 @@ impl TriangleList {
         }
     }
 
-    #[must_use]
-    pub fn triangular_prism() -> Self {
-        let a1 = Vec3::new(-0.5, 0.5, -0.5);
-        let b1 = Vec3::new(-0.5, -0.5, -0.5);
-        let c1 = Vec3::new(-0.5, 0.0, 0.5);
-        let a2 = Vec3::new(0.5, 0.5, -0.5);
-        let b2 = Vec3::new(0.5, -0.5, -0.5);
-        let c2 = Vec3::new(0.5, 0.0, 0.5);
-        let front = [a1, b1, c1];
-        let back = [a2, c2, b2];
-        let left_bottom = [a1, c2, a2];
-        let left_top = [a1, c1, c2];
-        let right_bottom = [b1, b2, c2];
-        let right_top = [b1, c2, c1];
-        let front_bottom = [a1, a2, b1];
-        let back_bottom = [b1, a2, b2];
-        Self::new([
-            front,
-            back,
-            left_bottom,
-            left_top,
-            right_bottom,
-            right_top,
-            front_bottom,
-            back_bottom,
-        ])
-    }
-
     /// Create a [`PrimitiveTopology::TriangleList`].
     #[must_use]
     pub fn to_mesh(self) -> Mesh {
+        let normals: Vec<Vec3> = self
+            .triangles
+            .iter()
+            .map(calculate_normal)
+            .flat_map(|x| [x, x, x])
+            .collect();
         let vertices = self.triangles.into_flattened();
         Mesh::new(
             PrimitiveTopology::TriangleList,
             RenderAssetUsages::RENDER_WORLD,
         )
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
+        .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
     }
+}
+
+fn calculate_normal(vertices: &[Vec3; 3]) -> Vec3 {
+    let u = vertices[1] - vertices[0];
+    let v = vertices[2] - vertices[0];
+    let normal = u.cross(v);
+    normal.normalize()
 }
