@@ -1,8 +1,6 @@
+use super::*;
 use crate::beziers::CubicBezierSpline;
 use crate::geometry::LineStrip;
-use crate::infrastructure::ways::{
-    WayControl, WayControlLine, WayMaterials, WayMeshes, WaySurface,
-};
 use crate::mathematics::QUARTER_PI;
 use bevy::prelude::*;
 

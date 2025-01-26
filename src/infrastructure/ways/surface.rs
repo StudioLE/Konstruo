@@ -1,9 +1,7 @@
+use super::*;
 use crate::beziers::CubicBezierSpline;
 use crate::geometry::TriangleStrip;
-use crate::infrastructure::ways::way::Way;
-use crate::infrastructure::ways::{WayMaterials, FLATTEN_TOLERANCE, OFFSET_ACCURACY};
 use bevy::prelude::*;
-use std::cmp::Ordering;
 use SurfaceType::*;
 
 /// A surface formed by two lines from a [Way].

@@ -1,4 +1,4 @@
-use crate::infrastructure::ways::{Way, WayMaterials, WayMeshes};
+use super::*;
 use bevy::app::{App, Startup, Update};
 use bevy::prelude::*;
 

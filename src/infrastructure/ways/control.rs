@@ -1,6 +1,4 @@
-use crate::infrastructure::ways::materials::WayMaterials;
-use crate::infrastructure::ways::meshes::WayMeshes;
-use crate::infrastructure::ways::{Way, WayControlLine, WaySurface};
+use super::*;
 use crate::mathematics::QUARTER_PI;
 use crate::ui::cursor::Cursor;
 use crate::ui::pan_orbit::PrimaryCamera;

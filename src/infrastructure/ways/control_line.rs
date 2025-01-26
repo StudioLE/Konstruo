@@ -1,5 +1,5 @@
+use super::*;
 use crate::geometry::LineStrip;
-use crate::infrastructure::ways::{Way, WayMaterials};
 use bevy::prelude::*;
 
 /// A line between control points of a [`Way`].

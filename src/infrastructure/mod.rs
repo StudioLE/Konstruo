@@ -1,1 +1,3 @@
-pub mod ways;
+pub use ways::*;
+
+mod ways;
