@@ -134,7 +134,7 @@ jobs:
         if ! git diff --cached --exit-code
         then
           echo "::warning title=Cargo Format::Please review the output for details."
-          git commit -m "style: Apply code style with `cargo fmt`"
+          git commit -m "style: Apply code style with \`cargo fmt\`"
         fi
       continue-on-error: true
 
@@ -146,7 +146,7 @@ jobs:
         if ! git diff --cached --exit-code
         then
           echo "::warning title=Cargo Fix::Please review the output for details."
-          git commit -m "style: Apply code style with `cargo fix`"
+          git commit -m "style: Apply code style with \`cargo fix\`"
         fi
       continue-on-error: true
 
@@ -158,7 +158,7 @@ jobs:
         if ! git diff --cached --exit-code
         then
           echo "::warning title=Cargo Clippy::Please review the output for details."
-          git commit -m "style: Apply code style with `cargo clippy --fix`"
+          git commit -m "style: Apply code style with \`cargo clippy --fix\`"
         fi
       continue-on-error: true
 
