@@ -182,10 +182,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - os: ubuntu-24.04
-          target: x86_64-unknown-linux-gnu
-        - os: ubuntu-24.04
-          target: wasm32-unknown-unknown
+        - target: x86_64-unknown-linux-gnu
+          os: ubuntu-24.04
+        - target: wasm32-unknown-unknown
+          os: ubuntu-24.04
 
     steps:
 
@@ -260,7 +260,17 @@ jobs:
 
     - name: Install wasm-bindgen-cli
       if: matrix.target == 'wasm32-unknown-unknown'
-      run: cargo install wasm-bindgen-cli
+      run: |
+        curl "https://github.com/rustwasm/wasm-bindgen/releases/download/0.2.100/wasm-bindgen-0.2.100-x86_64-unknown-linux-musl.tar.gz"
+        --location
+        --show-error
+        --silent
+        | tar
+        --extract
+        --gzip
+        --directory "/usr/local/bin"
+        --file -
+        "wasm-bindgen"
 
     - name: Generate WebAssembly bindings
       if: matrix.target == 'wasm32-unknown-unknown'
