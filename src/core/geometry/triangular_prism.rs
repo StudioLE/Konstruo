@@ -1,4 +1,4 @@
-use crate::geometry::triangle_list::TriangleList;
+use crate::geometry::TriangleList;
 use bevy::prelude::*;
 
 pub struct TriangularPrism {

@@ -17,26 +17,9 @@ impl TriangleStrip {
     ///
     /// If the polylines do not have an equal vertices count then the longest edge will be split.
     #[must_use]
-    #[allow(
-        clippy::as_conversions,
-        clippy::cast_possible_wrap,
-        clippy::cast_sign_loss
-    )]
     pub fn between_polylines(polylines: &[Vec<Vec3>; 2]) -> Self {
         let mut polylines = [polylines[0].clone(), polylines[1].clone()];
-        let difference = polylines[0].len() as isize - polylines[1].len() as isize;
-        match difference.cmp(&0) {
-            Ordering::Less => {
-                add_vertices_by_splitting_longest_edge(
-                    &mut polylines[0],
-                    difference.unsigned_abs(),
-                );
-            }
-            Ordering::Greater => {
-                add_vertices_by_splitting_longest_edge(&mut polylines[1], difference as usize);
-            }
-            Ordering::Equal => {}
-        }
+        equalize_vertices_count(&mut polylines);
         let pairs = polylines[0]
             .iter()
             .zip(polylines[1].iter())
@@ -62,6 +45,24 @@ impl TriangleStrip {
         )
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
         .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
+    }
+}
+
+#[allow(
+    clippy::as_conversions,
+    clippy::cast_possible_wrap,
+    clippy::cast_sign_loss
+)]
+pub(super) fn equalize_vertices_count(polylines: &mut [Vec<Vec3>; 2]) {
+    let difference = polylines[0].len() as isize - polylines[1].len() as isize;
+    match difference.cmp(&0) {
+        Ordering::Less => {
+            add_vertices_by_splitting_longest_edge(&mut polylines[0], difference.unsigned_abs());
+        }
+        Ordering::Greater => {
+            add_vertices_by_splitting_longest_edge(&mut polylines[1], difference as usize);
+        }
+        Ordering::Equal => {}
     }
 }
 

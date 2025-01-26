@@ -9,7 +9,6 @@ use beach::ui::GridPlugin;
 use beach::ui::PanOrbitCameraPlugin;
 use beach::ui::ViewCubePlugin;
 use beach::ui::{AxisMarker, AxisMarkerPlugin};
-use bevy::math::vec3;
 use bevy::prelude::*;
 
 fn main() {
@@ -52,26 +51,26 @@ fn spawn_way_example(
     let curves = CubicBezierSpline {
         curves: vec![
             CubicBezier {
-                start: vec3(0.0, 70.0, 0.0),
-                start_handle: vec3(30.0, 70.0, 0.0),
-                end_handle: vec3(30.0, 40.0, 0.0),
-                end: vec3(50.0, 40.0, 0.0),
+                start: Vec3::new(0.0, 70.0, 0.0),
+                start_handle: Vec3::new(30.0, 70.0, 0.0),
+                end_handle: Vec3::new(30.0, 40.0, 0.0),
+                end: Vec3::new(50.0, 40.0, 0.0),
             },
             CubicBezier {
-                start: vec3(50.0, 40.0, 0.0),
-                start_handle: vec3(70.0, 40.0, 0.0),
-                end_handle: vec3(70.0, 15.0, 0.0),
-                end: vec3(70.0, 0.0, 0.0),
+                start: Vec3::new(50.0, 40.0, 0.0),
+                start_handle: Vec3::new(70.0, 40.0, 0.0),
+                end_handle: Vec3::new(70.0, 15.0, 0.0),
+                end: Vec3::new(70.0, 0.0, 0.0),
             },
         ],
     };
     let way = Way::new(curves);
-    let road = WaySurface::centered(4.8, Carriageway);
+    let road = WaySurface::centered(0.025, 4.8, Carriageway);
     let entity = commands.spawn(way.clone()).id();
     road.spawn(&mut commands, &mut meshes, &materials, &way, entity);
-    let footway = WaySurface::new([2.4, 4.4], Footway);
+    let footway = WaySurface::new(0.125, [2.4, 4.4], Footway);
     footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);
-    let footway = WaySurface::new([-2.4, -4.4], Footway);
+    let footway = WaySurface::new(0.125, [-2.4, -4.4], Footway);
     footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);
 }
 

@@ -1,6 +1,7 @@
 use super::*;
 use crate::beziers::CubicBezierSpline;
-use crate::geometry::TriangleStrip;
+use crate::geometry::TriangleList;
+use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
 use SurfaceType::*;
 
@@ -8,9 +9,10 @@ use SurfaceType::*;
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct WaySurface {
+    /// Depth of the surface.
+    depth: f32,
     /// Offsets from the way.
     offsets: [f32; 2],
-
     /// Offsets from the way.
     purpose: SurfaceType,
 }
@@ -27,14 +29,18 @@ pub enum SurfaceType {
 impl WaySurface {
     /// Create a new [`WaySurface`] offset from [`Way`].
     #[must_use]
-    pub fn new(offsets: [f32; 2], purpose: SurfaceType) -> Self {
-        Self { offsets, purpose }
+    pub fn new(depth: f32, offsets: [f32; 2], purpose: SurfaceType) -> Self {
+        Self {
+            depth,
+            offsets,
+            purpose,
+        }
     }
 
     /// Create a new [`WaySurface`] centered at [`Way`].
     #[must_use]
-    pub fn centered(width: f32, purpose: SurfaceType) -> Self {
-        Self::new([width * -0.5, width * 0.5], purpose)
+    pub fn centered(depth: f32, width: f32, purpose: SurfaceType) -> Self {
+        Self::new(depth, [width * -0.5, width * 0.5], purpose)
     }
 
     /// Regenerate the mesh geometry.
@@ -57,7 +63,12 @@ impl WaySurface {
             Footway => materials.footway.clone(),
             Verge => materials.verge.clone(),
         };
-        let bundle = (self, Mesh3d(meshes.add(mesh)), MeshMaterial3d(material));
+        let bundle = (
+            self,
+            Mesh3d(meshes.add(mesh)),
+            MeshMaterial3d(material),
+            Transform::from_translation(Vec3::new(0.0, 0.0, GROUND_HEIGHT)),
+        );
         commands.spawn(bundle).set_parent(parent);
     }
 
@@ -82,7 +93,51 @@ impl WaySurface {
 
     /// Get the [`Mesh`].
     fn get_mesh(&self, way: &Way) -> Mesh {
-        let polylines = self.get_polylines(way);
-        TriangleStrip::between_polylines(&polylines).to_mesh()
+        let bottom = self.get_polylines(way);
+        let top: [Vec<Vec3>; 2] = [
+            bottom[0]
+                .iter()
+                .map(|vertex| vertex.with_z(vertex.z + self.depth))
+                .collect(),
+            bottom[1]
+                .iter()
+                .map(|vertex| vertex.with_z(vertex.z + self.depth))
+                .collect(),
+        ];
+        let ends: [[Vec<Vec3>; 2]; 2] = [
+            [
+                vec![
+                    *top[0].first().expect("first should exist"),
+                    *top[1].first().expect("first should exist"),
+                ],
+                vec![
+                    *bottom[0].first().expect("first should exist"),
+                    *bottom[1].first().expect("first should exist"),
+                ],
+            ],
+            [
+                vec![
+                    *top[0].last().expect("last should exist"),
+                    *top[1].last().expect("last should exist"),
+                ],
+                vec![
+                    *bottom[0].last().expect("first should exist"),
+                    *bottom[1].last().expect("last should exist"),
+                ],
+            ],
+        ];
+        let mut triangles = TriangleList::between_polylines(&top);
+        triangles.merge(TriangleList::between_polylines(&bottom));
+        triangles.merge(TriangleList::between_polylines(&[
+            top[0].clone(),
+            bottom[0].clone(),
+        ]));
+        triangles.merge(TriangleList::between_polylines(&[
+            top[1].clone(),
+            bottom[1].clone(),
+        ]));
+        triangles.merge(TriangleList::between_polylines(&ends[0]));
+        triangles.merge(TriangleList::between_polylines(&ends[1]));
+        triangles.to_mesh()
     }
 }

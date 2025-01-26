@@ -1,9 +1,11 @@
+use crate::geometry::triangle_strip::equalize_vertices_count;
+use crate::geometry::TriangleStrip;
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
 
 /// A [`PrimitiveTopology::TriangleList`]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct TriangleList {
     /// Vertices
     triangles: Vec<[Vec3; 3]>,
@@ -16,6 +18,28 @@ impl TriangleList {
         Self {
             triangles: triangles.into(),
         }
+    }
+
+    /// Create a [`TriangleStrip`] between two parallel polylines.
+    ///
+    /// If the polylines do not have an equal vertices count then the longest edge will be split.
+    #[must_use]
+    #[allow(clippy::indexing_slicing)]
+    pub fn between_polylines(polylines: &[Vec<Vec3>; 2]) -> Self {
+        let mut polylines = [polylines[0].clone(), polylines[1].clone()];
+        equalize_vertices_count(&mut polylines);
+        let triangles = polylines[0]
+            .windows(2)
+            .zip(polylines[1].windows(2))
+            .flat_map(|(a, b)| [[a[0], b[0], a[1]], [a[1], b[0], b[1]]])
+            .collect();
+        Self { triangles }
+    }
+
+    /// Create a [`PrimitiveTopology::TriangleList`].
+    pub fn merge(&mut self, mut other: TriangleList) {
+        let triangles = &mut other.triangles;
+        self.triangles.append(triangles);
     }
 
     /// Create a [`PrimitiveTopology::TriangleList`].

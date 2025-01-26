@@ -11,4 +11,4 @@ pub const ENVIRONMENT_MAX: f32 = 10_000.0;
 pub const GROUND_HEIGHT: f32 = -0.050;
 
 /// Elevation of the grid plane
-pub const GRID_HEIGHT: f32 = -0.025;
+pub const GRID_HEIGHT: f32 = -0.040;
