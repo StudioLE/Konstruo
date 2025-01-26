@@ -1,7 +1,6 @@
 use crate::core::beziers::CubicBezierSpline;
-use crate::core::geometry::meshes::create_triangle_strip;
-use crate::core::geometry::primitives::create_triangle_strip_between_polylines;
 use crate::core::geometry::triangles::add_vertices_by_spliting_longest_edge;
+use crate::core::geometry::TriangleStip;
 use crate::infrastructure::ways::way::Way;
 use crate::infrastructure::ways::{WayMaterials, FLATTEN_TOLERANCE, OFFSET_ACCURACY};
 use bevy::prelude::*;
@@ -103,8 +102,8 @@ impl WaySurface {
     /// Get the [`Mesh`].
     fn get_mesh(&self, way: &Way) -> Mesh {
         let polylines = self.get_polylines(way);
-        let triangle_strip = create_triangle_strip_between_polylines(&polylines)
-            .expect("polylines should have equal length");
-        create_triangle_strip(triangle_strip)
+        TriangleStip::between_polylines(&polylines)
+            .expect("polylines should have equal length")
+            .to_mesh()
     }
 }

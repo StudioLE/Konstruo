@@ -17,24 +17,6 @@ pub fn extract_topology(
     }
 }
 
-/// Create a [`PrimitiveTopology::TriangleStrip`] between from two parallel polylines.
-///
-/// The polylines must have equal number of vertices.
-pub fn create_triangle_strip_between_polylines(
-    polylines: &[Vec<Vec3>; 2],
-) -> Result<Vec<Vec3>, TriangleStripError> {
-    let left = polylines[0].len();
-    let right = polylines[1].len();
-    if left != right {
-        return Err(TriangleStripError::InEqual { left, right });
-    }
-    Ok(polylines[0]
-        .iter()
-        .zip(polylines[1].iter())
-        .flat_map(|(&a, &b)| [a, b])
-        .collect())
-}
-
 fn point_list(vertices: Vec<Vec3>) -> Vec<Vec<Vec3>> {
     let mut points = Vec::new();
     for vertex in vertices {
@@ -114,23 +96,6 @@ impl Display for ExtractTopologyError {
             }
             VerticesDivision { count, divisor } => {
                 format!("Vertices count must be divisible by {divisor}: {count}")
-            }
-        };
-        output.fmt(formatter)
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub enum TriangleStripError {
-    InEqual { left: usize, right: usize },
-}
-
-impl Display for TriangleStripError {
-    #[allow(clippy::absolute_paths)]
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-        let output = match self {
-            TriangleStripError::InEqual { left, right } => {
-                format!("Polyline lengths were not equal: {left} != {right}")
             }
         };
         output.fmt(formatter)

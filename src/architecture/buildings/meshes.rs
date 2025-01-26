@@ -1,5 +1,5 @@
 use crate::core::geometry::meshes::{
-    create_line_list, create_triangle_list, create_triangle_strip, create_triangular_prism,
+    create_triangle_list, create_triangular_prism,
 };
 use bevy::prelude::*;
 
