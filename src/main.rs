@@ -1,5 +1,3 @@
-use bevy::math::vec3;
-use bevy::prelude::*;
 use beach::core::beziers::CubicBezier;
 use beach::core::beziers::CubicBezierSpline;
 use beach::environment::{GroundPlugin, SkyPlugin, SunPlugin};
@@ -10,6 +8,8 @@ use beach::ui::gizmos::GizmoPlugin;
 use beach::ui::grid::GridPlugin;
 use beach::ui::pan_orbit::PanOrbitCameraPlugin;
 use beach::ui::view_cube::ViewCubePlugin;
+use bevy::math::vec3;
+use bevy::prelude::*;
 
 fn main() {
     App::new()
