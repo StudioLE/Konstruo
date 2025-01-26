@@ -1,9 +1,9 @@
-pub use component::*;
+pub use axis_marker::*;
 pub use materials::*;
 pub use meshes::*;
 pub use plugin::*;
 
-mod component;
+mod axis_marker;
 mod materials;
 mod meshes;
 mod plugin;

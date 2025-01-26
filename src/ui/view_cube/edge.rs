@@ -1,8 +1,6 @@
+use super::*;
 use crate::geometry::Orientation;
-use crate::ui::pan_orbit::Orbit;
-use crate::ui::view_cube::materials::ViewCubeMaterials;
-use crate::ui::view_cube::meshes::ViewCubeMeshes;
-use crate::ui::view_cube::RENDER_LAYER;
+use crate::ui::Orbit;
 use bevy::math::Vec3;
 use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;

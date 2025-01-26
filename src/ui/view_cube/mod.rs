@@ -1,3 +1,9 @@
+pub use camera::*;
+pub use corner::*;
+pub use edge::*;
+pub use face::*;
+pub use materials::*;
+pub use meshes::*;
 pub use plugin::*;
 
 mod camera;

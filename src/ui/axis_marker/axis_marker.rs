@@ -1,5 +1,4 @@
-use crate::ui::axis_marker::materials::AxisMarkerMaterials;
-use crate::ui::axis_marker::meshes::AxisMarkerMeshes;
+use super::*;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 

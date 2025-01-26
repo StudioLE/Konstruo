@@ -1,7 +1,7 @@
 use super::*;
 use crate::mathematics::QUARTER_PI;
-use crate::ui::cursor::Cursor;
-use crate::ui::pan_orbit::PrimaryCamera;
+use crate::ui::Cursor;
+use crate::ui::PrimaryCamera;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 

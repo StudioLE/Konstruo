@@ -1,5 +1,5 @@
+use super::*;
 use crate::ui::pan_orbit::orbit::SPEED_MODIFIER;
-use crate::ui::pan_orbit::Orbit;
 use bevy::prelude::{Query, Transform};
 
 impl Orbit {

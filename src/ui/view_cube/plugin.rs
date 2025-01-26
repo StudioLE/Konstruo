@@ -1,11 +1,5 @@
-use crate::ui::view_cube::camera::ViewCubeCamera;
-use crate::ui::view_cube::corner::ViewCubeCorner;
-use crate::ui::view_cube::edge::ViewCubeEdge;
-use crate::ui::view_cube::face::ViewCubeFace;
-use crate::ui::view_cube::materials::ViewCubeMaterials;
-use crate::ui::view_cube::meshes::ViewCubeMeshes;
-use bevy::app::{App, Plugin, PostStartup, Startup, Update};
-use bevy::prelude::MeshPickingPlugin;
+use super::*;
+use bevy::prelude::*;
 use bevy::render::view::Layer;
 
 pub(super) const RENDER_LAYER: Layer = 1;

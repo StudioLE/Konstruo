@@ -1,5 +1,5 @@
-use crate::ui::grid::materials::GridMaterials;
-use crate::ui::grid::Grid;
+use super::*;
+use crate::ui::*;
 use bevy::prelude::*;
 
 /// Plugin to display a geometric grid.

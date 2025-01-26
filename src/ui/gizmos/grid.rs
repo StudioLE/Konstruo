@@ -1,4 +1,4 @@
-use crate::ui::gizmos::weights::{Light, Medium, Thin};
+use super::*;
 use bevy::color::palettes::basic;
 use bevy::math::{Quat, UVec2, Vec2};
 use bevy::prelude::*;

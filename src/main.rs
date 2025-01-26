@@ -4,11 +4,11 @@ use beach::beziers::CubicBezierSpline;
 use beach::environment::{GroundPlugin, SkyPlugin, SunPlugin};
 use beach::infrastructure::SurfaceType::{Carriageway, Footway};
 use beach::infrastructure::{Way, WayMaterials, WaySurface, WaysPlugin};
-use beach::ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
-use beach::ui::gizmos::GizmoPlugin;
-use beach::ui::grid::GridPlugin;
-use beach::ui::pan_orbit::PanOrbitCameraPlugin;
-use beach::ui::view_cube::ViewCubePlugin;
+use beach::ui::GizmoPlugin;
+use beach::ui::GridPlugin;
+use beach::ui::PanOrbitCameraPlugin;
+use beach::ui::ViewCubePlugin;
+use beach::ui::{AxisMarker, AxisMarkerPlugin};
 use bevy::math::vec3;
 use bevy::prelude::*;
 

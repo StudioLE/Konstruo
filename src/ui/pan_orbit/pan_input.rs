@@ -1,7 +1,5 @@
+use super::*;
 use crate::ui::cursor::Cursor;
-use crate::ui::pan_orbit::pan::Pan;
-use crate::ui::pan_orbit::primary_camera::PrimaryCamera;
-use crate::ui::pan_orbit::Orbit;
 use bevy::hierarchy::Children;
 use bevy::input::mouse::MouseMotion;
 use bevy::input::ButtonInput;

@@ -1,4 +1,4 @@
-use crate::ui::gizmos::Bold;
+use super::*;
 use bevy::color::palettes::tailwind;
 use bevy::math::Vec3;
 use bevy::prelude::Gizmos;

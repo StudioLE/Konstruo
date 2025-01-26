@@ -1,5 +1,4 @@
-use crate::ui::gizmos::weights::*;
-use crate::ui::gizmos::AxisGizmo;
+use super::*;
 use bevy::app::{App, Startup, Update};
 use bevy::gizmos::AppGizmoBuilder;
 use bevy::prelude::Plugin;

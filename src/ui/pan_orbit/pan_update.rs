@@ -1,5 +1,5 @@
-use crate::ui::pan_orbit::pan::{Pan, SPEED_MODIFIER};
-use crate::ui::pan_orbit::Orbit;
+use super::*;
+use crate::ui::pan_orbit::orbit::SPEED_MODIFIER;
 use bevy::prelude::*;
 
 impl Pan {
