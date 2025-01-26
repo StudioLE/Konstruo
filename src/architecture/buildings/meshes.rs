@@ -1,4 +1,4 @@
-use crate::geometry::meshes::{create_triangle_list, create_triangular_prism};
+use crate::geometry::TriangularPrism;
 use bevy::prelude::*;
 
 #[allow(clippy::struct_field_names)]
@@ -14,8 +14,7 @@ impl BuildingMeshes {
     /// System to insert [`BuildingMeshes`] on startup.
     pub(super) fn startup_system(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
         let cuboid = Cuboid::from_size(Vec3::new(1.0, 1.0, 1.0));
-        let prism = &create_triangular_prism();
-        let pitched = create_triangle_list(prism);
+        let pitched = TriangularPrism::default().to_triangle_list().to_mesh();
         commands.insert_resource(BuildingMeshes {
             cuboid_module: meshes.add(cuboid),
             pitched_module: meshes.add(pitched),
