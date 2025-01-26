@@ -1,3 +1,4 @@
+use crate::architecture::Pitch::FrontToBack;
 use crate::architecture::*;
 use bevy::prelude::*;
 use ModularBuildingFactoryError::*;
@@ -42,31 +43,34 @@ impl ModularBuildingFactory {
         );
         let parent = commands.spawn(bundle).id();
         for (index, stack) in stacks.iter().enumerate() {
-            for level in 0..stack.levels {
-                if level == stack.levels {
-                    // TODO: Create a roof
-                    debug!("TODO: Create a roof");
+            for level in 0..=stack.levels {
+                let pitch = (level == stack.levels).then_some(FrontToBack);
+                let module = BuildingModule {
+                    index,
+                    level: level as isize,
+                    height: stack.level_height,
+                    pitch,
+                    ..stack.definition
+                };
+                let translation = Vec3::new(
+                    module.front_offset + module.length * 0.5,
+                    module.width * 0.5,
+                    module.height * (level as f32 + 0.5),
+                );
+                let mesh = if module.pitch.is_some() {
+                    meshes.pitched_module.clone()
                 } else {
-                    let module = BuildingModule {
-                        index,
-                        level: level as isize,
-                        height: stack.level_height,
-                        ..stack.definition
-                    };
-                    let translation = Vec3::new(
-                        module.front_offset + module.length * 0.5,
-                        module.width * 0.5,
-                        module.height * (level as f32 + 0.5),
-                    );
-                    let bundle = (
+                    meshes.cuboid_module.clone()
+                };
+                let bundle =
+                    (
                         Transform::from_translation(front_left + translation)
                             .with_scale(Vec3::new(module.length, module.width, module.height)),
-                        Mesh3d(meshes.module.clone()),
+                        Mesh3d(mesh),
                         MeshMaterial3d(materials.module.clone()),
                         module,
                     );
-                    commands.spawn(bundle).set_parent(parent);
-                }
+                commands.spawn(bundle).set_parent(parent);
             }
             front_left.y += stack.definition.width;
         }

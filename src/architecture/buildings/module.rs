@@ -20,4 +20,12 @@ pub struct BuildingModule {
     pub front_offset: f32,
     /// Offset at Back
     pub back_offset: f32,
+    /// Is this a pitched module?
+    pub pitch: Option<Pitch>,
+}
+
+#[derive(Debug, Clone)]
+pub enum Pitch {
+    FrontToBack,
+    LeftToRight,
 }
