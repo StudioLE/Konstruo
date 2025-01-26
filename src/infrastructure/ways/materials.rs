@@ -61,7 +61,6 @@ impl WayMaterials {
                 depth_bias: 1.0,
                 ..Default::default()
             }),
-            // TODO: Investigate why WaySurface appear dark unless `unlit: true`
             carriageway: materials.add(StandardMaterial {
                 // base_color: tailwind::STONE_800.into(),
                 base_color: tailwind::STONE_400.into(),
@@ -69,7 +68,6 @@ impl WayMaterials {
                 depth_bias: -1.0,
                 double_sided: true,
                 cull_mode: None,
-                unlit: true,
                 ..Default::default()
             }),
             footway: materials.add(StandardMaterial {
@@ -79,7 +77,6 @@ impl WayMaterials {
                 depth_bias: -1.0,
                 double_sided: true,
                 cull_mode: None,
-                unlit: true,
                 ..Default::default()
             }),
             verge: materials.add(StandardMaterial {
@@ -88,7 +85,6 @@ impl WayMaterials {
                 depth_bias: -1.0,
                 double_sided: true,
                 cull_mode: None,
-                unlit: true,
                 ..Default::default()
             }),
         });

@@ -37,7 +37,7 @@ impl TriangleList {
     }
 }
 
-fn calculate_normal(vertices: &[Vec3; 3]) -> Vec3 {
+pub(super) fn calculate_normal(vertices: &[Vec3; 3]) -> Vec3 {
     let u = vertices[1] - vertices[0];
     let v = vertices[2] - vertices[0];
     let normal = u.cross(v);

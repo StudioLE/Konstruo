@@ -1,3 +1,4 @@
+use crate::geometry::triangle_list::calculate_normal;
 use bevy::asset::RenderAssetUsages;
 use bevy::math::Vec3;
 use bevy::prelude::Mesh;
@@ -46,13 +47,21 @@ impl TriangleStrip {
 
     /// Create a [`PrimitiveTopology::TriangleStrip`] mesh.
     #[must_use]
+    #[allow(clippy::indexing_slicing)]
     pub fn to_mesh(self) -> Mesh {
         let vertices = self.pairs.into_flattened();
+        let normal = if vertices.len() >= 3 {
+            calculate_normal(&[vertices[0], vertices[1], vertices[2]])
+        } else {
+            Vec3::Z
+        };
+        let normals = vec![normal; vertices.len()];
         Mesh::new(
             PrimitiveTopology::TriangleStrip,
             RenderAssetUsages::RENDER_WORLD,
         )
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
+        .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
     }
 }
 
