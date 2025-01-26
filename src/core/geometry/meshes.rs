@@ -2,16 +2,6 @@ use bevy::prelude::*;
 use bevy::render::mesh::{Indices, PrimitiveTopology};
 use bevy::render::render_asset::RenderAssetUsages;
 
-/// Create a [`PrimitiveTopology::LineStrip`] from vertices.
-#[must_use]
-pub fn create_linestrip(vertices: Vec<Vec3>) -> Mesh {
-    Mesh::new(
-        PrimitiveTopology::LineStrip,
-        RenderAssetUsages::RENDER_WORLD,
-    )
-    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
-}
-
 /// Create a [`PrimitiveTopology::LineList`] from vertices.
 #[must_use]
 pub fn create_line_list(lines: &[[Vec3; 2]]) -> Mesh {

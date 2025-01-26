@@ -1,5 +1,5 @@
 use crate::beziers::CubicBezierSpline;
-use crate::geometry::meshes::create_linestrip;
+use crate::geometry::LineStrip;
 use crate::infrastructure::ways::{
     WayControl, WayControlLine, WayMaterials, WayMeshes, WaySurface,
 };
@@ -55,7 +55,7 @@ impl Way {
     ) {
         // Mesh3d
         let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
-        *mesh = Mesh3d(meshes.add(create_linestrip(polyline)));
+        *mesh = Mesh3d(meshes.add(LineStrip::new(polyline).to_mesh()));
         // WayControl
         let control_points = way.spline.get_controls();
         for (control, parent, mut transform) in &mut controls {
@@ -84,7 +84,7 @@ impl Way {
             }
             if let Some(anchor) = control_points.get(line.anchor) {
                 if let Some(handle) = control_points.get(line.handle) {
-                    *mesh = Mesh3d(meshes.add(create_linestrip(vec![*anchor, *handle])));
+                    *mesh = Mesh3d(meshes.add(LineStrip::new([*anchor, *handle]).to_mesh()));
                 } else {
                     warn!(
                         "Failed to set WayControlLine. Index does not exist: {}",
@@ -118,7 +118,7 @@ impl Way {
         for (entity, way) in query.iter() {
             let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
             let bundle = (
-                Mesh3d(meshes.add(create_linestrip(polyline))),
+                Mesh3d(meshes.add(LineStrip::new(polyline).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
             );
             commands.entity(entity).insert(bundle);

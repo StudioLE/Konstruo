@@ -1,4 +1,4 @@
-use crate::geometry::meshes::create_linestrip;
+use crate::geometry::LineStrip;
 use crate::infrastructure::ways::{Way, WayMaterials};
 use bevy::prelude::*;
 
@@ -11,6 +11,7 @@ pub struct WayControlLine {
     /// Index of the handle in the spline of the [`Way`].
     pub handle: usize,
 }
+
 impl WayControlLine {
     /// Create a new [`WayControlLine`]
     fn new(start: usize, end: usize) -> Self {
@@ -32,12 +33,12 @@ impl WayControlLine {
             let i = i * 4;
             let start = (
                 WayControlLine::new(i, i + 1),
-                Mesh3d(meshes.add(create_linestrip(vec![bezier.start, bezier.start_handle]))),
+                Mesh3d(meshes.add(LineStrip::new([bezier.start, bezier.start_handle]).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
             );
             let end = (
                 WayControlLine::new(i + 3, i + 2),
-                Mesh3d(meshes.add(create_linestrip(vec![bezier.end, bezier.end_handle]))),
+                Mesh3d(meshes.add(LineStrip::new([bezier.end, bezier.end_handle]).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
             );
             commands.spawn(start).set_parent(parent);
