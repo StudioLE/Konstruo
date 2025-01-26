@@ -1,3 +1,4 @@
+use beach::architecture::*;
 use beach::core::beziers::CubicBezier;
 use beach::core::beziers::CubicBezierSpline;
 use beach::environment::{GroundPlugin, SkyPlugin, SunPlugin};
@@ -15,6 +16,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(AxisMarkerPlugin)
+        .add_plugins(BuildingsPlugin)
         // .add_plugins(CursorGizmoPlugin)
         .add_plugins(GizmoPlugin)
         .add_plugins(GridPlugin)
@@ -26,6 +28,7 @@ fn main() {
         // .add_plugins(debug_plugin)
         .add_plugins(WaysPlugin)
         .add_systems(Startup, spawn_positive_marker)
+        .add_systems(PostStartup, spawn_buildings)
         .add_systems(PostStartup, spawn_way_example)
         .run();
 }
@@ -70,4 +73,38 @@ fn spawn_way_example(
     footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);
     let footway = WaySurface::new([-2.4, -4.4], Footway);
     footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);
+}
+
+fn spawn_buildings(
+    mut commands: Commands,
+    meshes: Res<BuildingMeshes>,
+    materials: Res<BuildingMaterials>,
+) {
+    let stacks = vec![
+        BuildingModuleStack {
+            definition: BuildingModule {
+                width: 4.8,
+                length: 9.0,
+                front_offset: 0.0,
+                back_offset: 0.0,
+                ..default()
+            },
+            levels: 2,
+            level_height: 2.4,
+        },
+        BuildingModuleStack {
+            definition: BuildingModule {
+                width: 6.0,
+                length: 5.4,
+                front_offset: 3.0,
+                back_offset: 0.6,
+                ..default()
+            },
+            levels: 1,
+            level_height: 2.4,
+        },
+    ];
+
+    ModularBuildingFactory::spawn(&mut commands, &meshes, &materials, stacks)
+        .expect("spawn should not fail");
 }
