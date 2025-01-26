@@ -250,13 +250,13 @@ jobs:
           target/
 
     - name: Create artifacts directory
-      run: mkdir geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}
+      run: mkdir beach-${{ needs.release.outputs.version }}-${{ matrix.target }}
 
     - name: Copy binary
       if: matrix.target != 'wasm32-unknown-unknown'
       run: >
-        cp target/${{ matrix.target }}/release/geometrician
-        geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}/
+        cp target/${{ matrix.target }}/release/beach
+        beach-${{ needs.release.outputs.version }}-${{ matrix.target }}/
 
     - name: Install wasm-bindgen-cli
       if: matrix.target == 'wasm32-unknown-unknown'
@@ -267,24 +267,24 @@ jobs:
       run: >
         wasm-bindgen --no-typescript --target web
         --out-dir artifacts
-        --out-name geometrician
-        target/${{ matrix.target }}/release/geometrician.wasm
+        --out-name beach
+        target/${{ matrix.target }}/release/beach.wasm
 
     - name: Copy WebAssembly
       if: matrix.target == 'wasm32-unknown-unknown'
       run: |
-        cp artifacts/* geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}/
+        cp artifacts/* beach-${{ needs.release.outputs.version }}-${{ matrix.target }}/
 
     - name: Create archive
       run: >
         7z a 
-        geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}.7z
-        geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}
+        beach-${{ needs.release.outputs.version }}-${{ matrix.target }}.7z
+        beach-${{ needs.release.outputs.version }}-${{ matrix.target }}
 
     - uses: actions/upload-artifact@v4
       with:
-        name: geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}
-        path: geometrician-${{ needs.release.outputs.version }}-${{ matrix.target }}.7z
+        name: beach-${{ needs.release.outputs.version }}-${{ matrix.target }}
+        path: beach-${{ needs.release.outputs.version }}-${{ matrix.target }}.7z
 
 
 
@@ -329,7 +329,7 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        pattern: geometrician-${{ needs.release.outputs.version }}-*
+        pattern: beach-${{ needs.release.outputs.version }}-*
         merge-multiple: true
 
     - name: Upload Release Asset
@@ -339,6 +339,6 @@ jobs:
       run: >
         gh release upload
         v${{ needs.release.outputs.version }}
-        geometrician-${{ needs.release.outputs.version }}-*
+        beach-${{ needs.release.outputs.version }}-*
         --clobber
         --repo "${{ github.repository }}"

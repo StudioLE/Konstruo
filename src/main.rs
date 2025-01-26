@@ -1,15 +1,15 @@
 use bevy::math::vec3;
 use bevy::prelude::*;
-use geometrician::core::beziers::CubicBezier;
-use geometrician::core::beziers::CubicBezierSpline;
-use geometrician::environment::{GroundPlugin, SkyPlugin, SunPlugin};
-use geometrician::infrastructure::ways::SurfaceType::{Carriageway, Footway};
-use geometrician::infrastructure::ways::{Way, WayMaterials, WaySurface, WaysPlugin};
-use geometrician::ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
-use geometrician::ui::gizmos::GizmoPlugin;
-use geometrician::ui::grid::GridPlugin;
-use geometrician::ui::pan_orbit::PanOrbitCameraPlugin;
-use geometrician::ui::view_cube::ViewCubePlugin;
+use beach::core::beziers::CubicBezier;
+use beach::core::beziers::CubicBezierSpline;
+use beach::environment::{GroundPlugin, SkyPlugin, SunPlugin};
+use beach::infrastructure::ways::SurfaceType::{Carriageway, Footway};
+use beach::infrastructure::ways::{Way, WayMaterials, WaySurface, WaysPlugin};
+use beach::ui::axis_marker::{AxisMarker, AxisMarkerPlugin};
+use beach::ui::gizmos::GizmoPlugin;
+use beach::ui::grid::GridPlugin;
+use beach::ui::pan_orbit::PanOrbitCameraPlugin;
+use beach::ui::view_cube::ViewCubePlugin;
 
 fn main() {
     App::new()

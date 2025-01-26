@@ -1,5 +1,5 @@
 [package]
-name = "geometrician"
+name = "beach"
 version = "0.0.0"
 edition = "2021"
 resolver = "2"
