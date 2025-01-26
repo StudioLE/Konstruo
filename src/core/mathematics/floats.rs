@@ -1,4 +1,4 @@
-use crate::core::mathematics::constants::*;
+use crate::mathematics::constants::*;
 
 /// <https://stackoverflow.com/a/6400477/247218>
 #[must_use]

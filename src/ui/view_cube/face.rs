@@ -1,5 +1,5 @@
-use crate::core::geometry::Orientation;
-use crate::core::geometry::Orientation::*;
+use crate::geometry::Orientation;
+use crate::geometry::Orientation::*;
 use crate::ui::pan_orbit::Orbit;
 use crate::ui::view_cube::materials::ViewCubeMaterials;
 use crate::ui::view_cube::meshes::ViewCubeMeshes;

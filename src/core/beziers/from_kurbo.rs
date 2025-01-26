@@ -1,4 +1,4 @@
-use crate::core::beziers::{CubicBezier, CubicBezierSpline};
+use crate::beziers::{CubicBezier, CubicBezierSpline};
 use bevy::math::Vec3;
 use kurbo::{CubicBez, Point};
 

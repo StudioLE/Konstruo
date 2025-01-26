@@ -1,5 +1,5 @@
-use crate::core::beziers::cubic_bezier_spline::CubicBezierSpline;
-use crate::core::beziers::CubicBezier;
+use crate::beziers::cubic_bezier_spline::CubicBezierSpline;
+use crate::beziers::CubicBezier;
 use bevy::log::warn;
 use bevy::math::Vec3;
 use kurbo::{BezPath, CubicBez, PathSeg, Point, Shape};

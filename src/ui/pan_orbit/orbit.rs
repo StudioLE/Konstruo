@@ -1,10 +1,10 @@
-use crate::core::constraints::clamp_float::ClampFloat;
-use crate::core::constraints::clamp_vec3::ClampVec3;
-use crate::core::geometry::Orientation;
-use crate::core::kinematics::Translation;
-use crate::core::mathematics::constants::*;
-use crate::core::mathematics::spherical_coordinate_system::*;
-use crate::core::CAMERA_MAX;
+use crate::constraints::clamp_float::ClampFloat;
+use crate::constraints::clamp_vec3::ClampVec3;
+use crate::geometry::Orientation;
+use crate::kinematics::Translation;
+use crate::mathematics::constants::*;
+use crate::mathematics::spherical_coordinate_system::*;
+use crate::CAMERA_MAX;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 

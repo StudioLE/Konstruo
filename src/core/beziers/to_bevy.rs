@@ -1,4 +1,4 @@
-use crate::core::beziers::cubic_bezier_spline::CubicBezierSpline;
+use crate::beziers::cubic_bezier_spline::CubicBezierSpline;
 use bevy::prelude::CubicBezier as BevyCubicBezier;
 use bevy::prelude::*;
 

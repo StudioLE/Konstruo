@@ -1,6 +1,6 @@
 use beach::architecture::*;
-use beach::core::beziers::CubicBezier;
-use beach::core::beziers::CubicBezierSpline;
+use beach::beziers::CubicBezier;
+use beach::beziers::CubicBezierSpline;
 use beach::environment::{GroundPlugin, SkyPlugin, SunPlugin};
 use beach::infrastructure::ways::SurfaceType::{Carriageway, Footway};
 use beach::infrastructure::ways::{Way, WayMaterials, WaySurface, WaysPlugin};

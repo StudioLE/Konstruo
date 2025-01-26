@@ -1,6 +1,6 @@
-use crate::core::beziers::from_kurbo::vec3_from_kurbo;
-use crate::core::beziers::internal_kurbo::bezpath_to_cubics;
-use crate::core::beziers::CubicBezier;
+use crate::beziers::from_kurbo::vec3_from_kurbo;
+use crate::beziers::internal_kurbo::bezpath_to_cubics;
+use crate::beziers::CubicBezier;
 use bevy::prelude::*;
 use kurbo::offset::CubicOffset;
 use kurbo::{fit_to_bezpath, flatten, stroke, Cap, CubicBez, Join, PathEl, Stroke, StrokeOpts};

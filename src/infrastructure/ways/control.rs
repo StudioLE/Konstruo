@@ -1,4 +1,4 @@
-use crate::core::mathematics::constants::QUARTER_PI;
+use crate::mathematics::QUARTER_PI;
 use crate::infrastructure::ways::materials::WayMaterials;
 use crate::infrastructure::ways::meshes::WayMeshes;
 use crate::infrastructure::ways::{Way, WayControlLine, WaySurface};

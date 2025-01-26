@@ -1,6 +1,6 @@
-use crate::core::constraints::clamp_float::ClampFloat;
-use crate::core::constraints::clamp_vec3::ClampVec3;
-use crate::core::geometry::vectors::{is_almost_equal_to, is_almost_zero};
+use crate::constraints::clamp_float::ClampFloat;
+use crate::constraints::clamp_vec3::ClampVec3;
+use crate::geometry::vectors::{is_almost_equal_to, is_almost_zero};
 use bevy::prelude::*;
 
 /// A system to move the current translation to a target.

@@ -1,4 +1,4 @@
-use crate::core::geometry::meshes::create_linestrip;
+use crate::geometry::meshes::create_linestrip;
 use crate::infrastructure::ways::{Way, WayMaterials};
 use bevy::prelude::*;
 

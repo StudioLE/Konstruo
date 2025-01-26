@@ -1,4 +1,4 @@
-use crate::core::geometry::meshes::{
+use crate::geometry::meshes::{
     create_triangle_list, create_triangular_prism,
 };
 use bevy::prelude::*;

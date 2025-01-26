@@ -1,5 +1,5 @@
-use crate::core::mathematics::constants::HALF_PI;
-use crate::core::mathematics::floats::fix_floating;
+use crate::mathematics::HALF_PI;
+use crate::mathematics::floats::fix_floating;
 use bevy::prelude::*;
 
 pub const RADIAL_AXIS: Vec3 = Vec3::new(1.0, 0.0, 0.0);
@@ -46,7 +46,7 @@ pub fn get_cartesian_rotation(polar: f32, azimuth: f32) -> Vec3 {
 #[allow(non_snake_case)]
 mod tests {
     use super::*;
-    use crate::core::mathematics::constants::*;
+    use crate::mathematics::constants::*;
 
     #[test]
     fn _spherical_to_cartesian__polar() {

@@ -1,4 +1,4 @@
-use crate::core::mathematics::floats::fix_floating;
+use crate::mathematics::floats::fix_floating;
 use bevy::prelude::*;
 
 #[must_use]

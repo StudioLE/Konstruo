@@ -1,6 +1,6 @@
-use crate::core::beziers::CubicBezierSpline;
-use crate::core::geometry::triangles::add_vertices_by_spliting_longest_edge;
-use crate::core::geometry::TriangleStip;
+use crate::beziers::CubicBezierSpline;
+use crate::geometry::triangles::add_vertices_by_spliting_longest_edge;
+use crate::geometry::TriangleStip;
 use crate::infrastructure::ways::way::Way;
 use crate::infrastructure::ways::{WayMaterials, FLATTEN_TOLERANCE, OFFSET_ACCURACY};
 use bevy::prelude::*;

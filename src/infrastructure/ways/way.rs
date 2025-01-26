@@ -1,6 +1,6 @@
-use crate::core::beziers::CubicBezierSpline;
-use crate::core::geometry::meshes::create_linestrip;
-use crate::core::mathematics::constants::QUARTER_PI;
+use crate::beziers::CubicBezierSpline;
+use crate::geometry::meshes::create_linestrip;
+use crate::mathematics::QUARTER_PI;
 use crate::infrastructure::ways::{
     WayControl, WayControlLine, WayMaterials, WayMeshes, WaySurface,
 };

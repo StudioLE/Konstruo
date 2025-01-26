@@ -1,4 +1,4 @@
-use crate::core::constraints::clamp_float::ClampFloat;
+use crate::constraints::clamp_float::ClampFloat;
 use bevy::prelude::*;
 
 pub struct ClampVec3 {

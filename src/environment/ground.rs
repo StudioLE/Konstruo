@@ -1,4 +1,4 @@
-use crate::core::{ENVIRONMENT_MAX, GROUND_HEIGHT};
+use crate::{ENVIRONMENT_MAX, GROUND_HEIGHT};
 use bevy::asset::Assets;
 use bevy::color::palettes::*;
 use bevy::prelude::*;

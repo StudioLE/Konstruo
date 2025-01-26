@@ -1,4 +1,4 @@
-use crate::core::{GRID_HEIGHT, GRID_MAX};
+use crate::{GRID_HEIGHT, GRID_MAX};
 use crate::ui::grid::GridMaterials;
 use bevy::math::vec3;
 use bevy::prelude::*;
