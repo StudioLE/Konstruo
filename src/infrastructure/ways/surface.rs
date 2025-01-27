@@ -1,6 +1,6 @@
 use super::*;
 use crate::beziers::CubicBezierSpline;
-use crate::geometry::TriangleList;
+use crate::geometry::{Polyline, TriangleList};
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
 use SurfaceType::*;
@@ -81,63 +81,65 @@ impl WaySurface {
     }
 
     /// Get the polylines of each edge.
-    ///
-    /// The polylines will have the same number of vertices.
-    fn get_polylines(&self, way: &Way) -> [Vec<Vec3>; 2] {
+    fn get_polylines(&self, way: &Way) -> [Polyline; 2] {
         let splines = self.get_splines(way);
         [
-            splines[0].flatten(FLATTEN_TOLERANCE),
-            splines[1].flatten(FLATTEN_TOLERANCE),
+            splines[0].flatten(FLATTEN_TOLERANCE).into(),
+            splines[1].flatten(FLATTEN_TOLERANCE).into(),
         ]
     }
 
     /// Get the [`Mesh`].
     fn get_mesh(&self, way: &Way) -> Mesh {
-        let bottom = self.get_polylines(way);
-        let top: [Vec<Vec3>; 2] = [
-            bottom[0]
-                .iter()
-                .map(|vertex| vertex.with_z(vertex.z + self.depth))
-                .collect(),
-            bottom[1]
-                .iter()
-                .map(|vertex| vertex.with_z(vertex.z + self.depth))
-                .collect(),
+        let [bottom_0, bottom_1] = self.get_polylines(way).map(Polyline::to_vertices);
+        let top_0: Vec<Vec3> = bottom_0
+            .iter()
+            .map(|vertex| vertex.with_z(vertex.z + self.depth))
+            .collect();
+        let top_1: Vec<Vec3> = bottom_1
+            .iter()
+            .map(|vertex| vertex.with_z(vertex.z + self.depth))
+            .collect();
+        let start_top = vec![
+            *top_0.first().expect("first should exist"),
+            *top_1.first().expect("first should exist"),
         ];
-        let ends: [[Vec<Vec3>; 2]; 2] = [
-            [
-                vec![
-                    *top[0].first().expect("first should exist"),
-                    *top[1].first().expect("first should exist"),
-                ],
-                vec![
-                    *bottom[0].first().expect("first should exist"),
-                    *bottom[1].first().expect("first should exist"),
-                ],
-            ],
-            [
-                vec![
-                    *top[0].last().expect("last should exist"),
-                    *top[1].last().expect("last should exist"),
-                ],
-                vec![
-                    *bottom[0].last().expect("first should exist"),
-                    *bottom[1].last().expect("last should exist"),
-                ],
-            ],
+
+        let start_bottom = vec![
+            *bottom_0.first().expect("first should exist"),
+            *bottom_1.first().expect("first should exist"),
         ];
-        let mut triangles = TriangleList::between_polylines(&top);
-        triangles.merge(TriangleList::between_polylines(&bottom));
-        triangles.merge(TriangleList::between_polylines(&[
-            top[0].clone(),
-            bottom[0].clone(),
+        let end_top = vec![
+            *top_0.last().expect("last should exist"),
+            *top_1.last().expect("last should exist"),
+        ];
+        let end_bottom = vec![
+            *bottom_0.last().expect("first should exist"),
+            *bottom_1.last().expect("last should exist"),
+        ];
+
+        let mut triangles =
+            TriangleList::between_polylines([top_0.clone().into(), top_1.clone().into()]);
+        triangles.merge(TriangleList::between_polylines([
+            bottom_0.clone().into(),
+            bottom_1.clone().into(),
         ]));
-        triangles.merge(TriangleList::between_polylines(&[
-            top[1].clone(),
-            bottom[1].clone(),
+        triangles.merge(TriangleList::between_polylines([
+            top_0.into(),
+            bottom_0.into(),
         ]));
-        triangles.merge(TriangleList::between_polylines(&ends[0]));
-        triangles.merge(TriangleList::between_polylines(&ends[1]));
+        triangles.merge(TriangleList::between_polylines([
+            top_1.into(),
+            bottom_1.into(),
+        ]));
+        triangles.merge(TriangleList::between_polylines([
+            start_top.into(),
+            start_bottom.into(),
+        ]));
+        triangles.merge(TriangleList::between_polylines([
+            end_top.into(),
+            end_bottom.into(),
+        ]));
         triangles.to_mesh()
     }
 }
