@@ -1,5 +1,5 @@
-use crate::architecture::Pitch::FrontToBack;
 use crate::architecture::*;
+use crate::mathematics::HALF_PI;
 use bevy::prelude::*;
 use ModularBuildingFactoryError::*;
 
@@ -12,6 +12,7 @@ pub struct BuildingModuleStack {
     pub definition: BuildingModule,
     pub levels: usize,
     pub level_height: f32,
+    pub roof_style: Option<RoofStyle>,
 }
 
 #[derive(Debug)]
@@ -43,13 +44,19 @@ impl ModularBuildingFactory {
         );
         let parent = commands.spawn(bundle).id();
         for (index, stack) in stacks.iter().enumerate() {
-            for level in 0..=stack.levels {
-                let pitch = (level == stack.levels).then_some(FrontToBack);
+            let total = if stack.roof_style.is_some() {
+                stack.levels + 1
+            } else {
+                stack.levels
+            };
+            for level in 0..total {
+                let roof = (level == stack.levels)
+                    .then_some(stack.roof_style.clone().expect("should be set"));
                 let module = BuildingModule {
                     index,
                     level: level as isize,
                     height: stack.level_height,
-                    pitch,
+                    roof,
                     ..stack.definition
                 };
                 let translation = Vec3::new(
@@ -57,19 +64,26 @@ impl ModularBuildingFactory {
                     module.width * 0.5,
                     module.height * (level as f32 + 0.5),
                 );
-                let mesh = if module.pitch.is_some() {
+                let transform = match module.roof {
+                    Some(RoofStyle::PitchLeftToRight) => {
+                        Transform::from_translation(front_left + translation)
+                            .with_scale(Vec3::new(module.width, module.length, module.height))
+                            .with_rotation(Quat::from_rotation_z(HALF_PI))
+                    }
+                    _ => Transform::from_translation(front_left + translation)
+                        .with_scale(Vec3::new(module.length, module.width, module.height)),
+                };
+                let mesh = if module.roof.is_some() {
                     meshes.pitched_module.clone()
                 } else {
                     meshes.cuboid_module.clone()
                 };
-                let bundle =
-                    (
-                        Transform::from_translation(front_left + translation)
-                            .with_scale(Vec3::new(module.length, module.width, module.height)),
-                        Mesh3d(mesh),
-                        MeshMaterial3d(materials.module.clone()),
-                        module,
-                    );
+                let bundle = (
+                    transform,
+                    Mesh3d(mesh),
+                    MeshMaterial3d(materials.module.clone()),
+                    module,
+                );
                 commands.spawn(bundle).set_parent(parent);
             }
             front_left.y += stack.definition.width;

@@ -1,3 +1,4 @@
+use crate::architecture::RoofStyle;
 use bevy::prelude::*;
 
 #[derive(Debug, Default, Clone, Component)]
@@ -20,12 +21,6 @@ pub struct BuildingModule {
     pub front_offset: f32,
     /// Offset at Back
     pub back_offset: f32,
-    /// Is this a pitched module?
-    pub pitch: Option<Pitch>,
-}
-
-#[derive(Debug, Clone)]
-pub enum Pitch {
-    FrontToBack,
-    LeftToRight,
+    /// Is this a roof module?
+    pub roof: Option<RoofStyle>,
 }

@@ -90,6 +90,7 @@ fn spawn_buildings(
             },
             levels: 2,
             level_height: 2.4,
+            roof_style: Some(RoofStyle::PitchFrontToBack),
         },
         BuildingModuleStack {
             definition: BuildingModule {
@@ -101,6 +102,7 @@ fn spawn_buildings(
             },
             levels: 1,
             level_height: 2.4,
+            roof_style: Some(RoofStyle::PitchLeftToRight),
         },
     ];
 
