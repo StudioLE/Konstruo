@@ -1,5 +1,6 @@
 pub use line_list::*;
 pub use orientation::*;
+pub use polygon::*;
 pub use polyline::*;
 pub use triangle::*;
 pub use triangle_list::*;
@@ -7,7 +8,7 @@ pub use triangle_strip::*;
 pub use triangular_prism::*;
 mod line_list;
 mod orientation;
-pub mod polygons;
+mod polygon;
 mod polyline;
 pub mod primitives;
 mod triangle;
