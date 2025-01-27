@@ -1,3 +1,4 @@
+use crate::geometry::Triangle;
 use bevy::prelude::*;
 
 /// A closed polygon where all vertices are on the same plane.
@@ -12,6 +13,12 @@ pub struct Polygon {
 impl From<Vec<Vec3>> for Polygon {
     fn from(vertices: Vec<Vec3>) -> Self {
         Self { vertices }
+    }
+}
+
+impl From<Triangle> for Polygon {
+    fn from(triangle: Triangle) -> Polygon {
+        Polygon::new(triangle.to_vertices())
     }
 }
 
@@ -78,31 +85,17 @@ impl Polygon {
     ///
     /// If the vertices are in clockwise order the area will be negative.
     ///
-    /// <https://stackoverflow.com/a/18472899/247218>
+    /// This assumes the vertices are on the same plane and that the polygon is closed
+    /// so the first and last vertices must be the same.
+    ///
     #[must_use]
     #[allow(clippy::indexing_slicing)]
-    pub(super) fn get_area_signed(&self) -> f32 {
-        let count = self.vertices.len();
-        let mut sum = 0.0;
-        let mut previous = self.vertices[count - 1];
-        for current in &self.vertices {
-            sum += (current.x - previous.x) * (current.z + previous.z);
-            previous = *current;
-        }
-        sum / 2.0
-    }
-
-    /// Calculate the area of a polygon.
-    ///
-    /// The winding order of the vertices does not matter.
-    #[must_use]
     pub fn get_area(&self) -> f32 {
-        self.get_area_signed().abs()
-    }
-
-    /// Check if the vertices of a polygon are in counter-clockwise order.
-    #[must_use]
-    pub fn is_ccw(&self) -> bool {
-        self.get_area_signed() > 0.0
+        self.vertices
+            .windows(2)
+            .map(|pair| pair[0].cross(pair[1]))
+            .fold(Vec3::ZERO, |sum, cross| sum + cross)
+            .length()
+            / 2.0
     }
 }
