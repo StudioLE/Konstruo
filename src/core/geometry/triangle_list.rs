@@ -1,4 +1,4 @@
-use crate::geometry::{Polyline, TriangleStrip};
+use crate::geometry::{Polyline, Triangle, TriangleStrip};
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
@@ -7,13 +7,19 @@ use bevy::render::render_asset::RenderAssetUsages;
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct TriangleList {
     /// Vertices
-    triangles: Vec<[Vec3; 3]>,
+    triangles: Vec<Triangle>,
+}
+
+impl From<Vec<Triangle>> for TriangleList {
+    fn from(triangles: Vec<Triangle>) -> Self {
+        Self { triangles }
+    }
 }
 
 impl TriangleList {
     /// Create a [`TriangleList`].
     #[must_use]
-    pub fn new(triangles: impl Into<Vec<[Vec3; 3]>>) -> Self {
+    pub fn new(triangles: impl Into<Vec<Triangle>>) -> Self {
         Self {
             triangles: triangles.into(),
         }
@@ -35,7 +41,12 @@ impl TriangleList {
         let triangles = vertices[0]
             .windows(2)
             .zip(vertices[1].windows(2))
-            .flat_map(|(a, b)| [[a[0], b[0], a[1]], [a[1], b[0], b[1]]])
+            .flat_map(|(a, b)| {
+                [
+                    Triangle::new([a[0], b[0], a[1]]),
+                    Triangle::new([a[1], b[0], b[1]]),
+                ]
+            })
             .collect();
         Self { triangles }
     }
@@ -114,10 +125,14 @@ impl TriangleList {
         let normals: Vec<Vec3> = self
             .triangles
             .iter()
-            .map(calculate_normal)
+            .map(Triangle::get_normal)
             .flat_map(|x| [x, x, x])
             .collect();
-        let vertices = self.triangles.into_flattened();
+        let vertices: Vec<Vec3> = self
+            .triangles
+            .into_iter()
+            .flat_map(Triangle::to_vertices)
+            .collect();
         Mesh::new(
             PrimitiveTopology::TriangleList,
             RenderAssetUsages::RENDER_WORLD,
@@ -125,11 +140,4 @@ impl TriangleList {
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
         .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
     }
-}
-
-pub(super) fn calculate_normal(vertices: &[Vec3; 3]) -> Vec3 {
-    let u = vertices[1] - vertices[0];
-    let v = vertices[2] - vertices[0];
-    let normal = u.cross(v);
-    normal.normalize()
 }

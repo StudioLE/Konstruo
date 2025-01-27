@@ -1,5 +1,4 @@
-use crate::geometry::triangle_list::calculate_normal;
-use crate::geometry::Polyline;
+use crate::geometry::{Polyline, Triangle};
 use bevy::asset::RenderAssetUsages;
 use bevy::math::Vec3;
 use bevy::prelude::Mesh;
@@ -39,7 +38,7 @@ impl TriangleStrip {
     pub fn to_mesh(self) -> Mesh {
         let vertices = self.pairs.into_flattened();
         let normal = if vertices.len() >= 3 {
-            calculate_normal(&[vertices[0], vertices[1], vertices[2]])
+            Triangle::new([vertices[0], vertices[1], vertices[2]]).get_normal()
         } else {
             Vec3::Z
         };

@@ -35,14 +35,14 @@ impl TriangularPrism {
         let back_bottom = [self.back_right, self.front_right, self.back_left];
         let front_bottom = [self.back_left, self.front_right, self.front_left];
         TriangleList::new([
-            front,
-            back,
-            left_bottom,
-            left_top,
-            right_bottom,
-            right_top,
-            front_bottom,
-            back_bottom,
+            front.into(),
+            back.into(),
+            left_bottom.into(),
+            left_top.into(),
+            right_bottom.into(),
+            right_top.into(),
+            front_bottom.into(),
+            back_bottom.into(),
         ])
     }
 }
