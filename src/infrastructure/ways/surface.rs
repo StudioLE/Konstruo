@@ -91,55 +91,7 @@ impl WaySurface {
 
     /// Get the [`Mesh`].
     fn get_mesh(&self, way: &Way) -> Mesh {
-        let [bottom_0, bottom_1] = self.get_polylines(way).map(Polyline::to_vertices);
-        let top_0: Vec<Vec3> = bottom_0
-            .iter()
-            .map(|vertex| vertex.with_z(vertex.z + self.depth))
-            .collect();
-        let top_1: Vec<Vec3> = bottom_1
-            .iter()
-            .map(|vertex| vertex.with_z(vertex.z + self.depth))
-            .collect();
-        let start_top = vec![
-            *top_0.first().expect("first should exist"),
-            *top_1.first().expect("first should exist"),
-        ];
-
-        let start_bottom = vec![
-            *bottom_0.first().expect("first should exist"),
-            *bottom_1.first().expect("first should exist"),
-        ];
-        let end_top = vec![
-            *top_0.last().expect("last should exist"),
-            *top_1.last().expect("last should exist"),
-        ];
-        let end_bottom = vec![
-            *bottom_0.last().expect("first should exist"),
-            *bottom_1.last().expect("last should exist"),
-        ];
-
-        let mut triangles =
-            TriangleList::between_polylines([top_0.clone().into(), top_1.clone().into()]);
-        triangles.merge(TriangleList::between_polylines([
-            bottom_0.clone().into(),
-            bottom_1.clone().into(),
-        ]));
-        triangles.merge(TriangleList::between_polylines([
-            top_0.into(),
-            bottom_0.into(),
-        ]));
-        triangles.merge(TriangleList::between_polylines([
-            top_1.into(),
-            bottom_1.into(),
-        ]));
-        triangles.merge(TriangleList::between_polylines([
-            start_top.into(),
-            start_bottom.into(),
-        ]));
-        triangles.merge(TriangleList::between_polylines([
-            end_top.into(),
-            end_bottom.into(),
-        ]));
-        triangles.to_mesh()
+        let polylines = self.get_polylines(way);
+        TriangleList::between_polylines_3d(polylines, self.depth).to_mesh()
     }
 }
