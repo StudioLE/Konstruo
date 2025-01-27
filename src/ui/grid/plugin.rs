@@ -1,5 +1,4 @@
 use super::*;
-use crate::ui::*;
 use bevy::prelude::*;
 
 /// Plugin to display a geometric grid.

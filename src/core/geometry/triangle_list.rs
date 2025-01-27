@@ -1,4 +1,4 @@
-use crate::geometry::{Polygon, Polyline, Triangle};
+use crate::geometry::{Polyline, Triangle};
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;

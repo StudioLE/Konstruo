@@ -95,8 +95,8 @@ fn create_building(
     }
     let width = stacks
         .iter()
-        .fold(0.0, |mut width, stack| width + stack.definition.width);
-    let mut heights: Vec<f32> = stacks
+        .fold(0.0, |width, stack| width + stack.definition.width);
+    let heights: Vec<f32> = stacks
         .iter()
         .map(|stack| stack.level_height * stack.levels as f32)
         .collect();
