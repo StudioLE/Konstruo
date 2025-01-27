@@ -30,6 +30,11 @@ impl WaySurface {
     /// Create a new [`WaySurface`] offset from [`Way`].
     #[must_use]
     pub fn new(depth: f32, offsets: [f32; 2], purpose: SurfaceType) -> Self {
+        let offsets = if offsets[0] <= offsets[1] {
+            offsets
+        } else {
+            [offsets[1], offsets[0]]
+        };
         Self {
             depth,
             offsets,

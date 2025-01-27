@@ -1,4 +1,4 @@
-use crate::geometry::Polyline;
+use crate::geometry::Polygon;
 use bevy::math::Vec3;
 
 /// A [`Triangle`].

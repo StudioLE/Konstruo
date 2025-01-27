@@ -1,4 +1,4 @@
-use crate::geometry::{Polyline, Triangle, TriangleStrip};
+use crate::geometry::{Polygon, Polyline, Triangle};
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
 use bevy::render::render_asset::RenderAssetUsages;
@@ -43,8 +43,8 @@ impl TriangleList {
             .zip(vertices[1].windows(2))
             .flat_map(|(a, b)| {
                 [
-                    Triangle::new([a[0], b[0], a[1]]),
-                    Triangle::new([a[1], b[0], b[1]]),
+                    Triangle::new([a[0], a[1], b[0]]),
+                    Triangle::new([a[1], b[1], b[0]]),
                 ]
             })
             .collect();
@@ -91,12 +91,12 @@ impl TriangleList {
         let mut triangles =
             TriangleList::between_polylines([top_0.clone().into(), top_1.clone().into()]);
         triangles.merge(TriangleList::between_polylines([
-            bottom_0.clone().into(),
             bottom_1.clone().into(),
+            bottom_0.clone().into(),
         ]));
         triangles.merge(TriangleList::between_polylines([
-            top_0.into(),
             bottom_0.into(),
+            top_0.into(),
         ]));
         triangles.merge(TriangleList::between_polylines([
             top_1.into(),
@@ -107,8 +107,8 @@ impl TriangleList {
             start_bottom.into(),
         ]));
         triangles.merge(TriangleList::between_polylines([
-            end_top.into(),
             end_bottom.into(),
+            end_top.into(),
         ]));
         triangles
     }

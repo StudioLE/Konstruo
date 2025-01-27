@@ -66,8 +66,6 @@ impl WayMaterials {
                 base_color: tailwind::STONE_400.into(),
                 perceptual_roughness: 1.0,
                 depth_bias: -1.0,
-                double_sided: true,
-                cull_mode: None,
                 ..Default::default()
             }),
             footway: materials.add(StandardMaterial {
@@ -75,16 +73,12 @@ impl WayMaterials {
                 base_color: tailwind::STONE_300.into(),
                 perceptual_roughness: 1.0,
                 depth_bias: -1.0,
-                double_sided: true,
-                cull_mode: None,
                 ..Default::default()
             }),
             verge: materials.add(StandardMaterial {
                 base_color: tailwind::LIME_900.into(),
                 perceptual_roughness: 1.0,
                 depth_bias: -1.0,
-                double_sided: true,
-                cull_mode: None,
                 ..Default::default()
             }),
         });
