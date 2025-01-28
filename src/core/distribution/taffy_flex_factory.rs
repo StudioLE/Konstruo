@@ -15,6 +15,7 @@ pub(super) struct TaffyFlexFactory {
     pub(super) justify_content: JustifyContent,
     pub(super) align_content: AlignContent,
     pub(super) align_items: AlignItems,
+    pub(super) bounds: Option<Vec3>,
 }
 
 impl TaffyFlexFactory {
@@ -25,6 +26,7 @@ impl TaffyFlexFactory {
             item.size += self.from_size(layout.size);
             item.translation += self.get_translation(&layout, container_size);
         }
+        container.size += container_size;
     }
 
     fn layout_with_taffy(&self, container: &Container) -> (Layout, Vec<Layout>) {
@@ -38,7 +40,7 @@ impl TaffyFlexFactory {
             })
             .collect();
         let root_node = tree
-            .new_with_children(self.get_parent_style(container), &item_nodes)
+            .new_with_children(self.get_parent_style(), &item_nodes)
             .expect("taffy new_with_children should not fail");
         tree.compute_layout(root_node, Size::MAX_CONTENT)
             .expect("taffy compute_layout should not fail");
@@ -60,14 +62,13 @@ impl TaffyFlexFactory {
         }
     }
 
-    fn get_parent_style(&self, container: &Container) -> Style {
-        let size = if container.size == Vec3::ZERO {
-            Size {
+    fn get_parent_style(&self) -> Style {
+        let size = match self.bounds {
+            None => Size {
                 width: auto(),
                 height: auto(),
-            }
-        } else {
-            self.to_size(&container.size)
+            },
+            Some(bounds) => self.to_size(&bounds)
         };
         Style {
             display: taffy::Display::Flex,
@@ -83,8 +84,7 @@ impl TaffyFlexFactory {
     /// Get the translation to the center of the item
     fn get_translation(&self, layout: &Layout, container_size: Vec3) -> Vec3 {
         let translation = self.from_point(layout.location) + self.from_size(layout.size) * 0.5;
-        // TODO: Multiply container_size by main and cross so that normal is ignored
-        translation - container_size * 0.5
+        translation - container_size * 0.5 * (self.main_axis + self.cross_axis)
     }
 
     /// Convert from a taffy [`Point`] to a [`Vec3`].

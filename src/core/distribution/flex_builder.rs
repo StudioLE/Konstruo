@@ -27,14 +27,14 @@ impl FlexBuilder {
     }
 
     #[must_use]
-    pub fn with_container(mut self, container: Vec3) -> Self {
-        self.factory.container = Some(container);
+    pub fn with_bounds(mut self, bounds: Vec3) -> Self {
+        self.factory.bounds = Some(bounds);
         self
     }
 
     #[must_use]
-    pub fn without_container(mut self) -> Self {
-        self.factory.container = None;
+    pub fn without_bounds(mut self) -> Self {
+        self.factory.bounds = None;
         self
     }
 
@@ -51,8 +51,14 @@ impl FlexBuilder {
     }
 
     #[must_use]
-    pub fn with_align_items(mut self, align_items: AlignItems) -> Self {
-        self.factory.align_items = align_items;
+    pub fn with_align_items_cross(mut self, align_items: AlignItems) -> Self {
+        self.factory.align_items_cross = align_items;
+        self
+    }
+
+    #[must_use]
+    pub fn with_align_items_normal(mut self, align_items: AlignItems) -> Self {
+        self.factory.align_items_normal = align_items;
         self
     }
 

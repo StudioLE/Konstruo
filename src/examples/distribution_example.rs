@@ -3,7 +3,7 @@ use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 use Pattern::*;
 
-const PATTERN: Pattern = Wrapped;
+const PATTERN: Pattern = Stacked;
 
 #[allow(dead_code)]
 enum Pattern {
@@ -34,34 +34,40 @@ fn startup_system(
     let builder = match PATTERN {
         Wrapped => FlexBuilder::new()
             .with_axis(Vec3::X, Vec3::Y)
-            .with_container(Vec3::new(10.0, 20.0, 30.0))
+            .with_bounds(Vec3::new(10.0, 20.0, 30.0))
             .with_flex_wrap(FlexWrap::Wrap)
             .with_justify_content(JustifyContent::SpaceAround)
             .with_align_content(AlignContent::SpaceEvenly)
-            .with_align_items(AlignItems::Center),
-        Stacked => FlexBuilder::new().with_axis(Vec3::Z, Vec3::X),
+            .with_align_items_cross(AlignItems::Center)
+            .with_align_items_normal(AlignItems::Start),
+        Stacked => FlexBuilder::new()
+            .with_axis(Vec3::Z, Vec3::X)
+            .with_align_items_cross(AlignItems::Center)
+            .with_align_items_normal(AlignItems::Center),
     };
-    let layout = builder.with_items(sizes).execute();
+    let container = builder.with_items(sizes).execute();
     let bundle = (
-        Mesh3d(meshes.add(Cuboid::from_size(layout.size.with_z(0.1)))),
-        Transform::from_translation(Vec3::ZERO),
+        Mesh3d(meshes.add(Cuboid::from_size(container.size))),
+        Transform::from_translation(Vec3::new(0.0, 0.0, container.size.z * 0.5)),
         MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: tailwind::BLUE_400.with_alpha(0.1).into(),
+            base_color: tailwind::SKY_300.with_alpha(0.05).into(),
             perceptual_roughness: 1.0,
             alpha_mode: AlphaMode::Blend,
+            unlit: true,
             ..default()
         })),
     );
     let parent = commands.spawn(bundle).id();
-    for item in layout.items {
+    for item in container.items {
         let size = item.original_size;
         let bundle = (
             Mesh3d(meshes.add(Cuboid::from_size(size))),
             Transform::from_translation(item.translation),
             MeshMaterial3d(materials.add(StandardMaterial {
-                base_color: tailwind::RED_400.with_alpha(0.5).into(),
+                base_color: tailwind::RED_600.with_alpha(0.5).into(),
                 perceptual_roughness: 1.0,
                 alpha_mode: AlphaMode::Blend,
+                unlit: true,
                 ..default()
             })),
         );
