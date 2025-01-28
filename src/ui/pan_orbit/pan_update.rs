@@ -23,7 +23,7 @@ impl Pan {
         orbit: Query<&Orbit, Changed<Orbit>>,
     ) {
         let Ok(orbit) = orbit.get_single() else {
-            warn!("Failed to get Orbit");
+            // warn!("Failed to get Orbit");
             return;
         };
         for mut pan in &mut query {
