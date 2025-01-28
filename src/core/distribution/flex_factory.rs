@@ -1,15 +1,16 @@
 use super::Container;
 use super::*;
 use bevy::prelude::*;
-use bevy::prelude::{AlignContent, AlignItems, JustifyContent};
-use taffy::prelude::*;
+use taffy::prelude::{auto, length, Layout, NodeId, Size, Style, TaffyMaxContent, TaffyTree};
 
 pub struct FlexFactory {
     pub(super) main_axis: Vec3,
     pub(super) cross_axis: Vec3,
+    pub(super) flex_wrap: FlexWrap,
     pub(super) justify_content: JustifyContent,
     pub(super) align_content: AlignContent,
     pub(super) align_items: AlignItems,
+    pub(super) container: Option<Vec3>,
     pub(super) items: Vec<Box<dyn Distributable>>,
 }
 
@@ -18,10 +19,12 @@ impl Default for FlexFactory {
         FlexFactory {
             main_axis: Vec3::X,
             cross_axis: Vec3::Y,
-            items: Vec::new(),
+            flex_wrap: FlexWrap::NoWrap,
             justify_content: JustifyContent::FlexStart,
             align_content: AlignContent::FlexStart,
             align_items: AlignItems::FlexStart,
+            container: None,
+            items: Vec::new(),
         }
     }
 }
@@ -110,11 +113,27 @@ impl FlexFactory {
     }
 
     fn get_parent_style(&self) -> Style {
+        let size = match self.container {
+            None => Size {
+                width: auto(),
+                height: auto(),
+            },
+            Some(container) => {
+                let main_size = (container * self.main_axis).length();
+                let cross_size = (container * self.cross_axis).length();
+                Size {
+                    width: length(main_size),
+                    height: length(cross_size),
+                }
+            }
+        };
         Style {
             display: taffy::Display::Flex,
+            size,
             justify_content: Some(justify_content_to_taffy(self.justify_content)),
             align_content: Some(align_content_to_taffy(self.align_content)),
             align_items: Some(align_items_to_taffy(self.align_items)),
+            flex_wrap: flex_wrap_to_taffy(self.flex_wrap),
             ..Default::default()
         }
     }
@@ -166,5 +185,13 @@ fn align_items_to_taffy(align_items: AlignItems) -> taffy::AlignItems {
         AlignItems::Center => taffy::AlignItems::Center,
         AlignItems::Stretch => taffy::AlignItems::Stretch,
         AlignItems::Baseline => taffy::AlignItems::Baseline,
+    }
+}
+
+fn flex_wrap_to_taffy(flex_wrap: FlexWrap) -> taffy::FlexWrap {
+    match flex_wrap {
+        FlexWrap::NoWrap => taffy::FlexWrap::NoWrap,
+        FlexWrap::Wrap => taffy::FlexWrap::Wrap,
+        FlexWrap::WrapReverse => taffy::FlexWrap::WrapReverse,
     }
 }

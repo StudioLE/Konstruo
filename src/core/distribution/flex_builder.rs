@@ -1,8 +1,6 @@
 use super::*;
 use crate::architecture::BuildingModule;
-use crate::distribution::distributable::Distributable;
 use bevy::prelude::*;
-use bevy::text::cosmic_text::Align;
 
 pub struct FlexBuilder {
     factory: FlexFactory,
@@ -20,6 +18,24 @@ impl FlexBuilder {
     pub fn with_axis(mut self, main_axis: Vec3, cross_axis: Vec3) -> Self {
         self.factory.main_axis = main_axis;
         self.factory.cross_axis = cross_axis;
+        self
+    }
+
+    #[must_use]
+    pub fn with_flex_wrap(mut self, flex_wrap: FlexWrap) -> Self {
+        self.factory.flex_wrap = flex_wrap;
+        self
+    }
+
+    #[must_use]
+    pub fn with_container(mut self, container: Vec3) -> Self {
+        self.factory.container = Some(container);
+        self
+    }
+
+    #[must_use]
+    pub fn without_container(mut self) -> Self {
+        self.factory.container = None;
         self
     }
 
