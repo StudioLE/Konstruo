@@ -1,4 +1,3 @@
-use super::Container;
 use super::*;
 use bevy::prelude::*;
 use taffy::prelude::{
@@ -17,7 +16,7 @@ pub struct FlexFactory {
     pub(super) align_content: AlignContent,
     pub(super) align_items: AlignItems,
     pub(super) container: Option<Vec3>,
-    pub(super) items: Vec<Box<dyn Distributable>>,
+    pub(super) items: Vec<Vec3>,
 }
 
 impl Default for FlexFactory {
@@ -40,24 +39,13 @@ impl FlexFactory {
     pub fn execute(self) -> Container {
         let (root_layout, item_layouts) = self.layout_with_taffy();
         let container_size = self.from_size(root_layout.size);
-        let items: Vec<DistributedItem> = item_layouts
+        let items: Vec<Item> = item_layouts
             .iter()
-            .map(|layout| {
-                let size = self.from_size(layout.size);
-                let translation = self.get_translation(layout, container_size);
-                DistributedItem {
-                    item: Box::new(Placeholder),
-                    size,
-                    translation,
-                }
-            })
-            .collect();
-        let items = items
-            .into_iter()
-            .zip(self.items)
-            .map(|(mut distributed, boxed)| {
-                distributed.item = boxed;
-                distributed
+            .zip(&self.items)
+            .map(|(layout, &original_size)| Item {
+                original_size,
+                size: self.from_size(layout.size),
+                translation: self.get_translation(layout, container_size),
             })
             .collect();
         Container {
@@ -90,9 +78,9 @@ impl FlexFactory {
     }
 
     #[allow(clippy::borrowed_box)]
-    fn get_item_style(&self, item: &Box<dyn Distributable>) -> Style {
+    fn get_item_style(&self, item: &Vec3) -> Style {
         Style {
-            size: self.to_size(item.get_size()),
+            size: self.to_size(item),
             flex_grow: 0.0,
             flex_shrink: 0.0,
             ..default()
@@ -105,7 +93,7 @@ impl FlexFactory {
                 width: auto(),
                 height: auto(),
             },
-            Some(container) => self.to_size(container),
+            Some(container) => self.to_size(&container),
         };
         Style {
             display: taffy::Display::Flex,
@@ -147,22 +135,13 @@ impl FlexFactory {
     /// Convert from a [`Vec3`] to a taffy [`Size`].
     ///
     /// Values are mapped from the main and cross axis and divided by the [`PRECISION`].
-    fn to_size(&self, vector: Vec3) -> Size<Dimension> {
+    fn to_size(&self, vector: &Vec3) -> Size<Dimension> {
         let main_size = (vector * self.main_axis).length() / PRECISION;
         let cross_size = (vector * self.cross_axis).length() / PRECISION;
         Size {
             width: length(main_size),
             height: length(cross_size),
         }
-    }
-}
-
-struct Placeholder;
-
-impl Distributable for Placeholder {
-    #[allow(clippy::panic)]
-    fn get_size(&self) -> Vec3 {
-        panic!("Tried to get size of a placeholder");
     }
 }
 

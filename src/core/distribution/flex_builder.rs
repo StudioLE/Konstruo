@@ -1,5 +1,4 @@
 use super::*;
-use crate::architecture::BuildingModule;
 use bevy::prelude::*;
 
 pub struct FlexBuilder {
@@ -58,17 +57,16 @@ impl FlexBuilder {
     }
 
     #[must_use]
-    pub fn with_items<T: Distributable + 'static>(mut self, items: Vec<T>) -> Self {
-        for item in items {
-            self.factory.items.push(Box::new(item));
+    pub fn with_items(mut self, sizes: Vec<Vec3>) -> Self {
+        for item in sizes {
+            self.factory.items.push(item);
         }
         self
     }
 
     #[must_use]
-    pub fn with_item<T: Distributable + 'static>(mut self, item: T) -> Self {
-        // TODO: Instead of using a FlexItem pass the transform  to be set automatically.
-        self.factory.items.push(Box::new(item));
+    pub fn with_item(mut self, size: Vec3) -> Self {
+        self.factory.items.push(size);
         self
     }
 
