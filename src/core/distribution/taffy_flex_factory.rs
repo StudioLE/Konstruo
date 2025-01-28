@@ -1,7 +1,7 @@
 use super::*;
 use bevy::prelude::*;
 use taffy::prelude::{
-    auto, length, Dimension, Layout, NodeId, Size, Style, TaffyMaxContent, TaffyTree,
+    auto, length, FromLength, Layout, NodeId, Rect, Size, Style, TaffyMaxContent, TaffyTree,
 };
 use taffy::Point;
 
@@ -35,7 +35,7 @@ impl TaffyFlexFactory {
             .items
             .iter()
             .map(|item| {
-                tree.new_leaf(self.get_item_style(&item.size))
+                tree.new_leaf(self.get_item_style(&item))
                     .expect("taffy new_leaf should not fail")
             })
             .collect();
@@ -53,9 +53,10 @@ impl TaffyFlexFactory {
     }
 
     #[allow(clippy::borrowed_box)]
-    fn get_item_style(&self, item: &Vec3) -> Style {
+    fn get_item_style(&self, item: &Item) -> Style {
         Style {
-            size: self.to_size(item),
+            size: self.to_size(&item.source.size),
+            margin: self.to_rect(&item.source.margin),
             flex_grow: 0.0,
             flex_shrink: 0.0,
             ..default()
@@ -68,7 +69,7 @@ impl TaffyFlexFactory {
                 width: auto(),
                 height: auto(),
             },
-            Some(bounds) => self.to_size(&bounds)
+            Some(bounds) => self.to_size(&bounds),
         };
         Style {
             display: taffy::Display::Flex,
@@ -110,12 +111,26 @@ impl TaffyFlexFactory {
     /// Convert from a [`Vec3`] to a taffy [`Size`].
     ///
     /// Values are mapped from the main and cross axis and divided by the [`PRECISION`].
-    fn to_size(&self, vector: &Vec3) -> Size<Dimension> {
+    fn to_size<T: FromLength>(&self, vector: &Vec3) -> Size<T> {
         let main_size = (vector * self.main_axis).length() / PRECISION;
         let cross_size = (vector * self.cross_axis).length() / PRECISION;
         Size {
             width: length(main_size),
             height: length(cross_size),
+        }
+    }
+
+    /// Convert from a [`Vec3`] to a taffy [`Size`].
+    ///
+    /// Values are mapped from the main and cross axis and divided by the [`PRECISION`].
+    fn to_rect<T: FromLength>(&self, vector: &Vec3) -> Rect<T> {
+        let main_size = (vector * self.main_axis).length() / PRECISION;
+        let cross_size = (vector * self.cross_axis).length() / PRECISION;
+        Rect {
+            left: length(main_size),
+            right: length(main_size),
+            top: length(cross_size),
+            bottom: length(cross_size),
         }
     }
 }

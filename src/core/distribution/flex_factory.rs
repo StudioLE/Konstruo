@@ -10,7 +10,7 @@ pub struct FlexFactory {
     pub(super) align_items_cross: AlignItems,
     pub(super) align_items_normal: AlignItems,
     pub(super) bounds: Option<Vec3>,
-    pub(super) items: Vec<Vec3>,
+    pub(super) items: Vec<SourceItem>,
 }
 
 impl Default for FlexFactory {
@@ -35,11 +35,7 @@ impl FlexFactory {
         let items = self
             .items
             .into_iter()
-            .map(|original_size| Item {
-                original_size,
-                size: original_size,
-                translation: Vec3::ZERO,
-            })
+            .map(Item::from)
             .collect();
         let mut container = Container {
             size: Vec3::ZERO,

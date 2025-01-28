@@ -63,7 +63,7 @@ impl FlexBuilder {
     }
 
     #[must_use]
-    pub fn with_items(mut self, sizes: Vec<Vec3>) -> Self {
+    pub fn with_items(mut self, sizes: Vec<SourceItem>) -> Self {
         for item in sizes {
             self.factory.items.push(item);
         }
@@ -71,8 +71,11 @@ impl FlexBuilder {
     }
 
     #[must_use]
-    pub fn with_item(mut self, size: Vec3) -> Self {
-        self.factory.items.push(size);
+    pub fn with_item(mut self, size: Vec3, margin: Vec3) -> Self {
+        self.factory.items.push(SourceItem {
+            size,
+            margin,
+        });
         self
     }
 
