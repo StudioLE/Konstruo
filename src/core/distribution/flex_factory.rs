@@ -9,6 +9,7 @@ pub struct FlexFactory {
     pub(super) align_content: AlignContent,
     pub(super) align_items_cross: AlignItems,
     pub(super) align_items_normal: AlignItems,
+    pub(super) gap: Vec3,
     pub(super) bounds: Option<Vec3>,
     pub(super) items: Vec<SourceItem>,
 }
@@ -23,6 +24,7 @@ impl Default for FlexFactory {
             align_content: AlignContent::FlexStart,
             align_items_cross: AlignItems::FlexStart,
             align_items_normal: AlignItems::FlexStart,
+            gap: Vec3::ZERO,
             bounds: None,
             items: Vec::new(),
         }
@@ -32,11 +34,7 @@ impl Default for FlexFactory {
 impl FlexFactory {
     #[must_use]
     pub fn execute(self) -> Container {
-        let items = self
-            .items
-            .into_iter()
-            .map(Item::from)
-            .collect();
+        let items = self.items.into_iter().map(Item::from).collect();
         let mut container = Container {
             size: Vec3::ZERO,
             items,
@@ -49,6 +47,7 @@ impl FlexFactory {
             justify_content: JustifyContent::Start,
             align_content: AlignContent::Start,
             align_items: self.align_items_normal,
+            gap: self.gap,
             bounds: None,
         };
         taffy.execute(&mut container);
@@ -59,6 +58,7 @@ impl FlexFactory {
             justify_content: self.justify_content,
             align_content: self.align_content,
             align_items: self.align_items_cross,
+            gap: self.gap,
             bounds: self.bounds,
         };
         taffy.execute(&mut container);

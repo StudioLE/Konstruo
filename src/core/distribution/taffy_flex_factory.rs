@@ -1,7 +1,7 @@
 use super::*;
 use bevy::prelude::*;
 use taffy::prelude::{
-    auto, length, FromLength, Layout, NodeId, Rect, Size, Style, TaffyMaxContent, TaffyTree,
+    length, FromLength, Layout, NodeId, Rect, Size, Style, TaffyMaxContent, TaffyTree,
 };
 use taffy::Point;
 
@@ -15,6 +15,7 @@ pub(super) struct TaffyFlexFactory {
     pub(super) justify_content: JustifyContent,
     pub(super) align_content: AlignContent,
     pub(super) align_items: AlignItems,
+    pub(super) gap: Vec3,
     pub(super) bounds: Option<Vec3>,
 }
 
@@ -35,7 +36,7 @@ impl TaffyFlexFactory {
             .items
             .iter()
             .map(|item| {
-                tree.new_leaf(self.get_item_style(&item))
+                tree.new_leaf(self.get_item_style(item))
                     .expect("taffy new_leaf should not fail")
             })
             .collect();
@@ -65,15 +66,13 @@ impl TaffyFlexFactory {
 
     fn get_parent_style(&self) -> Style {
         let size = match self.bounds {
-            None => Size {
-                width: auto(),
-                height: auto(),
-            },
+            None => Size::auto(),
             Some(bounds) => self.to_size(&bounds),
         };
         Style {
             display: taffy::Display::Flex,
             size,
+            gap: self.to_size(&self.gap),
             justify_content: Some(justify_content_to_taffy(self.justify_content)),
             align_content: Some(align_content_to_taffy(self.align_content)),
             align_items: Some(align_items_to_taffy(self.align_items)),

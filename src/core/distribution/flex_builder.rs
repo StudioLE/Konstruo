@@ -63,6 +63,12 @@ impl FlexBuilder {
     }
 
     #[must_use]
+    pub fn with_gap(mut self, gap: Vec3) -> Self {
+        self.factory.gap = gap;
+        self
+    }
+
+    #[must_use]
     pub fn with_items(mut self, sizes: Vec<SourceItem>) -> Self {
         for item in sizes {
             self.factory.items.push(item);
@@ -72,11 +78,13 @@ impl FlexBuilder {
 
     #[must_use]
     pub fn with_item(mut self, size: Vec3, margin: Vec3) -> Self {
-        self.factory.items.push(SourceItem {
-            size,
-            margin,
-        });
+        self.factory.items.push(SourceItem { size, margin });
         self
+    }
+
+    #[must_use]
+    pub fn build(self) -> FlexFactory {
+        self.factory
     }
 
     #[must_use]

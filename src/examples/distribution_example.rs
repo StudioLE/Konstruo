@@ -3,7 +3,7 @@ use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 use Pattern::*;
 
-const PATTERN: Pattern = Stacked;
+const PATTERN: Pattern = Wrapped;
 
 #[allow(dead_code)]
 enum Pattern {
@@ -59,11 +59,13 @@ fn startup_system(
             .with_justify_content(JustifyContent::SpaceAround)
             .with_align_content(AlignContent::SpaceEvenly)
             .with_align_items_cross(AlignItems::Center)
-            .with_align_items_normal(AlignItems::Start),
+            .with_align_items_normal(AlignItems::Start)
+            .with_gap(Vec3::new(0.5, 0.5, 3.0)),
         Stacked => FlexBuilder::new()
             .with_axis(Vec3::Z, Vec3::X)
             .with_align_items_cross(AlignItems::Center)
-            .with_align_items_normal(AlignItems::Center),
+            .with_align_items_normal(AlignItems::Center)
+            .with_gap(Vec3::new(1.5, 1.0, 0.5)),
     };
     let container = builder.with_items(sizes).execute();
     let bundle = (
