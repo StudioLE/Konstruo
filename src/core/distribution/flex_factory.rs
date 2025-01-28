@@ -29,46 +29,11 @@ impl Default for FlexFactory {
 impl FlexFactory {
     #[must_use]
     pub fn execute(self) -> Container {
-        let mut tree: TaffyTree<()> = TaffyTree::new();
-        let item_nodes: Vec<NodeId> = self
-            .items
+        let (root_layout, item_layouts) = self.layout_with_taffy();
+        let container_size = self.get_size(&root_layout);
+        let items: Vec<DistributedItem> = item_layouts
             .iter()
-            .map(|item| {
-                let main_size = (item.get_size() * self.main_axis).length();
-                let cross_size = (item.get_size() * self.cross_axis).length();
-                tree.new_leaf(Style {
-                    size: Size {
-                        // TODO: TAFFY LENGTHS ARE RETURNED ROUNDED
-                        width: length(main_size),
-                        height: length(cross_size),
-                    },
-                    flex_grow: 0.0,
-                    flex_shrink: 0.0,
-                    ..default()
-                })
-                .expect("taffy new_leaf should not fail")
-            })
-            .collect();
-        let root_node = tree
-            .new_with_children(
-                Style {
-                    display: taffy::Display::Flex,
-                    justify_content: Some(justify_content_to_taffy(self.justify_content)),
-                    align_content: Some(align_content_to_taffy(self.align_content)),
-                    align_items: Some(align_items_to_taffy(self.align_items)),
-                    ..Default::default()
-                },
-                &item_nodes,
-            )
-            .expect("taffy new_with_children should not fail");
-        tree.compute_layout(root_node, Size::MAX_CONTENT)
-            .expect("taffy compute_layout should not fail");
-        let root_layout = tree.layout(root_node).expect("root layout should not fail");
-        let container_size = self.get_size(root_layout);
-        let items: Vec<DistributedItem> = item_nodes
-            .into_iter()
-            .map(|node| {
-                let layout = tree.layout(node).expect("item layout should not fail");
+            .map(|layout| {
                 let size = self.get_size(layout);
                 let translation = self.get_translation(layout, container_size);
                 DistributedItem {
@@ -103,6 +68,55 @@ impl FlexFactory {
         let main = (layout.location.x + layout.size.width * 0.5) * self.main_axis;
         let cross = (layout.location.y + layout.size.height * 0.5) * self.cross_axis;
         main + cross - container_size * 0.5
+    }
+
+    fn layout_with_taffy(&self) -> (Layout, Vec<Layout>) {
+        let mut tree: TaffyTree<()> = TaffyTree::new();
+        let item_nodes: Vec<NodeId> = self
+            .items
+            .iter()
+            .map(|item| {
+                tree.new_leaf(self.get_item_style(item))
+                    .expect("taffy new_leaf should not fail")
+            })
+            .collect();
+        let root_node = tree
+            .new_with_children(self.get_parent_style(), &item_nodes)
+            .expect("taffy new_with_children should not fail");
+        tree.compute_layout(root_node, Size::MAX_CONTENT)
+            .expect("taffy compute_layout should not fail");
+        let root_layout = *tree.layout(root_node).expect("root layout should not fail");
+        let layouts = item_nodes
+            .into_iter()
+            .map(|node| *tree.layout(node).expect("item layout should not fail"))
+            .collect();
+        (root_layout, layouts)
+    }
+
+    #[allow(clippy::borrowed_box)]
+    fn get_item_style(&self, item: &Box<dyn Distributable>) -> Style {
+        let main_size = (item.get_size() * self.main_axis).length();
+        let cross_size = (item.get_size() * self.cross_axis).length();
+        Style {
+            size: Size {
+                // TODO: TAFFY LENGTHS ARE RETURNED ROUNDED
+                width: length(main_size),
+                height: length(cross_size),
+            },
+            flex_grow: 0.0,
+            flex_shrink: 0.0,
+            ..default()
+        }
+    }
+
+    fn get_parent_style(&self) -> Style {
+        Style {
+            display: taffy::Display::Flex,
+            justify_content: Some(justify_content_to_taffy(self.justify_content)),
+            align_content: Some(align_content_to_taffy(self.align_content)),
+            align_items: Some(align_items_to_taffy(self.align_items)),
+            ..Default::default()
+        }
     }
 }
 
