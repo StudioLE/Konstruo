@@ -18,17 +18,20 @@ impl DistributionExample {
     ) {
         let items = vec![
             Item {
-                size: Vec3::new(1.0, 1.0, 1.0),
+                size: Vec3::new(10.0, 10.0, 10.0),
             },
             Item {
-                size: Vec3::new(2.0, 2.0, 1.0),
+                size: Vec3::new(20.0, 20.0, 10.0),
             },
             Item {
-                size: Vec3::new(3.0, 3.0, 1.0),
+                size: Vec3::new(30.0, 30.0, 10.0),
             },
         ];
         let layout = FlexBuilder::new()
             .with_axis(Vec3::X, Vec3::Y)
+            .with_justify_content(JustifyContent::SpaceEvenly)
+            .with_align_content(AlignContent::SpaceEvenly)
+            .with_align_items(AlignItems::Center)
             .with_items(items)
             .execute();
         assert_eq!(layout.items.len(), 3);
