@@ -1,7 +1,13 @@
 use super::Container;
 use super::*;
 use bevy::prelude::*;
-use taffy::prelude::{auto, length, Layout, NodeId, Size, Style, TaffyMaxContent, TaffyTree};
+use taffy::prelude::{
+    auto, length, Dimension, Layout, NodeId, Size, Style, TaffyMaxContent, TaffyTree,
+};
+use taffy::Point;
+
+/// Precision modifier to compensate for taffy values being rounded to integers
+const PRECISION: f32 = 0.000_001;
 
 pub struct FlexFactory {
     pub(super) main_axis: Vec3,
@@ -33,11 +39,11 @@ impl FlexFactory {
     #[must_use]
     pub fn execute(self) -> Container {
         let (root_layout, item_layouts) = self.layout_with_taffy();
-        let container_size = self.get_size(&root_layout);
+        let container_size = self.from_size(root_layout.size);
         let items: Vec<DistributedItem> = item_layouts
             .iter()
             .map(|layout| {
-                let size = self.get_size(layout);
+                let size = self.from_size(layout.size);
                 let translation = self.get_translation(layout, container_size);
                 DistributedItem {
                     item: Box::new(Placeholder),
@@ -58,19 +64,6 @@ impl FlexFactory {
             size: container_size,
             items,
         }
-    }
-
-    fn get_size(&self, layout: &Layout) -> Vec3 {
-        let main = layout.size.width * self.main_axis;
-        let cross = layout.size.height * self.cross_axis;
-        main + cross
-    }
-
-    /// Get the translation to the center of the item
-    fn get_translation(&self, layout: &Layout, container_size: Vec3) -> Vec3 {
-        let main = (layout.location.x + layout.size.width * 0.5) * self.main_axis;
-        let cross = (layout.location.y + layout.size.height * 0.5) * self.cross_axis;
-        main + cross - container_size * 0.5
     }
 
     fn layout_with_taffy(&self) -> (Layout, Vec<Layout>) {
@@ -98,14 +91,8 @@ impl FlexFactory {
 
     #[allow(clippy::borrowed_box)]
     fn get_item_style(&self, item: &Box<dyn Distributable>) -> Style {
-        let main_size = (item.get_size() * self.main_axis).length();
-        let cross_size = (item.get_size() * self.cross_axis).length();
         Style {
-            size: Size {
-                // TODO: TAFFY LENGTHS ARE RETURNED ROUNDED
-                width: length(main_size),
-                height: length(cross_size),
-            },
+            size: self.to_size(item.get_size()),
             flex_grow: 0.0,
             flex_shrink: 0.0,
             ..default()
@@ -118,14 +105,7 @@ impl FlexFactory {
                 width: auto(),
                 height: auto(),
             },
-            Some(container) => {
-                let main_size = (container * self.main_axis).length();
-                let cross_size = (container * self.cross_axis).length();
-                Size {
-                    width: length(main_size),
-                    height: length(cross_size),
-                }
-            }
+            Some(container) => self.to_size(container),
         };
         Style {
             display: taffy::Display::Flex,
@@ -135,6 +115,44 @@ impl FlexFactory {
             align_items: Some(align_items_to_taffy(self.align_items)),
             flex_wrap: flex_wrap_to_taffy(self.flex_wrap),
             ..Default::default()
+        }
+    }
+
+    /// Get the translation to the center of the item
+    fn get_translation(&self, layout: &Layout, container_size: Vec3) -> Vec3 {
+        let translation = self.from_point(layout.location) + self.from_size(layout.size) * 0.5;
+        translation - container_size * 0.5
+    }
+
+    /// Convert from a taffy [`Point`] to a [`Vec3`].
+    ///
+    /// Values are mapped to the main and cross axis and multiplied by the [`PRECISION`].
+    #[allow(clippy::wrong_self_convention)]
+    fn from_point(&self, point: Point<f32>) -> Vec3 {
+        let main = point.x * self.main_axis * PRECISION;
+        let cross = point.y * self.cross_axis * PRECISION;
+        main + cross
+    }
+
+    /// Convert from a taffy [`Size`] to a [`Vec3`].
+    ///
+    /// Values are mapped to the main and cross axis and multiplied by the [`PRECISION`].
+    #[allow(clippy::wrong_self_convention)]
+    fn from_size(&self, size: Size<f32>) -> Vec3 {
+        let main = size.width * self.main_axis * PRECISION;
+        let cross = size.height * self.cross_axis * PRECISION;
+        main + cross
+    }
+
+    /// Convert from a [`Vec3`] to a taffy [`Size`].
+    ///
+    /// Values are mapped from the main and cross axis and divided by the [`PRECISION`].
+    fn to_size(&self, vector: Vec3) -> Size<Dimension> {
+        let main_size = (vector * self.main_axis).length() / PRECISION;
+        let cross_size = (vector * self.cross_axis).length() / PRECISION;
+        Size {
+            width: length(main_size),
+            height: length(cross_size),
         }
     }
 }

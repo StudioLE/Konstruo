@@ -18,24 +18,24 @@ impl DistributionExample {
     ) {
         let items = vec![
             Item {
-                size: Vec3::new(30.0, 30.0, 10.0),
+                size: Vec3::new(3.0, 2.0, 1.0),
             },
             Item {
-                size: Vec3::new(10.0, 10.0, 10.0),
+                size: Vec3::new(1.0, 3.5, 1.0),
             },
             Item {
-                size: Vec3::new(50.0, 50.0, 10.0),
+                size: Vec3::new(3.5, 2.5, 1.0),
             },
             Item {
-                size: Vec3::new(40.0, 40.0, 10.0),
+                size: Vec3::new(4.0, 2.0, 1.0),
             },
             Item {
-                size: Vec3::new(20.0, 20.0, 10.0),
+                size: Vec3::new(2.0, 3.0, 1.0),
             },
         ];
         let layout = FlexBuilder::new()
             .with_axis(Vec3::X, Vec3::Y)
-            .with_container(Vec3::new(100.0, 200.0, 300.0))
+            .with_container(Vec3::new(10.0, 20.0, 30.0))
             .with_flex_wrap(FlexWrap::Wrap)
             .with_justify_content(JustifyContent::SpaceAround)
             .with_align_content(AlignContent::SpaceEvenly)
@@ -56,10 +56,7 @@ impl DistributionExample {
         );
         let parent = commands.spawn(bundle).id();
         for item in layout.items {
-            info!("Distributed Size: {}", item.size);
-            info!("Distributed Translation: {}", item.translation);
             let size = item.item.get_size();
-            info!("Boxed Size: {size}");
             let bundle = (
                 Mesh3d(meshes.add(Cuboid::from_size(size))),
                 Transform::from_translation(item.translation),
