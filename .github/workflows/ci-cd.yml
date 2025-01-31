@@ -6,6 +6,7 @@ concurrency:
   cancel-in-progress: true
 env:
   CARGO_TERM_COLOR: always
+  NAME: konstruo
 jobs:
 
   release:
@@ -250,13 +251,17 @@ jobs:
           target/
 
     - name: Create artifacts directory
-      run: mkdir beach-${{ needs.release.outputs.version }}-${{ matrix.target }}
+      id: artifact
+      run: |
+        ARTIFACT="${{ env.NAME }}-${{ needs.release.outputs.version }}-${{ matrix.target }}"
+        mkdir "${ARTIFACT}"
+        echo "name=${ARTIFACT}" >> $GITHUB_OUTPUT        
 
     - name: Copy binary
       if: matrix.target != 'wasm32-unknown-unknown'
       run: >
-        cp target/${{ matrix.target }}/release/beach
-        beach-${{ needs.release.outputs.version }}-${{ matrix.target }}/
+        cp target/${{ matrix.target }}/release/${{ env.NAME }}
+        ${{ steps.artifact.outputs.name}}/
 
     - name: Install wasm-bindgen-cli
       if: matrix.target == 'wasm32-unknown-unknown'
@@ -278,24 +283,24 @@ jobs:
       run: >
         wasm-bindgen --no-typescript --target web
         --out-dir artifacts
-        --out-name beach
-        target/${{ matrix.target }}/release/beach.wasm
+        --out-name ${{ env.NAME }}
+        target/${{ matrix.target }}/release/${{ env.NAME }}.wasm
 
     - name: Copy WebAssembly
       if: matrix.target == 'wasm32-unknown-unknown'
       run: |
-        cp artifacts/* beach-${{ needs.release.outputs.version }}-${{ matrix.target }}/
+        cp artifacts/* ${{ steps.artifact.outputs.name}}/
 
     - name: Create archive
       run: >
         7z a 
-        beach-${{ needs.release.outputs.version }}-${{ matrix.target }}.7z
-        beach-${{ needs.release.outputs.version }}-${{ matrix.target }}
+        ${{ steps.artifact.outputs.name}}.7z
+        ${{ steps.artifact.outputs.name}}
 
     - uses: actions/upload-artifact@v4
       with:
-        name: beach-${{ needs.release.outputs.version }}-${{ matrix.target }}
-        path: beach-${{ needs.release.outputs.version }}-${{ matrix.target }}.7z
+        name: ${{ steps.artifact.outputs.name}}
+        path: ${{ steps.artifact.outputs.name}}.7z
 
 
 
@@ -340,7 +345,7 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        pattern: beach-${{ needs.release.outputs.version }}-*
+        pattern: ${{ env.NAME }}-${{ needs.release.outputs.version }}-*
         merge-multiple: true
 
     - name: Upload Release Asset
@@ -350,6 +355,6 @@ jobs:
       run: >
         gh release upload
         v${{ needs.release.outputs.version }}
-        beach-${{ needs.release.outputs.version }}-*
+        ${{ env.NAME }}-${{ needs.release.outputs.version }}-*
         --clobber
         --repo "${{ github.repository }}"

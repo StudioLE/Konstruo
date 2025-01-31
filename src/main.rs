@@ -1,8 +1,8 @@
-use beach::architecture::*;
-use beach::environment::*;
-use beach::examples::*;
-use beach::infrastructure::*;
-use beach::ui::*;
+use konstruo::architecture::*;
+use konstruo::environment::*;
+use konstruo::examples::*;
+use konstruo::infrastructure::*;
+use konstruo::ui::*;
 use bevy::prelude::*;
 
 fn main() {
