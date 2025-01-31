@@ -1,9 +1,9 @@
+use bevy::prelude::*;
 use konstruo::architecture::*;
 use konstruo::environment::*;
 use konstruo::examples::*;
 use konstruo::infrastructure::*;
 use konstruo::ui::*;
-use bevy::prelude::*;
 
 fn main() {
     App::new()
