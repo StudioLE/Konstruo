@@ -1,5 +1,4 @@
-use crate::mathematics::spherical_coordinate_system::spherical_to_cartesian;
-use crate::mathematics::{EIGHTH_PI, QUARTER_PI};
+use crate::mathematics::{SphericalCoordinates, EIGHTH_PI, QUARTER_PI};
 use crate::ENVIRONMENT_MAX;
 use bevy::prelude::*;
 
@@ -36,6 +35,7 @@ fn create_light() -> DirectionalLight {
 }
 
 fn create_transform() -> Transform {
-    let translation = spherical_to_cartesian(ENVIRONMENT_MAX - 1000.0, EIGHTH_PI, QUARTER_PI);
+    let translation =
+        SphericalCoordinates::new(ENVIRONMENT_MAX - 1000.0, EIGHTH_PI, QUARTER_PI).to_cartesian();
     Transform::from_translation(translation).looking_at(Vec3::ZERO, Vec3::Z)
 }

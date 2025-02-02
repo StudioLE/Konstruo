@@ -7,7 +7,8 @@ impl Orbit {
     pub fn update_system(mut query: Query<(&mut Orbit, &mut Transform)>) {
         for (mut orbit, mut transform) in &mut query {
             if orbit.translation.update() {
-                orbit.translation.speed.x = orbit.get_radius() * SPEED_MODIFIER;
+                let radius = orbit.get_spherical_coordinates().get_radius();
+                orbit.translation.speed.x = radius * SPEED_MODIFIER;
                 *transform = orbit.get_cartesian_transform();
             }
         }

@@ -3,7 +3,7 @@ use crate::constraints::clamp_vec3::ClampVec3;
 use crate::geometry::Orientation;
 use crate::kinematics::Translation;
 use crate::mathematics::constants::*;
-use crate::mathematics::spherical_coordinate_system::*;
+use crate::mathematics::SphericalCoordinates;
 use crate::CAMERA_MAX;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
@@ -48,48 +48,23 @@ impl Default for Orbit {
 impl Orbit {
     /// Distance from the origin in metres.
     #[must_use]
-    pub fn get_radius(&self) -> f32 {
-        self.translation.current.x
-    }
-
-    /// Angle from the zenith in radians.
-    ///
-    /// Also known as the polar angle or zenith angle
-    /// - <https://mathworld.wolfram.com/PolarAngle.html>
-    /// - <https://mathworld.wolfram.com/ZenithAngle.html>
-    ///
-    /// Zenith is the positive Z axis or north pole.
-    #[must_use]
-    pub fn get_polar(&self) -> f32 {
-        self.translation.current.y
-    }
-
-    /// Angle from the horizon in radians.
-    /// - <https://mathworld.wolfram.com/Colatitude.html>
-    #[must_use]
-    pub fn get_altitude(&self) -> f32 {
-        HALF_PI - self.get_polar()
-    }
-
-    /// Angle from the X axis in the XY plane.
-    /// -<https://mathworld.wolfram.com/Azimuth.html>
-    #[must_use]
-    pub fn get_azimuth(&self) -> f32 {
-        self.translation.current.z
+    pub fn get_spherical_coordinates(&self) -> SphericalCoordinates {
+        SphericalCoordinates::from(self.translation.current)
     }
 
     /// Get the orientation looking to the origin.
     #[must_use]
     pub fn get_orientation(&self) -> Quat {
-        let z = self.get_azimuth() + HALF_PI;
-        let x = self.get_polar();
+        let spherical = self.get_spherical_coordinates();
+        let z = spherical.get_azimuth() + HALF_PI;
+        let x = spherical.get_polar();
         Quat::from_euler(EulerRot::ZXY, z, x, 0.0)
     }
 
     /// Get the cartesian translation from the origin.
     #[must_use]
     pub fn get_cartesian_translation(&self) -> Vec3 {
-        spherical_to_cartesian(self.get_radius(), self.get_polar(), self.get_azimuth())
+        self.get_spherical_coordinates().to_cartesian()
     }
 
     /// Get the cartesian translation and orientation looking to the origin.
@@ -119,8 +94,11 @@ impl Orbit {
     /// Orbit the camera to the specified orientation.
     pub(crate) fn orientate(&mut self, orientation: &[Orientation]) {
         let vector = Orientation::get_vector(orientation).normalize();
-        let spherical = cartesian_to_spherical(vector).with_x(self.get_radius());
-        self.translation.set_target(spherical);
+        let radius = self.get_spherical_coordinates().get_radius();
+        let target = SphericalCoordinates::from_cartesian(vector)
+            .vector
+            .with_x(radius);
+        self.translation.set_target(target);
     }
 
     /// Stop movement by removing the target.

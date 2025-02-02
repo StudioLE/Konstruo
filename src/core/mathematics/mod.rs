@@ -1,4 +1,5 @@
 pub use constants::*;
+pub use spherical_coordinates::*;
 pub mod constants;
 pub mod floats;
-pub mod spherical_coordinate_system;
+mod spherical_coordinates;

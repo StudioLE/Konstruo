@@ -1,5 +1,5 @@
 use super::*;
-use crate::mathematics::spherical_coordinate_system::{AZIMUTHAL_AXIS, POLAR_AXIS, RADIAL_AXIS};
+use crate::mathematics::{AZIMUTHAL_AXIS, POLAR_AXIS, RADIAL_AXIS};
 use bevy::input::mouse::{MouseMotion, MouseScrollUnit, MouseWheel};
 use bevy::input::ButtonInput;
 use bevy::prelude::KeyCode::{Equal, KeyA, KeyD, KeyS, KeyW, Minus, ShiftLeft};

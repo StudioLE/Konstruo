@@ -27,7 +27,8 @@ impl Pan {
             return;
         };
         for mut pan in &mut query {
-            let speed = orbit.get_radius() * SPEED_MODIFIER;
+            let radius = orbit.get_spherical_coordinates().get_radius();
+            let speed = radius * SPEED_MODIFIER;
             pan.translation.speed = Vec3::splat(speed);
         }
     }
