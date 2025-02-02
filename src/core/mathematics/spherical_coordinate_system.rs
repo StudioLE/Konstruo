@@ -106,27 +106,37 @@ mod tests {
 
     #[test]
     fn _cartesian_to_spherical() {
-        assert_eq!(
-            cartesian_to_spherical(Vec3::new(0.0, ONE_OVER_ROOT_2, ONE_OVER_ROOT_2)),
-            // Vec3::new(1.0, QUARTER_PI, 0.0)
-            Vec3::new(1.0, QUARTER_PI, HALF_PI)
-        );
-        assert_eq!(
-            cartesian_to_spherical(Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2)),
-            // Vec3::new(1.0, QUARTER_PI, HALF_PI)
-            Vec3::new(1.0, QUARTER_PI, 0.0)
-        );
-        assert_eq!(
-            cartesian_to_spherical(Vec3::new(0.0, -ONE_OVER_ROOT_2, ONE_OVER_ROOT_2)),
-            // Vec3::new(1.0, QUARTER_PI, PI)
-            Vec3::new(1.0, QUARTER_PI, -HALF_PI)
-        );
-        assert_eq!(
-            cartesian_to_spherical(Vec3::new(-ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2)),
-            // Vec3::new(1.0, QUARTER_PI, PI + HALF_PI)
-            // Vec3::new(1.0, QUARTER_PI, 0.0)
-            Vec3::new(1.0, QUARTER_PI, PI) // TODO: Incorrect quadrant
-        );
+        // Top back
+        let cartesian = Vec3::new(0.0, ONE_OVER_ROOT_2, ONE_OVER_ROOT_2);
+        let spherical = cartesian_to_spherical(cartesian);
+        let expected = Vec3::new(1.0, QUARTER_PI, HALF_PI);
+        assert_eq!(spherical, expected);
+        let round_trip = spherical_to_cartesian(spherical.x, spherical.y, spherical.z);
+        assert_eq!(round_trip, cartesian);
+
+        // Top right
+        let cartesian = Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2);
+        let spherical = cartesian_to_spherical(cartesian);
+        let expected = Vec3::new(1.0, QUARTER_PI, 0.0);
+        assert_eq!(spherical, expected);
+        let round_trip = spherical_to_cartesian(spherical.x, spherical.y, spherical.z);
+        assert_eq!(round_trip, cartesian);
+
+        // Top front
+        let cartesian = Vec3::new(0.0, -ONE_OVER_ROOT_2, ONE_OVER_ROOT_2);
+        let spherical = cartesian_to_spherical(cartesian);
+        let expected = Vec3::new(1.0, QUARTER_PI, -HALF_PI);
+        assert_eq!(spherical, expected);
+        let round_trip = spherical_to_cartesian(spherical.x, spherical.y, spherical.z);
+        assert_eq!(round_trip, cartesian);
+
+        // Top left
+        let cartesian = Vec3::new(-ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2);
+        let spherical = cartesian_to_spherical(cartesian);
+        let expected = Vec3::new(1.0, QUARTER_PI, PI);
+        assert_eq!(spherical, expected);
+        let round_trip = spherical_to_cartesian(spherical.x, spherical.y, spherical.z);
+        assert_eq!(round_trip, cartesian);
     }
 
     #[test]
