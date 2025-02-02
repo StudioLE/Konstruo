@@ -26,7 +26,7 @@ Konstruo is available for Linux, Windows, and Mac.
 
 ### Linux
 
-Binaries for Linux are compiled by the CI pipeline and included as GitHub release assets. Simply find the latest [GitHub Release](https://github.com/StudioLE/Beach/releases) and download the asset targetting `x86_64-unknown-linux-gnu`.
+Binaries for Linux are compiled by the CI pipeline and included as GitHub release assets. Simply find the latest [GitHub Release](https://github.com/StudioLE/Konstruo/releases) and download the asset targetting `x86_64-unknown-linux-gnu`.
 
 ### Windows
 
