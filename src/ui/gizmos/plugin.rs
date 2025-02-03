@@ -1,5 +1,5 @@
 use super::*;
-use bevy::app::{App, Startup, Update};
+use bevy::app::{App, Startup};
 use bevy::gizmos::AppGizmoBuilder;
 use bevy::prelude::Plugin;
 
@@ -12,7 +12,7 @@ impl Plugin for GizmoPlugin {
             .init_gizmo_group::<Medium>()
             .init_gizmo_group::<Bold>()
             .init_gizmo_group::<Heavy>()
-            .add_systems(Startup, GizmoWeights::startup_system)
-            .add_systems(Update, AxisGizmo::draw_at_origin);
+            .add_systems(Startup, GizmoWeights::startup_system);
+        // .add_systems(Update, AxisGizmo::draw_at_origin);
     }
 }
