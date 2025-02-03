@@ -31,7 +31,7 @@ impl Default for Orbit {
     fn default() -> Self {
         Self {
             translation: Translation {
-                current: Vec3::new(DEFAULT_RADIUS, 0.0, 0.0),
+                current: Vec3::new(DEFAULT_RADIUS, 0.0, -HALF_PI),
                 clamp: ClampVec3 {
                     x: ClampFloat::Fixed(10.0, CAMERA_MAX),
                     y: ClampFloat::Fixed(0.0, PI),
