@@ -59,6 +59,35 @@ impl SphericalCoordinates {
         self.vector.z
     }
 
+    #[must_use]
+    pub fn get_unit_radius(&self) -> Vec3 {
+        let polar = self.get_polar();
+        let azimuth = self.get_azimuth();
+        let x = polar.sin() * azimuth.cos();
+        let y = polar.sin() * azimuth.sin();
+        let z = polar.cos();
+        Vec3::new(x, y, z)
+    }
+
+    #[must_use]
+    pub fn get_unit_polar(&self) -> Vec3 {
+        let polar = self.get_polar();
+        let azimuth = self.get_azimuth();
+        let x = polar.cos() * azimuth.cos();
+        let y = polar.cos() * azimuth.sin();
+        let z = -polar.sin();
+        Vec3::new(x, y, z)
+    }
+
+    #[must_use]
+    pub fn get_unit_azmith(&self) -> Vec3 {
+        let azimuth = self.get_azimuth();
+        let x = -azimuth.sin();
+        let y = azimuth.cos();
+        let z = 0.0;
+        Vec3::new(x, y, z)
+    }
+
     /// Convert from spherical to cartesian coordinates.
     /// <https://mathworld.wolfram.com/SphericalCoordinates.html>
     #[must_use]
