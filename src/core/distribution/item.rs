@@ -1,13 +1,5 @@
 use bevy::prelude::*;
-
-/// Source item
-#[derive(Clone, Debug, PartialEq)]
-pub struct SourceItem {
-    /// Size
-    pub size: Vec3,
-    /// Margin
-    pub margin: Vec3,
-}
+use super::*;
 
 /// Distributed item
 #[derive(Clone, Debug, PartialEq)]
@@ -26,15 +18,6 @@ impl From<SourceItem> for Item {
             size: source.size,
             translation: Vec3::ZERO,
             source,
-        }
-    }
-}
-
-impl Default for SourceItem {
-    fn default() -> Self {
-        Self {
-            size: Vec3::ZERO,
-            margin: Vec3::ZERO,
         }
     }
 }
