@@ -26,6 +26,7 @@ impl BuildingsExample {
                 },
                 levels: 2,
                 level_height: 2.4,
+                roof_height: 1.8,
                 roof_style: Some(RoofStyle::PitchLeftToRight),
             },
             BuildingModuleStack {
@@ -38,6 +39,7 @@ impl BuildingsExample {
                 },
                 levels: 1,
                 level_height: 2.4,
+                roof_height: 1.8,
                 roof_style: Some(RoofStyle::PitchFrontToBack),
             },
         ];

@@ -75,7 +75,7 @@ fn create_stacked_modules(
         modules.push(BuildingModule {
             index,
             level: stack.levels as isize,
-            height: stack.level_height, // TODO: roof height
+            height: stack.roof_height,
             roof: Some(roof),
             ..stack.definition
         });
