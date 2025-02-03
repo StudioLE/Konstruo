@@ -22,7 +22,8 @@ pub(super) struct TaffyFlexFactory {
 impl TaffyFlexFactory {
     pub(super) fn execute(&self, container: &mut Container) {
         let (root_layout, item_layouts) = self.layout_with_taffy(container);
-        let container_size = self.from_size(root_layout.size);
+        // TODO: investigate why root_layout.size would be negative
+        let container_size = self.from_size(root_layout.size).abs();
         for (item, layout) in container.items.iter_mut().zip(item_layouts) {
             item.size += self.from_size(layout.size);
             item.translation += self.get_translation(&layout, container_size);

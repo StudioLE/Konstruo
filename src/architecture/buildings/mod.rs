@@ -5,6 +5,7 @@ pub use module::*;
 pub use plot::*;
 pub use plugin::*;
 pub use roof_style::*;
+pub use stack::*;
 
 mod materials;
 mod meshes;
@@ -13,3 +14,4 @@ mod module;
 mod plot;
 mod plugin;
 mod roof_style;
+mod stack;

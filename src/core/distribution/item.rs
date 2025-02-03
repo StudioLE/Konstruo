@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 /// Source item
+#[derive(Clone, Debug, PartialEq)]
 pub struct SourceItem {
     /// Size
     pub size: Vec3,
@@ -9,6 +10,7 @@ pub struct SourceItem {
 }
 
 /// Distributed item
+#[derive(Clone, Debug, PartialEq)]
 pub struct Item {
     /// Size
     pub size: Vec3,
