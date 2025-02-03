@@ -16,19 +16,27 @@ pub struct Translation {
 }
 
 impl Translation {
+    /// Is an update required?
+    #[must_use]
+    pub fn is_update_required(&self) -> bool {
+        self.target.is_some()
+    }
+
     /// Move the current translation towards the target for a single frame.
     ///
-    /// Returns `true` if the current translation has changed
-    #[must_use]
-    pub fn update(&mut self) -> bool {
+    /// Calling this method triggers a `Changed` event as it mutably borrows.
+    /// To avoid this call [`Translation::is_update_required()`] first.
+    /// - <https://bevy-cheatbook.github.io/programming/change-detection.html#what-gets-detected>
+    pub fn update(&mut self) {
         let Some(target) = self.target else {
-            return false;
+            warn!("An unnecessary mutable call was made to Translation::update()");
+            return;
         };
         let total_displacement = self.get_displacement_to(target);
         if is_almost_zero(total_displacement) {
             self.current = target;
             self.remove_target();
-            return true;
+            return;
         }
         let direction = total_displacement.normalize();
         let displacement = direction * self.get_speed_per_frame();
@@ -38,7 +46,6 @@ impl Translation {
         } else {
             self.set_current(self.current + displacement);
         }
-        true
     }
 
     /// Set the current translation

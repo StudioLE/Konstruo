@@ -46,13 +46,13 @@ impl ViewCubeCamera {
         mut transform: Query<&mut Transform, With<ViewCubeCamera>>,
     ) {
         let Ok(orbit) = orbit.get_single() else {
-            warn!("Failed to get Orbit");
             return;
         };
         let Ok(mut transform) = transform.get_single_mut() else {
             warn!("Failed to get ViewCubeCamera");
             return;
         };
+        trace!("Updating ViewCubeCamera as Orbit has changed");
         *transform = orbit.get_cartesian_transform();
     }
 }
