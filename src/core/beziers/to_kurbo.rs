@@ -40,7 +40,7 @@ impl CubicBezierSpline {
 }
 
 /// Convert from a [`Vec3`] to a kurbo [`Point`].
-fn vec3_to_kurbo(vector: Vec3) -> Point {
+pub fn vec3_to_kurbo(vector: Vec3) -> Point {
     if vector.z.abs() > KURBO_EPSILON {
         warn!(
             "Kurbo only supports 2D coordinates. Ignoring Z value: {}",
