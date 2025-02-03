@@ -113,10 +113,10 @@ fn spawn_stacked_modules(
             module.length,
             module.height,
         ));
-        let mesh = if module.roof.is_some() {
-            meshes.pitched_module.clone()
-        } else {
-            meshes.cuboid_module.clone()
+        let mesh = match module.roof {
+            None => meshes.cuboid_module.clone(),
+            Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right_module.clone(),
+            Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back_module.clone(),
         };
         let bundle = (
             transform,

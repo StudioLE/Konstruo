@@ -140,4 +140,23 @@ impl TriangleList {
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
         .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
     }
+
+    /// Create a [`TriangleList`].
+    #[must_use]
+    pub fn with_transform(self, transform: Transform) -> Self {
+        let triangles = self
+            .triangles
+            .into_iter()
+            .map(|triangle| {
+                let vertices = triangle.to_vertices();
+                let vertices = [
+                    transform.transform_point(vertices[0]),
+                    transform.transform_point(vertices[1]),
+                    transform.transform_point(vertices[2]),
+                ];
+                Triangle::from(vertices)
+            })
+            .collect();
+        Self { triangles }
+    }
 }

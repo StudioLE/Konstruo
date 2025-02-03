@@ -26,7 +26,7 @@ impl BuildingsExample {
                 },
                 levels: 2,
                 level_height: 2.4,
-                roof_style: Some(RoofStyle::PitchFrontToBack),
+                roof_style: Some(RoofStyle::PitchLeftToRight),
             },
             BuildingModuleStack {
                 definition: BuildingModule {
@@ -38,7 +38,7 @@ impl BuildingsExample {
                 },
                 levels: 1,
                 level_height: 2.4,
-                roof_style: Some(RoofStyle::PitchLeftToRight),
+                roof_style: Some(RoofStyle::PitchFrontToBack),
             },
         ];
 
