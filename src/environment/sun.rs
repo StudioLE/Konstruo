@@ -36,6 +36,6 @@ fn create_light() -> DirectionalLight {
 
 fn create_transform() -> Transform {
     let translation =
-        SphericalCoordinates::new(ENVIRONMENT_MAX - 1000.0, EIGHTH_PI, QUARTER_PI).to_cartesian();
+        SphericalCoordinates::new(ENVIRONMENT_MAX - 1000.0, EIGHTH_PI, -QUARTER_PI).to_cartesian();
     Transform::from_translation(translation).looking_at(Vec3::ZERO, Vec3::Z)
 }
