@@ -56,9 +56,10 @@ impl Orbit {
     #[must_use]
     pub fn get_orientation(&self) -> Quat {
         let spherical = self.get_spherical_coordinates();
-        let z = spherical.get_azimuth() + HALF_PI;
-        let x = spherical.get_polar();
-        Quat::from_euler(EulerRot::ZXY, z, x, 0.0)
+        let yaw = spherical.get_azimuth() + HALF_PI;
+        let pitch = spherical.get_polar();
+        let roll = 0.0;
+        Quat::from_euler(EulerRot::ZXY, yaw, pitch, roll)
     }
 
     /// Get the cartesian translation from the origin.
