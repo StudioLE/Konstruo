@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use super::*;
+use bevy::prelude::*;
 
 /// Distributed item
 #[derive(Clone, Debug, PartialEq)]

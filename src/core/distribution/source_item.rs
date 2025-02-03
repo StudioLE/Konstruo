@@ -1,3 +1,4 @@
+use crate::geometry::Vec6;
 use bevy::prelude::*;
 
 /// Source item
@@ -6,14 +7,14 @@ pub struct SourceItem {
     /// Size
     pub size: Vec3,
     /// Margin
-    pub margin: Vec3,
+    pub margin: Vec6,
 }
 
 impl Default for SourceItem {
     fn default() -> Self {
         Self {
             size: Vec3::ZERO,
-            margin: Vec3::ZERO,
+            margin: Vec6::ZERO,
         }
     }
 }

@@ -1,5 +1,6 @@
 use crate::architecture::*;
 use crate::distribution::{Container, FlexBuilder, SourceItem};
+use crate::geometry::Vec6;
 use bevy::prelude::*;
 
 /// Factory to produce vertically stacked modules
@@ -28,7 +29,7 @@ impl ModularBuildingFactory {
             .iter()
             .map(|(container, _)| SourceItem {
                 size: container.size,
-                margin: Vec3::ZERO,
+                ..default()
             })
             .collect();
         let container = FlexBuilder::new()
@@ -81,16 +82,13 @@ fn create_stacked_modules(
     };
     let items = modules
         .iter()
-        .map(|module| {
-            let offset = if module.front_offset < module.back_offset {
-                module.front_offset
-            } else {
-                module.back_offset
-            };
-            SourceItem {
-                size: Vec3::new(module.width, module.length, module.height),
-                margin: Vec3::new(0.0, offset, 0.0),
-            }
+        .map(|module| SourceItem {
+            size: Vec3::new(module.width, module.length, module.height),
+            margin: Vec6 {
+                y_pos: module.back_offset,
+                y_neg: module.front_offset,
+                ..default()
+            },
         })
         .collect();
     let container = FlexBuilder::new()

@@ -1,4 +1,5 @@
 use super::*;
+use crate::geometry::Vec6;
 use bevy::prelude::*;
 use taffy::prelude::{
     length, FromLength, Layout, NodeId, Rect, Size, Style, TaffyMaxContent, TaffyTree,
@@ -123,14 +124,18 @@ impl TaffyFlexFactory {
     /// Convert from a [`Vec3`] to a taffy [`Size`].
     ///
     /// Values are mapped from the main and cross axis and divided by the [`PRECISION`].
-    fn to_rect<T: FromLength>(&self, vector: &Vec3) -> Rect<T> {
-        let main_size = (vector * self.main_axis).length() / PRECISION;
-        let cross_size = (vector * self.cross_axis).length() / PRECISION;
+    fn to_rect<T: FromLength>(&self, vector: &Vec6) -> Rect<T> {
+        let pos = vector.get_pos();
+        let neg = vector.get_neg();
+        let right = (pos * self.main_axis).length() / PRECISION;
+        let left = (neg * self.main_axis).length() / PRECISION;
+        let top = (neg * self.cross_axis).length() / PRECISION;
+        let bottom = (pos * self.cross_axis).length() / PRECISION;
         Rect {
-            left: length(main_size),
-            right: length(main_size),
-            top: length(cross_size),
-            bottom: length(cross_size),
+            left: length(left),
+            right: length(right),
+            top: length(top),
+            bottom: length(bottom),
         }
     }
 }
