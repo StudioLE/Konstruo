@@ -52,7 +52,7 @@ impl ViewCubeCamera {
             warn!("Failed to get ViewCubeCamera");
             return;
         };
-        trace!("Updating ViewCubeCamera as Orbit has changed");
+        // trace!("Updating ViewCubeCamera as Orbit has changed");
         *transform = orbit.get_cartesian_transform();
     }
 }
