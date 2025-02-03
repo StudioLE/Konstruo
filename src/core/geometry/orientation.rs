@@ -61,7 +61,9 @@ impl Orientation {
         ]
     }
 
-    /// Get the vector facing in the orientation
+    /// Get the vector facing in the orientation.
+    ///
+    /// This is the opposite of the vector looking at an elevation with the orientation name.
     #[must_use]
     pub fn to_vector(&self) -> Vec3 {
         match self {

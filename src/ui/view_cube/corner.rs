@@ -71,5 +71,6 @@ fn on_pointer_click(
         error!("Failed to get Orbit");
         return;
     };
+    debug!("Clicked ViewCubeCorner: {:?}", corner.orientation);
     orbit.orientate(&corner.orientation);
 }

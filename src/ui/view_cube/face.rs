@@ -86,5 +86,6 @@ fn on_pointer_click(
         error!("Failed to get Orbit");
         return;
     };
+    debug!("Clicked ViewCubeFace: {:?}", face.orientation);
     orbit.orientate(&[face.orientation.clone()]);
 }
