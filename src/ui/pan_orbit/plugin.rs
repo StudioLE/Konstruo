@@ -11,7 +11,10 @@ impl Plugin for PanOrbitCameraPlugin {
             .add_systems(Update, Pan::orbit_changed_system)
             .add_systems(Update, Pan::input_system)
             .add_systems(Update, Orbit::update_system)
-            .add_systems(Update, Orbit::input_system);
+            .add_systems(Update, Orbit::keyboard_input_system)
+            .add_systems(Update, Orbit::mouse_button_input_system)
+            .add_systems(Update, Orbit::mouse_motion_input_system)
+            .add_systems(Update, Orbit::scroll_wheel_input_system);
     }
 }
 
