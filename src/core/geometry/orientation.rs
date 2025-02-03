@@ -8,7 +8,7 @@ use Orientation::*;
 /// An edge is defined by two orientations.
 ///
 /// A corner is defined by three orientations.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Orientation {
     Front,
     Back,

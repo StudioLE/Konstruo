@@ -1,6 +1,7 @@
 use crate::constraints::clamp_float::ClampFloat;
 use crate::constraints::clamp_vec3::ClampVec3;
 use crate::geometry::Orientation;
+use crate::geometry::Orientation::{Bottom, Top};
 use crate::kinematics::Translation;
 use crate::mathematics::constants::*;
 use crate::mathematics::SphericalCoordinates;
@@ -93,11 +94,17 @@ impl Orbit {
 
     /// Orbit the camera to the specified orientation.
     pub(crate) fn orientate(&mut self, orientation: &[Orientation]) {
-        let vector = Orientation::get_vector(orientation).normalize();
         let radius = self.get_spherical_coordinates().get_radius();
-        let target = SphericalCoordinates::from_cartesian(vector)
-            .vector
-            .with_x(radius);
+        let target = if orientation == [Top] {
+            Vec3::new(radius, 0.0, -HALF_PI)
+        } else if orientation == [Bottom] {
+            Vec3::new(radius, PI, -HALF_PI)
+        } else {
+            let vector = Orientation::get_vector(orientation).normalize();
+            SphericalCoordinates::from_cartesian(vector)
+                .vector
+                .with_x(radius)
+        };
         self.translation.set_target(target);
     }
 
