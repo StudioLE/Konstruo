@@ -64,7 +64,7 @@ fn way_added_system(
             .with_align_items_cross(AlignItems::Start)
             .with_align_items_normal(AlignItems::Start)
             .with_gap(Vec3::new(3.0, 10.0, 10.0));
-        let container = builder.with_items(sizes).execute();
+        let container = builder.execute(sizes);
         let bundle = (
             Mesh3d(meshes.add(Cuboid::from_size(container.size))),
             Transform::from_translation(Vec3::new(0.0, 0.0, container.size.z * 0.5)),

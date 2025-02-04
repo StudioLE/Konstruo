@@ -11,7 +11,6 @@ pub struct FlexFactory {
     pub(super) align_items_normal: AlignItems,
     pub(super) gap: Vec3,
     pub(super) bounds: Option<Vec3>,
-    pub(super) items: Vec<SourceItem>,
 }
 
 impl Default for FlexFactory {
@@ -26,15 +25,14 @@ impl Default for FlexFactory {
             align_items_normal: AlignItems::FlexStart,
             gap: Vec3::ZERO,
             bounds: None,
-            items: Vec::new(),
         }
     }
 }
 
 impl FlexFactory {
     #[must_use]
-    pub fn execute(self) -> Container {
-        let items = self.items.into_iter().map(Item::from).collect();
+    pub fn execute(&self, items: Vec<SourceItem>) -> Container {
+        let items = items.into_iter().map(Item::from).collect();
         let mut container = Container {
             size: Vec3::ZERO,
             items,

@@ -1,5 +1,4 @@
 use super::*;
-use crate::geometry::Vec6;
 use bevy::prelude::*;
 
 pub struct FlexBuilder {
@@ -70,26 +69,12 @@ impl FlexBuilder {
     }
 
     #[must_use]
-    pub fn with_items(mut self, sizes: Vec<SourceItem>) -> Self {
-        for item in sizes {
-            self.factory.items.push(item);
-        }
-        self
-    }
-
-    #[must_use]
-    pub fn with_item(mut self, size: Vec3, margin: Vec6) -> Self {
-        self.factory.items.push(SourceItem { size, margin });
-        self
-    }
-
-    #[must_use]
     pub fn build(self) -> FlexFactory {
         self.factory
     }
 
     #[must_use]
-    pub fn execute(self) -> Container {
-        self.factory.execute()
+    pub fn execute(&self, items: Vec<SourceItem>) -> Container {
+        self.factory.execute(items)
     }
 }

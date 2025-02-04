@@ -34,8 +34,7 @@ impl ModularBuildingFactory {
             .collect();
         let container = FlexBuilder::new()
             .with_axis(Vec3::X, Vec3::Y)
-            .with_items(sizes)
-            .execute();
+            .execute(sizes);
         let bundle = (
             Transform::from_translation(Vec3::new(0.0, 0.0, container.size.z * 0.5)),
             BuildingPlot {
@@ -93,8 +92,7 @@ fn create_stacked_modules(
         .collect();
     let container = FlexBuilder::new()
         .with_axis(Vec3::Z, Vec3::X)
-        .with_items(items)
-        .execute();
+        .execute(items);
     (container, modules)
 }
 
