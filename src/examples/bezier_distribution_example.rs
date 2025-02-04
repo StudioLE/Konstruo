@@ -54,15 +54,10 @@ fn way_added_system(
                 ..default()
             },
         ];
-        let bezier = way
-            .spline
-            .curves
-            .first()
-            .expect("should be at least one curve");
-        let bezier_length = bezier.get_length(ACCURACY);
+        let spline_length = way.spline.get_length(ACCURACY);
         let builder = FlexBuilder::new()
             .with_axis(Vec3::X, Vec3::Y)
-            .with_bounds(Vec3::new(bezier_length, 0.0, 0.0))
+            .with_bounds(Vec3::new(spline_length, 0.0, 0.0))
             .with_flex_wrap(FlexWrap::Wrap)
             .with_justify_content(JustifyContent::SpaceAround)
             .with_align_content(AlignContent::SpaceEvenly)
@@ -83,11 +78,14 @@ fn way_added_system(
         );
         let parent = commands.spawn(bundle).id();
         for item in container.items {
-            let distance = item.translation.x + bezier_length * 0.5;
-            let param = bezier.get_param_at_length(distance, ACCURACY);
-            let point = bezier.get_point_at_param(param);
+            let distance = item.translation.x + spline_length * 0.5;
+            let param = way
+                .spline
+                .get_param_at_length(distance, ACCURACY)
+                .expect("distance should be in range");
+            let point = way.spline.get_point_at_param(param);
             // TODO: rotation from tangent
-            let tangent = bezier.get_tangent_at_param(param);
+            let tangent = way.spline.get_tangent_at_param(param);
             debug!("LENGTH: {distance} PARAM: {param} POINT: {point} TANGENT: {tangent}");
             // TODO: offset the translation with the item.translation.y and item.translation.z multiplied by tangent?
             // let translation = item.translation;
