@@ -37,13 +37,6 @@ impl CubicBezier {
         f32_from_f64(length).expect("should not exceed f32 range")
     }
 
-    /// Get a point at param.
-    #[must_use]
-    pub fn get_point_at_param(&self, param: f32) -> Vec3 {
-        let point = self.to_kurbo().eval(param.into());
-        vec3_from_kurbo(point).expect("should not exceed f32 range")
-    }
-
     /// The arc length of the curve.
     ///
     /// Solve for the parameter that has the given arc length from the start.
@@ -54,8 +47,17 @@ impl CubicBezier {
     /// at t=0.
     #[must_use]
     pub fn get_param_at_length(&self, length: f32, accuracy: f32) -> f32 {
+        // TODO: This should return None if length < 0 or greater than curve length
         let length = self.to_kurbo().inv_arclen(length.into(), accuracy.into());
         f32_from_f64(length).expect("should not exceed f32 range")
+    }
+
+    /// Get the param nearest to the vector.
+    #[must_use]
+    pub fn get_param_nearest_to(&self, vector: Vec3, accuracy: f32) -> f32 {
+        let point = vec3_to_kurbo(vector);
+        let nearest = self.to_kurbo().nearest(point, accuracy.into());
+        f32_from_f64(nearest.t).expect("should not exceed f32 range")
     }
 
     /// Compute the signed curvature at parameter.
@@ -65,7 +67,24 @@ impl CubicBezier {
         f32_from_f64(curvature).expect("should not exceed f32 range")
     }
 
-    /// Compute the signed curvature at parameter.
+    /// Get a point at param.
+    #[must_use]
+    pub fn get_point_at_param(&self, param: f32) -> Vec3 {
+        let point = self.to_kurbo().eval(param.into());
+        vec3_from_kurbo(point).expect("should not exceed f32 range")
+    }
+
+    /// Get the tangent at param.
+    #[must_use]
+    pub fn get_tangent_at_param(&self, param: f32) -> Vec3 {
+        let quad_bez = self.to_kurbo().deriv();
+        let point = quad_bez.eval(param.into());
+        vec3_from_kurbo(point).expect("should not exceed f32 range")
+    }
+
+    /// Compute the extrema of the curve.
+    /// Only extrema within the interior of the curve count. At most four extrema can be reported, which is sufficient for cubic Béziers.
+    /// The extrema should be reported in increasing parameter order.
     #[must_use]
     pub fn get_extrema(&self) -> Vec<f32> {
         self.to_kurbo()
@@ -85,22 +104,5 @@ impl CubicBezier {
             vec3_from_kurbo(quad_bez.p1).expect("should not exceed f32 range"),
             vec3_from_kurbo(quad_bez.p2).expect("should not exceed f32 range"),
         ]
-    }
-
-    /// Get the tangent at param.
-    #[must_use]
-    pub fn get_tangent_at_param(&self, param: f32) -> Vec3 {
-        // TODO: Confirm if this is correct
-        let quad_bez = self.to_kurbo().deriv();
-        let point = quad_bez.eval(param.into());
-        vec3_from_kurbo(point).expect("should not exceed f32 range")
-    }
-
-    /// Get the param nearest to the vector.
-    #[must_use]
-    pub fn get_param_nearest_to(&self, vector: Vec3, accuracy: f32) -> f32 {
-        let point = vec3_to_kurbo(vector);
-        let nearest = self.to_kurbo().nearest(point, accuracy.into());
-        f32_from_f64(nearest.t).expect("should not exceed f32 range")
     }
 }

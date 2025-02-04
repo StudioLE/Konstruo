@@ -1,9 +1,12 @@
-use crate::beziers::from_kurbo::vec3_from_kurbo;
+use crate::beziers::from_kurbo::{f32_from_f64, vec3_from_kurbo};
 use crate::beziers::internal_kurbo::bezpath_to_cubics;
 use crate::beziers::CubicBezier;
 use bevy::prelude::*;
 use kurbo::offset::CubicOffset;
-use kurbo::{fit_to_bezpath, flatten, stroke, Cap, CubicBez, Join, PathEl, Stroke, StrokeOpts};
+use kurbo::{
+    fit_to_bezpath, flatten, stroke, Cap, CubicBez, Join, ParamCurveArclen, PathEl, Stroke,
+    StrokeOpts,
+};
 
 /// A spline formed of one or more connected [`CubicBezier`].
 #[derive(Clone, Debug, Default)]
@@ -18,6 +21,119 @@ impl CubicBezierSpline {
         self.curves
             .iter()
             .flat_map(CubicBezier::get_controls)
+            .collect()
+    }
+
+    /// The arc length of the curve.
+    ///
+    /// The result is accurate to the given accuracy
+    /// (subject to roundoff errors for ridiculously low values).
+    /// Compute time may vary with accuracy, if the curve needs to be subdivided.
+    ///
+    /// This is an adaptive subdivision approach using Legendre-Gauss quadrature in the base case,
+    /// and an error estimate to decide when to subdivide.
+    #[must_use]
+    pub fn get_length(&self, accuracy: f32) -> f32 {
+        let kurbo = self.to_kurbo();
+        let length = kurbo
+            .iter()
+            .map(|&bezier| bezier.arclen(accuracy.into()))
+            .sum();
+        f32_from_f64(length).expect("should not exceed f32 range")
+    }
+
+    /// The arc length of the curve.
+    ///
+    /// Solve for the parameter that has the given arc length from the start.
+    /// This implementation uses the IPT method, as provided by `common::solve_itp`.
+    /// This is as robust as bisection but typically converges faster. In addition,
+    /// the method takes care to compute arc lengths of increasingly smaller segments of the curve,
+    /// as that is likely faster than repeatedly computing the arc length of the segment starting
+    /// at t=0.
+    #[must_use]
+    #[allow(clippy::as_conversions, clippy::cast_precision_loss, clippy::panic)]
+    pub fn get_param_at_length(&self, length: f32, accuracy: f32) -> Option<f32> {
+        let mut preceding_length = 0.0;
+        for (index, curve) in self.curves.iter().enumerate() {
+            let curve_length = curve.get_length(accuracy);
+            if preceding_length + curve_length > length {
+                let curve_param = curve.get_param_at_length(length - preceding_length, accuracy);
+                let param = (curve_param + index as f32) / self.curves.len() as f32;
+                return Some(param);
+            }
+            preceding_length += curve_length;
+        }
+        None
+    }
+
+    /// Get the param nearest to the vector.
+    #[must_use]
+    #[allow(clippy::as_conversions, clippy::cast_precision_loss)]
+    pub fn get_param_nearest_to(&self, vector: Vec3, accuracy: f32) -> f32 {
+        let (index, param, _distance) = self
+            .curves
+            .iter()
+            .enumerate()
+            .map(|(index, curve)| {
+                let param = curve.get_param_nearest_to(vector, accuracy);
+                let point = curve.get_point_at_param(param);
+                let distance = (point - vector).length();
+                (index, param, distance)
+            })
+            .min_by(|(_, _, a), (_, _, b)| a.partial_cmp(b).expect("should be able to compare"))
+            .expect("should not be empty");
+        (param + index as f32) / self.curves.len() as f32
+    }
+
+    /// Get the curve at the param and recalculate the param so it's relative to the curve.
+    #[must_use]
+    #[allow(
+        clippy::as_conversions,
+        clippy::cast_sign_loss,
+        clippy::cast_possible_wrap,
+        clippy::cast_possible_truncation,
+        clippy::cast_precision_loss
+    )]
+    fn get_curve_at_param(&self, param: f32) -> (&CubicBezier, f32) {
+        let scaled_param = param * self.curves.len() as f32;
+        let index = scaled_param.floor() as usize;
+        let param = scaled_param - index as f32;
+        let curve = self
+            .curves
+            .get(index)
+            .expect("param should not be out of range");
+        (curve, param)
+    }
+
+    /// Compute the signed curvature at parameter.
+    #[must_use]
+    pub fn get_curvature_at_param(&self, param: f32) -> f32 {
+        let (curve, param) = self.get_curve_at_param(param);
+        curve.get_curvature_at_param(param)
+    }
+
+    /// Get a point at param.
+    #[must_use]
+    pub fn get_point_at_param(&self, param: f32) -> Vec3 {
+        let (curve, param) = self.get_curve_at_param(param);
+        curve.get_point_at_param(param)
+    }
+
+    /// Get the tangent at param.
+    #[must_use]
+    pub fn get_tangent_at_param(&self, param: f32) -> Vec3 {
+        let (curve, param) = self.get_curve_at_param(param);
+        curve.get_tangent_at_param(param)
+    }
+
+    /// Compute the extrema of the curve.
+    /// Only extrema within the interior of the curve count. At most four extrema can be reported, which is sufficient for cubic Béziers.
+    /// The extrema should be reported in increasing parameter order.
+    #[must_use]
+    pub fn get_extrema(&self) -> Vec<f32> {
+        self.curves
+            .iter()
+            .flat_map(CubicBezier::get_extrema)
             .collect()
     }
 
