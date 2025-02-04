@@ -61,7 +61,7 @@ fn way_added_system(
             .with_flex_wrap(FlexWrap::Wrap)
             .with_justify_content(JustifyContent::SpaceAround)
             .with_align_content(AlignContent::SpaceEvenly)
-            .with_align_items_cross(AlignItems::Center)
+            .with_align_items_cross(AlignItems::Start)
             .with_align_items_normal(AlignItems::Start)
             .with_gap(Vec3::new(3.0, 10.0, 10.0));
         let container = builder.with_items(sizes).execute();
@@ -84,13 +84,10 @@ fn way_added_system(
                 .get_param_at_length(distance, ACCURACY)
                 .expect("distance should be in range");
             let point = way.spline.get_point_at_param(param);
-            // TODO: rotation from tangent
             let tangent = way.spline.get_tangent_at_param(param);
-            debug!("LENGTH: {distance} PARAM: {param} POINT: {point} TANGENT: {tangent}");
-            // TODO: offset the translation with the item.translation.y and item.translation.z multiplied by tangent?
-            // let translation = item.translation;
-            let translation = point;
             let rotation = Quat::from_rotation_arc(Vec3::X, tangent);
+            let transform = Transform::from_rotation(rotation);
+            let translation = point + transform.transform_point(item.translation.with_x(0.0));
             let size = item.source.size;
             let bundle = (
                 Mesh3d(meshes.add(Cuboid::from_size(size))),
