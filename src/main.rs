@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use konstruo::architecture::*;
+use konstruo::distribution::DistributionPlugin;
 use konstruo::environment::*;
 use konstruo::examples::*;
 use konstruo::infrastructure::*;
@@ -11,6 +12,7 @@ fn main() {
         .add_plugins(AxisMarkerPlugin)
         .add_plugins(BuildingsPlugin)
         // .add_plugins(CursorGizmoPlugin)
+        .add_plugins(DistributionPlugin)
         .add_plugins(GizmoPlugin)
         .add_plugins(GridPlugin)
         .add_plugins(GroundPlugin)
@@ -23,8 +25,8 @@ fn main() {
         .add_plugins(WaysPlugin)
         // .add_plugins(AxisMarkerExample)
         // .add_plugins(BuildingsExample)
-        .add_plugins(BezierDistributionExample)
-        // .add_plugins(DistributionExample)
+        // .add_plugins(BezierDistributionExample)
+        .add_plugins(DistributionExample)
         .add_plugins(WayExample)
         .run();
 }
