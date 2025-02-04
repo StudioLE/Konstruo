@@ -27,7 +27,7 @@ pub const OFFSET_ACCURACY: f32 = 1.0;
 pub struct Way {
     /// Get the cubic bezier curves of the way.
     /// All vectors are
-    pub(super) spline: CubicBezierSpline,
+    pub spline: CubicBezierSpline,
 }
 
 impl Way {
