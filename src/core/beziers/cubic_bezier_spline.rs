@@ -26,7 +26,7 @@ impl CubicBezierSpline {
     /// If the control point is:
     /// -  an anchor: the next or previous anchor and handles are moved.
     /// -  a handle: the opposing handle is rotated but its distance from anchor unchanged.
-    #[allow(clippy::indexing_slicing, clippy::integer_division, clippy::panic)]
+    #[allow(clippy::indexing_slicing, clippy::integer_division)]
     pub fn update_control(&mut self, index: usize, point: Vec3) {
         let curve = index / 4;
         let control = index % 4;
@@ -87,8 +87,11 @@ impl CubicBezierSpline {
     pub fn flatten(&self, tolerance: f32) -> Vec<Vec3> {
         let path = self.to_kurbo_bez_path();
         let mut points = Vec::new();
-        flatten(path, f64::from(tolerance), &mut |segment| match segment {
-            PathEl::MoveTo(point) | PathEl::LineTo(point) => points.push(vec3_from_kurbo(point)),
+        flatten(path, tolerance.into(), &mut |segment| match segment {
+            PathEl::MoveTo(point) | PathEl::LineTo(point) => {
+                let point = vec3_from_kurbo(point).expect("should not exceed f32 range");
+                points.push(point);
+            }
             PathEl::QuadTo(_, _) => panic!("Failed to flatten CubicBezier. Unexpected QuadTo"),
             PathEl::CurveTo(_, _, _) => panic!("Failed to flatten CubicBezier. Unexpected CurveTo"),
             PathEl::ClosePath => panic!("Failed to flatten CubicBezier. Unexpected ClosePath"),
@@ -109,7 +112,7 @@ impl CubicBezierSpline {
                 bezpath_to_cubics(path)
             })
             .collect();
-        CubicBezierSpline::from_kurbo(segments)
+        CubicBezierSpline::from_kurbo(segments).expect("should not exceed f32 range")
     }
 
     #[must_use]
@@ -128,6 +131,6 @@ impl CubicBezierSpline {
         // let options = StrokeOpts::default().opt_level(StrokeOptLevel::Optimized);
         let result = stroke(path, &style, &options, f64::from(tolerance));
         let segments = bezpath_to_cubics(result);
-        CubicBezierSpline::from_kurbo(segments)
+        CubicBezierSpline::from_kurbo(segments).expect("should not exceed f32 range")
     }
 }
