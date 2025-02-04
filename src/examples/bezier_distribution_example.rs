@@ -21,35 +21,43 @@ fn way_added_system(
 ) {
     for (_entity, way) in query.iter() {
         let sizes = vec![
-            SourceItem {
+            Distributable {
+                order: 0,
                 size: Vec3::new(3.0, 2.0, 1.0),
                 ..default()
             },
-            SourceItem {
+            Distributable {
+                order: 1,
                 size: Vec3::new(1.0, 3.5, 2.5),
                 ..default()
             },
-            SourceItem {
+            Distributable {
+                order: 2,
                 size: Vec3::new(3.5, 2.5, 3.0),
                 ..default()
             },
-            SourceItem {
+            Distributable {
+                order: 3,
                 size: Vec3::new(4.0, 2.0, 2.0),
                 ..default()
             },
-            SourceItem {
+            Distributable {
+                order: 4,
                 size: Vec3::new(2.0, 3.0, 1.0),
                 ..default()
             },
-            SourceItem {
+            Distributable {
+                order: 5,
                 size: Vec3::new(3.0, 5.0, 3.0),
                 ..default()
             },
-            SourceItem {
+            Distributable {
+                order: 6,
                 size: Vec3::new(2.0, 2.0, 2.0),
                 ..default()
             },
-            SourceItem {
+            Distributable {
+                order: 7,
                 size: Vec3::new(7.0, 3.0, 1.0),
                 ..default()
             },

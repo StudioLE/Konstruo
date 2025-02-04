@@ -56,7 +56,7 @@ impl TaffyFlexFactory {
     }
 
     #[allow(clippy::borrowed_box)]
-    fn get_item_style(&self, item: &Item) -> Style {
+    fn get_item_style(&self, item: &Distributed) -> Style {
         Style {
             size: self.to_size(&item.source.size),
             margin: self.to_rect(&item.source.margin),

@@ -3,18 +3,20 @@ use bevy::prelude::*;
 
 /// Distributed item
 #[derive(Clone, Debug, PartialEq)]
-pub struct Item {
-    /// Size
+pub struct Distributed {
+    /// Cuboid bounds
+    ///
+    /// This may be different to the source size due to flex grow or flex shrink.
     pub size: Vec3,
     /// Translation to the center relative to the center of the container
     pub translation: Vec3,
     /// Source item
-    pub source: SourceItem,
+    pub source: Distributable,
 }
 
-impl From<SourceItem> for Item {
-    fn from(source: SourceItem) -> Self {
-        Item {
+impl From<Distributable> for Distributed {
+    fn from(source: Distributable) -> Self {
+        Distributed {
             size: source.size,
             translation: Vec3::ZERO,
             source,

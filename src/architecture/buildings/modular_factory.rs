@@ -1,5 +1,5 @@
 use crate::architecture::*;
-use crate::distribution::{Container, FlexBuilder, SourceItem};
+use crate::distribution::{Container, Distributable, FlexBuilder};
 use crate::geometry::Vec6;
 use bevy::prelude::*;
 
@@ -27,7 +27,7 @@ impl ModularBuildingFactory {
             .collect();
         let sizes = stacked_modules
             .iter()
-            .map(|(container, _)| SourceItem {
+            .map(|(container, _)| Distributable {
                 size: container.size,
                 ..default()
             })
@@ -81,7 +81,9 @@ fn create_stacked_modules(
     };
     let items = modules
         .iter()
-        .map(|module| SourceItem {
+        .enumerate()
+        .map(|(order, module)| Distributable {
+            order,
             size: Vec3::new(module.width, module.length, module.height),
             margin: Vec6 {
                 y_pos: module.back_offset,

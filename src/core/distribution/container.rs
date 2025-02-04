@@ -7,5 +7,5 @@ pub struct Container {
     /// Size
     pub size: Vec3,
     /// Items
-    pub items: Vec<Item>,
+    pub items: Vec<Distributed>,
 }

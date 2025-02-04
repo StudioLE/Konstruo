@@ -74,7 +74,7 @@ impl FlexBuilder {
     }
 
     #[must_use]
-    pub fn execute(&self, items: Vec<SourceItem>) -> Container {
+    pub fn execute(&self, items: Vec<Distributable>) -> Container {
         self.factory.execute(items)
     }
 }

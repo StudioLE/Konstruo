@@ -31,8 +31,8 @@ impl Default for FlexFactory {
 
 impl FlexFactory {
     #[must_use]
-    pub fn execute(&self, items: Vec<SourceItem>) -> Container {
-        let items = items.into_iter().map(Item::from).collect();
+    pub fn execute(&self, items: Vec<Distributable>) -> Container {
+        let items = items.into_iter().map(Distributed::from).collect();
         let mut container = Container {
             size: Vec3::ZERO,
             items,
