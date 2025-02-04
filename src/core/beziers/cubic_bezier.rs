@@ -79,7 +79,9 @@ impl CubicBezier {
     pub fn get_tangent_at_param(&self, param: f32) -> Vec3 {
         let quad_bez = self.to_kurbo().deriv();
         let point = quad_bez.eval(param.into());
-        vec3_from_kurbo(point).expect("should not exceed f32 range")
+        vec3_from_kurbo(point)
+            .expect("should not exceed f32 range")
+            .normalize()
     }
 
     /// Compute the extrema of the curve.
