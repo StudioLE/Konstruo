@@ -1,19 +1,10 @@
 use crate::distribution::*;
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
-use Pattern::*;
 
-const PATTERN: Pattern = Wrapped;
+pub struct FlexWrappingExample;
 
-#[allow(dead_code)]
-enum Pattern {
-    Wrapped,
-    Stacked,
-}
-
-pub struct DistributionExample;
-
-impl Plugin for DistributionExample {
+impl Plugin for FlexWrappingExample {
     fn build(&self, app: &mut App) {
         app.add_systems(PostStartup, startup_system);
     }
@@ -24,13 +15,23 @@ fn startup_system(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    let flex = FlexBuilder::new()
+        .with_axis(Vec3::X, Vec3::Y)
+        .with_bounds(Vec3::new(10.0, 20.0, 30.0))
+        .with_flex_wrap(FlexWrap::Wrap)
+        .with_justify_content(JustifyContent::SpaceAround)
+        .with_align_content(AlignContent::SpaceEvenly)
+        .with_align_items_cross(AlignItems::Center)
+        .with_align_items_normal(AlignItems::Start)
+        .with_gap(Vec3::new(0.5, 0.5, 3.0))
+        .build();
     let bundle = (
         Distribution {
-            flex: get_factory(),
+            flex,
             generate_container_mesh: true,
             translate_to_ground: true,
         },
-        Mesh3d(meshes.add(Cuboid::from_length(1.0))),
+        Mesh3d::default(),
         Transform::default(),
         MeshMaterial3d(get_container_material(&mut materials)),
     );
@@ -44,27 +45,6 @@ fn startup_system(
             MeshMaterial3d(material.clone()),
         );
         commands.spawn(bundle).set_parent(parent);
-    }
-}
-
-fn get_factory() -> FlexFactory {
-    match PATTERN {
-        Wrapped => FlexBuilder::new()
-            .with_axis(Vec3::X, Vec3::Y)
-            .with_bounds(Vec3::new(10.0, 20.0, 30.0))
-            .with_flex_wrap(FlexWrap::Wrap)
-            .with_justify_content(JustifyContent::SpaceAround)
-            .with_align_content(AlignContent::SpaceEvenly)
-            .with_align_items_cross(AlignItems::Center)
-            .with_align_items_normal(AlignItems::Start)
-            .with_gap(Vec3::new(0.5, 0.5, 3.0))
-            .build(),
-        Stacked => FlexBuilder::new()
-            .with_axis(Vec3::Z, Vec3::X)
-            .with_align_items_cross(AlignItems::Center)
-            .with_align_items_normal(AlignItems::Center)
-            .with_gap(Vec3::new(1.5, 1.0, 0.5))
-            .build(),
     }
 }
 

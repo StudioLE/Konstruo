@@ -5,9 +5,9 @@ use bevy::prelude::*;
 
 const ACCURACY: f32 = 1e-3;
 
-pub struct BezierDistributionExample;
+pub struct FlexAlongBezierExample;
 
-impl Plugin for BezierDistributionExample {
+impl Plugin for FlexAlongBezierExample {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, way_added_system);
     }
