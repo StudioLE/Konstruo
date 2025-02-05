@@ -20,7 +20,7 @@ impl Distribution {
         meshes: &mut ResMut<Assets<Mesh>>,
         distribution: &Distribution,
         transform: &mut Transform,
-        mesh: &mut Mesh3d,
+        mesh: &mut Option<Mut<Mesh3d>>,
         children: &Children,
         distributables: &mut Query<(Entity, &Distributable, &mut Transform), Without<Distribution>>,
     ) {
@@ -33,7 +33,9 @@ impl Distribution {
                 .with_scale(transform.scale);
         }
         if distribution.generate_container_mesh {
-            *mesh = Mesh3d(meshes.add(Cuboid::from_size(container.size)));
+            if let Some(mut mesh) = mesh.take() {
+                *mesh = Mesh3d(meshes.add(Cuboid::from_size(container.size)));
+            }
         }
         for (entity, distributed) in entities.iter().zip(container.items) {
             let (_, _, mut transform) = distributables.get_mut(*entity).expect("entity exists");
@@ -48,7 +50,12 @@ impl Distribution {
     pub fn added_system(
         mut meshes: ResMut<Assets<Mesh>>,
         mut distributions: Query<
-            (&Distribution, &mut Transform, &mut Mesh3d, &Children),
+            (
+                &Distribution,
+                &mut Transform,
+                Option<&mut Mesh3d>,
+                &Children,
+            ),
             Added<Distribution>,
         >,
         mut distributables: Query<(Entity, &Distributable, &mut Transform), Without<Distribution>>,
