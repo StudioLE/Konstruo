@@ -1,7 +1,7 @@
 use super::*;
 use bevy::prelude::*;
 
-/// Distribute [`Distributable`] children.
+/// How children with the [`Distributable`] component are to be distributed.
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct Distribution {
@@ -22,9 +22,17 @@ impl Distribution {
         transform: &mut Transform,
         mesh: &mut Option<Mut<Mesh3d>>,
         children: &Children,
-        distributables: &mut Query<(Entity, &Distributable, &mut Transform), Without<Distribution>>,
+        query: &mut Query<(
+            Entity,
+            &Distributable,
+            &mut Transform,
+            Option<&Distribution>,
+            Option<&Mesh3d>,
+            Option<&Children>,
+        )>,
     ) {
-        let (entities, items) = get_sorted_children(children, distributables);
+        let (entities, items) = get_sorted_children(children, query);
+        // TODO: Loop through child entities with Distribution and regenerate them first
         let container = distribution.flex.execute(items);
         if distribution.translate_to_ground {
             let translation = transform.translation.with_z(container.size.z * 0.5);
@@ -38,7 +46,8 @@ impl Distribution {
             }
         }
         for (entity, distributed) in entities.iter().zip(container.items) {
-            let (_, _, mut transform) = distributables.get_mut(*entity).expect("entity exists");
+            let components = query.get_mut(*entity).expect("entity exists");
+            let mut transform = components.2;
             // TODO: If size is different we may need to set scale
             *transform = Transform::from_translation(distributed.translation)
                 .with_rotation(transform.rotation)
@@ -46,21 +55,30 @@ impl Distribution {
         }
     }
 
-    /// System to create [`Mesh3d`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
+    /// System to distribute children with the [`Distributable`] component when a root [`Distribution`] is added.
+    ///
+    /// A root [`Distribution`] is one that is not itself [`Distributable`].
     pub fn added_system(
         mut meshes: ResMut<Assets<Mesh>>,
-        mut distributions: Query<
+        mut roots: Query<
             (
                 &Distribution,
                 &mut Transform,
                 Option<&mut Mesh3d>,
                 &Children,
             ),
-            Added<Distribution>,
+            (Added<Distribution>, Without<Distributable>),
         >,
-        mut distributables: Query<(Entity, &Distributable, &mut Transform), Without<Distribution>>,
+        mut distributables: Query<(
+            Entity,
+            &Distributable,
+            &mut Transform,
+            Option<&Distribution>,
+            Option<&Mesh3d>,
+            Option<&Children>,
+        )>,
     ) {
-        for (distribution, mut transform, mut mesh, children) in distributions.iter_mut() {
+        for (distribution, mut transform, mut mesh, children) in roots.iter_mut() {
             Self::regenerate(
                 &mut meshes,
                 distribution,
@@ -73,20 +91,34 @@ impl Distribution {
     }
 }
 
+/// For each of the [`Children`]:
+/// - Get the components
+/// - Sort them in order
+///
+/// Returns multiple [`Vec`] with the matching indexes:
+/// - [`Entity`]
+/// - [`Distributable`]
 fn get_sorted_children(
     children: &Children,
-    distributables: &Query<(Entity, &Distributable, &mut Transform), Without<Distribution>>,
+    query: &Query<(
+        Entity,
+        &Distributable,
+        &mut Transform,
+        Option<&Distribution>,
+        Option<&Mesh3d>,
+        Option<&Children>,
+    )>,
 ) -> (Vec<Entity>, Vec<Distributable>) {
     let mut children: Vec<_> = children
         .iter()
-        .filter_map(|&child| distributables.get(child).ok())
+        .filter_map(|&child| query.get(child).ok())
         .collect();
-    children.sort_by_key(|(_, distributable, _)| distributable.order);
+    children.sort_by_key(|entity| entity.1.order);
     let mut entities = Vec::with_capacity(children.len());
-    let mut items = Vec::with_capacity(children.len());
-    for (entity, distributable, _transform) in children {
-        entities.push(entity);
-        items.push(distributable.clone());
+    let mut distributables = Vec::with_capacity(children.len());
+    for child in children {
+        entities.push(child.0);
+        distributables.push(child.1.clone());
     }
-    (entities, items)
+    (entities, distributables)
 }
