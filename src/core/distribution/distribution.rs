@@ -31,7 +31,6 @@ impl Distribution {
             &Distributable,
             &mut Transform,
             Option<&Distribution>,
-            Option<&Mesh3d>,
             Option<&Children>,
         )>,
     ) -> Container {
@@ -51,7 +50,6 @@ impl Distribution {
             &Distributable,
             &mut Transform,
             Option<&Distribution>,
-            Option<&Mesh3d>,
             Option<&Children>,
         )>,
     ) -> Container {
@@ -91,7 +89,6 @@ impl Distribution {
             &Distributable,
             &mut Transform,
             Option<&Distribution>,
-            Option<&Mesh3d>,
             Option<&Children>,
         )>,
     ) {
@@ -120,7 +117,6 @@ fn process_children(
         &Distributable,
         &mut Transform,
         Option<&Distribution>,
-        Option<&Mesh3d>,
         Option<&Children>,
     )>,
 ) -> Vec<(Entity, Distributable)> {
@@ -131,7 +127,7 @@ fn process_children(
         };
         let mut distributable = components.1.clone();
         let distribution = components.3.cloned();
-        let nested_children = components.5.map(|x| x.to_vec());
+        let nested_children = components.4.map(|x| x.to_vec());
         if let Some(distribution) = distribution {
             if let Some(nested_children) = nested_children {
                 let container = distribution.distribute_internal(&nested_children, query);
