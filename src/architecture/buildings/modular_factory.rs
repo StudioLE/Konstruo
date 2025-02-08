@@ -28,7 +28,7 @@ impl ModularBuildingFactory {
         let sizes = stacked_modules
             .iter()
             .map(|(container, _)| Distributable {
-                size: container.size,
+                size: Some(container.size),
                 ..default()
             })
             .collect();
@@ -84,12 +84,12 @@ fn create_stacked_modules(
         .enumerate()
         .map(|(order, module)| Distributable {
             order,
-            size: Vec3::new(module.width, module.length, module.height),
-            margin: Vec6 {
+            size: Some(Vec3::new(module.width, module.length, module.height)),
+            margin: Some(Vec6 {
                 y_pos: module.back_offset,
                 y_neg: module.front_offset,
                 ..default()
-            },
+            }),
         })
         .collect();
     let container = FlexBuilder::new()

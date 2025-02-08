@@ -13,22 +13,22 @@ pub struct Distributable {
     pub order: usize,
     /// Cuboid bounds
     ///
-    /// Default is zero
-    pub size: Vec3,
+    /// Default is None
+    pub size: Option<Vec3>,
     /// Margins around this item.
     ///
     /// Margins will collapse between items but not at edges.
     ///
-    /// Default is zero
-    pub margin: Vec6,
+    /// Default is None
+    pub margin: Option<Vec6>,
 }
 
 impl Default for Distributable {
     fn default() -> Self {
         Self {
             order: usize::MAX,
-            size: Vec3::ZERO,
-            margin: Vec6::ZERO,
+            size: None,
+            margin: None,
         }
     }
 }

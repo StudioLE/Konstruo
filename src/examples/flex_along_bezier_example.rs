@@ -23,42 +23,42 @@ fn way_added_system(
         let sizes = vec![
             Distributable {
                 order: 0,
-                size: Vec3::new(3.0, 2.0, 1.0),
+                size: Some(Vec3::new(3.0, 2.0, 1.0)),
                 ..default()
             },
             Distributable {
                 order: 1,
-                size: Vec3::new(1.0, 3.5, 2.5),
+                size: Some(Vec3::new(1.0, 3.5, 2.5)),
                 ..default()
             },
             Distributable {
                 order: 2,
-                size: Vec3::new(3.5, 2.5, 3.0),
+                size: Some(Vec3::new(3.5, 2.5, 3.0)),
                 ..default()
             },
             Distributable {
                 order: 3,
-                size: Vec3::new(4.0, 2.0, 2.0),
+                size: Some(Vec3::new(4.0, 2.0, 2.0)),
                 ..default()
             },
             Distributable {
                 order: 4,
-                size: Vec3::new(2.0, 3.0, 1.0),
+                size: Some(Vec3::new(2.0, 3.0, 1.0)),
                 ..default()
             },
             Distributable {
                 order: 5,
-                size: Vec3::new(3.0, 5.0, 3.0),
+                size: Some(Vec3::new(3.0, 5.0, 3.0)),
                 ..default()
             },
             Distributable {
                 order: 6,
-                size: Vec3::new(2.0, 2.0, 2.0),
+                size: Some(Vec3::new(2.0, 2.0, 2.0)),
                 ..default()
             },
             Distributable {
                 order: 7,
-                size: Vec3::new(7.0, 3.0, 1.0),
+                size: Some(Vec3::new(7.0, 3.0, 1.0)),
                 ..default()
             },
         ];
@@ -96,7 +96,7 @@ fn way_added_system(
             let rotation = Quat::from_rotation_arc(Vec3::X, tangent);
             let transform = Transform::from_rotation(rotation);
             let translation = point + transform.transform_point(item.translation.with_x(0.0));
-            let size = item.source.size;
+            let size = item.source.size.expect("size should be set");
             let bundle = (
                 Mesh3d(meshes.add(Cuboid::from_size(size))),
                 Transform::from_translation(translation).with_rotation(rotation),

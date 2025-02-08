@@ -1,6 +1,7 @@
 use super::*;
 use bevy::prelude::*;
 
+#[derive(Clone, Debug)]
 pub struct FlexFactory {
     pub(super) main_axis: Vec3,
     pub(super) cross_axis: Vec3,

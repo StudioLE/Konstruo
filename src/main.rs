@@ -26,8 +26,9 @@ fn main() {
         // .add_plugins(AxisMarkerExample)
         // .add_plugins(BuildingsExample)
         // .add_plugins(FlexAlongBezierExample)
+        .add_plugins(FlexNestedExample)
         // .add_plugins(FlexVerticallyExample)
-        .add_plugins(FlexWrappingExample)
+        // .add_plugins(FlexWrappingExample)
         .add_plugins(WayExample)
         .run();
 }

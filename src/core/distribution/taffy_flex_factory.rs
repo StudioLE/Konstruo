@@ -2,7 +2,7 @@ use super::*;
 use crate::geometry::Vec6;
 use bevy::prelude::*;
 use taffy::prelude::{
-    length, FromLength, Layout, NodeId, Rect, Size, Style, TaffyMaxContent, TaffyTree,
+    auto, length, FromLength, Layout, NodeId, Rect, Size, Style, TaffyMaxContent, TaffyTree,
 };
 use taffy::Point;
 
@@ -26,7 +26,7 @@ impl TaffyFlexFactory {
         // TODO: investigate why root_layout.size would be negative
         let container_size = self.from_size(root_layout.size).abs();
         for (item, layout) in container.items.iter_mut().zip(item_layouts) {
-            item.size += self.from_size(layout.size);
+            item.size = self.from_size(layout.size);
             item.translation += self.get_translation(&layout, container_size);
         }
         container.size += container_size;
@@ -55,11 +55,17 @@ impl TaffyFlexFactory {
         (root_layout, layouts)
     }
 
-    #[allow(clippy::borrowed_box)]
     fn get_item_style(&self, item: &Distributed) -> Style {
+        let size = match item.source.size {
+            None => {
+                warn!("Attempting to distribute a Distributable item with no size. Defaulting to auto dimensions but results are unlikely to be correct.");
+                auto()
+            }
+            Some(size) => self.to_size(&size),
+        };
         Style {
-            size: self.to_size(&item.source.size),
-            margin: self.to_rect(&item.source.margin),
+            size,
+            margin: self.to_rect(&item.source.margin.unwrap_or_default()),
             flex_grow: 0.0,
             flex_shrink: 0.0,
             ..default()

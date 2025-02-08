@@ -2,15 +2,17 @@ use super::*;
 use bevy::prelude::*;
 
 /// How children with the [`Distributable`] component are to be distributed.
-#[derive(Component)]
+#[derive(Clone, Component, Debug, Default)]
 #[require(InheritedVisibility, Transform)]
 pub struct Distribution {
     pub flex: FlexFactory,
     /// Should the translation of the [`Transform`] be set so the container is at ground level.
+    ///
+    /// This is not applied to nested distributions.
     pub translate_to_ground: bool,
     /// Should a [`Cuboid`] mesh be generated with the container size.
     ///
-    /// Material alpha can be set to `0` to hide the mesh.
+    /// This is not applied to nested distributions.
     pub generate_container_mesh: bool,
 }
 
@@ -28,8 +30,28 @@ impl Distribution {
             Option<&Children>,
         )>,
     ) -> Container {
-        let (entities, items) = get_sorted_children(children, query);
-        // TODO: Loop through child entities with Distribution and regenerate them first
+        let children = children.to_vec();
+        self.distribute_internal(&children, query)
+    }
+
+    /// Distribute the [`Distributable`] children.
+    ///
+    /// [`Entity`] can be cloned but [`Children`] can't.
+    /// Therefore to avoid borrowing of query it's easier to work with the children as entities.
+    fn distribute_internal(
+        &self,
+        children: &Vec<Entity>,
+        query: &mut Query<(
+            Entity,
+            &Distributable,
+            &mut Transform,
+            Option<&Distribution>,
+            Option<&Mesh3d>,
+            Option<&Children>,
+        )>,
+    ) -> Container {
+        let unsorted = process_children(children, query);
+        let (entities, items) = sort_and_split_children(unsorted);
         let container = self.flex.execute(items);
         for (entity, distributed) in entities.iter().zip(&container.items) {
             let components = query.get_mut(*entity).expect("entity exists");
@@ -79,16 +101,13 @@ impl Distribution {
     }
 }
 
-/// For each of the [`Children`]:
-/// - Get the components
-/// - Sort them in order
-///
-/// Returns multiple [`Vec`] with the matching indexes:
-/// - [`Entity`]
-/// - [`Distributable`]
-fn get_sorted_children(
-    children: &Children,
-    query: &Query<(
+/// For each child entity:
+/// - If [`Distribution`] is present then recursively distribute the nested children
+/// - Get clones of [`Entity`] and [`Distributable`].
+/// - Update the [`Distributable`] size if its children have been distributed
+fn process_children(
+    children: &Vec<Entity>,
+    query: &mut Query<(
         Entity,
         &Distributable,
         &mut Transform,
@@ -96,17 +115,40 @@ fn get_sorted_children(
         Option<&Mesh3d>,
         Option<&Children>,
     )>,
+) -> Vec<(Entity, Distributable)> {
+    let mut unsorted = Vec::new();
+    for entity in children {
+        let Ok(components) = query.get(*entity) else {
+            continue;
+        };
+        let mut distributable = components.1.clone();
+        let distribution = components.3.cloned();
+        let nested_children = components.5.map(|x| x.to_vec());
+        if let Some(distribution) = distribution {
+            if let Some(nested_children) = nested_children {
+                let container = distribution.distribute_internal(&nested_children, query);
+                distributable.size = Some(container.size);
+            } else {
+                warn!("Entity has `Distribution` component but no children: {entity}");
+            };
+        };
+        unsorted.push((*entity, distributable));
+    }
+    unsorted
+}
+
+/// For each of the [`Children`]:
+/// - Sort according to [`Distributable`] order
+/// - into separate [`Vec`] with matching index order
+fn sort_and_split_children(
+    mut unsorted: Vec<(Entity, Distributable)>,
 ) -> (Vec<Entity>, Vec<Distributable>) {
-    let mut children: Vec<_> = children
-        .iter()
-        .filter_map(|&child| query.get(child).ok())
-        .collect();
-    children.sort_by_key(|entity| entity.1.order);
-    let mut entities = Vec::with_capacity(children.len());
-    let mut distributables = Vec::with_capacity(children.len());
-    for child in children {
-        entities.push(child.0);
-        distributables.push(child.1.clone());
+    unsorted.sort_by_key(|entity| entity.1.order);
+    let mut entities = Vec::with_capacity(unsorted.len());
+    let mut distributables = Vec::with_capacity(unsorted.len());
+    for (entity, distributable) in unsorted {
+        entities.push(entity);
+        distributables.push(distributable);
     }
     (entities, distributables)
 }

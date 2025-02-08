@@ -17,7 +17,7 @@ pub struct Distributed {
 impl From<Distributable> for Distributed {
     fn from(source: Distributable) -> Self {
         Distributed {
-            size: source.size,
+            size: Vec3::ZERO,
             translation: Vec3::ZERO,
             source,
         }
