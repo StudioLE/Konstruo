@@ -1,11 +1,16 @@
 use super::*;
+use crate::beziers::CubicBezierSpline;
 use bevy::prelude::*;
+
+const ACCURACY: f32 = 1e-3;
 
 /// How children with the [`Distributable`] component are to be distributed.
 #[derive(Clone, Component, Debug, Default)]
 #[require(InheritedVisibility, Transform)]
 pub struct Distribution {
     pub flex: FlexFactory,
+    /// Should the items be distributed along a spline?
+    pub spline: Option<CubicBezierSpline>,
     /// Should the translation of the [`Transform`] be set so the container is at ground level.
     ///
     /// This is not applied to nested distributions.
@@ -56,10 +61,13 @@ impl Distribution {
         for (entity, distributed) in entities.iter().zip(&container.items) {
             let components = query.get_mut(*entity).expect("entity exists");
             let mut transform = components.2;
-            // TODO: If size is different we may need to set scale
-            *transform = Transform::from_translation(distributed.translation)
-                .with_rotation(transform.rotation)
-                .with_scale(transform.scale);
+            if let Some(spline) = &self.spline {
+                *transform = get_transform_along_spline(spline, distributed, transform.scale);
+            } else {
+                *transform = Transform::from_translation(distributed.translation)
+                    .with_rotation(transform.rotation)
+                    .with_scale(transform.scale);
+            }
         }
         container
     }
@@ -169,4 +177,24 @@ fn replace_cuboid_mesh(
 ) {
     let cuboid = Cuboid::from_size(container.size);
     *mesh = Mesh3d(meshes.add(cuboid));
+}
+
+fn get_transform_along_spline(
+    spline: &CubicBezierSpline,
+    distributed: &Distributed,
+    scale: Vec3,
+) -> Transform {
+    let spline_length = spline.get_length(ACCURACY);
+    let distance = distributed.translation.x + spline_length * 0.5;
+    let param = spline
+        .get_param_at_length(distance, ACCURACY)
+        .expect("distance should be in range");
+    let point = spline.get_point_at_param(param);
+    let tangent = spline.get_tangent_at_param(param);
+    let rotation = Quat::from_rotation_arc(Vec3::X, tangent);
+    let translation = point
+        + Transform::from_rotation(rotation).transform_point(distributed.translation.with_x(0.0));
+    Transform::from_translation(translation)
+        .with_rotation(rotation)
+        .with_scale(scale)
 }

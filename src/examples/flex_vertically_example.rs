@@ -26,6 +26,7 @@ fn startup_system(
             flex,
             generate_container_mesh: true,
             translate_to_ground: true,
+            ..default()
         },
         Mesh3d::default(),
         Transform::default(),
