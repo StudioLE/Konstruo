@@ -16,11 +16,8 @@ pub struct Distribution {
 
 impl Distribution {
     /// Distribute the [`Distributable`] children.
-    pub fn regenerate(
-        meshes: &mut ResMut<Assets<Mesh>>,
-        distribution: &Distribution,
-        transform: &mut Transform,
-        mesh: &mut Option<Mut<Mesh3d>>,
+    pub fn distribute(
+        &self,
         children: &Children,
         query: &mut Query<(
             Entity,
@@ -30,22 +27,11 @@ impl Distribution {
             Option<&Mesh3d>,
             Option<&Children>,
         )>,
-    ) {
+    ) -> Container {
         let (entities, items) = get_sorted_children(children, query);
         // TODO: Loop through child entities with Distribution and regenerate them first
-        let container = distribution.flex.execute(items);
-        if distribution.translate_to_ground {
-            let translation = transform.translation.with_z(container.size.z * 0.5);
-            *transform = Transform::from_translation(translation)
-                .with_rotation(transform.rotation)
-                .with_scale(transform.scale);
-        }
-        if distribution.generate_container_mesh {
-            if let Some(mut mesh) = mesh.take() {
-                *mesh = Mesh3d(meshes.add(Cuboid::from_size(container.size)));
-            }
-        }
-        for (entity, distributed) in entities.iter().zip(container.items) {
+        let container = self.flex.execute(items);
+        for (entity, distributed) in entities.iter().zip(&container.items) {
             let components = query.get_mut(*entity).expect("entity exists");
             let mut transform = components.2;
             // TODO: If size is different we may need to set scale
@@ -53,6 +39,7 @@ impl Distribution {
                 .with_rotation(transform.rotation)
                 .with_scale(transform.scale);
         }
+        container
     }
 
     /// System to distribute children with the [`Distributable`] component when a root [`Distribution`] is added.
@@ -78,15 +65,16 @@ impl Distribution {
             Option<&Children>,
         )>,
     ) {
-        for (distribution, mut transform, mut mesh, children) in roots.iter_mut() {
-            Self::regenerate(
-                &mut meshes,
-                distribution,
-                &mut transform,
-                &mut mesh,
-                children,
-                &mut distributables,
-            );
+        for (distribution, mut transform, mesh, children) in roots.iter_mut() {
+            let container = distribution.distribute(children, &mut distributables);
+            if distribution.translate_to_ground {
+                translate_to_ground(&container, &mut transform);
+            }
+            if distribution.generate_container_mesh {
+                if let Some(mut mesh) = mesh {
+                    replace_cuboid_mesh(&mut meshes, &container, &mut mesh);
+                }
+            }
         }
     }
 }
@@ -121,4 +109,22 @@ fn get_sorted_children(
         distributables.push(child.1.clone());
     }
     (entities, distributables)
+}
+
+/// Update the translation of the [`Transform`] so the container is at ground level.
+fn translate_to_ground(container: &Container, transform: &mut Transform) {
+    let translation = transform.translation.with_z(container.size.z * 0.5);
+    *transform = Transform::from_translation(translation)
+        .with_rotation(transform.rotation)
+        .with_scale(transform.scale);
+}
+
+/// Replace the [`Mesh3d`] with a [`Cuboid`] mesh scaled to the container size.
+fn replace_cuboid_mesh(
+    meshes: &mut ResMut<Assets<Mesh>>,
+    container: &Container,
+    mesh: &mut Mesh3d,
+) {
+    let cuboid = Cuboid::from_size(container.size);
+    *mesh = Mesh3d(meshes.add(cuboid));
 }
