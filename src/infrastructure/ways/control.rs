@@ -1,4 +1,5 @@
 use super::*;
+use crate::distribution::{Distributable, Distribution};
 use crate::mathematics::QUARTER_PI;
 use crate::ui::Cursor;
 use crate::ui::PrimaryCamera;
@@ -150,6 +151,7 @@ fn on_pointer_drag(
     meshes: ResMut<Assets<Mesh>>,
     lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
     surfaces: Query<(&WaySurface, &Parent, &mut Mesh3d), (Without<Way>, Without<WayControlLine>)>,
+    distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
 ) {
     let Ok((control, parent, _transform)) = controls.get(event.entity()) else {
         error!("Failed to get WayControl");
@@ -164,7 +166,16 @@ fn on_pointer_drag(
         return;
     };
     way.spline.update_control(control.index, translation);
-    Way::regenerate(meshes, controls, lines, surfaces, &way, entity, mesh);
+    Way::regenerate(
+        meshes,
+        controls,
+        lines,
+        surfaces,
+        distributions,
+        &way,
+        entity,
+        mesh,
+    );
 }
 
 fn on_pointer_drag_end(

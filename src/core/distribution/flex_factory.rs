@@ -3,15 +3,15 @@ use bevy::prelude::*;
 
 #[derive(Clone, Debug)]
 pub struct FlexFactory {
-    pub(super) main_axis: Vec3,
-    pub(super) cross_axis: Vec3,
-    pub(super) flex_wrap: FlexWrap,
-    pub(super) justify_content: JustifyContent,
-    pub(super) align_content: AlignContent,
-    pub(super) align_items_cross: AlignItems,
-    pub(super) align_items_normal: AlignItems,
-    pub(super) gap: Vec3,
-    pub(super) bounds: Option<Vec3>,
+    pub main_axis: Vec3,
+    pub cross_axis: Vec3,
+    pub flex_wrap: FlexWrap,
+    pub justify_content: JustifyContent,
+    pub align_content: AlignContent,
+    pub align_items_cross: AlignItems,
+    pub align_items_normal: AlignItems,
+    pub gap: Vec3,
+    pub bounds: Option<Vec3>,
 }
 
 impl Default for FlexFactory {

@@ -6,6 +6,7 @@ pub struct DistributionPlugin;
 
 impl Plugin for DistributionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, Distribution::added_system);
+        app.add_systems(Update, Distribution::added_system)
+            .add_systems(Update, Distribution::changed_system);
     }
 }

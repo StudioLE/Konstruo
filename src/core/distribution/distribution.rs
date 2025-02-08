@@ -1,8 +1,7 @@
 use super::*;
 use crate::beziers::CubicBezierSpline;
+use crate::infrastructure::LENGTH_ACCURACY;
 use bevy::prelude::*;
-
-const ACCURACY: f32 = 1e-3;
 
 /// How children with the [`Distributable`] component are to be distributed.
 #[derive(Clone, Component, Debug, Default)]
@@ -104,6 +103,27 @@ impl Distribution {
             }
         }
     }
+
+    /// System to distribute children with the [`Distributable`] component when a root [`Distribution`] is changed.
+    ///
+    /// A root [`Distribution`] is one that is not itself [`Distributable`].
+    pub fn changed_system(
+        mut roots: Query<
+            (&Distribution, &Children),
+            (Changed<Distribution>, Without<Distributable>),
+        >,
+        mut distributables: Query<(
+            Entity,
+            &Distributable,
+            &mut Transform,
+            Option<&Distribution>,
+            Option<&Children>,
+        )>,
+    ) {
+        for (distribution, children) in roots.iter_mut() {
+            let _container = distribution.distribute(children, &mut distributables);
+        }
+    }
 }
 
 /// For each child entity:
@@ -180,10 +200,10 @@ fn get_transform_along_spline(
     distributed: &Distributed,
     scale: Vec3,
 ) -> Transform {
-    let spline_length = spline.get_length(ACCURACY);
+    let spline_length = spline.get_length(LENGTH_ACCURACY);
     let distance = distributed.translation.x + spline_length * 0.5;
     let param = spline
-        .get_param_at_length(distance, ACCURACY)
+        .get_param_at_length(distance, LENGTH_ACCURACY)
         .expect("distance should be in range");
     let point = spline.get_point_at_param(param);
     let tangent = spline.get_tangent_at_param(param);

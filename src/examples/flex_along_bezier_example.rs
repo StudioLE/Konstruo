@@ -19,7 +19,7 @@ fn way_added_system(
     mut materials: ResMut<Assets<StandardMaterial>>,
     query: Query<(Entity, &Way), Added<Way>>,
 ) {
-    for (_entity, way) in query.iter() {
+    for (entity, way) in query.iter() {
         let spline_length = way.spline.get_length(ACCURACY);
         let bundle = (
             Distribution {
@@ -45,7 +45,7 @@ fn way_added_system(
                 ..default()
             })),
         );
-        let parent = commands.spawn(bundle).id();
+        let parent = commands.spawn(bundle).set_parent(entity).id();
         for distributable in get_items() {
             let size = distributable.size.expect("size should be set");
             let bundle = (

@@ -1,5 +1,6 @@
 use super::*;
 use crate::beziers::CubicBezierSpline;
+use crate::distribution::{Distributable, Distribution, FlexFactory};
 use crate::geometry::Polyline;
 use crate::mathematics::QUARTER_PI;
 use bevy::prelude::*;
@@ -11,6 +12,9 @@ pub const FLATTEN_TOLERANCE: f32 = 0.010;
 
 /// Accuracy of the bezier created by offset.
 pub const OFFSET_ACCURACY: f32 = 1.0;
+
+/// Accuracy used for length calculation.
+pub const LENGTH_ACCURACY: f32 = 1e-3;
 
 /// A road, route or path defined by one or more cubic bezier curves.
 ///
@@ -47,6 +51,7 @@ impl Way {
             (&WaySurface, &Parent, &mut Mesh3d),
             (Without<Way>, Without<WayControlLine>),
         >,
+        mut distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
         way: &Way,
         way_entity: Entity,
         mut mesh: Mut<Mesh3d>,
@@ -102,6 +107,22 @@ impl Way {
                 continue;
             }
             surface.regenerate(&mut meshes, mesh, way);
+        }
+        // Distribution
+        for (mut distribution, parent) in &mut distributions {
+            if parent.get() != way_entity {
+                continue;
+            }
+            let length = way.spline.get_length(LENGTH_ACCURACY);
+            let flex = FlexFactory {
+                bounds: distribution.flex.bounds.map(|bounds| bounds.with_x(length)),
+                ..distribution.flex
+            };
+            *distribution = Distribution {
+                flex,
+                spline: Some(way.spline.clone()),
+                ..distribution.clone()
+            };
         }
     }
 
