@@ -1,16 +1,11 @@
 use crate::architecture::*;
-use crate::distribution::{Container, Distributable, FlexBuilder};
+use crate::distribution::{Distributable, Distribution, FlexBuilder};
 use crate::geometry::Vec6;
 use bevy::prelude::*;
 
 /// Factory to produce vertically stacked modules
 #[derive(Debug)]
 pub struct ModularBuildingFactory;
-
-#[derive(Debug)]
-pub enum ModularBuildingFactoryError {
-    InEqualLengths { lengths: Vec<f32> },
-}
 
 impl ModularBuildingFactory {
     /// Factory method to spawn a [`BuildingPlot`] containing [`BuildingModule`]
@@ -19,47 +14,20 @@ impl ModularBuildingFactory {
         meshes: &Res<BuildingMeshes>,
         materials: &Res<BuildingMaterials>,
         stacks: Vec<BuildingModuleStack>,
-    ) -> Result<(), ModularBuildingFactoryError> {
-        let stacked_modules: Vec<_> = stacks
-            .iter()
-            .enumerate()
-            .map(|(index, stack)| create_stacked_modules(index, stack))
-            .collect();
-        let sizes = stacked_modules
-            .iter()
-            .map(|(container, _)| Distributable {
-                size: Some(container.size),
-                ..default()
-            })
-            .collect();
-        let container = FlexBuilder::new()
-            .with_axis(Vec3::X, Vec3::Y)
-            .execute(sizes);
-        let bundle = (
-            Transform::from_translation(Vec3::new(0.0, 0.0, container.size.z * 0.5)),
-            BuildingPlot {
-                width: container.size.x,
-                length: container.size.y,
-                height: container.size.z,
-            },
-        );
-        let plot = commands.spawn(bundle).id();
-        for ((stack_item, stack), (stack_container, modules)) in
-            container.items.into_iter().zip(stacks).zip(stacked_modules)
-        {
-            let bundle = (stack, Transform::from_translation(stack_item.translation));
-            let stack = commands.spawn(bundle).set_parent(plot).id();
-            spawn_stacked_modules(commands, meshes, materials, stack_container, modules, stack);
+    ) {
+        let plot = spawn_plot(commands);
+        for (index, stack) in stacks.into_iter().enumerate() {
+            let modules = create_stacked_modules(index, &stack);
+            let parent = spawn_stack(commands, index, stack, plot);
+            for (order, module) in modules.into_iter().enumerate() {
+                spawn_module(commands, meshes, materials, order, module, parent);
+            }
         }
-        Ok(())
     }
 }
 
 #[allow(clippy::as_conversions, clippy::cast_possible_wrap)]
-fn create_stacked_modules(
-    index: usize,
-    stack: &BuildingModuleStack,
-) -> (Container, Vec<BuildingModule>) {
+fn create_stacked_modules(index: usize, stack: &BuildingModuleStack) -> Vec<BuildingModule> {
     let levels = 0..stack.levels;
     let mut modules: Vec<BuildingModule> = levels
         .map(|level| BuildingModule {
@@ -79,51 +47,70 @@ fn create_stacked_modules(
             ..stack.definition
         });
     };
-    let items = modules
-        .iter()
-        .enumerate()
-        .map(|(order, module)| Distributable {
-            order,
-            size: Some(Vec3::new(module.width, module.length, module.height)),
-            margin: Some(Vec6 {
-                y_pos: module.back_offset,
-                y_neg: module.front_offset,
-                ..default()
-            }),
-        })
-        .collect();
-    let container = FlexBuilder::new()
-        .with_axis(Vec3::Z, Vec3::X)
-        .execute(items);
-    (container, modules)
+    modules
 }
 
-fn spawn_stacked_modules(
+fn spawn_plot(commands: &mut Commands) -> Entity {
+    let bundle = (
+        Distribution {
+            flex: FlexBuilder::new().with_axis(Vec3::X, Vec3::Y).build(),
+            translate_to_ground: true,
+            ..default()
+        },
+        BuildingPlot,
+    );
+    commands.spawn(bundle).id()
+}
+
+fn spawn_stack(
+    commands: &mut Commands,
+    index: usize,
+    stack: BuildingModuleStack,
+    plot: Entity,
+) -> Entity {
+    let bundle = (
+        Distributable {
+            order: index,
+            ..default()
+        },
+        Distribution {
+            flex: FlexBuilder::new().with_axis(Vec3::Z, Vec3::X).build(),
+            translate_to_ground: true,
+            ..default()
+        },
+        stack,
+    );
+    commands.spawn(bundle).set_parent(plot).id()
+}
+
+fn spawn_module(
     commands: &mut Commands,
     meshes: &Res<BuildingMeshes>,
     materials: &Res<BuildingMaterials>,
-    container: Container,
-    modules: Vec<BuildingModule>,
+    order: usize,
+    module: BuildingModule,
     parent: Entity,
 ) {
-    let items = modules.into_iter().zip(container.items);
-    for (module, item) in items {
-        let transform = Transform::from_translation(item.translation).with_scale(Vec3::new(
-            module.width,
-            module.length,
-            module.height,
-        ));
-        let mesh = match module.roof {
-            None => meshes.cuboid_module.clone(),
-            Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right_module.clone(),
-            Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back_module.clone(),
-        };
-        let bundle = (
-            transform,
-            Mesh3d(mesh),
-            MeshMaterial3d(materials.module.clone()),
-            module,
-        );
-        commands.spawn(bundle).set_parent(parent);
-    }
+    let distributable = Distributable {
+        order,
+        size: Some(Vec3::new(module.width, module.length, module.height)),
+        margin: Some(Vec6 {
+            y_pos: module.back_offset,
+            y_neg: module.front_offset,
+            ..default()
+        }),
+    };
+    let mesh = match module.roof {
+        None => meshes.cuboid_module.clone(),
+        Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right_module.clone(),
+        Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back_module.clone(),
+    };
+    let bundle = (
+        Transform::from_scale(Vec3::new(module.width, module.length, module.height)),
+        distributable,
+        Mesh3d(mesh),
+        MeshMaterial3d(materials.module.clone()),
+        module,
+    );
+    commands.spawn(bundle).set_parent(parent);
 }

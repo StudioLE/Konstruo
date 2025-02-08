@@ -44,7 +44,6 @@ impl BuildingsExample {
             },
         ];
 
-        ModularBuildingFactory::spawn(&mut commands, &meshes, &materials, stacks)
-            .expect("spawn should not fail");
+        ModularBuildingFactory::spawn(&mut commands, &meshes, &materials, stacks);
     }
 }
