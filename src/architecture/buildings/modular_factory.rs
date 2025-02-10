@@ -1,6 +1,5 @@
 use crate::architecture::*;
 use crate::distribution::{Distributable, Distribution, FlexBuilder};
-use crate::geometry::Vec6;
 use bevy::prelude::*;
 
 /// Factory to produce vertically stacked modules
@@ -57,7 +56,10 @@ fn create_stacked_modules(index: usize, stack: &BuildingModuleStack) -> Vec<Buil
 fn insert_components(commands: &mut Commands, entity: Entity) {
     let bundle = (
         Distribution {
-            flex: FlexBuilder::new().with_axis(Vec3::X, Vec3::Y).build(),
+            flex: FlexBuilder::new()
+                .with_axis(Vec3::X, Vec3::Y)
+                .with_align_items_cross(AlignItems::FlexEnd)
+                .build(),
             translate_to_ground: true,
             ..default()
         },
@@ -98,11 +100,7 @@ fn spawn_module(
     let distributable = Distributable {
         order,
         size: Some(Vec3::new(module.width, module.length, module.height)),
-        margin: Some(Vec6 {
-            y_pos: module.back_offset,
-            y_neg: module.front_offset,
-            ..default()
-        }),
+        margin: module.margin,
     };
     let mesh = match module.roof {
         None => meshes.cuboid_module.clone(),

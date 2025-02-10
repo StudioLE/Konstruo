@@ -1,4 +1,5 @@
 use crate::architecture::RoofStyle;
+use crate::geometry::Vec6;
 use bevy::prelude::*;
 
 #[derive(Debug, Default, Clone, Component)]
@@ -17,10 +18,8 @@ pub struct BuildingModule {
     pub length: f32,
     /// Height from bottom to top
     pub height: f32,
-    /// Offset at front
-    pub front_offset: f32,
-    /// Offset at Back
-    pub back_offset: f32,
+    /// Margins or offsets
+    pub margin: Option<Vec6>,
     /// Is this a roof module?
     pub roof: Option<RoofStyle>,
 }

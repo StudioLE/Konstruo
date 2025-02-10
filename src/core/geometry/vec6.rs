@@ -39,6 +39,42 @@ impl Vec6 {
     }
 
     #[must_use]
+    pub fn with_right(mut self, value: f32) -> Self {
+        self.x_pos = value;
+        self
+    }
+
+    #[must_use]
+    pub fn with_left(mut self, value: f32) -> Self {
+        self.x_neg = value;
+        self
+    }
+
+    #[must_use]
+    pub fn with_back(mut self, value: f32) -> Self {
+        self.y_pos = value;
+        self
+    }
+
+    #[must_use]
+    pub fn with_front(mut self, value: f32) -> Self {
+        self.y_neg = value;
+        self
+    }
+
+    #[must_use]
+    pub fn with_top(mut self, value: f32) -> Self {
+        self.z_pos = value;
+        self
+    }
+
+    #[must_use]
+    pub fn with_botom(mut self, value: f32) -> Self {
+        self.z_neg = value;
+        self
+    }
+
+    #[must_use]
     pub fn splat(value: f32) -> Self {
         Self {
             x_pos: value,

@@ -1,4 +1,5 @@
 use crate::architecture::*;
+use crate::geometry::Vec6;
 use bevy::prelude::*;
 
 pub struct BuildingsExample;
@@ -17,8 +18,6 @@ impl BuildingsExample {
                 definition: BuildingModule {
                     width: 4.8,
                     length: 9.0,
-                    front_offset: 0.0,
-                    back_offset: 0.0,
                     ..default()
                 },
                 levels: 2,
@@ -30,8 +29,7 @@ impl BuildingsExample {
                 definition: BuildingModule {
                     width: 6.0,
                     length: 5.4,
-                    front_offset: 3.0,
-                    back_offset: 0.6,
+                    margin: Some(Vec6::default().with_back(0.6)),
                     ..default()
                 },
                 levels: 1,
