@@ -4,23 +4,27 @@ use crate::geometry::Vec6;
 use bevy::prelude::*;
 
 /// Factory to produce vertically stacked modules
-#[derive(Debug)]
-pub struct ModularBuildingFactory;
+#[derive(Component, Debug)]
+pub struct ModularBuildingFactory {
+    pub stacks: Vec<BuildingModuleStack>,
+}
 
 impl ModularBuildingFactory {
-    /// Factory method to spawn a [`BuildingPlot`] containing [`BuildingModule`]
-    pub fn spawn(
-        commands: &mut Commands,
-        meshes: &Res<BuildingMeshes>,
-        materials: &Res<BuildingMaterials>,
-        stacks: Vec<BuildingModuleStack>,
+    /// System to spawn a [`BuildingPlot`] containing [`BuildingModule`]
+    pub fn added_system(
+        mut commands: Commands,
+        meshes: Res<BuildingMeshes>,
+        materials: Res<BuildingMaterials>,
+        query: Query<(Entity, &ModularBuildingFactory), Added<ModularBuildingFactory>>,
     ) {
-        let plot = spawn_plot(commands);
-        for (index, stack) in stacks.into_iter().enumerate() {
-            let modules = create_stacked_modules(index, &stack);
-            let parent = spawn_stack(commands, index, stack, plot);
-            for (order, module) in modules.into_iter().enumerate() {
-                spawn_module(commands, meshes, materials, order, module, parent);
+        for (entity, factory) in query.iter() {
+            insert_components(&mut commands, entity);
+            for (index, stack) in factory.stacks.iter().enumerate() {
+                let modules = create_stacked_modules(index, stack);
+                let parent = spawn_stack(&mut commands, index, stack.clone(), entity);
+                for (order, module) in modules.into_iter().enumerate() {
+                    spawn_module(&mut commands, &meshes, &materials, order, module, parent);
+                }
             }
         }
     }
@@ -50,7 +54,7 @@ fn create_stacked_modules(index: usize, stack: &BuildingModuleStack) -> Vec<Buil
     modules
 }
 
-fn spawn_plot(commands: &mut Commands) -> Entity {
+fn insert_components(commands: &mut Commands, entity: Entity) {
     let bundle = (
         Distribution {
             flex: FlexBuilder::new().with_axis(Vec3::X, Vec3::Y).build(),
@@ -59,7 +63,7 @@ fn spawn_plot(commands: &mut Commands) -> Entity {
         },
         BuildingPlot,
     );
-    commands.spawn(bundle).id()
+    commands.entity(entity).insert(bundle);
 }
 
 fn spawn_stack(

@@ -1,7 +1,7 @@
 use super::*;
 use bevy::prelude::*;
 
-#[derive(Component, Debug)]
+#[derive(Clone, Component, Debug)]
 #[require(InheritedVisibility, Transform)]
 pub struct BuildingModuleStack {
     pub definition: BuildingModule,

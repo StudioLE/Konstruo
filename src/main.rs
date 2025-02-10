@@ -24,7 +24,7 @@ fn main() {
         // .add_plugins(debug_plugin)
         .add_plugins(WaysPlugin)
         // .add_plugins(AxisMarkerExample)
-        // .add_plugins(BuildingsExample)
+        .add_plugins(BuildingsExample)
         .add_plugins(FlexAlongBezierExample)
         // .add_plugins(FlexNestedExample)
         // .add_plugins(FlexVerticallyExample)

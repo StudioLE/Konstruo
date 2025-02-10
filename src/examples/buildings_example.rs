@@ -5,16 +5,13 @@ pub struct BuildingsExample;
 
 impl Plugin for BuildingsExample {
     fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup, Self::startup_system);
+        app.add_systems(PostStartup, Self::startup_system)
+            .add_systems(Update, ModularBuildingFactory::added_system);
     }
 }
 
 impl BuildingsExample {
-    fn startup_system(
-        mut commands: Commands,
-        meshes: Res<BuildingMeshes>,
-        materials: Res<BuildingMaterials>,
-    ) {
+    fn startup_system(mut commands: Commands) {
         let stacks = vec![
             BuildingModuleStack {
                 definition: BuildingModule {
@@ -43,7 +40,7 @@ impl BuildingsExample {
                 roof_style: Some(RoofStyle::PitchFrontToBack),
             },
         ];
-
-        ModularBuildingFactory::spawn(&mut commands, &meshes, &materials, stacks);
+        let factory = ModularBuildingFactory { stacks };
+        commands.spawn(factory);
     }
 }
