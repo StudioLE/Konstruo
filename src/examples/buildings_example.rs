@@ -5,8 +5,7 @@ pub struct BuildingsExample;
 
 impl Plugin for BuildingsExample {
     fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup, Self::startup_system)
-            .add_systems(Update, ModularBuildingFactory::added_system);
+        app.add_systems(PostStartup, Self::startup_system);
     }
 }
 
