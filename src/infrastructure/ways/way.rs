@@ -118,9 +118,14 @@ impl Way {
                 bounds: distribution.flex.bounds.map(|bounds| bounds.with_x(length)),
                 ..distribution.flex
             };
+            let spline = if let Some(offset) = distribution.spline_offset {
+                way.spline.offset(offset, OFFSET_ACCURACY)
+            } else {
+                way.spline.clone()
+            };
             *distribution = Distribution {
                 flex,
-                spline: Some(way.spline.clone()),
+                spline: Some(spline),
                 ..distribution.clone()
             };
         }

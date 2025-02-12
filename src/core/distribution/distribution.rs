@@ -10,6 +10,8 @@ pub struct Distribution {
     pub flex: FlexFactory,
     /// Should the items be distributed along a spline?
     pub spline: Option<CubicBezierSpline>,
+    /// How far should the spline be offset?
+    pub spline_offset: Option<f32>,
     /// Should the translation of the [`Transform`] be set so the container is at ground level.
     ///
     /// This is not applied to nested distributions.

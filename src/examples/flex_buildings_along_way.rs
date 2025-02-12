@@ -2,10 +2,11 @@ use crate::architecture::{
     BuildingMaterials, BuildingMeshes, BuildingTemplates, ModularBuildingFactory,
 };
 use crate::distribution::*;
-use crate::infrastructure::Way;
+use crate::infrastructure::{Way, OFFSET_ACCURACY};
 use bevy::prelude::*;
 
 const ACCURACY: f32 = 1e-3;
+const SPLINE_OFFSET: f32 = 10.0;
 
 pub struct FlexBuildingsAlongWayExample;
 
@@ -22,20 +23,21 @@ fn way_added_system(
     materials: Res<BuildingMaterials>,
 ) {
     for (entity, way) in query.iter() {
-        let spline_length = way.spline.get_length(ACCURACY);
+        let spline = way.spline.offset(SPLINE_OFFSET, OFFSET_ACCURACY);
+        let spline_length = spline.get_length(ACCURACY);
         let bundle = (Distribution {
             flex: FlexBuilder::new()
                 .with_bounds(Vec3::new(spline_length, 0.0, 0.0))
                 .with_justify_content(JustifyContent::SpaceAround)
-                .with_align_items_cross(AlignItems::Center)
+                .with_align_items_cross(AlignItems::FlexStart)
                 .build(),
-            spline: Some(way.spline.clone()),
+            spline: Some(spline),
+            spline_offset: Some(SPLINE_OFFSET),
             translate_to_ground: true,
             ..default()
         },);
         let parent = commands.spawn(bundle).set_parent(entity).id();
         for (distributable, factory) in get_items() {
-            trace!("Spawning ModularBuildingFactory {}", distributable.order);
             let bundle = (distributable, factory.clone());
             let entity = commands.spawn(bundle).set_parent(parent).id();
             factory.spawn_children(&mut commands, &meshes, &materials, entity);
