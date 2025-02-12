@@ -3,29 +3,39 @@ use crate::distribution::{Distributable, Distribution, FlexBuilder};
 use bevy::prelude::*;
 
 /// Factory to produce vertically stacked modules
-#[derive(Component, Debug)]
+#[derive(Clone, Component, Debug)]
+#[require(Distribution(spawn_distribution), BuildingPlot)]
 pub struct ModularBuildingFactory {
     pub stacks: Vec<BuildingModuleStack>,
 }
 
 impl ModularBuildingFactory {
-    /// System to spawn a [`BuildingPlot`] containing [`BuildingModule`]
-    pub fn added_system(
-        mut commands: Commands,
-        meshes: Res<BuildingMeshes>,
-        materials: Res<BuildingMaterials>,
-        query: Query<(Entity, &ModularBuildingFactory), Added<ModularBuildingFactory>>,
+    /// Spawn the children for [`ModularBuildingFactory`].
+    pub fn spawn_children(
+        self,
+        commands: &mut Commands,
+        meshes: &Res<BuildingMeshes>,
+        materials: &Res<BuildingMaterials>,
+        entity: Entity,
     ) {
-        for (entity, factory) in query.iter() {
-            insert_components(&mut commands, entity);
-            for (index, stack) in factory.stacks.iter().enumerate() {
-                let modules = create_stacked_modules(index, stack);
-                let parent = spawn_stack(&mut commands, index, stack.clone(), entity);
-                for (order, module) in modules.into_iter().enumerate() {
-                    spawn_module(&mut commands, &meshes, &materials, order, module, parent);
-                }
+        for (index, stack) in self.stacks.iter().enumerate() {
+            let modules = create_stacked_modules(index, stack);
+            let parent = spawn_stack(commands, index, stack.clone(), entity);
+            for (order, module) in modules.into_iter().enumerate() {
+                spawn_module(commands, meshes, materials, order, module, parent);
             }
         }
+    }
+}
+
+fn spawn_distribution() -> Distribution {
+    Distribution {
+        flex: FlexBuilder::new()
+            .with_axis(Vec3::X, Vec3::Y)
+            .with_align_items_cross(AlignItems::FlexEnd)
+            .build(),
+        translate_to_ground: true,
+        ..default()
     }
 }
 
@@ -51,21 +61,6 @@ fn create_stacked_modules(index: usize, stack: &BuildingModuleStack) -> Vec<Buil
         });
     };
     modules
-}
-
-fn insert_components(commands: &mut Commands, entity: Entity) {
-    let bundle = (
-        Distribution {
-            flex: FlexBuilder::new()
-                .with_axis(Vec3::X, Vec3::Y)
-                .with_align_items_cross(AlignItems::FlexEnd)
-                .build(),
-            translate_to_ground: true,
-            ..default()
-        },
-        BuildingPlot,
-    );
-    commands.entity(entity).insert(bundle);
 }
 
 fn spawn_stack(
