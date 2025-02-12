@@ -1,4 +1,4 @@
-use crate::architecture::{BuildingMaterials, BuildingMeshes, ModularBuildingFactory};
+use crate::architecture::{BuildingMaterials, BuildingMeshes};
 use bevy::app::{App, Startup};
 use bevy::prelude::*;
 
