@@ -22,6 +22,11 @@ pub struct Distribution {
     pub generate_container_mesh: bool,
 }
 
+#[derive(Debug)]
+pub enum DistributionError {
+    ExceededSplineLength { actual: f32, expected: f32 },
+}
+
 impl Distribution {
     /// Distribute the [`Distributable`] children.
     pub fn distribute(
@@ -61,7 +66,14 @@ impl Distribution {
             let components = query.get_mut(*entity).expect("entity exists");
             let mut transform = components.2;
             if let Some(spline) = &self.spline {
-                *transform = get_transform_along_spline(spline, distributed, transform.scale);
+                match get_transform_along_spline(spline, distributed, transform.scale) {
+                    Ok(t) => {
+                        *transform = t;
+                    }
+                    Err(DistributionError::ExceededSplineLength { actual, expected }) => {
+                        error!("Failed to distribute item along a spline. The spline length is {actual:.3} but {expected:.3} was required.");
+                    }
+                }
             } else {
                 *transform = Transform::from_translation(distributed.translation)
                     .with_rotation(transform.rotation)
@@ -201,9 +213,15 @@ fn get_transform_along_spline(
     spline: &CubicBezierSpline,
     distributed: &Distributed,
     scale: Vec3,
-) -> Transform {
+) -> Result<Transform, DistributionError> {
     let spline_length = spline.get_length(LENGTH_ACCURACY);
     let distance = distributed.translation.x + spline_length * 0.5;
+    if distance > spline_length {
+        return Err(DistributionError::ExceededSplineLength {
+            actual: spline_length,
+            expected: distance,
+        });
+    }
     let param = spline
         .get_param_at_length(distance, LENGTH_ACCURACY)
         .expect("distance should be in range");
@@ -212,7 +230,8 @@ fn get_transform_along_spline(
     let rotation = Quat::from_rotation_arc(Vec3::X, tangent);
     let translation = point
         + Transform::from_rotation(rotation).transform_point(distributed.translation.with_x(0.0));
-    Transform::from_translation(translation)
+    let transform = Transform::from_translation(translation)
         .with_rotation(rotation)
-        .with_scale(scale)
+        .with_scale(scale);
+    Ok(transform)
 }

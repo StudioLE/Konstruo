@@ -42,7 +42,9 @@ impl CubicBezierSpline {
         f32_from_f64(length).expect("should not exceed f32 range")
     }
 
-    /// The arc length of the curve.
+    /// Get the param at the length along the curve.
+    ///
+    /// Returns `None` if the length exceeds the length of the curve.
     ///
     /// Solve for the parameter that has the given arc length from the start.
     /// This implementation uses the IPT method, as provided by `common::solve_itp`.
