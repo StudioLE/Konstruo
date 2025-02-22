@@ -25,7 +25,7 @@ jobs:
       id: release
       env:
         GH_TOKEN: ${{ secrets.SURVEYOR_TOKEN }}
-        SURVEYOR_VERSION: v0.6.1-alpha.3
+        SURVEYOR_VERSION: v0.7.2
       run: |
         SURVEYOR="${{ runner.temp }}/surveyor"
         gh release download "${SURVEYOR_VERSION}" \
@@ -301,7 +301,6 @@ jobs:
       with:
         name: ${{ steps.artifact.outputs.name}}
         path: ${{ steps.artifact.outputs.name}}.7z
-
 
 
   github-release:
