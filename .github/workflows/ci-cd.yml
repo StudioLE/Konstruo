@@ -325,7 +325,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: >
         gh release create
-        "v${{ needs.release.outputs.versionn }}"
+        "v${{ needs.release.outputs.version }}"
         --title "v${{ needs.release.outputs.version }}"
         --notes-file "release-notes.md"
         --target ${{ github.ref_name }}
