@@ -19,10 +19,12 @@ impl LineList {
     }
 
     /// Create a [`PrimitiveTopology::LineList`].
+    ///
+    /// Picking requires [`RenderAssetUsages::default()`].
     #[must_use]
     pub fn to_mesh(self) -> Mesh {
         let vertices = self.lines.into_flattened();
-        Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::RENDER_WORLD)
+        Mesh::new(PrimitiveTopology::LineList, RenderAssetUsages::default())
             .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
     }
 }

@@ -40,13 +40,12 @@ impl Polyline {
     }
 
     /// Create a [`PrimitiveTopology::LineStrip`].
+    ///
+    /// Picking requires [`RenderAssetUsages::default()`].
     #[must_use]
     pub fn to_mesh(self) -> Mesh {
-        Mesh::new(
-            PrimitiveTopology::LineStrip,
-            RenderAssetUsages::RENDER_WORLD,
-        )
-        .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, self.vertices)
+        Mesh::new(PrimitiveTopology::LineStrip, RenderAssetUsages::default())
+            .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, self.vertices)
     }
 
     /// Equalize the number of vertices by splitting the longest edge of the shortest [`Polyline`].

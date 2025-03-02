@@ -33,6 +33,8 @@ impl TriangleStrip {
     }
 
     /// Create a [`PrimitiveTopology::TriangleStrip`] mesh.
+    ///
+    /// Picking requires [`RenderAssetUsages::default()`].
     #[must_use]
     #[allow(clippy::indexing_slicing)]
     pub fn to_mesh(self) -> Mesh {
@@ -45,7 +47,7 @@ impl TriangleStrip {
         let normals = vec![normal; vertices.len()];
         Mesh::new(
             PrimitiveTopology::TriangleStrip,
-            RenderAssetUsages::RENDER_WORLD,
+            RenderAssetUsages::default(),
         )
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
         .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)

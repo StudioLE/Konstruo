@@ -120,6 +120,8 @@ impl TriangleList {
     }
 
     /// Create a [`PrimitiveTopology::TriangleList`].
+    ///
+    /// Picking requires [`RenderAssetUsages::default()`].
     #[must_use]
     pub fn to_mesh(self) -> Mesh {
         let normals: Vec<Vec3> = self
@@ -135,7 +137,7 @@ impl TriangleList {
             .collect();
         Mesh::new(
             PrimitiveTopology::TriangleList,
-            RenderAssetUsages::RENDER_WORLD,
+            RenderAssetUsages::default(),
         )
         .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, vertices)
         .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
