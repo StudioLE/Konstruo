@@ -10,6 +10,7 @@ fn create_node() -> Node {
         width: Val::Percent(100.0),
         height: Val::Percent(100.0),
         align_items: AlignItems::End,
+        justify_content: JustifyContent::End,
         ..default()
     }
 }

@@ -16,15 +16,15 @@ fn create_node() -> Node {
     Node {
         padding: UiRect::all(Val::Px(8.0)),
         overflow: Overflow::visible(),
-        margin: UiRect::all(Val::Px(0.0)),
+        margin: UiRect::all(Val::Px(8.0)),
         ..default()
     }
 }
 
 fn create_background_color() -> BackgroundColor {
-    BackgroundColor(tailwind::GRAY_200.into())
+    BackgroundColor(tailwind::SLATE_400.into())
 }
 
 fn create_border_radius() -> BorderRadius {
-    BorderRadius::all(Val::Px(20.0))
+    BorderRadius::all(Val::Px(12.0))
 }

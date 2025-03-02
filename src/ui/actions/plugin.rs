@@ -30,7 +30,7 @@ impl ActionsPlugin {
 
         let button = commands.spawn(ActionButton).set_parent(bar).id();
         let icon = (
-            ImageNode::new(assets.load(MORE_ICON)),
+            ImageNode::new(assets.load(CLOSE_ICON)),
             Node {
                 height: Val::Px(24.0),
                 width: Val::Px(24.0),
@@ -52,7 +52,7 @@ impl ActionsPlugin {
 
         let button = commands.spawn(ActionButton).set_parent(bar).id();
         let icon = (
-            ImageNode::new(assets.load(CLOSE_ICON)),
+            ImageNode::new(assets.load(MORE_ICON)),
             Node {
                 height: Val::Px(24.0),
                 width: Val::Px(24.0),
