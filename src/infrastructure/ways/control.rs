@@ -94,6 +94,33 @@ impl WayControl {
                 .observe(on_pointer_drag_end);
         }
     }
+
+    /// Update the controls when the spline changes.
+    pub(super) fn on_spline_changed(
+        mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
+        way_entity: Entity,
+        control_points: &[Vec3],
+    ) {
+        for (control, parent, mut transform) in &mut controls {
+            if parent.get() != way_entity {
+                continue;
+            }
+            if let Some(translation) = control_points.get(control.index) {
+                let index = control.index % 4;
+                if index == 0 || index == 3 {
+                    *transform = Transform::from_translation(*translation)
+                        .with_rotation(Quat::from_rotation_z(QUARTER_PI));
+                } else {
+                    *transform = Transform::from_translation(*translation);
+                }
+            } else {
+                warn!(
+                    "Failed to set WayControl transform. Index does not exist: {}",
+                    control.index
+                );
+            };
+        }
+    }
 }
 
 fn on_pointer_over(
@@ -166,7 +193,7 @@ fn on_pointer_drag(
         return;
     };
     way.spline.update_control(control.index, translation);
-    Way::regenerate(
+    Way::on_spline_changed(
         meshes,
         controls,
         lines,

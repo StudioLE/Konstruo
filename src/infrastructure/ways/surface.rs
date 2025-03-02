@@ -47,11 +47,6 @@ impl WaySurface {
         Self::new(depth, [width * -0.5, width * 0.5], purpose)
     }
 
-    /// Regenerate the mesh geometry.
-    pub fn regenerate(&self, meshes: &mut ResMut<Assets<Mesh>>, mut mesh: Mut<Mesh3d>, way: &Way) {
-        *mesh = Mesh3d(meshes.add(self.get_mesh(way)));
-    }
-
     /// Spawn a [`WaySurface`] with its mesh geometry.
     pub fn spawn(
         self,
@@ -75,6 +70,24 @@ impl WaySurface {
             .observe(on_pointer_over)
             .observe(on_pointer_out)
             .set_parent(parent);
+    }
+
+    /// Update the mesh geometry when the spline changes.
+    pub(super) fn on_spline_changed(
+        mut surfaces: Query<
+            (&WaySurface, &Parent, &mut Mesh3d),
+            (Without<Way>, Without<WayControlLine>),
+        >,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        way: &Way,
+        way_entity: Entity,
+    ) {
+        for (surface, parent, mut mesh) in &mut surfaces {
+            if parent.get() != way_entity {
+                continue;
+            }
+            *mesh = Mesh3d(meshes.add(surface.get_mesh(way)));
+        }
     }
 
     /// Get the splines of each edge.

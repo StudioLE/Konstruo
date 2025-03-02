@@ -2,7 +2,6 @@ use super::*;
 use crate::beziers::CubicBezierSpline;
 use crate::distribution::{Distributable, Distribution, FlexFactory};
 use crate::geometry::Polyline;
-use crate::mathematics::QUARTER_PI;
 use bevy::prelude::*;
 
 /// Tolerance with which the bezier is flattened into a polyline.
@@ -41,94 +40,28 @@ impl Way {
         Self { spline }
     }
 
-    /// System to update everything when a control point is moved.
+    /// System to update all children when the spline has changed.
     #[allow(clippy::too_many_arguments, clippy::type_complexity)]
-    pub fn regenerate(
+    pub fn on_spline_changed(
         mut meshes: ResMut<Assets<Mesh>>,
-        mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
-        mut lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
-        mut surfaces: Query<
+        controls: Query<(&WayControl, &Parent, &mut Transform)>,
+        lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
+        surfaces: Query<
             (&WaySurface, &Parent, &mut Mesh3d),
             (Without<Way>, Without<WayControlLine>),
         >,
-        mut distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
+        distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
         way: &Way,
         way_entity: Entity,
         mut mesh: Mut<Mesh3d>,
     ) {
-        // Mesh3d
         let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
         *mesh = Mesh3d(meshes.add(Polyline::new(polyline).to_mesh()));
-        // WayControl
         let control_points = way.spline.get_controls();
-        for (control, parent, mut transform) in &mut controls {
-            if parent.get() != way_entity {
-                continue;
-            }
-            if let Some(translation) = control_points.get(control.index) {
-                let index = control.index % 4;
-                if index == 0 || index == 3 {
-                    *transform = Transform::from_translation(*translation)
-                        .with_rotation(Quat::from_rotation_z(QUARTER_PI));
-                } else {
-                    *transform = Transform::from_translation(*translation);
-                }
-            } else {
-                warn!(
-                    "Failed to set WayControl transform. Index does not exist: {}",
-                    control.index
-                );
-            };
-        }
-        // WayControlLine
-        for (line, parent, mut mesh) in &mut lines {
-            if parent.get() != way_entity {
-                continue;
-            }
-            if let Some(anchor) = control_points.get(line.anchor) {
-                if let Some(handle) = control_points.get(line.handle) {
-                    *mesh = Mesh3d(meshes.add(Polyline::new([*anchor, *handle]).to_mesh()));
-                } else {
-                    warn!(
-                        "Failed to set WayControlLine. Index does not exist: {}",
-                        line.handle
-                    );
-                };
-            } else {
-                warn!(
-                    "Failed to set WayControlLine. Index does not exist: {}",
-                    line.anchor
-                );
-            };
-        }
-        // WayControlLine
-        for (surface, parent, mesh) in &mut surfaces {
-            if parent.get() != way_entity {
-                continue;
-            }
-            surface.regenerate(&mut meshes, mesh, way);
-        }
-        // Distribution
-        for (mut distribution, parent) in &mut distributions {
-            if parent.get() != way_entity {
-                continue;
-            }
-            let length = way.spline.get_length(LENGTH_ACCURACY);
-            let flex = FlexFactory {
-                bounds: distribution.flex.bounds.map(|bounds| bounds.with_x(length)),
-                ..distribution.flex
-            };
-            let spline = if let Some(offset) = distribution.spline_offset {
-                way.spline.offset(offset, OFFSET_ACCURACY)
-            } else {
-                way.spline.clone()
-            };
-            *distribution = Distribution {
-                flex,
-                spline: Some(spline),
-                ..distribution.clone()
-            };
-        }
+        WayControl::on_spline_changed(controls, way_entity, &control_points);
+        WayControlLine::on_spline_changed(lines, &mut meshes, way_entity, control_points);
+        WaySurface::on_spline_changed(surfaces, &mut meshes, way, way_entity);
+        redistribute_on_spline_changed(distributions, way, way_entity);
     }
 
     /// System to create [`Mesh3d`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
@@ -149,5 +82,32 @@ impl Way {
             WayControl::spawn(&mut commands, &way_meshes, &materials, way, entity);
             WayControlLine::spawn(&mut commands, &mut meshes, &materials, way, entity);
         }
+    }
+}
+
+fn redistribute_on_spline_changed(
+    mut distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
+    way: &Way,
+    way_entity: Entity,
+) {
+    for (mut distribution, parent) in &mut distributions {
+        if parent.get() != way_entity {
+            continue;
+        }
+        let length = way.spline.get_length(LENGTH_ACCURACY);
+        let flex = FlexFactory {
+            bounds: distribution.flex.bounds.map(|bounds| bounds.with_x(length)),
+            ..distribution.flex
+        };
+        let spline = if let Some(offset) = distribution.spline_offset {
+            way.spline.offset(offset, OFFSET_ACCURACY)
+        } else {
+            way.spline.clone()
+        };
+        *distribution = Distribution {
+            flex,
+            spline: Some(spline),
+            ..distribution.clone()
+        };
     }
 }

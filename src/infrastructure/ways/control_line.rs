@@ -45,4 +45,33 @@ impl WayControlLine {
             commands.spawn(end).set_parent(parent);
         }
     }
+
+    /// Update the control lines when the spline changes.
+    pub(super) fn on_spline_changed(
+        mut lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        way_entity: Entity,
+        control_points: Vec<Vec3>,
+    ) {
+        for (line, parent, mut mesh) in &mut lines {
+            if parent.get() != way_entity {
+                continue;
+            }
+            if let Some(anchor) = control_points.get(line.anchor) {
+                if let Some(handle) = control_points.get(line.handle) {
+                    *mesh = Mesh3d(meshes.add(Polyline::new([*anchor, *handle]).to_mesh()));
+                } else {
+                    warn!(
+                        "Failed to set WayControlLine. Index does not exist: {}",
+                        line.handle
+                    );
+                };
+            } else {
+                warn!(
+                    "Failed to set WayControlLine. Index does not exist: {}",
+                    line.anchor
+                );
+            };
+        }
+    }
 }
