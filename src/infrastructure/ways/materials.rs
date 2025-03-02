@@ -1,3 +1,4 @@
+use crate::infrastructure::SurfaceType;
 use bevy::color::palettes::*;
 use bevy::prelude::*;
 
@@ -24,6 +25,9 @@ pub struct WayMaterials {
 
     /// Material for a road [`WaySurface`].
     pub verge: Handle<StandardMaterial>,
+
+    /// Material for the over state of a [`WaySurface`].
+    pub surface_over: Handle<StandardMaterial>,
 }
 
 impl WayMaterials {
@@ -81,6 +85,21 @@ impl WayMaterials {
                 depth_bias: -1.0,
                 ..Default::default()
             }),
+            surface_over: materials.add(StandardMaterial {
+                base_color: tailwind::BLUE_300.into(),
+                perceptual_roughness: 1.0,
+                depth_bias: -1.0,
+                ..Default::default()
+            }),
         });
+    }
+
+    #[must_use]
+    pub fn get_surface(&self, surface: &SurfaceType) -> Handle<StandardMaterial> {
+        match surface {
+            SurfaceType::Carriageway => self.carriageway.clone(),
+            SurfaceType::Footway => self.footway.clone(),
+            SurfaceType::Verge => self.verge.clone(),
+        }
     }
 }

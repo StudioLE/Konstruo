@@ -3,7 +3,6 @@ use crate::beziers::CubicBezierSpline;
 use crate::geometry::{Polyline, TriangleList};
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
-use SurfaceType::*;
 
 /// A surface formed by two lines from a [Way].
 #[derive(Component)]
@@ -63,18 +62,19 @@ impl WaySurface {
         parent: Entity,
     ) {
         let mesh = self.get_mesh(way);
-        let material = match self.purpose {
-            Carriageway => materials.carriageway.clone(),
-            Footway => materials.footway.clone(),
-            Verge => materials.verge.clone(),
-        };
+        let material = materials.get_surface(&self.purpose);
         let bundle = (
             self,
             Mesh3d(meshes.add(mesh)),
             MeshMaterial3d(material),
             Transform::from_translation(Vec3::new(0.0, 0.0, GROUND_HEIGHT)),
+            PickingBehavior::default(),
         );
-        commands.spawn(bundle).set_parent(parent);
+        commands
+            .spawn(bundle)
+            .observe(on_pointer_over)
+            .observe(on_pointer_out)
+            .set_parent(parent);
     }
 
     /// Get the splines of each edge.
@@ -99,4 +99,28 @@ impl WaySurface {
         let polylines = self.get_polylines(way);
         TriangleList::between_polylines_3d(polylines, self.depth).to_mesh()
     }
+}
+
+fn on_pointer_over(
+    event: Trigger<Pointer<Over>>,
+    materials: Res<WayMaterials>,
+    mut query: Query<(&WaySurface, &mut MeshMaterial3d<StandardMaterial>)>,
+) {
+    let Ok((_surface, mut material)) = query.get_mut(event.entity()) else {
+        error!("Failed to get WaySurface");
+        return;
+    };
+    *material = MeshMaterial3d(materials.surface_over.clone());
+}
+
+fn on_pointer_out(
+    event: Trigger<Pointer<Out>>,
+    materials: Res<WayMaterials>,
+    mut query: Query<(&WaySurface, &mut MeshMaterial3d<StandardMaterial>)>,
+) {
+    let Ok((surface, mut material)) = query.get_mut(event.entity()) else {
+        error!("Failed to get WaySurface");
+        return;
+    };
+    *material = MeshMaterial3d(materials.get_surface(&surface.purpose));
 }
