@@ -21,7 +21,7 @@ fn main() {
         .add_plugins(PanOrbitCameraPlugin)
         .add_plugins(SkyPlugin)
         .add_plugins(SunPlugin)
-        .add_plugins(ViewCubePlugin)
+        // .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)
         .add_plugins(WaysPlugin)
         // .add_plugins(AxisMarkerExample)

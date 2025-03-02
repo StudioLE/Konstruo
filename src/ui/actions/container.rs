@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Component)]
-#[require(Node(create_node))]
+#[require(Node(create_node), PickingBehavior(create_picking_behavior))]
 pub struct FloatingActionContainer;
 
 fn create_node() -> Node {
@@ -15,4 +15,8 @@ fn create_node() -> Node {
         flex_wrap: FlexWrap::NoWrap,
         ..default()
     }
+}
+
+fn create_picking_behavior() -> PickingBehavior {
+    PickingBehavior::IGNORE
 }
