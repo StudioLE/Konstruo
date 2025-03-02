@@ -1,4 +1,5 @@
 use super::*;
+use crate::ui::PrimaryCamera;
 use bevy::prelude::*;
 
 /// Plugin to enable Floating Action Buttons (FAB).
@@ -11,8 +12,13 @@ impl Plugin for FloatingActionPlugin {
 }
 
 impl FloatingActionPlugin {
-    fn startup_system(mut commands: Commands) {
-        let container = commands.spawn(FloatingActionContainer).id();
+    fn startup_system(mut commands: Commands, query: Query<Entity, With<PrimaryCamera>>) {
+        let Ok(camera) = query.get_single() else {
+            warn!("Failed to get PrimaryCamera");
+            return;
+        };
+        let bundle = (TargetCamera(camera), FloatingActionContainer);
+        let container = commands.spawn(bundle).id();
         for _i in 0..4 {
             commands.spawn(FloatingActionButton).set_parent(container);
         }

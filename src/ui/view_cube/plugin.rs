@@ -15,7 +15,6 @@ impl Plugin for ViewCubePlugin {
             .add_systems(PostStartup, ViewCubeFace::startup_system)
             .add_systems(PostStartup, ViewCubeEdge::startup_system)
             .add_systems(PostStartup, ViewCubeCorner::startup_system)
-            .add_systems(Update, ViewCubeCamera::update_system)
-            .add_plugins(MeshPickingPlugin);
+            .add_systems(Update, ViewCubeCamera::update_system);
     }
 }

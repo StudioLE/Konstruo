@@ -9,6 +9,7 @@ use konstruo::ui::*;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugins(MeshPickingPlugin)
         .add_plugins(AxisMarkerPlugin)
         .add_plugins(BuildingsPlugin)
         // .add_plugins(CursorGizmoPlugin)
@@ -21,7 +22,7 @@ fn main() {
         .add_plugins(PanOrbitCameraPlugin)
         .add_plugins(SkyPlugin)
         .add_plugins(SunPlugin)
-        // .add_plugins(ViewCubePlugin)
+        .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)
         .add_plugins(WaysPlugin)
         // .add_plugins(AxisMarkerExample)
