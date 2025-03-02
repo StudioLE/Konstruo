@@ -1,6 +1,7 @@
 use super::*;
 use crate::ui::{PrimaryCamera, BEZIER_ICON, CLOSE_ICON, EDIT_ICON, MORE_ICON};
 use bevy::prelude::*;
+use FloatingActionButtonSize::*;
 
 /// Plugin to spawn a bottom app bar with floating action buttons.
 /// - <https://m3.material.io/components/bottom-app-bar/overview>
@@ -27,22 +28,10 @@ impl ActionsPlugin {
             .spawn((TargetCamera(camera), ActionsBarParent))
             .id();
         let bar = commands.spawn(ActionsBar).set_parent(parent).id();
-        let close = FloatingActionButton {
-            size: FloatingActionButtonSize::Small,
-            icon: assets.load(CLOSE_ICON),
-        };
-        let edit = FloatingActionButton {
-            size: FloatingActionButtonSize::Small,
-            icon: assets.load(EDIT_ICON),
-        };
-        let more = FloatingActionButton {
-            size: FloatingActionButtonSize::Small,
-            icon: assets.load(MORE_ICON),
-        };
-        let bezier = FloatingActionButton {
-            size: FloatingActionButtonSize::Medium,
-            icon: assets.load(BEZIER_ICON),
-        };
+        let close = FloatingActionButton::new(Small, assets.load(CLOSE_ICON));
+        let edit = FloatingActionButton::new(Small, assets.load(EDIT_ICON));
+        let more = FloatingActionButton::new(Small, assets.load(MORE_ICON));
+        let bezier = FloatingActionButton::new(Medium, assets.load(BEZIER_ICON));
         close.spawn(&mut commands, bar);
         edit.spawn(&mut commands, bar);
         more.spawn(&mut commands, bar);
