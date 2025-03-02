@@ -1,5 +1,5 @@
 use super::*;
-use crate::ui::{PrimaryCamera, DEFAULT_FONT};
+use crate::ui::{PrimaryCamera, DEFAULT_FONT, GESTURE_ICON};
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 
@@ -30,6 +30,14 @@ impl FloatingActionPlugin {
                 .spawn(FloatingActionButton)
                 .set_parent(container)
                 .id();
+            let bundle = (
+                ImageNode::new(assets.load(GESTURE_ICON)),
+                Node {
+                    margin: UiRect::new(Val::Px(0.0), Val::Px(12.0), Val::Px(0.0), Val::Px(0.0)),
+                    ..default()
+                },
+            );
+            commands.spawn(bundle).set_parent(button);
             let bundle = (
                 Text::new(format!("Action {i}")),
                 TextFont {
