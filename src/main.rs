@@ -14,7 +14,7 @@ fn main() {
         .add_plugins(BuildingsPlugin)
         // .add_plugins(CursorGizmoPlugin)
         .add_plugins(DistributionPlugin)
-        .add_plugins(FloatingActionPlugin)
+        .add_plugins(ActionsPlugin)
         .add_plugins(GizmoPlugin)
         .add_plugins(GridPlugin)
         .add_plugins(GroundPlugin)

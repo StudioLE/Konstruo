@@ -1,18 +1,15 @@
 use bevy::prelude::*;
 
+/// Parent to position [`ActionsBar`] at the bottom of the screen.
 #[derive(Component)]
 #[require(Node(create_node), PickingBehavior(create_picking_behavior))]
-pub struct FloatingActionContainer;
+pub struct ActionsBarParent;
 
 fn create_node() -> Node {
     Node {
         width: Val::Percent(100.0),
         height: Val::Percent(100.0),
-        flex_direction: FlexDirection::Column,
-        justify_content: JustifyContent::End,
-        align_content: AlignContent::End,
         align_items: AlignItems::End,
-        flex_wrap: FlexWrap::NoWrap,
         ..default()
     }
 }

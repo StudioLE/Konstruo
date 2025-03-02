@@ -1,7 +1,11 @@
+pub use bar::*;
+pub use bar_parent::*;
 pub use button::*;
-pub use container::*;
+pub use fab::*;
 pub use plugin::*;
 
+mod bar;
+mod bar_parent;
 mod button;
-mod container;
+mod fab;
 mod plugin;
