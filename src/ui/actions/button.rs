@@ -12,9 +12,10 @@ pub struct FloatingActionButton;
 
 fn create_node() -> Node {
     Node {
-        width: Val::Px(24.0),
-        height: Val::Px(24.0),
+        // width: Val::Px(16.0 + 24.0),
+        // height: Val::Px(16.0 + 24.0),
         padding: UiRect::all(Val::Px(16.0)),
+        overflow: Overflow::visible(),
         margin: UiRect::new(Val::Px(16.0), Val::Px(16.0), Val::Px(0.0), Val::Px(16.0)),
         flex_shrink: 0.0,
         ..default()

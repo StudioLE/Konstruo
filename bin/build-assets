@@ -1,0 +1,8 @@
+#!/bin/bash
+
+UBUNTU_FONTS_ZIP="0cef8205-ubuntu-font-family-0.83.zip"
+UBUNTU_FONTS_URL="https://assets.ubuntu.com/v1/${UBUNTU_FONTS_ZIP}"
+UBUNTU_FONTS_TMP="/tmp/${UBUNTU_FONTS_ZIP}"
+
+curl "${UBUNTU_FONTS_URL}" --location --output "${UBUNTU_FONTS_TMP}"
+unzip -j "${UBUNTU_FONTS_TMP}" -x "__MACOSX/*" -d assets/ubuntu

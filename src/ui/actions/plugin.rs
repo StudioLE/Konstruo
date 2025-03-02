@@ -1,5 +1,6 @@
 use super::*;
-use crate::ui::PrimaryCamera;
+use crate::ui::{PrimaryCamera, DEFAULT_FONT};
+use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 
 /// Plugin to enable Floating Action Buttons (FAB).
@@ -12,15 +13,33 @@ impl Plugin for FloatingActionPlugin {
 }
 
 impl FloatingActionPlugin {
-    fn startup_system(mut commands: Commands, query: Query<Entity, With<PrimaryCamera>>) {
+    fn startup_system(
+        mut commands: Commands,
+        assets: Res<AssetServer>,
+        query: Query<Entity, With<PrimaryCamera>>,
+    ) {
+        let font = assets.load(DEFAULT_FONT);
         let Ok(camera) = query.get_single() else {
             warn!("Failed to get PrimaryCamera");
             return;
         };
         let bundle = (TargetCamera(camera), FloatingActionContainer);
         let container = commands.spawn(bundle).id();
-        for _i in 0..4 {
-            commands.spawn(FloatingActionButton).set_parent(container);
+        for i in 0..4 {
+            let button = commands
+                .spawn(FloatingActionButton)
+                .set_parent(container)
+                .id();
+            let bundle = (
+                Text::new(format!("Action {i}")),
+                TextFont {
+                    font: font.clone(),
+                    font_size: 16.0,
+                    ..default()
+                },
+                TextColor::from(tailwind::GRAY_800),
+            );
+            commands.spawn(bundle).set_parent(button);
         }
     }
 }
