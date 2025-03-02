@@ -7,5 +7,5 @@ pub const EDIT_ICON: &str =
     "icons/image/edit/materialiconsoutlined/24dp/1x/outline_edit_black_24dp.png";
 pub const CLOSE_ICON: &str =
     "icons/navigation/close/materialiconsoutlined/24dp/1x/outline_close_black_24dp.png";
-pub const GESTURE_ICON: &str =
+pub const BEZIER_ICON: &str =
     "icons/content/gesture/materialiconsoutlined/24dp/1x/outline_gesture_black_24dp.png";

@@ -1,5 +1,5 @@
 use super::*;
-use crate::ui::{PrimaryCamera, CLOSE_ICON, EDIT_ICON, GESTURE_ICON, MORE_ICON};
+use crate::ui::{PrimaryCamera, BEZIER_ICON, CLOSE_ICON, EDIT_ICON, MORE_ICON};
 use bevy::prelude::*;
 
 /// Plugin to spawn a bottom app bar with floating action buttons.
@@ -27,49 +27,25 @@ impl ActionsPlugin {
             .spawn((TargetCamera(camera), ActionsBarParent))
             .id();
         let bar = commands.spawn(ActionsBar).set_parent(parent).id();
-
-        let button = commands.spawn(ActionButton).set_parent(bar).id();
-        let icon = (
-            ImageNode::new(assets.load(CLOSE_ICON)),
-            Node {
-                height: Val::Px(24.0),
-                width: Val::Px(24.0),
-                ..default()
-            },
-        );
-        commands.spawn(icon).set_parent(button);
-
-        let button = commands.spawn(ActionButton).set_parent(bar).id();
-        let icon = (
-            ImageNode::new(assets.load(EDIT_ICON)),
-            Node {
-                height: Val::Px(24.0),
-                width: Val::Px(24.0),
-                ..default()
-            },
-        );
-        commands.spawn(icon).set_parent(button);
-
-        let button = commands.spawn(ActionButton).set_parent(bar).id();
-        let icon = (
-            ImageNode::new(assets.load(MORE_ICON)),
-            Node {
-                height: Val::Px(24.0),
-                width: Val::Px(24.0),
-                ..default()
-            },
-        );
-        commands.spawn(icon).set_parent(button);
-
-        let button = commands.spawn(FloatingActionButton).set_parent(bar).id();
-        let icon = (
-            ImageNode::new(assets.load(GESTURE_ICON)),
-            Node {
-                height: Val::Px(24.0),
-                width: Val::Px(24.0),
-                ..default()
-            },
-        );
-        commands.spawn(icon).set_parent(button);
+        let close = FloatingActionButton {
+            size: FloatingActionButtonSize::Small,
+            icon: assets.load(CLOSE_ICON),
+        };
+        let edit = FloatingActionButton {
+            size: FloatingActionButtonSize::Small,
+            icon: assets.load(EDIT_ICON),
+        };
+        let more = FloatingActionButton {
+            size: FloatingActionButtonSize::Small,
+            icon: assets.load(MORE_ICON),
+        };
+        let bezier = FloatingActionButton {
+            size: FloatingActionButtonSize::Medium,
+            icon: assets.load(BEZIER_ICON),
+        };
+        close.spawn(&mut commands, bar);
+        edit.spawn(&mut commands, bar);
+        more.spawn(&mut commands, bar);
+        bezier.spawn(&mut commands, bar);
     }
 }

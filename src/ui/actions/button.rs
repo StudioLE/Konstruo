@@ -1,30 +1,56 @@
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
+use FloatingActionButtonSize::*;
 
-/// A basic icon button on the button app bar.
-/// - <https://m3.material.io/components/bottom-app-bar/overview>
-/// - <https://m3.material.io/components/icon-buttons/specs>
+/// A floating action button.
+/// - <https://m3.material.io/components/floating-action-button/overview>
 #[derive(Component)]
-#[require(
-    Node(create_node),
-    BackgroundColor(create_background_color),
-    BorderRadius(create_border_radius)
-)]
-pub struct ActionButton;
+pub struct FloatingActionButton {
+    pub size: FloatingActionButtonSize,
+    pub icon: Handle<Image>,
+}
 
-fn create_node() -> Node {
-    Node {
-        padding: UiRect::all(Val::Px(8.0)),
-        overflow: Overflow::visible(),
-        margin: UiRect::all(Val::Px(8.0)),
-        ..default()
+pub enum FloatingActionButtonSize {
+    Small,
+    Medium,
+}
+
+impl FloatingActionButton {
+    pub fn spawn(self, commands: &mut Commands, parent: Entity) {
+        let radius = match self.size {
+            Small => 12.0,
+            Medium => 16.0,
+        };
+        let node = match self.size {
+            Small => Node {
+                padding: UiRect::all(Val::Px(8.0)),
+                overflow: Overflow::visible(),
+                margin: UiRect::all(Val::Px(8.0)),
+                ..default()
+            },
+            Medium => Node {
+                padding: UiRect::all(Val::Px(16.0)),
+                overflow: Overflow::visible(),
+                margin: UiRect::all(Val::Px(16.0)),
+                ..default()
+            },
+        };
+        let icon = self.icon.clone();
+        let bundle = (
+            node,
+            BackgroundColor(tailwind::SLATE_400.into()),
+            BorderRadius::all(Val::Px(radius)),
+            self,
+        );
+        let button = commands.spawn(bundle).set_parent(parent).id();
+        let icon = (
+            ImageNode::new(icon),
+            Node {
+                height: Val::Px(24.0),
+                width: Val::Px(24.0),
+                ..default()
+            },
+        );
+        commands.spawn(icon).set_parent(button);
     }
-}
-
-fn create_background_color() -> BackgroundColor {
-    BackgroundColor(tailwind::SLATE_400.into())
-}
-
-fn create_border_radius() -> BorderRadius {
-    BorderRadius::all(Val::Px(12.0))
 }
