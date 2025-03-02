@@ -1,4 +1,5 @@
 use super::*;
+use crate::ui::PRIMARY_CAMERA_ORDER;
 use bevy::prelude::*;
 
 /// Plugin to enable the creation of [`Camera3d`] that is controller by [`Pan`] and [`Orbit`].
@@ -27,6 +28,15 @@ fn spawn_camera(mut commands: Commands) {
     let pan = commands.spawn(bundle).id();
     let orbit = Orbit::default();
     let transform = orbit.get_cartesian_transform();
-    let bundle = (PrimaryCamera, orbit, transform, Camera3d::default());
+    let bundle = (
+        PrimaryCamera,
+        orbit,
+        transform,
+        Camera3d::default(),
+        Camera {
+            order: PRIMARY_CAMERA_ORDER,
+            ..default()
+        },
+    );
     commands.spawn(bundle).set_parent(pan);
 }

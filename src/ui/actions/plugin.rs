@@ -1,4 +1,5 @@
 use super::*;
+use crate::ui::FLOATING_ACTION_CAMERA_ORDER;
 use bevy::prelude::*;
 
 /// Plugin to enable Floating Action Buttons (FAB).
@@ -15,7 +16,7 @@ impl FloatingActionPlugin {
         let bundle = (
             Camera2d,
             Camera {
-                order: 4,
+                order: FLOATING_ACTION_CAMERA_ORDER,
                 ..default()
             },
         );

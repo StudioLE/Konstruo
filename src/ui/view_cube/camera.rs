@@ -1,5 +1,5 @@
 use super::*;
-use crate::ui::Orbit;
+use crate::ui::{Orbit, VIEW_CUBE_CAMERA_ORDER};
 use bevy::prelude::Projection::Orthographic;
 use bevy::prelude::*;
 use bevy::render::camera::ScalingMode::Fixed;
@@ -23,7 +23,7 @@ impl ViewCubeCamera {
             ViewCubeCamera,
             Camera3d::default(),
             Camera {
-                order: 2,
+                order: VIEW_CUBE_CAMERA_ORDER,
                 viewport,
                 ..default()
             },
