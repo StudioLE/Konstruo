@@ -115,10 +115,10 @@ impl Action {
     pub fn get_icon_path(&self) -> String {
         match &self.icon {
             Icon::Material { category, name } => format!(
-                "icons/{category}/{name}/materialiconsoutlined/24dp/1x/outline_{name}_black_24dp.png"
+                "material-icons/{category}/{name}/materialiconsoutlined/24dp/1x/outline_{name}_black_24dp.png"
             ),
             Icon::FontAwesome { name } => format!(
-                "icons/{name}.png",
+                "font-awesome/{name}.png",
             ),
         }
     }

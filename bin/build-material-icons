@@ -1,0 +1,17 @@
+#!/bin/bash
+
+TAR_FILE="4.0.0.tar.gz"
+URL="https://github.com/google/material-design-icons/archive/refs/tags/${TAR_FILE}"
+TAR_PATH="/tmp/${TAR_FILE}"
+OUT_DIR="assets/material-icons"
+
+curl "${URL}" --location --output "${TAR_PATH}"
+
+mkdir -p "${OUT_DIR}"
+
+tar --extract --gzip --verbose \
+--file="${TAR_PATH}" \
+--strip-components=2 \
+--wildcards \
+--directory=${OUT_DIR} \
+"material-design-icons-4.0.0/png/*"

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+ZIP_FILE="0cef8205-ubuntu-font-family-0.83.zip"
+URL="https://assets.ubuntu.com/v1/${ZIP_FILE}"
+ZIP_PATH="/tmp/${ZIP_FILE}"
+OUT_DIR="assets/ubuntu-sans"
+
+curl "${URL}" --location --output "${ZIP_PATH}"
+
+mkdir -p "${OUT_DIR}"
+
+unzip -j "${ZIP_PATH}" -x "__MACOSX/*" -d "${OUT_DIR}"
