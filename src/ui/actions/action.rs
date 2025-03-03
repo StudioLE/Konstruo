@@ -16,9 +16,8 @@ impl Action {
     pub fn deselect() -> Self {
         Self {
             name: String::from("Deselect"),
-            icon: Icon::Material {
-                category: String::from("navigation"),
-                name: String::from("close"),
+            icon: Icon::FontAwesome {
+                name: String::from("times"),
             },
         }
     }
@@ -27,9 +26,8 @@ impl Action {
     pub fn draw_way() -> Self {
         Self {
             name: String::from("Draw Way"),
-            icon: Icon::Material {
-                category: String::from("content"),
-                name: String::from("gesture"),
+            icon: Icon::FontAwesome {
+                name: String::from("bezier-curve"),
             },
         }
     }
@@ -37,10 +35,9 @@ impl Action {
     #[must_use]
     pub fn more() -> Self {
         Self {
-            name: String::from("Draw Way"),
-            icon: Icon::Material {
-                category: String::from("navigation"),
-                name: String::from("draw"),
+            name: String::from("More"),
+            icon: Icon::FontAwesome {
+                name: String::from("ellipsis-v-alt"),
             },
         }
     }
@@ -49,9 +46,8 @@ impl Action {
     pub fn settings() -> Self {
         Self {
             name: String::from("Settings"),
-            icon: Icon::Material {
-                category: String::from("action"),
-                name: String::from("settings"),
+            icon: Icon::FontAwesome {
+                name: String::from("cog"),
             },
         }
     }
@@ -60,8 +56,7 @@ impl Action {
     pub fn edit() -> Self {
         Self {
             name: String::from("Edit"),
-            icon: Icon::Material {
-                category: String::from("image"),
+            icon: Icon::FontAwesome {
                 name: String::from("edit"),
             },
         }
@@ -71,9 +66,8 @@ impl Action {
     pub fn remove() -> Self {
         Self {
             name: String::from("Remove"),
-            icon: Icon::Material {
-                category: String::from("action"),
-                name: String::from("delete"),
+            icon: Icon::FontAwesome {
+                name: String::from("trash"),
             },
         }
     }
@@ -81,9 +75,8 @@ impl Action {
     #[must_use]
     pub fn info() -> Self {
         Self {
-            name: String::from("Remove"),
-            icon: Icon::Material {
-                category: String::from("action"),
+            name: String::from("Info"),
+            icon: Icon::FontAwesome {
                 name: String::from("info"),
             },
         }
@@ -93,8 +86,7 @@ impl Action {
     pub fn add_buildings() -> Self {
         Self {
             name: String::from("Add Buildings"),
-            icon: Icon::Material {
-                category: String::from("action"),
+            icon: Icon::FontAwesome {
                 name: String::from("home"),
             },
         }
@@ -104,9 +96,8 @@ impl Action {
     pub fn add_way_surface() -> Self {
         Self {
             name: String::from("Add Way Surface"),
-            icon: Icon::Material {
-                category: String::from("maps"),
-                name: String::from("add_road"),
+            icon: Icon::FontAwesome {
+                name: String::from("road"),
             },
         }
     }
@@ -118,7 +109,7 @@ impl Action {
                 "material-icons/{category}/{name}/materialiconsoutlined/24dp/1x/outline_{name}_black_24dp.png"
             ),
             Icon::FontAwesome { name } => format!(
-                "font-awesome/{name}.png",
+                "font-awesome/24px/{name}.png",
             ),
         }
     }

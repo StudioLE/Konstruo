@@ -41,12 +41,20 @@ impl FloatingActionButton {
                 padding: UiRect::all(Val::Px(8.0)),
                 overflow: Overflow::visible(),
                 margin: UiRect::all(Val::Px(8.0)),
+                min_height: Val::Px(24.0 + 8.0 * 2.0),
+                min_width: Val::Px(24.0 + 8.0 * 2.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
             Medium => Node {
                 padding: UiRect::all(Val::Px(16.0)),
                 overflow: Overflow::visible(),
                 margin: UiRect::all(Val::Px(16.0)),
+                min_height: Val::Px(24.0 + 16.0 * 2.0),
+                min_width: Val::Px(24.0 + 16.0 * 2.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
         };
@@ -64,15 +72,7 @@ impl FloatingActionButton {
             .observe(on_pointer_out)
             .observe(on_pointer_click)
             .id();
-        let icon = (
-            ImageNode::new(icon),
-            Node {
-                height: Val::Px(24.0),
-                width: Val::Px(24.0),
-                ..default()
-            },
-        );
-        commands.spawn(icon).set_parent(button);
+        commands.spawn(ImageNode::new(icon)).set_parent(button);
     }
 }
 

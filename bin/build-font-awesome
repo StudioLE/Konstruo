@@ -1,0 +1,15 @@
+#!/bin/bash
+
+SRC_DIR="assets/fontawesome-pro-5.15.4-web/svgs"
+STYLE="solid"
+SIZE=24
+OUT_DIR="assets/font-awesome/${SIZE}px"
+
+mkdir -p "${OUT_DIR}"
+
+for PATH in "${SRC_DIR}/${STYLE}/"*
+do
+  FILE="${PATH##*/}"
+  NAME="${FILE%.svg}"
+  /home/linuxbrew/.linuxbrew/bin/rsvg-convert --keep-aspect-ratio --height ${SIZE} --width ${SIZE} "${PATH}" -o "${OUT_DIR}/${NAME}.png"
+done
