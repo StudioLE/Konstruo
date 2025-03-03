@@ -11,5 +11,6 @@ for PATH in "${SRC_DIR}/${STYLE}/"*
 do
   FILE="${PATH##*/}"
   NAME="${FILE%.svg}"
-  /home/linuxbrew/.linuxbrew/bin/rsvg-convert --keep-aspect-ratio --height ${SIZE} --width ${SIZE} "${PATH}" -o "${OUT_DIR}/${NAME}.png"
+
+  /home/linuxbrew/.linuxbrew/bin/rsvg-convert --zoom 0.046875 "${PATH}" -o "${OUT_DIR}/${NAME}.png"
 done
