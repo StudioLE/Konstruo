@@ -95,6 +95,7 @@ impl Way {
         >,
     ) {
         for (entity, state) in ways.iter() {
+            trace!("EntityState of Way changed: {state:?}");
             WaySurface::on_way_state_changed(&mut surfaces, &materials, entity, state);
         }
     }

@@ -1,7 +1,7 @@
 use super::*;
 use crate::beziers::CubicBezierSpline;
 use crate::geometry::{Polyline, TriangleList};
-use crate::ui::EntityState;
+use crate::ui::{EntityState, InterfaceState};
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
 
@@ -170,23 +170,29 @@ fn on_pointer_out(
         return;
     };
     if *state != EntityState::Selected {
-        *state = EntityState::Enabled;
+        *state = EntityState::Default;
     }
 }
 
 fn on_pointer_click(
     event: Trigger<Pointer<Click>>,
-    mut ways: Query<&mut EntityState, With<Way>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
+    mut ways: Query<&mut EntityState, With<Way>>,
+    mut interface_states: Query<&mut InterfaceState>,
 ) {
+    trace!("WaySurface clicked");
+    let Ok(mut interface_state) = interface_states.get_single_mut() else {
+        warn!("Failed to get InterfaceState");
+        return;
+    };
     let Ok(parent) = surfaces.get(event.entity()) else {
         error!("Failed to get parent of WaySurface");
         return;
     };
-    let Ok(mut state) = ways.get_mut(parent.get()) else {
+    let Ok(mut way_state) = ways.get_mut(parent.get()) else {
         warn!("Failed to get Way");
         return;
     };
-    *state = EntityState::Selected;
-    // TODO: Update UI to show the Way is selected
+    *interface_state = InterfaceState::WaySelected { way: parent.get() };
+    *way_state = EntityState::Selected;
 }

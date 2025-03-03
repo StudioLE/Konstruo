@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-/// Bottom App Bar
+/// Vertical stack of [`FloatingActionButton`].
+///
+/// Could alternatively be implemented as a bottom app bar:
 /// - <https://m3.material.io/components/bottom-app-bar/overview>
 #[derive(Component)]
 #[require(Node(create_node), PickingBehavior(create_picking_behavior))]

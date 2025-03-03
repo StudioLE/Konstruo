@@ -1,7 +1,6 @@
 use super::*;
-use crate::ui::{PrimaryCamera, BEZIER_ICON, CLOSE_ICON, EDIT_ICON, MORE_ICON};
+use crate::ui::{InterfaceState, PrimaryCamera};
 use bevy::prelude::*;
-use FloatingActionButtonSize::*;
 
 /// Plugin to spawn a bottom app bar with floating action buttons.
 /// - <https://m3.material.io/components/bottom-app-bar/overview>
@@ -10,31 +9,41 @@ pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup, Self::startup_system);
+        app.add_systems(PostStartup, startup_system)
+            .add_systems(Update, interface_state_changed_system);
     }
 }
 
-impl ActionsPlugin {
-    fn startup_system(
-        mut commands: Commands,
-        assets: Res<AssetServer>,
-        query: Query<Entity, With<PrimaryCamera>>,
-    ) {
-        let Ok(camera) = query.get_single() else {
-            warn!("Failed to get PrimaryCamera");
-            return;
-        };
-        let parent = commands
-            .spawn((TargetCamera(camera), ActionsBarParent))
-            .id();
-        let bar = commands.spawn(ActionsBar).set_parent(parent).id();
-        let close = FloatingActionButton::new(Small, assets.load(CLOSE_ICON));
-        let edit = FloatingActionButton::new(Small, assets.load(EDIT_ICON));
-        let more = FloatingActionButton::new(Small, assets.load(MORE_ICON));
-        let bezier = FloatingActionButton::new(Medium, assets.load(BEZIER_ICON));
-        close.spawn(&mut commands, bar);
-        edit.spawn(&mut commands, bar);
-        more.spawn(&mut commands, bar);
-        bezier.spawn(&mut commands, bar);
+fn startup_system(mut commands: Commands, query: Query<Entity, With<PrimaryCamera>>) {
+    let Ok(camera) = query.get_single() else {
+        warn!("Failed to get PrimaryCamera");
+        return;
+    };
+    commands.spawn(InterfaceState::Default);
+    let parent = commands
+        .spawn((TargetCamera(camera), ActionsBarParent))
+        .id();
+    commands.spawn(ActionsBar).set_parent(parent);
+}
+
+/// System to update the [`ActionsBar`] when the [`InterfaceState`] changes.
+fn interface_state_changed_system(
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    states: Query<&InterfaceState, Changed<InterfaceState>>,
+    buttons: Query<Entity, With<FloatingActionButton>>,
+    bars: Query<Entity, (With<ActionsBar>, Without<InterfaceState>)>,
+) {
+    let Ok(state) = states.get_single() else {
+        return;
+    };
+    trace!("InterfaceState changed: {state:?}");
+    let Ok(bar) = bars.get_single() else {
+        warn!("Failed to get ActionsBar");
+        return;
+    };
+    for entity in buttons.iter() {
+        commands.entity(entity).despawn_recursive();
     }
+    state.spawn_actions(&mut commands, &assets, bar);
 }
