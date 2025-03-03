@@ -2,6 +2,7 @@ use super::*;
 use crate::beziers::CubicBezierSpline;
 use crate::distribution::{Distributable, Distribution, FlexFactory};
 use crate::geometry::Polyline;
+use crate::ui::State;
 use bevy::prelude::*;
 
 /// Tolerance with which the bezier is flattened into a polyline.
@@ -26,7 +27,7 @@ pub const LENGTH_ACCURACY: f32 = 1e-3;
 ///
 /// The way does not have a transform. Its geometry is defined by the control points of its cubic bezier curves.
 #[derive(Clone, Component)]
-#[require(InheritedVisibility, Transform)]
+#[require(InheritedVisibility, Transform, State)]
 pub struct Way {
     /// Get the cubic bezier curves of the way.
     /// All vectors are
@@ -81,6 +82,20 @@ impl Way {
             commands.entity(entity).insert(bundle);
             WayControl::spawn(&mut commands, &way_meshes, &materials, way, entity);
             WayControlLine::spawn(&mut commands, &mut meshes, &materials, way, entity);
+        }
+    }
+
+    /// System to
+    pub fn state_changed_system(
+        ways: Query<(Entity, &State), (Changed<State>, With<Way>)>,
+        materials: Res<WayMaterials>,
+        mut surfaces: Query<
+            (&WaySurface, &Parent, &mut MeshMaterial3d<StandardMaterial>),
+            (With<WaySurface>, Without<Way>),
+        >,
+    ) {
+        for (entity, state) in ways.iter() {
+            WaySurface::on_way_state_changed(&mut surfaces, &materials, entity, state);
         }
     }
 }

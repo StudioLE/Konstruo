@@ -1,6 +1,7 @@
 use super::*;
 use crate::beziers::CubicBezierSpline;
 use crate::geometry::{Polyline, TriangleList};
+use crate::ui::State;
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
 
@@ -69,7 +70,30 @@ impl WaySurface {
             .spawn(bundle)
             .observe(on_pointer_over)
             .observe(on_pointer_out)
+            .observe(on_pointer_click)
             .set_parent(parent);
+    }
+
+    /// Update the material when the way is hovered.
+    pub(super) fn on_way_state_changed(
+        surfaces: &mut Query<
+            (&WaySurface, &Parent, &mut MeshMaterial3d<StandardMaterial>),
+            (With<WaySurface>, Without<Way>),
+        >,
+        materials: &Res<WayMaterials>,
+        way_entity: Entity,
+        state: &State,
+    ) {
+        for (surface, parent, mut material) in surfaces {
+            if parent.get() != way_entity {
+                continue;
+            }
+            let handle = match state {
+                State::Hovered => materials.surface_over.clone(),
+                _ => materials.get_surface(&surface.purpose),
+            };
+            *material = MeshMaterial3d(handle);
+        }
     }
 
     /// Update the mesh geometry when the spline changes.
@@ -116,24 +140,53 @@ impl WaySurface {
 
 fn on_pointer_over(
     event: Trigger<Pointer<Over>>,
-    materials: Res<WayMaterials>,
-    mut query: Query<(&WaySurface, &mut MeshMaterial3d<StandardMaterial>)>,
+    mut ways: Query<&mut State, With<Way>>,
+    surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
-    let Ok((_surface, mut material)) = query.get_mut(event.entity()) else {
-        error!("Failed to get WaySurface");
+    let Ok(parent) = surfaces.get(event.entity()) else {
+        error!("Failed to get parent of WaySurface");
         return;
     };
-    *material = MeshMaterial3d(materials.surface_over.clone());
+    let Ok(mut state) = ways.get_mut(parent.get()) else {
+        warn!("Failed to get Way");
+        return;
+    };
+    if *state != State::Selected {
+        *state = State::Hovered;
+    }
 }
 
 fn on_pointer_out(
     event: Trigger<Pointer<Out>>,
-    materials: Res<WayMaterials>,
-    mut query: Query<(&WaySurface, &mut MeshMaterial3d<StandardMaterial>)>,
+    mut ways: Query<&mut State, With<Way>>,
+    surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
-    let Ok((surface, mut material)) = query.get_mut(event.entity()) else {
-        error!("Failed to get WaySurface");
+    let Ok(parent) = surfaces.get(event.entity()) else {
+        error!("Failed to get parent of WaySurface");
         return;
     };
-    *material = MeshMaterial3d(materials.get_surface(&surface.purpose));
+    let Ok(mut state) = ways.get_mut(parent.get()) else {
+        warn!("Failed to get Way");
+        return;
+    };
+    if *state != State::Selected {
+        *state = State::Enabled;
+    }
+}
+
+fn on_pointer_click(
+    event: Trigger<Pointer<Click>>,
+    mut ways: Query<&mut State, With<Way>>,
+    surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
+) {
+    let Ok(parent) = surfaces.get(event.entity()) else {
+        error!("Failed to get parent of WaySurface");
+        return;
+    };
+    let Ok(mut state) = ways.get_mut(parent.get()) else {
+        warn!("Failed to get Way");
+        return;
+    };
+    *state = State::Selected;
+    // TODO: Update UI to show the Way is selected
 }
