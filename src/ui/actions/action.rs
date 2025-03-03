@@ -3,8 +3,12 @@ use bevy::prelude::*;
 
 pub struct Action {
     pub name: String,
-    pub icon_category: String,
-    pub icon_name: String,
+    pub icon: Icon,
+}
+
+pub enum Icon {
+    Material { category: String, name: String },
+    FontAwesome { name: String },
 }
 
 impl Action {
@@ -12,8 +16,10 @@ impl Action {
     pub fn deselect() -> Self {
         Self {
             name: String::from("Deselect"),
-            icon_category: String::from("navigation"),
-            icon_name: String::from("close"),
+            icon: Icon::Material {
+                category: String::from("navigation"),
+                name: String::from("close"),
+            },
         }
     }
 
@@ -21,8 +27,10 @@ impl Action {
     pub fn draw_way() -> Self {
         Self {
             name: String::from("Draw Way"),
-            icon_category: String::from("content"),
-            icon_name: String::from("gesture"),
+            icon: Icon::Material {
+                category: String::from("content"),
+                name: String::from("gesture"),
+            },
         }
     }
 
@@ -30,8 +38,10 @@ impl Action {
     pub fn more() -> Self {
         Self {
             name: String::from("Draw Way"),
-            icon_category: String::from("navigation"),
-            icon_name: String::from("draw"),
+            icon: Icon::Material {
+                category: String::from("navigation"),
+                name: String::from("draw"),
+            },
         }
     }
 
@@ -39,8 +49,10 @@ impl Action {
     pub fn settings() -> Self {
         Self {
             name: String::from("Settings"),
-            icon_category: String::from("action"),
-            icon_name: String::from("settings"),
+            icon: Icon::Material {
+                category: String::from("action"),
+                name: String::from("settings"),
+            },
         }
     }
 
@@ -48,8 +60,10 @@ impl Action {
     pub fn edit() -> Self {
         Self {
             name: String::from("Edit"),
-            icon_category: String::from("image"),
-            icon_name: String::from("edit"),
+            icon: Icon::Material {
+                category: String::from("image"),
+                name: String::from("edit"),
+            },
         }
     }
 
@@ -57,8 +71,10 @@ impl Action {
     pub fn remove() -> Self {
         Self {
             name: String::from("Remove"),
-            icon_category: String::from("action"),
-            icon_name: String::from("delete"),
+            icon: Icon::Material {
+                category: String::from("action"),
+                name: String::from("delete"),
+            },
         }
     }
 
@@ -66,8 +82,10 @@ impl Action {
     pub fn info() -> Self {
         Self {
             name: String::from("Remove"),
-            icon_category: String::from("action"),
-            icon_name: String::from("info"),
+            icon: Icon::Material {
+                category: String::from("action"),
+                name: String::from("info"),
+            },
         }
     }
 
@@ -75,8 +93,10 @@ impl Action {
     pub fn add_buildings() -> Self {
         Self {
             name: String::from("Add Buildings"),
-            icon_category: String::from("action"),
-            icon_name: String::from("home"),
+            icon: Icon::Material {
+                category: String::from("action"),
+                name: String::from("home"),
+            },
         }
     }
 
@@ -84,25 +104,23 @@ impl Action {
     pub fn add_way_surface() -> Self {
         Self {
             name: String::from("Add Way Surface"),
-            icon_category: String::from("maps"),
-            icon_name: String::from("add_road"),
+            icon: Icon::Material {
+                category: String::from("maps"),
+                name: String::from("add_road"),
+            },
         }
     }
 
     #[must_use]
     pub fn get_icon_path(&self) -> String {
-        format!(
-            "icons/{}/{}/materialiconsoutlined/24dp/1x/outline_{}_black_24dp.png",
-            self.icon_category, self.icon_name, self.icon_name
-        )
-    }
-
-    #[must_use]
-    pub fn get_fab(&self) -> String {
-        format!(
-            "icons/{}/{}/materialiconsoutlined/24dp/1x/outline_{}_black_24dp.png",
-            self.icon_category, self.icon_name, self.icon_name
-        )
+        match &self.icon {
+            Icon::Material { category, name } => format!(
+                "icons/{category}/{name}/materialiconsoutlined/24dp/1x/outline_{name}_black_24dp.png"
+            ),
+            Icon::FontAwesome { name } => format!(
+                "icons/{name}.png",
+            ),
+        }
     }
 
     #[allow(clippy::return_self_not_must_use)]
