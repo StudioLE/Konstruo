@@ -1,7 +1,7 @@
 use super::*;
 use crate::beziers::CubicBezierSpline;
 use crate::geometry::{Polyline, TriangleList};
-use crate::ui::State;
+use crate::ui::EntityState;
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
 
@@ -82,14 +82,14 @@ impl WaySurface {
         >,
         materials: &Res<WayMaterials>,
         way_entity: Entity,
-        state: &State,
+        state: &EntityState,
     ) {
         for (surface, parent, mut material) in surfaces {
             if parent.get() != way_entity {
                 continue;
             }
             let handle = match state {
-                State::Hovered => materials.surface_over.clone(),
+                EntityState::Hovered => materials.surface_over.clone(),
                 _ => materials.get_surface(&surface.purpose),
             };
             *material = MeshMaterial3d(handle);
@@ -140,7 +140,7 @@ impl WaySurface {
 
 fn on_pointer_over(
     event: Trigger<Pointer<Over>>,
-    mut ways: Query<&mut State, With<Way>>,
+    mut ways: Query<&mut EntityState, With<Way>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
     let Ok(parent) = surfaces.get(event.entity()) else {
@@ -151,14 +151,14 @@ fn on_pointer_over(
         warn!("Failed to get Way");
         return;
     };
-    if *state != State::Selected {
-        *state = State::Hovered;
+    if *state != EntityState::Selected {
+        *state = EntityState::Hovered;
     }
 }
 
 fn on_pointer_out(
     event: Trigger<Pointer<Out>>,
-    mut ways: Query<&mut State, With<Way>>,
+    mut ways: Query<&mut EntityState, With<Way>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
     let Ok(parent) = surfaces.get(event.entity()) else {
@@ -169,14 +169,14 @@ fn on_pointer_out(
         warn!("Failed to get Way");
         return;
     };
-    if *state != State::Selected {
-        *state = State::Enabled;
+    if *state != EntityState::Selected {
+        *state = EntityState::Enabled;
     }
 }
 
 fn on_pointer_click(
     event: Trigger<Pointer<Click>>,
-    mut ways: Query<&mut State, With<Way>>,
+    mut ways: Query<&mut EntityState, With<Way>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
     let Ok(parent) = surfaces.get(event.entity()) else {
@@ -187,6 +187,6 @@ fn on_pointer_click(
         warn!("Failed to get Way");
         return;
     };
-    *state = State::Selected;
+    *state = EntityState::Selected;
     // TODO: Update UI to show the Way is selected
 }

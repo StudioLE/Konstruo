@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Component, Debug, Default, PartialEq)]
-pub enum State {
+pub enum EntityState {
     #[default]
     Enabled,
     Hovered,
