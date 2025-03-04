@@ -45,10 +45,10 @@ impl InterfaceState {
             InterfaceState::Default => {
                 vec![Settings, DrawWay]
             }
-            InterfaceState::WaySelected { way, surface } => {
+            InterfaceState::WaySelected { way, .. } => {
                 vec![
-                    Deselect { way: *way },
-                    Remove,
+                    Deselect(*way),
+                    Remove(*way),
                     Info,
                     AddWaySurface,
                     AddBuildings,
