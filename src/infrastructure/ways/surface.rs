@@ -16,13 +16,6 @@ pub struct WaySurface {
     purpose: SurfaceType,
 }
 
-/// An edge of a [`WaySurface`].
-#[derive(Component)]
-#[require(InheritedVisibility, Transform)]
-pub struct WaySurfaceEdge {
-    pub index: usize,
-}
-
 /// Type of surface.
 pub enum SurfaceType {
     /// - <https://en.wikipedia.org/wiki/Carriageway>
@@ -57,7 +50,7 @@ impl WaySurface {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &Res<WayMaterials>,
         way: &Way,
-        parent: Entity,
+        way_entity: Entity,
     ) {
         let sweep = Sweep::new(&way.spline, self.offsets);
         let material = materials.get_surface(&self.purpose);
@@ -68,47 +61,26 @@ impl WaySurface {
             Transform::from_translation(Vec3::new(0.0, 0.0, GROUND_HEIGHT)),
             PickingBehavior::default(),
         );
-        let parent = commands
+        let surface_entity = commands
             .spawn(bundle)
             .observe(on_pointer_over)
             .observe(on_pointer_out)
             .observe(on_pointer_click)
-            .set_parent(parent)
+            .set_parent(way_entity)
             .id();
         let edges = sweep.get_edges();
         let material = materials.surface_edge_over.clone();
         for (index, edge) in edges.into_iter().enumerate() {
             let bundle = (
-                WaySurfaceEdge { index },
+                WaySurfaceEdge {
+                    index,
+                    way: way_entity,
+                },
                 Visibility::Hidden,
                 Mesh3d(meshes.add(edge.to_mesh())),
                 MeshMaterial3d(material.clone()),
             );
-            commands.spawn(bundle).set_parent(parent);
-        }
-    }
-
-    /// Update the [`WaySurfaceEdges`] visibility when the [`EntityState`] of the [`Way`] changes.
-    pub(super) fn on_state_changed(
-        mut events: EventReader<StateChangedEvent>,
-        surfaces: Query<(Entity, &Parent), With<WaySurface>>,
-        mut edges: Query<(&Parent, &mut Visibility), (With<WaySurfaceEdge>, Without<WaySurface>)>,
-    ) {
-        for event in events.read() {
-            for (surface, surface_parent) in &surfaces {
-                if surface_parent.get() != event.way {
-                    continue;
-                }
-                for (parent, mut visibility) in &mut edges {
-                    if parent.get() != surface {
-                        continue;
-                    }
-                    *visibility = match event.state {
-                        EntityState::Default => Visibility::Hidden,
-                        EntityState::Hovered | EntityState::Selected => Visibility::Visible,
-                    };
-                }
-            }
+            commands.spawn(bundle).set_parent(surface_entity);
         }
     }
 
