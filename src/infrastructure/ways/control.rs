@@ -1,5 +1,4 @@
 use super::*;
-use crate::distribution::{Distributable, Distribution};
 use crate::mathematics::QUARTER_PI;
 use crate::ui::Cursor;
 use crate::ui::PrimaryCamera;
@@ -97,28 +96,29 @@ impl WayControl {
 
     /// Update the controls when the spline changes.
     pub(super) fn on_spline_changed(
+        mut events: EventReader<SplineChangedEvent>,
         mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
-        way_entity: Entity,
-        control_points: &[Vec3],
     ) {
-        for (control, parent, mut transform) in &mut controls {
-            if parent.get() != way_entity {
-                continue;
-            }
-            if let Some(translation) = control_points.get(control.index) {
-                let index = control.index % 4;
-                if index == 0 || index == 3 {
-                    *transform = Transform::from_translation(*translation)
-                        .with_rotation(Quat::from_rotation_z(QUARTER_PI));
-                } else {
-                    *transform = Transform::from_translation(*translation);
+        for event in events.read() {
+            for (control, parent, mut transform) in &mut controls {
+                if parent.get() != event.way {
+                    continue;
                 }
-            } else {
-                warn!(
-                    "Failed to set WayControl transform. Index does not exist: {}",
-                    control.index
-                );
-            };
+                if let Some(translation) = event.spline.get_controls().get(control.index) {
+                    let index = control.index % 4;
+                    if index == 0 || index == 3 {
+                        *transform = Transform::from_translation(*translation)
+                            .with_rotation(Quat::from_rotation_z(QUARTER_PI));
+                    } else {
+                        *transform = Transform::from_translation(*translation);
+                    }
+                } else {
+                    warn!(
+                        "Failed to set WayControl transform. Index does not exist: {}",
+                        control.index
+                    );
+                };
+            }
         }
     }
 }
@@ -171,14 +171,11 @@ fn on_pointer_drag_start(
 #[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn on_pointer_drag(
     event: Trigger<Pointer<Drag>>,
+    mut event_writer: EventWriter<SplineChangedEvent>,
     controls: Query<(&WayControl, &Parent, &mut Transform)>,
-    mut ways: Query<(&mut Way, Entity, &mut Mesh3d)>,
+    mut ways: Query<(&mut Way, Entity)>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
-    meshes: ResMut<Assets<Mesh>>,
-    lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
-    surfaces: Query<(&WaySurface, &Parent, &mut Mesh3d), (Without<Way>, Without<WayControlLine>)>,
-    distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
 ) {
     let Ok((control, parent, _transform)) = controls.get(event.entity()) else {
         error!("Failed to get WayControl");
@@ -188,21 +185,15 @@ fn on_pointer_drag(
         warn!("Failed to get cursor on ground");
         return;
     };
-    let Ok((mut way, entity, mesh)) = ways.get_mut(parent.get()) else {
+    let Ok((mut way, entity)) = ways.get_mut(parent.get()) else {
         warn!("Failed to get Way");
         return;
     };
     way.spline.update_control(control.index, translation);
-    Way::on_spline_changed(
-        meshes,
-        controls,
-        lines,
-        surfaces,
-        distributions,
-        &way,
-        entity,
-        mesh,
-    );
+    event_writer.send(SplineChangedEvent {
+        way: entity,
+        spline: way.spline.clone(),
+    });
 }
 
 fn on_pointer_drag_end(

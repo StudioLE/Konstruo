@@ -6,9 +6,13 @@ pub struct WaysPlugin;
 
 impl Plugin for WaysPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, WayMaterials::startup_system)
+        app.add_event::<SplineChangedEvent>()
+            .add_systems(Startup, WayMaterials::startup_system)
             .add_systems(Startup, WayMeshes::startup_system)
             .add_systems(Update, Way::added_system)
-            .add_systems(Update, Way::state_changed_system);
+            .add_systems(Update, Way::on_spline_changed)
+            .add_systems(Update, WayControl::on_spline_changed)
+            .add_systems(Update, WayControlLine::on_spline_changed)
+            .add_systems(Update, WaySurface::on_spline_changed);
     }
 }

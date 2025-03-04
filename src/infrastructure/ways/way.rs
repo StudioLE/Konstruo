@@ -44,25 +44,20 @@ impl Way {
     /// System to update all children when the spline has changed.
     #[allow(clippy::too_many_arguments, clippy::type_complexity)]
     pub fn on_spline_changed(
+        mut events: EventReader<SplineChangedEvent>,
         mut meshes: ResMut<Assets<Mesh>>,
-        controls: Query<(&WayControl, &Parent, &mut Transform)>,
-        lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
-        surfaces: Query<
-            (&WaySurface, &Parent, &mut Mesh3d),
-            (Without<Way>, Without<WayControlLine>),
-        >,
-        distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
-        way: &Way,
-        way_entity: Entity,
-        mut mesh: Mut<Mesh3d>,
+        mut ways: Query<&mut Mesh3d, With<Way>>,
+        mut distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
     ) {
-        let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
-        *mesh = Mesh3d(meshes.add(Polyline::new(polyline).to_mesh()));
-        let control_points = way.spline.get_controls();
-        WayControl::on_spline_changed(controls, way_entity, &control_points);
-        WayControlLine::on_spline_changed(lines, &mut meshes, way_entity, control_points);
-        WaySurface::on_spline_changed(surfaces, &mut meshes, way, way_entity);
-        redistribute_on_spline_changed(distributions, way, way_entity);
+        for event in events.read() {
+            let Ok(mut mesh) = ways.get_mut(event.way) else {
+                warn!("Failed to get Way");
+                continue;
+            };
+            let polyline = event.spline.flatten(FLATTEN_TOLERANCE);
+            *mesh = Mesh3d(meshes.add(Polyline::new(polyline).to_mesh()));
+            redistribute_on_spline_changed(&mut distributions, event);
+        }
     }
 
     /// System to create [`Mesh3d`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
@@ -102,23 +97,22 @@ impl Way {
 }
 
 fn redistribute_on_spline_changed(
-    mut distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
-    way: &Way,
-    way_entity: Entity,
+    distributions: &mut Query<(&mut Distribution, &Parent), Without<Distributable>>,
+    event: &SplineChangedEvent,
 ) {
-    for (mut distribution, parent) in &mut distributions {
-        if parent.get() != way_entity {
+    for (mut distribution, parent) in distributions {
+        if parent.get() != event.way {
             continue;
         }
-        let length = way.spline.get_length(LENGTH_ACCURACY);
+        let length = event.spline.get_length(LENGTH_ACCURACY);
         let flex = FlexFactory {
             bounds: distribution.flex.bounds.map(|bounds| bounds.with_x(length)),
             ..distribution.flex
         };
         let spline = if let Some(offset) = distribution.spline_offset {
-            way.spline.offset(offset, OFFSET_ACCURACY)
+            event.spline.offset(offset, OFFSET_ACCURACY)
         } else {
-            way.spline.clone()
+            event.spline.clone()
         };
         *distribution = Distribution {
             flex,

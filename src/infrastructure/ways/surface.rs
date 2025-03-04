@@ -110,21 +110,21 @@ impl WaySurface {
 
     /// Update the mesh geometry when the spline changes.
     pub(super) fn on_spline_changed(
+        mut events: EventReader<SplineChangedEvent>,
         mut surfaces: Query<
             (&WaySurface, &Parent, &mut Mesh3d),
             (Without<Way>, Without<WayControlLine>),
         >,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        way: &Way,
-        way_entity: Entity,
+        mut meshes: ResMut<Assets<Mesh>>,
     ) {
-        for (surface, parent, mut mesh) in &mut surfaces {
-            if parent.get() != way_entity {
-                continue;
+        for event in events.read() {
+            for (surface, parent, mut mesh) in &mut surfaces {
+                if parent.get() != event.way {
+                    continue;
+                }
+                let sweep = Sweep::new(&event.spline, surface.offsets);
+                *mesh = Mesh3d(meshes.add(sweep.to_triangle_list().to_mesh()));
             }
-            let sweep = Sweep::new(&way.spline, surface.offsets);
-            *mesh = Mesh3d(meshes.add(sweep.to_triangle_list().to_mesh()));
-            // TODO: ALSO UPDATE EDGES
         }
     }
 }

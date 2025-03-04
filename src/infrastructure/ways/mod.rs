@@ -1,5 +1,6 @@
 pub use control::*;
 pub use control_line::*;
+pub use events::*;
 pub use materials::*;
 pub use meshes::*;
 pub use plugin::*;
@@ -8,6 +9,7 @@ pub use way::*;
 
 mod control;
 mod control_line;
+mod events;
 mod materials;
 mod meshes;
 mod plugin;
