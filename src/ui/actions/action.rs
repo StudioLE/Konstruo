@@ -1,14 +1,9 @@
-use crate::ui::{FloatingActionButton, FloatingActionButtonSize};
+use crate::ui::*;
 use bevy::prelude::*;
 
 pub struct Action {
     pub name: String,
     pub icon: Icon,
-}
-
-pub enum Icon {
-    Material { category: String, name: String },
-    FontAwesome { name: String },
 }
 
 impl Action {
@@ -102,18 +97,6 @@ impl Action {
         }
     }
 
-    #[must_use]
-    pub fn get_icon_path(&self) -> String {
-        match &self.icon {
-            Icon::Material { category, name } => format!(
-                "material-icons/{category}/{name}/materialiconsoutlined/24dp/1x/outline_{name}_black_24dp.png"
-            ),
-            Icon::FontAwesome { name } => format!(
-                "font-awesome/24px/{name}.png",
-            ),
-        }
-    }
-
     #[allow(clippy::return_self_not_must_use)]
     pub fn spawn_fab(
         self,
@@ -122,7 +105,7 @@ impl Action {
         size: FloatingActionButtonSize,
         bar: Entity,
     ) -> Self {
-        let icon = assets.load(self.get_icon_path());
+        let icon = assets.load(self.icon.get_path());
         let button = FloatingActionButton::new(size, icon);
         button.spawn(commands, bar);
         self
