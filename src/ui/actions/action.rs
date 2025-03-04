@@ -8,7 +8,7 @@ pub enum Action {
     AddBuildings,
     AddWaySurface,
     Edit,
-    Deselect,
+    Deselect { way: Entity },
     DrawWay,
     Info,
     More,
@@ -18,9 +18,26 @@ pub enum Action {
 
 impl Action {
     /// System to respond to [`Action`] events.
-    pub(super) fn event_system(mut events: EventReader<Action>) {
+    pub(super) fn event_system(
+        mut entity_states: Query<&mut EntityState>,
+        mut events: EventReader<Action>,
+        mut interface: EventWriter<InterfaceState>,
+    ) {
         for event in events.read() {
             trace!("Action triggered: {event:?}");
+            match event {
+                Deselect { way } => {
+                    interface.send(InterfaceState::Default);
+                    let Ok(mut state) = entity_states.get_mut(*way) else {
+                        warn!("Failed to get EntityState for {way:?}");
+                        return;
+                    };
+                    *state = EntityState::Default;
+                }
+                _ => {
+                    warn!("Unhandled Action: {event:?}");
+                }
+            }
         }
     }
 
@@ -36,7 +53,7 @@ impl Action {
             Edit => Icon::FontAwesome {
                 name: String::from("edit"),
             },
-            Deselect => Icon::FontAwesome {
+            Deselect { .. } => Icon::FontAwesome {
                 name: String::from("times"),
             },
             DrawWay => Icon::FontAwesome {
@@ -65,7 +82,7 @@ impl Display for Action {
             AddBuildings => "Add Buildings".to_owned(),
             AddWaySurface => "Add Way Surface".to_owned(),
             Edit => "Edit".to_owned(),
-            Deselect => "Deselect".to_owned(),
+            Deselect { .. } => "Deselect".to_owned(),
             DrawWay => "Draw Way".to_owned(),
             Info => "Info".to_owned(),
             More => "More".to_owned(),
