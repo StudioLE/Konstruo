@@ -1,7 +1,7 @@
+use crate::ui::*;
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
-use std::ops::DerefMut;
-use FloatingActionButtonSize::*;
+use FloatingActionButtonSize::{Medium, Small};
 
 const ENABLED: Srgba = tailwind::SLATE_400;
 const HOVERED: Srgba = tailwind::BLUE_400;
@@ -10,11 +10,7 @@ const PRESSED: Srgba = tailwind::RED_400;
 /// A floating action button.
 /// - <https://m3.material.io/components/floating-action-button/overview>
 #[derive(Component)]
-pub struct FloatingActionButton {
-    pub size: FloatingActionButtonSize,
-    pub icon: Handle<Image>,
-    pub active: bool,
-}
+pub struct FloatingActionButton;
 
 pub enum FloatingActionButtonSize {
     Small,
@@ -22,48 +18,41 @@ pub enum FloatingActionButtonSize {
 }
 
 impl FloatingActionButton {
-    #[must_use]
-    pub fn new(size: FloatingActionButtonSize, icon: Handle<Image>) -> Self {
-        Self {
-            size,
-            icon,
-            active: false,
-        }
-    }
-
-    pub fn spawn(self, commands: &mut Commands, parent: Entity) {
-        let radius = match self.size {
+    pub fn spawn(
+        commands: &mut Commands,
+        action: Action,
+        size: FloatingActionButtonSize,
+        icon: Handle<Image>,
+        parent: Entity,
+    ) {
+        let radius = match size {
             Small => 12.0,
             Medium => 16.0,
         };
-        let node = match self.size {
-            Small => Node {
-                padding: UiRect::all(Val::Px(8.0)),
-                overflow: Overflow::visible(),
-                margin: UiRect::all(Val::Px(8.0)),
-                min_height: Val::Px(24.0 + 8.0 * 2.0),
-                min_width: Val::Px(24.0 + 8.0 * 2.0),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
-            Medium => Node {
-                padding: UiRect::all(Val::Px(16.0)),
-                overflow: Overflow::visible(),
-                margin: UiRect::all(Val::Px(16.0)),
-                min_height: Val::Px(24.0 + 16.0 * 2.0),
-                min_width: Val::Px(24.0 + 16.0 * 2.0),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
+        let padding = match size {
+            Small => 8.0,
+            Medium => 16.0,
         };
-        let icon = self.icon.clone();
+        let margin = match size {
+            Small => 8.0,
+            Medium => 16.0,
+        };
+        let node = Node {
+            padding: UiRect::all(Val::Px(padding)),
+            margin: UiRect::all(Val::Px(margin)),
+            min_height: Val::Px(24.0 + padding * 2.0),
+            min_width: Val::Px(24.0 + padding * 2.0),
+            overflow: Overflow::visible(),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            ..default()
+        };
         let bundle = (
             node,
             BackgroundColor(ENABLED.into()),
             BorderRadius::all(Val::Px(radius)),
-            self,
+            action,
+            FloatingActionButton,
         );
         let button = commands
             .spawn(bundle)
@@ -78,40 +67,35 @@ impl FloatingActionButton {
 
 fn on_pointer_over(
     event: Trigger<Pointer<Over>>,
-    mut query: Query<(&mut BackgroundColor, &FloatingActionButton)>,
+    mut query: Query<&mut BackgroundColor, With<FloatingActionButton>>,
 ) {
-    let Ok((mut bg, button)) = query.get_mut(event.entity()) else {
+    let Ok(mut bg) = query.get_mut(event.entity()) else {
         error!("Failed to get FloatingActionButton");
         return;
     };
-    if !button.active {
-        *bg = BackgroundColor(HOVERED.into());
-    }
+    *bg = BackgroundColor(HOVERED.into());
 }
 
 fn on_pointer_out(
     event: Trigger<Pointer<Out>>,
-    mut query: Query<(&mut BackgroundColor, &FloatingActionButton)>,
+    mut query: Query<&mut BackgroundColor, With<FloatingActionButton>>,
 ) {
-    let Ok((mut bg, button)) = query.get_mut(event.entity()) else {
+    let Ok(mut bg) = query.get_mut(event.entity()) else {
         error!("Failed to get FloatingActionButton");
         return;
     };
-    if !button.active {
-        *bg = BackgroundColor(ENABLED.into());
-    }
+    *bg = BackgroundColor(ENABLED.into());
 }
 
 fn on_pointer_click(
     event: Trigger<Pointer<Click>>,
-    mut query: Query<(&mut BackgroundColor, &mut FloatingActionButton)>,
+    mut event_writer: EventWriter<Action>,
+    mut query: Query<(&mut BackgroundColor, &Action), With<FloatingActionButton>>,
 ) {
-    let Ok((mut bg, mut button)) = query.get_mut(event.entity()) else {
+    let Ok((mut bg, action)) = query.get_mut(event.entity()) else {
         error!("Failed to get FloatingActionButton");
         return;
     };
-    if !button.active {
-        *bg = BackgroundColor(PRESSED.into());
-        button.deref_mut().active = true;
-    }
+    *bg = BackgroundColor(PRESSED.into());
+    event_writer.send(*action);
 }

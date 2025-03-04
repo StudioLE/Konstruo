@@ -1,113 +1,77 @@
 use crate::ui::*;
 use bevy::prelude::*;
+use std::fmt::{Display, Formatter};
+use Action::*;
 
-pub struct Action {
-    pub name: String,
-    pub icon: Icon,
+#[derive(Clone, Copy, Debug, Event)]
+pub enum Action {
+    AddBuildings,
+    AddWaySurface,
+    Edit,
+    Deselect,
+    DrawWay,
+    Info,
+    More,
+    Remove,
+    Settings,
 }
 
 impl Action {
+    /// System to respond to [`Action`] events.
+    pub(super) fn event_system(mut events: EventReader<Action>) {
+        for event in events.read() {
+            trace!("Action triggered: {event:?}");
+        }
+    }
+
     #[must_use]
-    pub fn deselect() -> Self {
-        Self {
-            name: String::from("Deselect"),
-            icon: Icon::FontAwesome {
+    pub fn get_icon(&self) -> Icon {
+        match self {
+            AddBuildings => Icon::FontAwesome {
+                name: String::from("home"),
+            },
+            AddWaySurface => Icon::FontAwesome {
+                name: String::from("road"),
+            },
+            Edit => Icon::FontAwesome {
+                name: String::from("edit"),
+            },
+            Deselect => Icon::FontAwesome {
                 name: String::from("times"),
             },
-        }
-    }
-
-    #[must_use]
-    pub fn draw_way() -> Self {
-        Self {
-            name: String::from("Draw Way"),
-            icon: Icon::FontAwesome {
+            DrawWay => Icon::FontAwesome {
                 name: String::from("bezier-curve"),
             },
-        }
-    }
-
-    #[must_use]
-    pub fn more() -> Self {
-        Self {
-            name: String::from("More"),
-            icon: Icon::FontAwesome {
+            Info => Icon::FontAwesome {
+                name: String::from("info"),
+            },
+            More => Icon::FontAwesome {
                 name: String::from("ellipsis-v-alt"),
             },
-        }
-    }
-
-    #[must_use]
-    pub fn settings() -> Self {
-        Self {
-            name: String::from("Settings"),
-            icon: Icon::FontAwesome {
+            Remove => Icon::FontAwesome {
+                name: String::from("trash"),
+            },
+            Settings => Icon::FontAwesome {
                 name: String::from("cog"),
             },
         }
     }
+}
 
-    #[must_use]
-    pub fn edit() -> Self {
-        Self {
-            name: String::from("Edit"),
-            icon: Icon::FontAwesome {
-                name: String::from("edit"),
-            },
-        }
-    }
-
-    #[must_use]
-    pub fn remove() -> Self {
-        Self {
-            name: String::from("Remove"),
-            icon: Icon::FontAwesome {
-                name: String::from("trash"),
-            },
-        }
-    }
-
-    #[must_use]
-    pub fn info() -> Self {
-        Self {
-            name: String::from("Info"),
-            icon: Icon::FontAwesome {
-                name: String::from("info"),
-            },
-        }
-    }
-
-    #[must_use]
-    pub fn add_buildings() -> Self {
-        Self {
-            name: String::from("Add Buildings"),
-            icon: Icon::FontAwesome {
-                name: String::from("home"),
-            },
-        }
-    }
-
-    #[must_use]
-    pub fn add_way_surface() -> Self {
-        Self {
-            name: String::from("Add Way Surface"),
-            icon: Icon::FontAwesome {
-                name: String::from("road"),
-            },
-        }
-    }
-
-    #[allow(clippy::return_self_not_must_use)]
-    pub fn spawn_fab(
-        self,
-        commands: &mut Commands,
-        assets: &Res<AssetServer>,
-        size: FloatingActionButtonSize,
-        bar: Entity,
-    ) -> Self {
-        let icon = assets.load(self.icon.get_path());
-        let button = FloatingActionButton::new(size, icon);
-        button.spawn(commands, bar);
-        self
+impl Display for Action {
+    #[allow(clippy::absolute_paths)]
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        let output = match self {
+            AddBuildings => "Add Buildings".to_owned(),
+            AddWaySurface => "Add Way Surface".to_owned(),
+            Edit => "Edit".to_owned(),
+            Deselect => "Deselect".to_owned(),
+            DrawWay => "Draw Way".to_owned(),
+            Info => "Info".to_owned(),
+            More => "More".to_owned(),
+            Remove => "Remove".to_owned(),
+            Settings => "Settings".to_owned(),
+        };
+        output.fmt(formatter)
     }
 }

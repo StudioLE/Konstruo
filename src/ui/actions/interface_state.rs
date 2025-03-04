@@ -1,6 +1,7 @@
 use crate::ui::*;
 use bevy::asset::AssetServer;
 use bevy::prelude::*;
+use Action::*;
 use FloatingActionButtonSize::{Medium, Small};
 
 #[derive(Debug, Event, Default, PartialEq)]
@@ -42,16 +43,10 @@ impl InterfaceState {
     pub fn get_actions(&self) -> Vec<Action> {
         match self {
             InterfaceState::Default => {
-                vec![Action::settings(), Action::draw_way()]
+                vec![Settings, DrawWay]
             }
             InterfaceState::WaySelected { .. } => {
-                vec![
-                    Action::deselect(),
-                    Action::remove(),
-                    Action::info(),
-                    Action::add_way_surface(),
-                    Action::add_buildings(),
-                ]
+                vec![Deselect, Remove, Info, AddWaySurface, AddBuildings]
             }
         }
     }
@@ -61,7 +56,8 @@ impl InterfaceState {
         let last = actions.len() - 1;
         for (i, action) in actions.into_iter().enumerate() {
             let size = if i == last { Medium } else { Small };
-            action.spawn_fab(commands, assets, size, bar);
+            let icon = action.get_icon().get_path();
+            FloatingActionButton::spawn(commands, action, size, assets.load(icon), bar);
         }
     }
 }

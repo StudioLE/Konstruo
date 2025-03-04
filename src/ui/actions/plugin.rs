@@ -9,9 +9,11 @@ pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup, startup_system)
-            .add_systems(Update, InterfaceState::event_system)
-            .add_event::<InterfaceState>();
+        app.add_event::<Action>()
+            .add_event::<InterfaceState>()
+            .add_systems(PostStartup, startup_system)
+            .add_systems(Update, Action::event_system)
+            .add_systems(Update, InterfaceState::event_system);
     }
 }
 

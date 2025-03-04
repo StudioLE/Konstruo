@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub enum Icon {
     Material { category: String, name: String },
     FontAwesome { name: String },
