@@ -2,97 +2,125 @@ use bevy::prelude::*;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Vec6 {
-    /// Right
-    pub x_pos: f32,
-    /// Left
-    pub x_neg: f32,
-    /// Back
-    pub y_pos: f32,
-    /// Front
-    pub y_neg: f32,
-    /// Top
-    pub z_pos: f32,
-    /// Bottom
-    pub z_neg: f32,
+    /// Left (-x)
+    pub left: f32,
+    /// Right (+x)
+    pub right: f32,
+    /// Front (-y)
+    pub front: f32,
+    /// Back (+y)
+    pub back: f32,
+    /// Bottom (-z)
+    pub bottom: f32,
+    /// Top (+z)
+    pub top: f32,
 }
 
 impl Vec6 {
     pub const ZERO: Self = Self {
-        x_pos: 0.0,
-        x_neg: 0.0,
-        y_pos: 0.0,
-        y_neg: 0.0,
-        z_pos: 0.0,
-        z_neg: 0.0,
+        left: 0.0,
+        right: 0.0,
+        front: 0.0,
+        back: 0.0,
+        bottom: 0.0,
+        top: 0.0,
     };
 
     #[must_use]
-    pub fn new(x_pos: f32, x_neg: f32, y_pos: f32, y_neg: f32, z_pos: f32, z_neg: f32) -> Self {
+    pub fn new(left: f32, right: f32, front: f32, back: f32, bottom: f32, top: f32) -> Self {
         Self {
-            x_pos,
-            x_neg,
-            y_pos,
-            y_neg,
-            z_pos,
-            z_neg,
+            left,
+            right,
+            front,
+            back,
+            bottom,
+            top,
         }
     }
 
     #[must_use]
     pub fn with_right(mut self, value: f32) -> Self {
-        self.x_pos = value;
+        self.right = value;
         self
     }
 
     #[must_use]
     pub fn with_left(mut self, value: f32) -> Self {
-        self.x_neg = value;
+        self.left = value;
         self
     }
 
     #[must_use]
     pub fn with_back(mut self, value: f32) -> Self {
-        self.y_pos = value;
+        self.back = value;
         self
     }
 
     #[must_use]
     pub fn with_front(mut self, value: f32) -> Self {
-        self.y_neg = value;
+        self.front = value;
         self
     }
 
     #[must_use]
     pub fn with_top(mut self, value: f32) -> Self {
-        self.z_pos = value;
+        self.top = value;
         self
     }
 
     #[must_use]
     pub fn with_botom(mut self, value: f32) -> Self {
-        self.z_neg = value;
+        self.bottom = value;
         self
     }
 
     #[must_use]
     pub fn splat(value: f32) -> Self {
         Self {
-            x_pos: value,
-            x_neg: value,
-            y_pos: value,
-            y_neg: value,
-            z_pos: value,
-            z_neg: value,
+            right: value,
+            left: value,
+            back: value,
+            front: value,
+            top: value,
+            bottom: value,
+        }
+    }
+
+    /// Ensure that positive values are greater than negative values.
+    #[must_use]
+    pub fn fix_order(self) -> Self {
+        let (x_neg, x_pos) = if self.right < self.left {
+            (self.right, self.left)
+        } else {
+            (self.left, self.right)
+        };
+        let (y_neg, y_pos) = if self.back < self.front {
+            (self.back, self.front)
+        } else {
+            (self.front, self.back)
+        };
+        let (z_neg, z_pos) = if self.top < self.bottom {
+            (self.top, self.bottom)
+        } else {
+            (self.bottom, self.top)
+        };
+        Self {
+            right: x_pos,
+            left: x_neg,
+            back: y_pos,
+            front: y_neg,
+            top: z_pos,
+            bottom: z_neg,
         }
     }
 
     #[must_use]
     pub fn get_pos(&self) -> Vec3 {
-        Vec3::new(self.x_pos, self.y_pos, self.z_pos)
+        Vec3::new(self.right, self.back, self.top)
     }
 
     #[must_use]
     pub fn get_neg(&self) -> Vec3 {
-        Vec3::new(self.x_neg, self.y_neg, self.z_neg)
+        Vec3::new(self.left, self.front, self.bottom)
     }
 }

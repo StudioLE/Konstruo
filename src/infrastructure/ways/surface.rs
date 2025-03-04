@@ -1,6 +1,5 @@
 use super::*;
-use crate::beziers::CubicBezierSpline;
-use crate::geometry::{Polyline, TriangleList};
+use crate::geometry::{Sweep, Vec6};
 use crate::ui::{EntityState, InterfaceState};
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
@@ -9,14 +8,15 @@ use bevy::prelude::*;
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct WaySurface {
-    /// Depth of the surface.
-    depth: f32,
     /// Offsets from the way.
-    offsets: [f32; 2],
-    /// Offsets from the way.
+    ///
+    /// Front and Back values are ignored.
+    offsets: Vec6,
+    /// Type of surface.
     purpose: SurfaceType,
 }
 
+/// Type of surface.
 pub enum SurfaceType {
     /// - <https://en.wikipedia.org/wiki/Carriageway>
     Carriageway,
@@ -29,23 +29,18 @@ pub enum SurfaceType {
 impl WaySurface {
     /// Create a new [`WaySurface`] offset from [`Way`].
     #[must_use]
-    pub fn new(depth: f32, offsets: [f32; 2], purpose: SurfaceType) -> Self {
-        let offsets = if offsets[0] <= offsets[1] {
-            offsets
-        } else {
-            [offsets[1], offsets[0]]
-        };
-        Self {
-            depth,
-            offsets,
-            purpose,
-        }
+    pub fn new(offsets: Vec6, purpose: SurfaceType) -> Self {
+        let offsets = offsets.fix_order();
+        Self { offsets, purpose }
     }
 
     /// Create a new [`WaySurface`] centered at [`Way`].
     #[must_use]
     pub fn centered(depth: f32, width: f32, purpose: SurfaceType) -> Self {
-        Self::new(depth, [width * -0.5, width * 0.5], purpose)
+        Self::new(
+            Vec6::new(width * -0.5, width * 0.5, 0.0, 0.0, 0.0, depth),
+            purpose,
+        )
     }
 
     /// Spawn a [`WaySurface`] with its mesh geometry.
@@ -114,27 +109,11 @@ impl WaySurface {
         }
     }
 
-    /// Get the splines of each edge.
-    fn get_splines(&self, way: &Way) -> [CubicBezierSpline; 2] {
-        [
-            way.spline.offset(self.offsets[0], OFFSET_ACCURACY),
-            way.spline.offset(self.offsets[1], OFFSET_ACCURACY),
-        ]
-    }
-
-    /// Get the polylines of each edge.
-    fn get_polylines(&self, way: &Way) -> [Polyline; 2] {
-        let splines = self.get_splines(way);
-        [
-            splines[0].flatten(FLATTEN_TOLERANCE).into(),
-            splines[1].flatten(FLATTEN_TOLERANCE).into(),
-        ]
-    }
-
     /// Get the [`Mesh`].
     fn get_mesh(&self, way: &Way) -> Mesh {
-        let polylines = self.get_polylines(way);
-        TriangleList::between_polylines_3d(polylines, self.depth).to_mesh()
+        Sweep::new(&way.spline, self.offsets)
+            .to_triangle_list()
+            .to_mesh()
     }
 }
 

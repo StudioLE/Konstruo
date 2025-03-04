@@ -39,6 +39,18 @@ impl Polyline {
         &self.vertices
     }
 
+    /// Apply a [`Transform`] to the vertices of the [`Polyline`].
+    #[must_use]
+    pub fn get_transformed(&self, transform: Transform) -> Polyline {
+        let vertices = self
+            .vertices
+            .iter()
+            .copied()
+            .map(|vertex| transform.transform_point(vertex))
+            .collect();
+        Self { vertices }
+    }
+
     /// Create a [`PrimitiveTopology::LineStrip`].
     ///
     /// Picking requires [`RenderAssetUsages::default()`].
@@ -54,15 +66,14 @@ impl Polyline {
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss
     )]
-    pub(super) fn equalize_vertices_count(polylines: &mut [Polyline; 2]) {
-        let difference =
-            polylines[0].vertices.len() as isize - polylines[1].vertices.len() as isize;
+    pub(super) fn equalize_vertices_count(left: &mut Polyline, right: &mut Polyline) {
+        let difference = left.vertices.len() as isize - right.vertices.len() as isize;
         match difference.cmp(&0) {
             Ordering::Less => {
-                add_vertices(&mut polylines[0], difference.unsigned_abs());
+                add_vertices(left, difference.unsigned_abs());
             }
             Ordering::Greater => {
-                add_vertices(&mut polylines[1], difference as usize);
+                add_vertices(right, difference as usize);
             }
             Ordering::Equal => {}
         }

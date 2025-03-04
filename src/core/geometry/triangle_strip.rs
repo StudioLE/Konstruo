@@ -18,16 +18,17 @@ impl TriangleStrip {
     ///
     /// The [`Polyline`] are consumed so no cloning takes places.
     ///
+    /// The [`Polyline`] must have equal number of vertices.
+    ///
     /// TODO: Check the polylines do not intersect with each another
     /// TODO: Check the polylines do not self-intersect
     #[must_use]
-    pub fn new(mut polylines: [Polyline; 2]) -> Self {
-        Polyline::equalize_vertices_count(&mut polylines);
-        let vertices = polylines.map(Polyline::to_vertices);
-        let pairs = vertices[0]
-            .iter()
-            .zip(vertices[1].iter())
-            .map(|(&a, &b)| [a, b])
+    pub fn new(left: Polyline, right: Polyline) -> Self {
+        let pairs = left
+            .to_vertices()
+            .into_iter()
+            .zip(right.to_vertices())
+            .map(|(a, b)| [a, b])
             .collect();
         Self { pairs }
     }
