@@ -19,7 +19,9 @@ pub struct WaySurface {
 /// An edge of a [`WaySurface`].
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
-pub struct WaySurfaceEdge;
+pub struct WaySurfaceEdge {
+    pub index: usize,
+}
 
 /// Type of surface.
 pub enum SurfaceType {
@@ -75,9 +77,9 @@ impl WaySurface {
             .id();
         let edges = sweep.get_edges();
         let material = materials.surface_edge_over.clone();
-        for edge in edges {
+        for (index, edge) in edges.into_iter().enumerate() {
             let bundle = (
-                WaySurfaceEdge,
+                WaySurfaceEdge { index },
                 Visibility::Visible,
                 Mesh3d(meshes.add(edge.to_mesh())),
                 MeshMaterial3d(material.clone()),
@@ -111,19 +113,32 @@ impl WaySurface {
     /// Update the mesh geometry when the spline changes.
     pub(super) fn on_spline_changed(
         mut events: EventReader<SplineChangedEvent>,
-        mut surfaces: Query<
-            (&WaySurface, &Parent, &mut Mesh3d),
-            (Without<Way>, Without<WayControlLine>),
+        mut surfaces: Query<(Entity, &WaySurface, &Parent, &mut Mesh3d)>,
+        mut edges: Query<
+            (&WaySurfaceEdge, &Parent, &mut Mesh3d),
+            (With<WaySurfaceEdge>, Without<WaySurface>),
         >,
         mut meshes: ResMut<Assets<Mesh>>,
     ) {
         for event in events.read() {
-            for (surface, parent, mut mesh) in &mut surfaces {
+            for (entity, surface, parent, mut mesh) in &mut surfaces {
                 if parent.get() != event.way {
                     continue;
                 }
                 let sweep = Sweep::new(&event.spline, surface.offsets);
+                let sweep_edges = sweep.get_edges();
                 *mesh = Mesh3d(meshes.add(sweep.to_triangle_list().to_mesh()));
+                for (edge, parent, mut mesh) in &mut edges {
+                    if parent.get() != entity {
+                        continue;
+                    }
+                    let polyline = sweep_edges
+                        .get(edge.index)
+                        .expect("edge index should exist")
+                        .clone()
+                        .to_mesh();
+                    *mesh = Mesh3d(meshes.add(polyline));
+                }
             }
         }
     }
