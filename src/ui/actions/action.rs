@@ -1,3 +1,4 @@
+use crate::infrastructure::StateChangedEvent;
 use crate::ui::*;
 use bevy::prelude::*;
 use std::fmt::{Display, Formatter};
@@ -22,12 +23,15 @@ impl Action {
         mut commands: Commands,
         mut events: EventReader<Action>,
         mut interface: EventWriter<InterfaceState>,
+        mut changed: EventWriter<StateChangedEvent>,
         mut entity_states: Query<&mut EntityState>,
     ) {
         for event in events.read() {
             trace!("Action triggered: {event:?}");
             match event {
-                Deselect(entity) => deselect(&mut interface, &mut entity_states, *entity),
+                Deselect(entity) => {
+                    deselect(&mut interface, &mut changed, &mut entity_states, *entity);
+                }
                 Remove(entity) => remove(&mut commands, &mut interface, *entity),
                 _ => {
                     warn!("Unhandled Action: {event:?}");
@@ -90,6 +94,7 @@ impl Display for Action {
 
 fn deselect(
     interface: &mut EventWriter<InterfaceState>,
+    changed: &mut EventWriter<StateChangedEvent>,
     entity_states: &mut Query<&mut EntityState>,
     entity: Entity,
 ) {
@@ -99,6 +104,10 @@ fn deselect(
         return;
     };
     *state = EntityState::Default;
+    changed.send(StateChangedEvent {
+        way: entity,
+        state: EntityState::Default,
+    });
 }
 
 fn remove(commands: &mut Commands, interface: &mut EventWriter<InterfaceState>, entity: Entity) {

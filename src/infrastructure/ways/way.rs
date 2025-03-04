@@ -79,21 +79,6 @@ impl Way {
             WayControlLine::spawn(&mut commands, &mut meshes, &materials, way, entity);
         }
     }
-
-    /// System to
-    pub fn state_changed_system(
-        ways: Query<(Entity, &EntityState), (Changed<EntityState>, With<Way>)>,
-        materials: Res<WayMaterials>,
-        mut surfaces: Query<
-            (&WaySurface, &Parent, &mut MeshMaterial3d<StandardMaterial>),
-            (With<WaySurface>, Without<Way>),
-        >,
-    ) {
-        for (entity, state) in ways.iter() {
-            // trace!("EntityState of Way changed: {state:?}");
-            WaySurface::on_way_state_changed(&mut surfaces, &materials, entity, state);
-        }
-    }
 }
 
 fn redistribute_on_spline_changed(

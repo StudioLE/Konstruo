@@ -80,7 +80,7 @@ impl WaySurface {
         for (index, edge) in edges.into_iter().enumerate() {
             let bundle = (
                 WaySurfaceEdge { index },
-                Visibility::Visible,
+                Visibility::Hidden,
                 Mesh3d(meshes.add(edge.to_mesh())),
                 MeshMaterial3d(material.clone()),
             );
@@ -88,25 +88,27 @@ impl WaySurface {
         }
     }
 
-    /// Update the material when the way is hovered.
-    pub(super) fn on_way_state_changed(
-        surfaces: &mut Query<
-            (&WaySurface, &Parent, &mut MeshMaterial3d<StandardMaterial>),
-            (With<WaySurface>, Without<Way>),
-        >,
-        materials: &Res<WayMaterials>,
-        way_entity: Entity,
-        state: &EntityState,
+    /// Update the [`WaySurfaceEdges`] visibility when the [`EntityState`] of the [`Way`] changes.
+    pub(super) fn on_state_changed(
+        mut events: EventReader<StateChangedEvent>,
+        surfaces: Query<(Entity, &Parent), With<WaySurface>>,
+        mut edges: Query<(&Parent, &mut Visibility), (With<WaySurfaceEdge>, Without<WaySurface>)>,
     ) {
-        for (surface, parent, mut material) in surfaces {
-            if parent.get() != way_entity {
-                continue;
+        for event in events.read() {
+            for (surface, surface_parent) in &surfaces {
+                if surface_parent.get() != event.way {
+                    continue;
+                }
+                for (parent, mut visibility) in &mut edges {
+                    if parent.get() != surface {
+                        continue;
+                    }
+                    *visibility = match event.state {
+                        EntityState::Default => Visibility::Hidden,
+                        EntityState::Hovered | EntityState::Selected => Visibility::Visible,
+                    };
+                }
             }
-            let handle = match state {
-                EntityState::Hovered => materials.surface_over.clone(),
-                _ => materials.get_surface(&surface.purpose),
-            };
-            *material = MeshMaterial3d(handle);
         }
     }
 
@@ -145,11 +147,12 @@ impl WaySurface {
 }
 
 fn on_pointer_over(
-    event: Trigger<Pointer<Over>>,
+    trigger: Trigger<Pointer<Over>>,
+    mut changed: EventWriter<StateChangedEvent>,
     mut ways: Query<&mut EntityState, With<Way>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
-    let Ok(parent) = surfaces.get(event.entity()) else {
+    let Ok(parent) = surfaces.get(trigger.entity()) else {
         error!("Failed to get parent of WaySurface");
         return;
     };
@@ -159,15 +162,20 @@ fn on_pointer_over(
     };
     if *state != EntityState::Selected {
         *state = EntityState::Hovered;
+        changed.send(StateChangedEvent {
+            way: parent.get(),
+            state: EntityState::Hovered,
+        });
     }
 }
 
 fn on_pointer_out(
-    event: Trigger<Pointer<Out>>,
+    trigger: Trigger<Pointer<Out>>,
+    mut changed: EventWriter<StateChangedEvent>,
     mut ways: Query<&mut EntityState, With<Way>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
-    let Ok(parent) = surfaces.get(event.entity()) else {
+    let Ok(parent) = surfaces.get(trigger.entity()) else {
         error!("Failed to get parent of WaySurface");
         return;
     };
@@ -177,17 +185,22 @@ fn on_pointer_out(
     };
     if *state != EntityState::Selected {
         *state = EntityState::Default;
+        changed.send(StateChangedEvent {
+            way: parent.get(),
+            state: EntityState::Default,
+        });
     }
 }
 
 fn on_pointer_click(
-    event: Trigger<Pointer<Click>>,
+    trigger: Trigger<Pointer<Click>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
     mut ways: Query<&mut EntityState, With<Way>>,
     mut interface_state: EventWriter<InterfaceState>,
+    mut changed: EventWriter<StateChangedEvent>,
 ) {
     trace!("WaySurface clicked");
-    let Ok(parent) = surfaces.get(event.entity()) else {
+    let Ok(parent) = surfaces.get(trigger.entity()) else {
         error!("Failed to get parent of WaySurface");
         return;
     };
@@ -195,9 +208,15 @@ fn on_pointer_click(
         warn!("Failed to get Way");
         return;
     };
-    interface_state.send(InterfaceState::WaySelected {
-        way: parent.get(),
-        surface: event.entity(),
-    });
-    *way_state = EntityState::Selected;
+    if *way_state != EntityState::Selected {
+        *way_state = EntityState::Selected;
+        interface_state.send(InterfaceState::WaySelected {
+            way: parent.get(),
+            surface: trigger.entity(),
+        });
+        changed.send(StateChangedEvent {
+            way: parent.get(),
+            state: EntityState::Selected,
+        });
+    }
 }
