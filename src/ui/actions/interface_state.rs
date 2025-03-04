@@ -1,18 +1,43 @@
+use crate::ui::*;
+use bevy::asset::AssetServer;
 use bevy::prelude::*;
+use FloatingActionButtonSize::{Medium, Small};
 
-#[derive(Component, Debug, Default, PartialEq)]
+#[derive(Debug, Event, Default, PartialEq)]
 pub enum InterfaceState {
     #[default]
     Default,
+    /// A [`Way`] was selected by clicking on a [`WaySurface`].
     WaySelected {
+        /// [`Way`]
         way: Entity,
+        /// [`WaySurface`] that was selected
+        surface: Entity,
     },
 }
-use crate::ui::*;
-use bevy::asset::AssetServer;
-use FloatingActionButtonSize::{Medium, Small};
 
 impl InterfaceState {
+    /// System to update the [`ActionsBar`] when [`InterfaceState`] is triggered.
+    pub(super) fn event_system(
+        mut commands: Commands,
+        assets: Res<AssetServer>,
+        mut events: EventReader<InterfaceState>,
+        buttons: Query<Entity, With<FloatingActionButton>>,
+        bars: Query<Entity, (With<ActionsBar>, Without<InterfaceState>)>,
+    ) {
+        for event in events.read() {
+            trace!("InterfaceEvent triggered: {event:?}");
+            let Ok(bar) = bars.get_single() else {
+                warn!("Failed to get ActionsBar");
+                return;
+            };
+            for entity in buttons.iter() {
+                commands.entity(entity).despawn_recursive();
+            }
+            event.spawn_actions(&mut commands, &assets, bar);
+        }
+    }
+
     #[must_use]
     pub fn get_actions(&self) -> Vec<Action> {
         match self {

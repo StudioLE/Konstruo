@@ -178,13 +178,9 @@ fn on_pointer_click(
     event: Trigger<Pointer<Click>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
     mut ways: Query<&mut EntityState, With<Way>>,
-    mut interface_states: Query<&mut InterfaceState>,
+    mut interface_state: EventWriter<InterfaceState>,
 ) {
     trace!("WaySurface clicked");
-    let Ok(mut interface_state) = interface_states.get_single_mut() else {
-        warn!("Failed to get InterfaceState");
-        return;
-    };
     let Ok(parent) = surfaces.get(event.entity()) else {
         error!("Failed to get parent of WaySurface");
         return;
@@ -193,6 +189,9 @@ fn on_pointer_click(
         warn!("Failed to get Way");
         return;
     };
-    *interface_state = InterfaceState::WaySelected { way: parent.get() };
+    interface_state.send(InterfaceState::WaySelected {
+        way: parent.get(),
+        surface: event.entity(),
+    });
     *way_state = EntityState::Selected;
 }
