@@ -7,6 +7,7 @@ use bevy::prelude::Transform;
 /// A geometric sweep with parallel edges on the ground plane.
 ///
 /// All edges will have the same number of vertices
+#[derive(Clone)]
 pub struct Sweep {
     /// Vertices of the bottom left edge
     bottom_left_edge: Polyline,
@@ -41,6 +42,62 @@ impl Sweep {
         }
     }
 
+    fn get_front_bottom_edge(&self) -> Polyline {
+        let left = *self
+            .bottom_left_edge
+            .get_vertices()
+            .first()
+            .expect("sweep edge should have vertices");
+        let right = *self
+            .bottom_right_edge
+            .get_vertices()
+            .first()
+            .expect("sweep edge should have vertices");
+        Polyline::new([left, right])
+    }
+
+    fn get_front_top_edge(&self) -> Polyline {
+        let left = *self
+            .top_left_edge
+            .get_vertices()
+            .first()
+            .expect("sweep edge should have vertices");
+        let right = *self
+            .top_left_edge
+            .get_vertices()
+            .first()
+            .expect("sweep edge should have vertices");
+        Polyline::new([left, right])
+    }
+
+    fn get_back_bottom_edge(&self) -> Polyline {
+        let left = *self
+            .bottom_left_edge
+            .get_vertices()
+            .last()
+            .expect("sweep edge should have vertices");
+        let right = *self
+            .bottom_right_edge
+            .get_vertices()
+            .last()
+            .expect("sweep edge should have vertices");
+        Polyline::new([left, right])
+    }
+
+    fn get_back_top_edge(&self) -> Polyline {
+        let left = *self
+            .top_left_edge
+            .get_vertices()
+            .last()
+            .expect("sweep edge should have vertices");
+        let right = *self
+            .top_left_edge
+            .get_vertices()
+            .last()
+            .expect("sweep edge should have vertices");
+        Polyline::new([left, right])
+    }
+
     /// Create a 3D [`TriangleList`] between two parallel polylines.
     ///
     /// If the polylines do not have an equal vertices count then the longest edge will be split.
@@ -52,44 +109,44 @@ impl Sweep {
     #[must_use]
     #[allow(clippy::indexing_slicing)]
     pub fn to_triangle_list(self) -> TriangleList {
-        let bottom_left = self.bottom_left_edge.to_vertices();
-        let bottom_right = self.bottom_right_edge.to_vertices();
-        let top_left = self.top_left_edge.to_vertices();
-        let top_right = self.top_right_edge.to_vertices();
-        let start_top = vec![
-            *top_left.first().expect("first should exist"),
-            *top_right.first().expect("first should exist"),
-        ];
-        let start_bottom = vec![
-            *bottom_left.first().expect("first should exist"),
-            *bottom_right.first().expect("first should exist"),
-        ];
-        let end_top = vec![
-            *top_left.last().expect("last should exist"),
-            *top_right.last().expect("last should exist"),
-        ];
-        let end_bottom = vec![
-            *bottom_left.last().expect("first should exist"),
-            *bottom_right.last().expect("last should exist"),
-        ];
-        let mut triangles =
-            TriangleList::between_polylines(top_left.clone().into(), top_right.clone().into());
+        let mut triangles = TriangleList::between_polylines(
+            self.bottom_left_edge.clone(),
+            self.top_left_edge.clone(),
+        );
         triangles.merge(TriangleList::between_polylines(
-            bottom_left.into(),
-            top_left.into(),
+            self.top_right_edge.clone(),
+            self.bottom_right_edge.clone(),
         ));
         triangles.merge(TriangleList::between_polylines(
-            top_right.into(),
-            bottom_right.into(),
+            self.get_front_top_edge(),
+            self.get_front_bottom_edge(),
         ));
         triangles.merge(TriangleList::between_polylines(
-            start_top.into(),
-            start_bottom.into(),
+            self.get_back_top_edge(),
+            self.get_back_bottom_edge(),
         ));
         triangles.merge(TriangleList::between_polylines(
-            end_bottom.into(),
-            end_top.into(),
+            self.top_left_edge,
+            self.top_right_edge,
+        ));
+        triangles.merge(TriangleList::between_polylines(
+            self.bottom_left_edge,
+            self.bottom_right_edge,
         ));
         triangles
+    }
+
+    #[must_use]
+    pub fn get_edges(&self) -> [Polyline; 8] {
+        [
+            self.bottom_left_edge.clone(),
+            self.bottom_right_edge.clone(),
+            self.top_left_edge.clone(),
+            self.top_right_edge.clone(),
+            self.get_front_bottom_edge(),
+            self.get_front_top_edge(),
+            self.get_back_bottom_edge(),
+            self.get_back_top_edge(),
+        ]
     }
 }

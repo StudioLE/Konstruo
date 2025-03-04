@@ -4,7 +4,7 @@ use crate::ui::{EntityState, InterfaceState};
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
 
-/// A surface formed by two lines from a [Way].
+/// A surface formed by two lines from a [`Way`].
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct WaySurface {
@@ -15,6 +15,11 @@ pub struct WaySurface {
     /// Type of surface.
     purpose: SurfaceType,
 }
+
+/// An edge of a [`WaySurface`].
+#[derive(Component)]
+#[require(InheritedVisibility, Transform)]
+pub struct WaySurfaceEdge;
 
 /// Type of surface.
 pub enum SurfaceType {
@@ -52,21 +57,33 @@ impl WaySurface {
         way: &Way,
         parent: Entity,
     ) {
-        let mesh = self.get_mesh(way);
+        let sweep = Sweep::new(&way.spline, self.offsets);
         let material = materials.get_surface(&self.purpose);
         let bundle = (
             self,
-            Mesh3d(meshes.add(mesh)),
+            Mesh3d(meshes.add(sweep.clone().to_triangle_list().to_mesh())),
             MeshMaterial3d(material),
             Transform::from_translation(Vec3::new(0.0, 0.0, GROUND_HEIGHT)),
             PickingBehavior::default(),
         );
-        commands
+        let parent = commands
             .spawn(bundle)
             .observe(on_pointer_over)
             .observe(on_pointer_out)
             .observe(on_pointer_click)
-            .set_parent(parent);
+            .set_parent(parent)
+            .id();
+        let edges = sweep.get_edges();
+        let material = materials.surface_edge_over.clone();
+        for edge in edges {
+            let bundle = (
+                WaySurfaceEdge,
+                Visibility::Visible,
+                Mesh3d(meshes.add(edge.to_mesh())),
+                MeshMaterial3d(material.clone()),
+            );
+            commands.spawn(bundle).set_parent(parent);
+        }
     }
 
     /// Update the material when the way is hovered.
@@ -105,15 +122,10 @@ impl WaySurface {
             if parent.get() != way_entity {
                 continue;
             }
-            *mesh = Mesh3d(meshes.add(surface.get_mesh(way)));
+            let sweep = Sweep::new(&way.spline, surface.offsets);
+            *mesh = Mesh3d(meshes.add(sweep.to_triangle_list().to_mesh()));
+            // TODO: ALSO UPDATE EDGES
         }
-    }
-
-    /// Get the [`Mesh`].
-    fn get_mesh(&self, way: &Way) -> Mesh {
-        Sweep::new(&way.spline, self.offsets)
-            .to_triangle_list()
-            .to_mesh()
     }
 }
 
