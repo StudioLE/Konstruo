@@ -10,18 +10,34 @@ const SPLINE_OFFSET: f32 = 10.0;
 
 pub struct FlexBuildingsAlongWayExample;
 
+#[derive(Resource)]
+struct State {
+    enabled: bool,
+}
+
 impl Plugin for FlexBuildingsAlongWayExample {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, way_added_system);
+        app.insert_resource(State::default())
+            .add_systems(Update, way_added_system);
+    }
+}
+
+impl Default for State {
+    fn default() -> Self {
+        Self { enabled: true }
     }
 }
 
 fn way_added_system(
     mut commands: Commands,
-    query: Query<(Entity, &Way), Added<Way>>,
+    mut state: ResMut<State>,
     meshes: Res<BuildingMeshes>,
     materials: Res<BuildingMaterials>,
+    query: Query<(Entity, &Way), Added<Way>>,
 ) {
+    if !state.enabled {
+        return;
+    }
     for (entity, way) in query.iter() {
         let spline = way.spline.offset(SPLINE_OFFSET, OFFSET_ACCURACY);
         let spline_length = spline.get_length(ACCURACY);
@@ -42,6 +58,7 @@ fn way_added_system(
             let entity = commands.spawn(bundle).set_parent(parent).id();
             factory.spawn_children(&mut commands, &meshes, &materials, entity);
         }
+        state.enabled = false;
     }
 }
 
