@@ -17,6 +17,7 @@ impl WayExample {
         mut commands: Commands,
         mut meshes: ResMut<Assets<Mesh>>,
         materials: Res<WayMaterials>,
+        way_meshes: Res<WayMeshes>,
     ) {
         let curves = CubicBezierSpline {
             curves: vec![
@@ -35,8 +36,10 @@ impl WayExample {
             ],
         };
         let way = Way::new(curves);
+        let entity = way
+            .clone()
+            .spawn(&mut commands, &mut meshes, &way_meshes, &materials);
         let road = WaySurface::centered(4.8, 0.025, Carriageway);
-        let entity = commands.spawn(way.clone()).id();
         road.spawn(&mut commands, &mut meshes, &materials, &way, entity);
         let footway = WaySurface::new(Vec6::new(2.4, 4.4, 0.0, 0.0, 0.0, 0.125), Footway);
         footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);

@@ -60,24 +60,24 @@ impl Way {
         }
     }
 
-    /// System to create [`Mesh3d`], [`WaySurface`], and [`WayControl`] when a [`Way`] is added.
-    pub fn added_system(
-        mut commands: Commands,
-        mut meshes: ResMut<Assets<Mesh>>,
-        way_meshes: Res<WayMeshes>,
-        materials: Res<WayMaterials>,
-        query: Query<(Entity, &Way), Added<Way>>,
-    ) {
-        for (entity, way) in query.iter() {
-            let polyline = way.spline.flatten(FLATTEN_TOLERANCE);
-            let bundle = (
-                Mesh3d(meshes.add(Polyline::new(polyline).to_mesh())),
-                MeshMaterial3d(materials.control_line.clone()),
-            );
-            commands.entity(entity).insert(bundle);
-            WayControl::spawn(&mut commands, &way_meshes, &materials, way, entity);
-            WayControlLine::spawn(&mut commands, &mut meshes, &materials, way, entity);
-        }
+    /// Spawn a [`Way`] along with its [`Mesh3d`], [`WayControl`], and [`WayControlLine`].
+    pub fn spawn(
+        self,
+        commands: &mut Commands,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        way_meshes: &Res<WayMeshes>,
+        materials: &Res<WayMaterials>,
+    ) -> Entity {
+        let polyline = self.spline.flatten(FLATTEN_TOLERANCE);
+        let bundle = (
+            self.clone(),
+            Mesh3d(meshes.add(Polyline::new(polyline).to_mesh())),
+            MeshMaterial3d(materials.control_line.clone()),
+        );
+        let entity = commands.spawn(bundle).id();
+        WayControl::spawn(commands, way_meshes, materials, &self, entity);
+        WayControlLine::spawn(commands, meshes, materials, &self, entity);
+        entity
     }
 }
 

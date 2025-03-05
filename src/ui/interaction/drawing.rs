@@ -20,7 +20,8 @@ impl Drawing {
         buttons: Res<ButtonInput<MouseButton>>,
         window: Query<&Window, With<PrimaryWindow>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
-        meshes: Res<WayMeshes>,
+        mut meshes: ResMut<Assets<Mesh>>,
+        way_meshes: Res<WayMeshes>,
         materials: Res<WayMaterials>,
     ) {
         if *interface != InterfaceState::DrawWay {
@@ -39,12 +40,12 @@ impl Drawing {
         let control_type = ControlType::by_index(index);
         if control_type == End {
             let way = Way::new(drawing.get_spline());
-            commands.spawn(way);
+            way.spawn(&mut commands, &mut meshes, &way_meshes, &materials);
             drawing.controls.push(position);
             // TODO: Delete all temporary controls
         } else {
             let bundle = (
-                WayControl::bundle(&meshes, &materials, control_type, curve, position),
+                WayControl::bundle(&way_meshes, &materials, control_type, curve, position),
                 Visibility::Visible,
             );
             commands.spawn(bundle);
