@@ -63,7 +63,7 @@ impl Sweep {
             .first()
             .expect("sweep edge should have vertices");
         let right = *self
-            .top_left_edge
+            .top_right_edge
             .get_vertices()
             .first()
             .expect("sweep edge should have vertices");
@@ -91,7 +91,7 @@ impl Sweep {
             .last()
             .expect("sweep edge should have vertices");
         let right = *self
-            .top_left_edge
+            .top_right_edge
             .get_vertices()
             .last()
             .expect("sweep edge should have vertices");
@@ -122,16 +122,16 @@ impl Sweep {
             self.get_front_bottom_edge(),
         ));
         triangles.merge(TriangleList::between_polylines(
-            self.get_back_top_edge(),
             self.get_back_bottom_edge(),
+            self.get_back_top_edge(),
         ));
         triangles.merge(TriangleList::between_polylines(
             self.top_left_edge,
             self.top_right_edge,
         ));
         triangles.merge(TriangleList::between_polylines(
-            self.bottom_left_edge,
             self.bottom_right_edge,
+            self.bottom_left_edge,
         ));
         triangles
     }

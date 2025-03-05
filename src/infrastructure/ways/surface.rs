@@ -36,7 +36,7 @@ impl WaySurface {
 
     /// Create a new [`WaySurface`] centered at [`Way`].
     #[must_use]
-    pub fn centered(depth: f32, width: f32, purpose: SurfaceType) -> Self {
+    pub fn centered(width: f32, depth: f32, purpose: SurfaceType) -> Self {
         Self::new(
             Vec6::new(width * -0.5, width * 0.5, 0.0, 0.0, 0.0, depth),
             purpose,

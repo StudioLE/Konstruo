@@ -35,7 +35,7 @@ impl WayExample {
             ],
         };
         let way = Way::new(curves);
-        let road = WaySurface::centered(0.025, 4.8, Carriageway);
+        let road = WaySurface::centered(4.8, 0.025, Carriageway);
         let entity = commands.spawn(way.clone()).id();
         road.spawn(&mut commands, &mut meshes, &materials, &way, entity);
         let footway = WaySurface::new(Vec6::new(2.4, 4.4, 0.0, 0.0, 0.0, 0.125), Footway);
