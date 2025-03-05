@@ -1,7 +1,7 @@
 use super::*;
 use crate::mathematics::QUARTER_PI;
-use crate::ui::PrimaryCamera;
 use crate::ui::{Cursor, EntityState};
+use crate::ui::{EntityStateChanged, PrimaryCamera};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
@@ -124,12 +124,12 @@ impl WayControl {
 
     /// Update the [`WayControl`] visibility when the [`EntityState`] of the [`Way`] changes.
     pub(super) fn on_state_changed(
-        mut events: EventReader<StateChangedEvent>,
+        mut events: EventReader<EntityStateChanged>,
         mut controls: Query<(&Parent, &mut Visibility), With<WayControl>>,
     ) {
         for event in events.read() {
             for (parent, mut visibility) in &mut controls {
-                if parent.get() != event.way {
+                if parent.get() != event.entity {
                     continue;
                 }
                 *visibility = match event.state {

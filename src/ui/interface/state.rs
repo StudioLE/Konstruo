@@ -19,13 +19,18 @@ pub enum InterfaceState {
 }
 
 impl InterfaceState {
-    /// System to update the [`ActionsBar`] when [`InterfaceState`] is triggered.
+    /// System to set the default [`InterfaceState`] on startup.
+    pub(super) fn startup_system(mut interface_state: EventWriter<InterfaceState>) {
+        interface_state.send(InterfaceState::Default);
+    }
+
+    /// System to update the [`ActionBar`] when [`InterfaceState`] is triggered.
     pub(super) fn event_system(
         mut commands: Commands,
         assets: Res<AssetServer>,
         mut events: EventReader<InterfaceState>,
         buttons: Query<Entity, With<FloatingActionButton>>,
-        bars: Query<Entity, (With<ActionsBar>, Without<InterfaceState>)>,
+        bars: Query<Entity, (With<ActionBar>, Without<InterfaceState>)>,
     ) {
         for event in events.read() {
             trace!("InterfaceEvent triggered: {event:?}");

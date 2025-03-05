@@ -1,6 +1,6 @@
 use super::*;
 use crate::geometry::Polyline;
-use crate::ui::EntityState;
+use crate::ui::{EntityState, EntityStateChanged};
 use bevy::prelude::*;
 
 /// A line between control points of a [`Way`].
@@ -49,12 +49,12 @@ impl WayControlLine {
 
     /// Update the [`WayControlLine`] visibility when the [`EntityState`] of the [`Way`] changes.
     pub(super) fn on_state_changed(
-        mut events: EventReader<StateChangedEvent>,
+        mut events: EventReader<EntityStateChanged>,
         mut lines: Query<(&Parent, &mut Visibility), With<WayControlLine>>,
     ) {
         for event in events.read() {
             for (parent, mut visibility) in &mut lines {
-                if parent.get() != event.way {
+                if parent.get() != event.entity {
                     continue;
                 }
                 *visibility = match event.state {

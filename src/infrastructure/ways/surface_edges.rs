@@ -1,5 +1,4 @@
-use super::*;
-use crate::ui::EntityState;
+use crate::ui::{EntityState, EntityStateChanged};
 use bevy::prelude::*;
 
 /// An edge of a [`WaySurface`].
@@ -13,12 +12,12 @@ pub struct WaySurfaceEdge {
 impl WaySurfaceEdge {
     /// Update the [`WaySurfaceEdges`] visibility when the [`EntityState`] of the [`Way`] changes.
     pub(super) fn on_state_changed(
-        mut events: EventReader<StateChangedEvent>,
+        mut events: EventReader<EntityStateChanged>,
         mut edges: Query<(&WaySurfaceEdge, &mut Visibility)>,
     ) {
         for event in events.read() {
             for (edge, mut visibility) in &mut edges {
-                if edge.way != event.way {
+                if edge.way != event.entity {
                     continue;
                 }
                 *visibility = match event.state {

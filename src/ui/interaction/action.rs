@@ -1,4 +1,3 @@
-use crate::infrastructure::StateChangedEvent;
 use crate::ui::*;
 use bevy::prelude::*;
 use std::fmt::{Display, Formatter};
@@ -26,7 +25,7 @@ impl Action {
         mut commands: Commands,
         mut events: EventReader<Action>,
         mut interface: EventWriter<InterfaceState>,
-        mut changed: EventWriter<StateChangedEvent>,
+        mut changed: EventWriter<EntityStateChanged>,
         mut entity_states: Query<&mut EntityState>,
     ) {
         for event in events.read() {
@@ -108,7 +107,7 @@ impl Display for Action {
 
 fn deselect(
     interface: &mut EventWriter<InterfaceState>,
-    changed: &mut EventWriter<StateChangedEvent>,
+    changed: &mut EventWriter<EntityStateChanged>,
     entity_states: &mut Query<&mut EntityState>,
     entity: Entity,
 ) {
@@ -118,8 +117,8 @@ fn deselect(
         return;
     };
     *state = EntityState::Default;
-    changed.send(StateChangedEvent {
-        way: entity,
+    changed.send(EntityStateChanged {
+        entity,
         state: EntityState::Default,
     });
 }

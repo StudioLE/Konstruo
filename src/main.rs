@@ -4,6 +4,7 @@ use konstruo::distribution::DistributionPlugin;
 use konstruo::environment::*;
 use konstruo::examples::*;
 use konstruo::infrastructure::*;
+use konstruo::ui::InteractionPlugin;
 use konstruo::ui::*;
 
 fn main() {
@@ -14,7 +15,8 @@ fn main() {
         .add_plugins(BuildingsPlugin)
         // .add_plugins(CursorGizmoPlugin)
         .add_plugins(DistributionPlugin)
-        .add_plugins(ActionsPlugin)
+        .add_plugins(InterfacePlugin)
+        .add_plugins(InteractionPlugin)
         .add_plugins(GizmoPlugin)
         .add_plugins(GridPlugin)
         .add_plugins(GroundPlugin)

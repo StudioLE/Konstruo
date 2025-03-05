@@ -7,3 +7,9 @@ pub enum EntityState {
     Hovered,
     Selected,
 }
+
+#[derive(Debug, Event)]
+pub struct EntityStateChanged {
+    pub entity: Entity,
+    pub state: EntityState,
+}

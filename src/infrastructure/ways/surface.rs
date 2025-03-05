@@ -1,6 +1,6 @@
 use super::*;
 use crate::geometry::{Sweep, Vec6};
-use crate::ui::{EntityState, InterfaceState};
+use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
 
@@ -120,7 +120,7 @@ impl WaySurface {
 
 fn on_pointer_over(
     trigger: Trigger<Pointer<Over>>,
-    mut changed: EventWriter<StateChangedEvent>,
+    mut changed: EventWriter<EntityStateChanged>,
     mut ways: Query<&mut EntityState, With<Way>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
@@ -134,8 +134,8 @@ fn on_pointer_over(
     };
     if *state != EntityState::Selected {
         *state = EntityState::Hovered;
-        changed.send(StateChangedEvent {
-            way: parent.get(),
+        changed.send(EntityStateChanged {
+            entity: parent.get(),
             state: EntityState::Hovered,
         });
     }
@@ -143,7 +143,7 @@ fn on_pointer_over(
 
 fn on_pointer_out(
     trigger: Trigger<Pointer<Out>>,
-    mut changed: EventWriter<StateChangedEvent>,
+    mut changed: EventWriter<EntityStateChanged>,
     mut ways: Query<&mut EntityState, With<Way>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
 ) {
@@ -157,8 +157,8 @@ fn on_pointer_out(
     };
     if *state != EntityState::Selected {
         *state = EntityState::Default;
-        changed.send(StateChangedEvent {
-            way: parent.get(),
+        changed.send(EntityStateChanged {
+            entity: parent.get(),
             state: EntityState::Default,
         });
     }
@@ -169,7 +169,7 @@ fn on_pointer_click(
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
     mut ways: Query<&mut EntityState, With<Way>>,
     mut interface_state: EventWriter<InterfaceState>,
-    mut changed: EventWriter<StateChangedEvent>,
+    mut changed: EventWriter<EntityStateChanged>,
 ) {
     trace!("WaySurface clicked");
     let Ok(parent) = surfaces.get(trigger.entity()) else {
@@ -186,8 +186,8 @@ fn on_pointer_click(
             way: parent.get(),
             surface: trigger.entity(),
         });
-        changed.send(StateChangedEvent {
-            way: parent.get(),
+        changed.send(EntityStateChanged {
+            entity: parent.get(),
             state: EntityState::Selected,
         });
     }
