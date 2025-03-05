@@ -10,7 +10,9 @@ impl Plugin for InterfacePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<InterfaceState>()
             .add_systems(PostStartup, ActionBar::startup_system)
+            .add_systems(PostStartup, Interceptor::startup_system)
             .add_systems(Startup, InterfaceState::startup_system)
+            .add_systems(Update, Interceptor::event_system)
             .add_systems(Update, InterfaceState::event_system);
     }
 }

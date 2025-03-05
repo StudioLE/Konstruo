@@ -29,7 +29,6 @@ impl Action {
         mut entity_states: Query<&mut EntityState>,
     ) {
         for event in events.read() {
-            trace!("Action triggered: {event:?}");
             match event {
                 Close | Done => done(&mut interface),
                 Deselect(entity) => {

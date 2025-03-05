@@ -1,4 +1,4 @@
-use crate::ui::PrimaryCamera;
+use crate::ui::{PrimaryCamera, ACTION_BAR_Z};
 use bevy::prelude::*;
 
 /// Vertical stack of [`FloatingActionButton`].
@@ -23,7 +23,7 @@ impl ActionBar {
     }
 }
 
-fn parent_bundle(camera: Entity) -> (TargetCamera, Node, PickingBehavior) {
+fn parent_bundle(camera: Entity) -> (TargetCamera, Node, ZIndex, PickingBehavior) {
     (
         TargetCamera(camera),
         Node {
@@ -33,6 +33,7 @@ fn parent_bundle(camera: Entity) -> (TargetCamera, Node, PickingBehavior) {
             justify_content: JustifyContent::End,
             ..default()
         },
+        ZIndex(ACTION_BAR_Z),
         PickingBehavior::IGNORE,
     )
 }

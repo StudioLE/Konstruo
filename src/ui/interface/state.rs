@@ -33,7 +33,6 @@ impl InterfaceState {
         bars: Query<Entity, (With<ActionBar>, Without<InterfaceState>)>,
     ) {
         for event in events.read() {
-            trace!("InterfaceEvent triggered: {event:?}");
             let Ok(bar) = bars.get_single() else {
                 warn!("Failed to get ActionsBar");
                 return;
