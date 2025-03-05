@@ -1,13 +1,13 @@
 use super::*;
 use crate::mathematics::QUARTER_PI;
-use crate::ui::Cursor;
 use crate::ui::PrimaryCamera;
+use crate::ui::{Cursor, EntityState};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
 /// A control point that manipulates a [`Way`].
 #[derive(Component)]
-#[require(InheritedVisibility, Transform)]
+#[require(InheritedVisibility, Transform, Visibility(|| Visibility::Hidden))]
 pub struct WayControl {
     /// Index of the control point in the spline of the [`Way`].
     pub index: usize,
@@ -117,6 +117,24 @@ impl WayControl {
                         "Failed to set WayControl transform. Index does not exist: {}",
                         control.index
                     );
+                };
+            }
+        }
+    }
+
+    /// Update the [`WayControl`] visibility when the [`EntityState`] of the [`Way`] changes.
+    pub(super) fn on_state_changed(
+        mut events: EventReader<StateChangedEvent>,
+        mut controls: Query<(&Parent, &mut Visibility), With<WayControl>>,
+    ) {
+        for event in events.read() {
+            for (parent, mut visibility) in &mut controls {
+                if parent.get() != event.way {
+                    continue;
+                }
+                *visibility = match event.state {
+                    EntityState::Selected => Visibility::Visible,
+                    EntityState::Hovered | EntityState::Default => Visibility::Hidden,
                 };
             }
         }

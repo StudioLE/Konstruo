@@ -11,6 +11,8 @@ impl Plugin for WaysPlugin {
             .add_systems(Startup, WayMaterials::startup_system)
             .add_systems(Startup, WayMeshes::startup_system)
             .add_systems(Update, Way::added_system)
+            .add_systems(Update, WayControl::on_state_changed)
+            .add_systems(Update, WayControlLine::on_state_changed)
             .add_systems(Update, WaySurfaceEdge::on_state_changed)
             .add_systems(Update, Way::on_spline_changed)
             .add_systems(Update, WayControl::on_spline_changed)

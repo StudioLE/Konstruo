@@ -1,10 +1,11 @@
 use super::*;
 use crate::geometry::Polyline;
+use crate::ui::EntityState;
 use bevy::prelude::*;
 
 /// A line between control points of a [`Way`].
 #[derive(Component)]
-#[require(InheritedVisibility, Transform)]
+#[require(InheritedVisibility, Transform, Visibility(|| Visibility::Hidden))]
 pub struct WayControlLine {
     /// Index of the anchor in the spline of the [`Way`].
     pub anchor: usize,
@@ -43,6 +44,24 @@ impl WayControlLine {
             );
             commands.spawn(start).set_parent(parent);
             commands.spawn(end).set_parent(parent);
+        }
+    }
+
+    /// Update the [`WayControlLine`] visibility when the [`EntityState`] of the [`Way`] changes.
+    pub(super) fn on_state_changed(
+        mut events: EventReader<StateChangedEvent>,
+        mut lines: Query<(&Parent, &mut Visibility), With<WayControlLine>>,
+    ) {
+        for event in events.read() {
+            for (parent, mut visibility) in &mut lines {
+                if parent.get() != event.way {
+                    continue;
+                }
+                *visibility = match event.state {
+                    EntityState::Selected => Visibility::Visible,
+                    EntityState::Hovered | EntityState::Default => Visibility::Hidden,
+                };
+            }
         }
     }
 
