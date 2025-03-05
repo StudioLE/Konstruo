@@ -30,16 +30,19 @@ impl Action {
     ) {
         for event in events.read() {
             match event {
-                Close | Done => done(&mut interface),
                 Deselect(entity) => {
-                    deselect(&mut interface, &mut changed, &mut entity_states, *entity);
+                    deselect(&mut changed, &mut entity_states, *entity);
                 }
-                DrawWay => draw_way(&mut commands, &mut interface),
-                Remove(entity) => remove(&mut commands, &mut interface, *entity),
-                _ => {
-                    warn!("Unhandled Action: {event:?}");
+                Remove(entity) => {
+                    remove(&mut commands, *entity);
                 }
-            }
+                _ => {}
+            };
+            let state = match event {
+                DrawWay => InterfaceState::DrawWay,
+                _ => InterfaceState::Default,
+            };
+            interface.send(state);
         }
     }
 
@@ -105,12 +108,10 @@ impl Display for Action {
 }
 
 fn deselect(
-    interface: &mut EventWriter<InterfaceState>,
     changed: &mut EventWriter<EntityStateChanged>,
     entity_states: &mut Query<&mut EntityState>,
     entity: Entity,
 ) {
-    interface.send(InterfaceState::Default);
     let Ok(mut state) = entity_states.get_mut(entity) else {
         warn!("Failed to get EntityState for {entity:?}");
         return;
@@ -122,15 +123,6 @@ fn deselect(
     });
 }
 
-fn done(interface: &mut EventWriter<InterfaceState>) {
-    interface.send(InterfaceState::Default);
-}
-
-fn draw_way(_commands: &mut Commands, interface: &mut EventWriter<InterfaceState>) {
-    interface.send(InterfaceState::DrawWay);
-}
-
-fn remove(commands: &mut Commands, interface: &mut EventWriter<InterfaceState>, entity: Entity) {
-    interface.send(InterfaceState::Default);
+fn remove(commands: &mut Commands, entity: Entity) {
     commands.entity(entity).despawn_recursive();
 }
