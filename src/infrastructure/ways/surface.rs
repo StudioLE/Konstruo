@@ -168,7 +168,7 @@ fn on_pointer_click(
     trigger: Trigger<Pointer<Click>>,
     surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
     mut ways: Query<&mut EntityState, With<Way>>,
-    mut interface_state: EventWriter<InterfaceState>,
+    mut interface: ResMut<InterfaceState>,
     mut changed: EventWriter<EntityStateChanged>,
 ) {
     trace!("WaySurface clicked");
@@ -182,10 +182,10 @@ fn on_pointer_click(
     };
     if *way_state != EntityState::Selected {
         *way_state = EntityState::Selected;
-        interface_state.send(InterfaceState::WaySelected {
+        *interface = InterfaceState::WaySelected {
             way: parent.get(),
             surface: trigger.entity(),
-        });
+        };
         changed.send(EntityStateChanged {
             entity: parent.get(),
             state: EntityState::Selected,

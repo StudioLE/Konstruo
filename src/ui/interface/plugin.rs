@@ -8,11 +8,10 @@ pub struct InterfacePlugin;
 
 impl Plugin for InterfacePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<InterfaceState>()
+        app.insert_resource(InterfaceState::Default)
             .add_systems(PostStartup, ActionBar::startup_system)
             .add_systems(PostStartup, Interceptor::startup_system)
-            .add_systems(Startup, InterfaceState::startup_system)
-            .add_systems(Update, Interceptor::event_system)
-            .add_systems(Update, InterfaceState::event_system);
+            .add_systems(Update, Interceptor::update_system)
+            .add_systems(Update, ActionBar::update_system);
     }
 }

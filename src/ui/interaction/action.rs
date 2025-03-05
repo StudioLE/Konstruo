@@ -24,7 +24,7 @@ impl Action {
     pub(super) fn event_system(
         mut commands: Commands,
         mut events: EventReader<Action>,
-        mut interface: EventWriter<InterfaceState>,
+        mut interface: ResMut<InterfaceState>,
         mut changed: EventWriter<EntityStateChanged>,
         mut entity_states: Query<&mut EntityState>,
     ) {
@@ -38,11 +38,10 @@ impl Action {
                 }
                 _ => {}
             };
-            let state = match event {
+            *interface = match event {
                 DrawWay => InterfaceState::DrawWay,
                 _ => InterfaceState::Default,
             };
-            interface.send(state);
         }
     }
 

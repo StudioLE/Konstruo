@@ -1,5 +1,7 @@
-use crate::ui::{PrimaryCamera, ACTION_BAR_Z};
+use crate::ui::FloatingActionButtonSize::{Medium, Small};
+use crate::ui::*;
 use bevy::prelude::*;
+use Action::*;
 
 /// Vertical stack of [`FloatingActionButton`].
 ///
@@ -20,6 +22,28 @@ impl ActionBar {
         };
         let parent = commands.spawn(parent_bundle(camera)).id();
         commands.spawn(bundle()).set_parent(parent);
+    }
+
+    /// System to update the [`ActionBar`] when [`InterfaceState`] is changed.
+    pub(super) fn update_system(
+        mut commands: Commands,
+        state: Res<InterfaceState>,
+        assets: Res<AssetServer>,
+        buttons: Query<Entity, With<FloatingActionButton>>,
+        bars: Query<Entity, With<ActionBar>>,
+    ) {
+        if !state.is_changed() {
+            return;
+        }
+        let Ok(bar) = bars.get_single() else {
+            warn!("Failed to get ActionsBar");
+            return;
+        };
+        for entity in buttons.iter() {
+            commands.entity(entity).despawn_recursive();
+        }
+        let actions = get_actions(&state);
+        spawn_actions(&mut commands, &assets, actions, bar);
     }
 }
 
@@ -49,4 +73,39 @@ fn bundle() -> (ActionBar, Node, PickingBehavior) {
         },
         PickingBehavior::IGNORE,
     )
+}
+
+fn spawn_actions(
+    commands: &mut Commands,
+    assets: &Res<AssetServer>,
+    actions: Vec<Action>,
+    bar: Entity,
+) {
+    let last = actions.len() - 1;
+    for (i, action) in actions.into_iter().enumerate() {
+        let size = if i == last { Medium } else { Small };
+        let icon = action.get_icon().get_path();
+        FloatingActionButton::spawn(commands, action, size, assets.load(icon), bar);
+    }
+}
+
+#[must_use]
+fn get_actions(state: &InterfaceState) -> Vec<Action> {
+    match state {
+        InterfaceState::Default => {
+            vec![Settings, DrawWay]
+        }
+        InterfaceState::DrawWay => {
+            vec![Close, Undo, Done]
+        }
+        InterfaceState::WaySelected { way, .. } => {
+            vec![
+                Deselect(*way),
+                Remove(*way),
+                Info,
+                AddWaySurface,
+                AddBuildings,
+            ]
+        }
+    }
 }

@@ -14,6 +14,7 @@ pub struct Interceptor;
 pub struct InterceptorLabel;
 
 impl Interceptor {
+    /// System to spawn [`Interceptor`] on startup.
     pub(super) fn startup_system(
         mut commands: Commands,
         query: Query<Entity, With<PrimaryCamera>>,
@@ -32,30 +33,31 @@ impl Interceptor {
             .with_child(label_text_bundle(font));
     }
 
-    /// System to update the [`Interceptor`] visibility and test when [`InterfaceState`] is triggered.
-    pub(super) fn event_system(
-        mut events: EventReader<InterfaceState>,
-        mut interceptors: Query<&mut Visibility, (With<Interceptor>, Without<InterfaceState>)>,
-        mut labels: Query<&mut Text, (With<InterceptorLabel>, Without<InterfaceState>)>,
+    /// System to update the [`Interceptor`] visibility when [`InterfaceState`] is changed.
+    pub(super) fn update_system(
+        interface: Res<InterfaceState>,
+        mut interceptors: Query<&mut Visibility, With<Interceptor>>,
+        mut labels: Query<&mut Text, With<InterceptorLabel>>,
     ) {
-        for event in events.read() {
-            let Ok(mut visibility) = interceptors.get_single_mut() else {
-                warn!("Failed to get Visibility of Interceptor");
-                return;
-            };
-            let Ok(mut text) = labels.get_single_mut() else {
-                warn!("Failed to get Visibility of Interceptor");
-                return;
-            };
-            *visibility = match event {
-                InterfaceState::DrawWay => Visibility::Visible,
-                _ => Visibility::Hidden,
-            };
-            *text = match event {
-                InterfaceState::DrawWay => Text::new("Drawing"),
-                _ => Text::new("Default"),
-            };
+        if !interface.is_changed() {
+            return;
         }
+        let Ok(mut visibility) = interceptors.get_single_mut() else {
+            warn!("Failed to get Visibility of Interceptor");
+            return;
+        };
+        let Ok(mut text) = labels.get_single_mut() else {
+            warn!("Failed to get Visibility of Interceptor");
+            return;
+        };
+        *visibility = match *interface {
+            InterfaceState::DrawWay => Visibility::Visible,
+            _ => Visibility::Hidden,
+        };
+        *text = match *interface {
+            InterfaceState::DrawWay => Text::new("Drawing"),
+            _ => Text::new("Default"),
+        };
     }
 }
 
