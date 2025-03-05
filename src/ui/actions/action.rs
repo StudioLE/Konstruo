@@ -8,6 +8,8 @@ use Action::*;
 pub enum Action {
     AddBuildings,
     AddWaySurface,
+    Close,
+    Done,
     Edit,
     Deselect(Entity),
     DrawWay,
@@ -15,6 +17,7 @@ pub enum Action {
     More,
     Remove(Entity),
     Settings,
+    Undo,
 }
 
 impl Action {
@@ -29,9 +32,11 @@ impl Action {
         for event in events.read() {
             trace!("Action triggered: {event:?}");
             match event {
+                Close | Done => done(&mut interface),
                 Deselect(entity) => {
                     deselect(&mut interface, &mut changed, &mut entity_states, *entity);
                 }
+                DrawWay => draw_way(&mut commands, &mut interface),
                 Remove(entity) => remove(&mut commands, &mut interface, *entity),
                 _ => {
                     warn!("Unhandled Action: {event:?}");
@@ -49,11 +54,14 @@ impl Action {
             AddWaySurface => Icon::FontAwesome {
                 name: String::from("road"),
             },
+            Close | Deselect(_) => Icon::FontAwesome {
+                name: String::from("times"),
+            },
+            Done => Icon::FontAwesome {
+                name: String::from("check"),
+            },
             Edit => Icon::FontAwesome {
                 name: String::from("edit"),
-            },
-            Deselect(_) => Icon::FontAwesome {
-                name: String::from("times"),
             },
             DrawWay => Icon::FontAwesome {
                 name: String::from("bezier-curve"),
@@ -70,6 +78,9 @@ impl Action {
             Settings => Icon::FontAwesome {
                 name: String::from("cog"),
             },
+            Undo => Icon::FontAwesome {
+                name: String::from("undo"),
+            },
         }
     }
 }
@@ -80,6 +91,8 @@ impl Display for Action {
         let output = match self {
             AddBuildings => "Add Buildings".to_owned(),
             AddWaySurface => "Add Way Surface".to_owned(),
+            Close => "Close".to_owned(),
+            Done => "Done".to_owned(),
             Edit => "Edit".to_owned(),
             Deselect(_) => "Deselect".to_owned(),
             DrawWay => "Draw Way".to_owned(),
@@ -87,6 +100,7 @@ impl Display for Action {
             More => "More".to_owned(),
             Remove(_) => "Remove".to_owned(),
             Settings => "Settings".to_owned(),
+            Undo => "Undo".to_owned(),
         };
         output.fmt(formatter)
     }
@@ -108,6 +122,14 @@ fn deselect(
         way: entity,
         state: EntityState::Default,
     });
+}
+
+fn done(interface: &mut EventWriter<InterfaceState>) {
+    interface.send(InterfaceState::Default);
+}
+
+fn draw_way(_commands: &mut Commands, interface: &mut EventWriter<InterfaceState>) {
+    interface.send(InterfaceState::DrawWay);
 }
 
 fn remove(commands: &mut Commands, interface: &mut EventWriter<InterfaceState>, entity: Entity) {

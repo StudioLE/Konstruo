@@ -8,6 +8,7 @@ use FloatingActionButtonSize::{Medium, Small};
 pub enum InterfaceState {
     #[default]
     Default,
+    DrawWay,
     /// A [`Way`] was selected by clicking on a [`WaySurface`].
     WaySelected {
         /// [`Way`]
@@ -44,6 +45,9 @@ impl InterfaceState {
         match self {
             InterfaceState::Default => {
                 vec![Settings, DrawWay]
+            }
+            InterfaceState::DrawWay => {
+                vec![Close, Undo, Done]
             }
             InterfaceState::WaySelected { way, .. } => {
                 vec![
