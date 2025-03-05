@@ -1,12 +1,13 @@
 use crate::beziers::from_kurbo::{f32_from_f64, vec3_from_kurbo};
 use crate::beziers::internal_kurbo::bezpath_to_cubics;
-use crate::beziers::CubicBezier;
+use crate::beziers::{ControlType, CubicBezier};
 use bevy::prelude::*;
 use kurbo::offset::CubicOffset;
 use kurbo::{
     fit_to_bezpath, flatten, stroke, Cap, CubicBez, Join, ParamCurveArclen, PathEl, Stroke,
     StrokeOpts,
 };
+use ControlType::*;
 
 /// A spline formed of one or more connected [`CubicBezier`].
 #[derive(Clone, Debug, Default)]
@@ -15,6 +16,13 @@ pub struct CubicBezierSpline {
 }
 
 impl CubicBezierSpline {
+    /// Get a control.
+    #[must_use]
+    pub fn get_control(&self, control_type: ControlType, curve: usize) -> Option<Vec3> {
+        let control = self.curves.get(curve)?.get_control(control_type);
+        Some(control)
+    }
+
     /// Get the control points.
     #[must_use]
     pub fn get_controls(&self) -> Vec<Vec3> {
@@ -145,17 +153,15 @@ impl CubicBezierSpline {
     /// -  an anchor: the next or previous anchor and handles are moved.
     /// -  a handle: the opposing handle is rotated but its distance from anchor unchanged.
     #[allow(clippy::indexing_slicing, clippy::integer_division)]
-    pub fn update_control(&mut self, index: usize, point: Vec3) {
-        let curve = index / 4;
-        let control = index % 4;
+    pub fn update_control(&mut self, control_type: ControlType, curve: usize, point: Vec3) {
         if curve >= self.curves.len() {
-            error!("Failed to update control point. Control point index is out of range: {index}");
+            error!("Failed to update control point. Curve index is out of range: {curve}");
             return;
         }
         let is_first = curve == 0;
         let is_last = curve == self.curves.len() - 1;
-        match control {
-            0 => {
+        match control_type {
+            Start => {
                 let translation = point - self.curves[curve].start;
                 self.curves[curve].start = point;
                 self.curves[curve].start_handle += translation;
@@ -164,7 +170,7 @@ impl CubicBezierSpline {
                     self.curves[curve - 1].end_handle += translation;
                 }
             }
-            1 => {
+            StartHandle => {
                 self.curves[curve].start_handle = point;
                 if !is_first {
                     let anchor = self.curves[curve].start;
@@ -173,7 +179,7 @@ impl CubicBezierSpline {
                     self.curves[curve - 1].end_handle = anchor + direction * distance;
                 }
             }
-            2 => {
+            EndHandle => {
                 self.curves[curve].end_handle = point;
                 if !is_last {
                     let anchor = self.curves[curve].end;
@@ -182,7 +188,7 @@ impl CubicBezierSpline {
                     self.curves[curve + 1].start_handle = anchor + direction * distance;
                 }
             }
-            3 => {
+            End => {
                 let translation = point - self.curves[curve].end;
                 self.curves[curve].end = point;
                 self.curves[curve].end_handle += translation;
@@ -190,9 +196,6 @@ impl CubicBezierSpline {
                     self.curves[curve + 1].start = point;
                     self.curves[curve + 1].start_handle += translation;
                 }
-            }
-            i => {
-                error!("Failed to update control point. Control point index is out of range: {i}");
             }
         };
     }

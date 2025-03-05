@@ -1,5 +1,6 @@
 use crate::beziers::from_kurbo::{f32_from_f64, vec3_from_kurbo};
 use crate::beziers::to_kurbo::vec3_to_kurbo;
+use crate::beziers::ControlType;
 use bevy::prelude::*;
 use kurbo::{
     ParamCurve, ParamCurveArclen, ParamCurveCurvature, ParamCurveDeriv, ParamCurveExtrema,
@@ -16,6 +17,16 @@ pub struct CubicBezier {
 }
 
 impl CubicBezier {
+    /// Get a control.
+    #[must_use]
+    pub fn get_control(&self, control_type: ControlType) -> Vec3 {
+        match control_type {
+            ControlType::Start => self.start,
+            ControlType::StartHandle => self.start_handle,
+            ControlType::EndHandle => self.end_handle,
+            ControlType::End => self.end,
+        }
+    }
     /// Get the four controls.
     #[must_use]
     pub fn get_controls(&self) -> [Vec3; 4] {

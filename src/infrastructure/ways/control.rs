@@ -1,23 +1,59 @@
 use super::*;
+use crate::beziers::ControlType;
 use crate::mathematics::QUARTER_PI;
 use crate::ui::{Cursor, EntityState};
 use crate::ui::{EntityStateChanged, PrimaryCamera};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use ControlType::*;
 
 /// A control point that manipulates a [`Way`].
 #[derive(Component)]
 #[require(InheritedVisibility, Transform, Visibility(|| Visibility::Hidden))]
 pub struct WayControl {
-    /// Index of the control point in the spline of the [`Way`].
-    pub index: usize,
+    /// Type of the control.
+    control_type: ControlType,
+    /// Index of the Curve in the spline of the [`Way`].
+    curve: usize,
     /// Translation at the start of the drag operation.
     drag: Option<Vec3>,
 }
 
 impl WayControl {
-    fn new(index: usize) -> Self {
-        Self { index, drag: None }
+    /// Create a new [`WayControl`].
+    #[must_use]
+    pub fn new(control_type: ControlType, curve: usize) -> Self {
+        Self {
+            control_type,
+            curve,
+            drag: None,
+        }
+    }
+
+    /// Create a bundle for a [`WayControl`].
+    #[must_use]
+    pub fn bundle(
+        meshes: &Res<WayMeshes>,
+        materials: &Res<WayMaterials>,
+        control_type: ControlType,
+        curve: usize,
+        position: Vec3,
+    ) -> (
+        WayControl,
+        Transform,
+        Mesh3d,
+        MeshMaterial3d<StandardMaterial>,
+    ) {
+        let mesh = match control_type {
+            Start | End => meshes.control_origin.clone(),
+            _ => meshes.control_handle.clone(),
+        };
+        (
+            WayControl::new(control_type, curve),
+            get_transform(control_type, position),
+            Mesh3d(mesh),
+            MeshMaterial3d(materials.control_node.clone()),
+        )
     }
 
     /// Factory method to spawn [`WayControl`] for each control point in a [`Way`]
@@ -28,38 +64,29 @@ impl WayControl {
         way: &Way,
         parent: Entity,
     ) {
-        for (i, bezier) in way.spline.curves.iter().enumerate() {
-            let start = (i == 0).then(|| {
-                (
-                    WayControl::new(i * 4),
-                    Transform::from_translation(bezier.start)
-                        .with_rotation(Quat::from_rotation_z(QUARTER_PI)),
-                    Mesh3d(meshes.control_origin.clone()),
-                    MeshMaterial3d(materials.control_node.clone()),
-                )
-            });
-            let start_handle = (
-                WayControl::new(i * 4 + 1),
-                Transform::from_translation(bezier.start_handle),
-                Mesh3d(meshes.control_handle.clone()),
-                MeshMaterial3d(materials.control_node.clone()),
-            );
-            let end_handle = (
-                WayControl::new(i * 4 + 2),
-                Transform::from_translation(bezier.end_handle),
-                Mesh3d(meshes.control_handle.clone()),
-                MeshMaterial3d(materials.control_node.clone()),
-            );
-            let end = (
-                WayControl::new(i * 4 + 3),
-                Transform::from_translation(bezier.end)
-                    .with_rotation(Quat::from_rotation_z(QUARTER_PI)),
-                Mesh3d(meshes.control_origin.clone()),
-                MeshMaterial3d(materials.control_node.clone()),
-            );
-            if let Some(start) = start {
+        for (curve, bezier) in way.spline.curves.iter().enumerate() {
+            let mut bundles = Vec::new();
+            if curve == 0 {
+                bundles.push(Self::bundle(meshes, materials, Start, curve, bezier.start));
+            }
+            bundles.push(Self::bundle(
+                meshes,
+                materials,
+                StartHandle,
+                curve,
+                bezier.start_handle,
+            ));
+            bundles.push(Self::bundle(
+                meshes,
+                materials,
+                EndHandle,
+                curve,
+                bezier.end_handle,
+            ));
+            bundles.push(Self::bundle(meshes, materials, End, curve, bezier.end));
+            for bundle in bundles {
                 commands
-                    .spawn(start)
+                    .spawn(bundle)
                     .set_parent(parent)
                     .observe(on_pointer_over)
                     .observe(on_pointer_out)
@@ -67,30 +94,6 @@ impl WayControl {
                     .observe(on_pointer_drag)
                     .observe(on_pointer_drag_end);
             }
-            commands
-                .spawn(start_handle)
-                .set_parent(parent)
-                .observe(on_pointer_over)
-                .observe(on_pointer_out)
-                .observe(on_pointer_drag_start)
-                .observe(on_pointer_drag)
-                .observe(on_pointer_drag_end);
-            commands
-                .spawn(end_handle)
-                .set_parent(parent)
-                .observe(on_pointer_over)
-                .observe(on_pointer_out)
-                .observe(on_pointer_drag_start)
-                .observe(on_pointer_drag)
-                .observe(on_pointer_drag_end);
-            commands
-                .spawn(end)
-                .set_parent(parent)
-                .observe(on_pointer_over)
-                .observe(on_pointer_out)
-                .observe(on_pointer_drag_start)
-                .observe(on_pointer_drag)
-                .observe(on_pointer_drag_end);
         }
     }
 
@@ -104,20 +107,14 @@ impl WayControl {
                 if parent.get() != event.way {
                     continue;
                 }
-                if let Some(translation) = event.spline.get_controls().get(control.index) {
-                    let index = control.index % 4;
-                    if index == 0 || index == 3 {
-                        *transform = Transform::from_translation(*translation)
-                            .with_rotation(Quat::from_rotation_z(QUARTER_PI));
-                    } else {
-                        *transform = Transform::from_translation(*translation);
-                    }
-                } else {
-                    warn!(
-                        "Failed to set WayControl transform. Index does not exist: {}",
-                        control.index
-                    );
+                let Some(translation) = event
+                    .spline
+                    .get_control(control.control_type, control.curve)
+                else {
+                    warn!("Failed to set WayControl transform. Control does not exist");
+                    continue;
                 };
+                *transform = get_transform(control.control_type, translation);
             }
         }
     }
@@ -138,6 +135,15 @@ impl WayControl {
                 };
             }
         }
+    }
+}
+
+fn get_transform(control_type: ControlType, position: Vec3) -> Transform {
+    match control_type {
+        Start | End => {
+            Transform::from_translation(position).with_rotation(Quat::from_rotation_z(QUARTER_PI))
+        }
+        _ => Transform::from_translation(position),
     }
 }
 
@@ -207,7 +213,8 @@ fn on_pointer_drag(
         warn!("Failed to get Way");
         return;
     };
-    way.spline.update_control(control.index, translation);
+    way.spline
+        .update_control(control.control_type, control.curve, translation);
     event_writer.send(SplineChangedEvent {
         way: entity,
         spline: way.spline.clone(),

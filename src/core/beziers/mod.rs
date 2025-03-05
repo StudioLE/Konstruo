@@ -1,6 +1,8 @@
+pub use control_type::*;
 pub use cubic_bezier::*;
 pub use cubic_bezier_spline::*;
 
+mod control_type;
 mod cubic_bezier;
 mod cubic_bezier_spline;
 mod from_kurbo;
