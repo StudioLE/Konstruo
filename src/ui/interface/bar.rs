@@ -96,7 +96,7 @@ fn get_actions(state: &InterfaceState) -> Vec<Action> {
             vec![Settings, DrawWay]
         }
         InterfaceState::DrawWay => {
-            vec![Close, Undo, Done]
+            vec![Undo, FinishWay]
         }
         InterfaceState::WaySelected { way, .. } => {
             vec![

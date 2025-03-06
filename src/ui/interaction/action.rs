@@ -2,16 +2,17 @@ use crate::ui::*;
 use bevy::prelude::*;
 use std::fmt::{Display, Formatter};
 use Action::*;
+use crate::infrastructure::{SplineChangedEvent, Way};
 
 #[derive(Clone, Copy, Debug, Event)]
 pub enum Action {
     AddBuildings,
     AddWaySurface,
     Close,
-    Done,
     Edit,
     Deselect(Entity),
     DrawWay,
+    FinishWay,
     Info,
     More,
     Remove(Entity),
@@ -27,11 +28,17 @@ impl Action {
         mut interface: ResMut<InterfaceState>,
         mut changed: EventWriter<EntityStateChanged>,
         mut entity_states: Query<&mut EntityState>,
+        mut drawing: ResMut<Drawing>,
+        mut ways: Query<&mut Way>,
+        mut spline_changed_event:  EventWriter<SplineChangedEvent>,
     ) {
         for event in events.read() {
             match event {
                 Deselect(entity) => {
                     deselect(&mut changed, &mut entity_states, *entity);
+                }
+                FinishWay => {
+                    drawing.on_complete(&mut ways, &mut spline_changed_event);
                 }
                 Remove(entity) => {
                     remove(&mut commands, *entity);
@@ -57,11 +64,11 @@ impl Action {
             Close | Deselect(_) => Icon::FontAwesome {
                 name: String::from("times"),
             },
-            Done => Icon::FontAwesome {
-                name: String::from("check"),
-            },
             Edit => Icon::FontAwesome {
                 name: String::from("edit"),
+            },
+            FinishWay => Icon::FontAwesome {
+                name: String::from("check"),
             },
             DrawWay => Icon::FontAwesome {
                 name: String::from("bezier-curve"),
@@ -92,10 +99,10 @@ impl Display for Action {
             AddBuildings => "Add Buildings".to_owned(),
             AddWaySurface => "Add Way Surface".to_owned(),
             Close => "Close".to_owned(),
-            Done => "Done".to_owned(),
-            Edit => "Edit".to_owned(),
             Deselect(_) => "Deselect".to_owned(),
             DrawWay => "Draw Way".to_owned(),
+            FinishWay => "Finish Way".to_owned(),
+            Edit => "Edit".to_owned(),
             Info => "Info".to_owned(),
             More => "More".to_owned(),
             Remove(_) => "Remove".to_owned(),
