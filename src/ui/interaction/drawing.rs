@@ -7,7 +7,7 @@ use ControlType::*;
 
 #[derive(Resource, Default)]
 pub struct Drawing {
-    pub controls: Vec<Vec3>,
+    pub points: Vec<Vec3>,
 }
 
 impl Drawing {
@@ -34,38 +34,56 @@ impl Drawing {
             warn!("Failed to get Cursor position");
             return;
         };
-        drawing.controls.push(position);
-        let index = drawing.controls.len() - 1;
-        let curve = index / 4;
-        let control_type = ControlType::by_index(index);
-        if control_type == End {
+        drawing.points.push(position);
+        let len = drawing.points.len();
+        let is_start = len == 1;
+        let is_end = len >= 3 && (len - 1) % 2 == 0;
+        let curve = (len - 1) / 2;
+        let control_type = if is_start {
+            Start
+        } else if is_end {
+            End
+        } else {
+            EndHandle
+        };
+        let bundle = (
+            WayControl::bundle(&way_meshes, &materials, control_type, curve, position),
+            Visibility::Visible,
+        );
+        commands.spawn(bundle);
+        if is_end {
+            trace!("Segment is complete");
             let way = Way::new(drawing.get_spline());
             way.spawn(&mut commands, &mut meshes, &way_meshes, &materials);
-            drawing.controls.push(position);
             // TODO: Delete all temporary controls
-        } else {
-            let bundle = (
-                WayControl::bundle(&way_meshes, &materials, control_type, curve, position),
-                Visibility::Visible,
-            );
-            commands.spawn(bundle);
         }
     }
 
     #[must_use]
     #[allow(clippy::indexing_slicing)]
     fn get_spline(&self) -> CubicBezierSpline {
-        let curves = self
-            .controls
-            .chunks(4)
-            .filter(|chunk| chunk.len() == 4)
-            .map(|chunk| CubicBezier {
-                start: chunk[0],
-                start_handle: chunk[1],
-                end_handle: chunk[2],
-                end: chunk[3],
-            })
-            .collect();
+        let mut curves = Vec::new();
+        for i in 0..self.points.len() - 1 {
+            if i % 2 != 0 {
+                continue;
+            }
+            let start = self.points[i];
+            let start_handle = self.points[i + 1];
+            let end = self.points[i + 2];
+            let next_handle = self.points.get(i + 3);
+            let end_handle = if let Some(next_handle) = next_handle {
+                let translation = end - *next_handle;
+                end + translation
+            } else {
+                start_handle
+            };
+            curves.push(CubicBezier {
+                start,
+                start_handle,
+                end_handle,
+                end,
+            });
+        }
         CubicBezierSpline { curves }
     }
 }
