@@ -205,7 +205,7 @@ fn on_pointer_drag(
         error!("Failed to get WayControl");
         return;
     };
-    let Ok(translation) = Cursor::on_ground(&window, &camera) else {
+    let Ok(translation) = Cursor::from_window(&window, &camera) else {
         warn!("Failed to get cursor on ground");
         return;
     };

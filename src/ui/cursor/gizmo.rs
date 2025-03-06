@@ -20,7 +20,7 @@ fn axis_gizmo_system(
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
 ) {
-    if let Ok(position) = Cursor::on_ground(&window, &camera) {
+    if let Ok(position) = Cursor::from_window(&window, &camera) {
         AxisGizmo::draw_at(gizmos, position, GIZMO_LENGTH);
     };
 }
