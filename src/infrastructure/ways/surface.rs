@@ -1,5 +1,6 @@
 use super::*;
 use crate::geometry::{Sweep, Vec6};
+use crate::infrastructure::SurfaceType::{Carriageway, Footway};
 use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
 use crate::GROUND_HEIGHT;
 use bevy::prelude::*;
@@ -41,6 +42,15 @@ impl WaySurface {
             Vec6::new(width * -0.5, width * 0.5, 0.0, 0.0, 0.0, depth),
             purpose,
         )
+    }
+
+    #[must_use]
+    pub fn default_surfaces() -> Vec<WaySurface> {
+        vec![
+            WaySurface::centered(4.8, 0.025, Carriageway),
+            WaySurface::new(Vec6::new(2.4, 4.4, 0.0, 0.0, 0.0, 0.125), Footway),
+            WaySurface::new(Vec6::new(-4.4, -2.4, 0.0, 0.0, 0.0, 0.125), Footway),
+        ]
     }
 
     /// Spawn a [`WaySurface`] with its mesh geometry.

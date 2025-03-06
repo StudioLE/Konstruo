@@ -12,6 +12,7 @@ impl Plugin for InteractionPlugin {
             .add_event::<Action>()
             .add_event::<EntityStateChanged>()
             .add_systems(Update, Action::event_system)
+            .add_systems(Update, Drawing::input_system)
             .add_systems(Update, Drawing::update_system);
     }
 }

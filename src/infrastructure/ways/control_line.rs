@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 /// A line between control points of a [`Way`].
 #[derive(Component)]
-#[require(InheritedVisibility, Transform, Visibility(|| Visibility::Hidden))]
+#[require(InheritedVisibility, Transform)]
 pub struct WayControlLine {
     /// Index of the anchor in the spline of the [`Way`].
     pub anchor: usize,

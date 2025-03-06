@@ -1,6 +1,4 @@
 use crate::beziers::{CubicBezier, CubicBezierSpline};
-use crate::geometry::Vec6;
-use crate::infrastructure::SurfaceType::*;
 use crate::infrastructure::*;
 use bevy::prelude::*;
 
@@ -39,11 +37,8 @@ impl WayExample {
         let entity = way
             .clone()
             .spawn(&mut commands, &mut meshes, &way_meshes, &materials);
-        let road = WaySurface::centered(4.8, 0.025, Carriageway);
-        road.spawn(&mut commands, &mut meshes, &materials, &way, entity);
-        let footway = WaySurface::new(Vec6::new(2.4, 4.4, 0.0, 0.0, 0.0, 0.125), Footway);
-        footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);
-        let footway = WaySurface::new(Vec6::new(-4.4, -2.4, 0.0, 0.0, 0.0, 0.125), Footway);
-        footway.spawn(&mut commands, &mut meshes, &materials, &way, entity);
+        for surface in WaySurface::default_surfaces() {
+            surface.spawn(&mut commands, &mut meshes, &materials, &way, entity);
+        }
     }
 }

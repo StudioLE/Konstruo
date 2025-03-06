@@ -9,7 +9,7 @@ use ControlType::*;
 
 /// A control point that manipulates a [`Way`].
 #[derive(Component)]
-#[require(InheritedVisibility, Transform, Visibility(|| Visibility::Hidden))]
+#[require(InheritedVisibility, Transform)]
 pub struct WayControl {
     /// Type of the control.
     control_type: ControlType,
