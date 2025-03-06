@@ -1,11 +1,14 @@
 use crate::beziers::from_kurbo::{f32_from_f64, vec3_from_kurbo};
 use crate::beziers::to_kurbo::vec3_to_kurbo;
-use crate::beziers::ControlType;
+use crate::beziers::*;
+use crate::geometry::vectors::is_almost_equal_to;
 use bevy::prelude::*;
 use kurbo::{
     ParamCurve, ParamCurveArclen, ParamCurveCurvature, ParamCurveDeriv, ParamCurveExtrema,
     ParamCurveNearest,
 };
+use ControlType::*;
+use CubicBezierError::*;
 
 /// A single cubic bezier curve of four control points.
 #[derive(Clone, Debug, Default)]
@@ -16,15 +19,43 @@ pub struct CubicBezier {
     pub end: Vec3,
 }
 
+#[derive(Debug)]
+pub enum CubicBezierError {
+    TooClose(ControlType, ControlType),
+}
+
 impl CubicBezier {
+    pub fn new(
+        start: Vec3,
+        start_handle: Vec3,
+        end_handle: Vec3,
+        end: Vec3,
+    ) -> Result<Self, CubicBezierError> {
+        if is_almost_equal_to(start, start_handle) {
+            return Err(TooClose(Start, StartHandle));
+        }
+        if is_almost_equal_to(start, end) {
+            return Err(TooClose(Start, End));
+        }
+        if is_almost_equal_to(end_handle, end) {
+            return Err(TooClose(End, EndHandle));
+        }
+        Ok(Self {
+            start,
+            start_handle,
+            end_handle,
+            end,
+        })
+    }
+
     /// Get a control.
     #[must_use]
     pub fn get_control(&self, control_type: ControlType) -> Vec3 {
         match control_type {
-            ControlType::Start => self.start,
-            ControlType::StartHandle => self.start_handle,
-            ControlType::EndHandle => self.end_handle,
-            ControlType::End => self.end,
+            Start => self.start,
+            StartHandle => self.start_handle,
+            EndHandle => self.end_handle,
+            End => self.end,
         }
     }
     /// Get the four controls.
