@@ -25,7 +25,11 @@ impl Interceptor {
             return;
         };
         let font = assets.load(DEFAULT_FONT);
-        let parent = commands.spawn(interceptor_bundle(camera)).id();
+        let parent = commands
+            .spawn(interceptor_bundle(camera))
+            .observe(Drawing::on_pointer_down)
+            .observe(Drawing::on_pointer_up)
+            .id();
         let parent = commands.spawn(frame_bundle()).set_parent(parent).id();
         commands
             .spawn(label_container_bundle())

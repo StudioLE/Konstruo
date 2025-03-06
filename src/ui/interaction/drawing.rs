@@ -10,56 +10,21 @@ use CreateSplineError::*;
 
 #[derive(Default, Resource)]
 pub struct Drawing {
-    pub pressed: Vec<Vec3>,
-    pub released: Vec<Vec3>,
+    pub origins: Vec<Vec3>,
+    pub handles: Vec<Vec3>,
     pub entity: Option<Entity>,
     pub needs_update: bool,
 }
 
-impl Drawing {
-    /// System to update [`Drawing`] on input.
-    #[allow(clippy::too_many_arguments, clippy::integer_division)]
-    pub(super) fn input_system(
-        interface: Res<InterfaceState>,
-        mut drawing: ResMut<Drawing>,
-        buttons: Res<ButtonInput<MouseButton>>,
-        window: Query<&Window, With<PrimaryWindow>>,
-        camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
-    ) {
-        if *interface != InterfaceState::DrawWay {
-            return;
-        }
-        let is_pressed = buttons.just_pressed(MouseButton::Left);
-        let is_released = buttons.just_released(MouseButton::Left);
-        if !is_pressed && !is_released {
-            return;
-        }
-        let Ok(position) = Cursor::on_ground(&window, &camera) else {
-            warn!("Failed to get Cursor position");
-            return;
-        };
-        if is_pressed {
-            drawing.pressed.push(position);
-            return;
-        }
-        assert_eq!(
-            drawing.pressed.len(),
-            drawing.released.len() + 1,
-            "Pressed and released counts do not match"
-        );
-        let last_pressed = drawing
-            .pressed
-            .last()
-            .expect("Should be a matching pressed");
-        if is_almost_equal_to(position, *last_pressed) {
-            warn!("Press and release are too close");
-            drawing.pressed.pop();
-            return;
-        }
-        drawing.released.push(position);
-        drawing.needs_update = true;
-    }
+#[allow(dead_code)]
+#[derive(Debug)]
+enum CreateSplineError {
+    NoCurves,
+    InvalidCounts(usize, usize),
+    CurveError(CubicBezierError),
+}
 
+impl Drawing {
     /// System to update a [`Way`]
     #[allow(clippy::too_many_arguments)]
     pub(super) fn update_system(
@@ -76,15 +41,15 @@ impl Drawing {
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {
         if *interface != InterfaceState::DrawWay
-            || drawing.released.is_empty()
+            || drawing.handles.is_empty()
             || (!drawing.needs_update && motion.is_empty())
         {
             return;
         }
         drawing.needs_update = false;
-        let mut origins = drawing.pressed.clone();
-        let mut handles = drawing.released.clone();
-        if let Ok(cursor) = Cursor::on_ground(&window, &camera) {
+        let mut origins = drawing.origins.clone();
+        let mut handles = drawing.handles.clone();
+        if let Ok(cursor) = Cursor::from_window(&window, &camera) {
             match origins.len().cmp(&handles.len()) {
                 Ordering::Less => {
                     unreachable!("Origins count should always be greater than handles");
@@ -125,14 +90,61 @@ impl Drawing {
             spline: way.spline.clone(),
         });
     }
-}
 
-#[allow(dead_code)]
-#[derive(Debug)]
-enum CreateSplineError {
-    NoCurves,
-    InvalidCounts(usize, usize),
-    CurveError(CubicBezierError),
+    /// Add origin controls on pointer down.
+    pub(crate) fn on_pointer_down(
+        trigger: Trigger<Pointer<Down>>,
+        interface: Res<InterfaceState>,
+        mut drawing: ResMut<Drawing>,
+        camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
+    ) {
+        if *interface != InterfaceState::DrawWay {
+            return;
+        }
+        if trigger.button != PointerButton::Primary {
+            return;
+        };
+        let Ok(cursor) = Cursor::from_position(&camera, trigger.pointer_location.position) else {
+            warn!("Failed to get cursor position");
+            return;
+        };
+        drawing.origins.push(cursor);
+    }
+
+    /// Add handle controls on pointer down.
+    pub(crate) fn on_pointer_up(
+        trigger: Trigger<Pointer<Up>>,
+        interface: Res<InterfaceState>,
+        mut drawing: ResMut<Drawing>,
+        camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
+    ) {
+        if *interface != InterfaceState::DrawWay {
+            return;
+        }
+        if trigger.button != PointerButton::Primary {
+            return;
+        };
+        let Ok(cursor) = Cursor::from_position(&camera, trigger.pointer_location.position) else {
+            warn!("Failed to get cursor position");
+            return;
+        };
+        assert_eq!(
+            drawing.origins.len(),
+            drawing.handles.len() + 1,
+            "Pressed and released counts do not match"
+        );
+        let last_pressed = drawing
+            .origins
+            .last()
+            .expect("Should be a matching pressed");
+        if is_almost_equal_to(cursor, *last_pressed) {
+            warn!("Press and release are too close");
+            drawing.origins.pop();
+            return;
+        }
+        drawing.handles.push(cursor);
+        drawing.needs_update = true;
+    }
 }
 
 #[allow(clippy::indexing_slicing)]
