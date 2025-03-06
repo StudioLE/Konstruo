@@ -2,8 +2,10 @@ use crate::beziers::{CubicBezier, CubicBezierError, CubicBezierSpline};
 use crate::geometry::vectors::is_almost_equal_to;
 use crate::infrastructure::{SplineChangedEvent, Way, WayMaterials, WayMeshes, WaySurface};
 use crate::ui::*;
+use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use std::cmp::Ordering;
 use CreateSplineError::*;
 
 #[derive(Default, Resource)]
@@ -59,8 +61,9 @@ impl Drawing {
     }
 
     /// System to update a [`Way`]
-    #[allow(clippy::too_many_arguments, clippy::integer_division)]
+    #[allow(clippy::too_many_arguments)]
     pub(super) fn update_system(
+        interface: Res<InterfaceState>,
         mut commands: Commands,
         mut drawing: ResMut<Drawing>,
         mut meshes: ResMut<Assets<Mesh>>,
@@ -68,12 +71,33 @@ impl Drawing {
         materials: Res<WayMaterials>,
         mut ways: Query<&mut Way>,
         mut event_writer: EventWriter<SplineChangedEvent>,
+        motion: EventReader<MouseMotion>,
+        window: Query<&Window, With<PrimaryWindow>>,
+        camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {
-        if !drawing.needs_update || drawing.released.len() < 2 {
+        if *interface != InterfaceState::DrawWay
+            || drawing.released.is_empty()
+            || (!drawing.needs_update && motion.is_empty())
+        {
             return;
         }
         drawing.needs_update = false;
-        let spline = match get_spline(drawing.pressed.clone(), drawing.released.clone()) {
+        let mut origins = drawing.pressed.clone();
+        let mut handles = drawing.released.clone();
+        if let Ok(cursor) = Cursor::on_ground(&window, &camera) {
+            match origins.len().cmp(&handles.len()) {
+                Ordering::Less => {
+                    unreachable!("Origins count should always be greater than handles");
+                }
+                Ordering::Equal => {
+                    origins.push(cursor);
+                }
+                Ordering::Greater => {
+                    handles.push(cursor);
+                }
+            }
+        };
+        let spline = match get_spline(origins, handles) {
             Ok(spline) => spline,
             Err(e) => {
                 warn!("Failed to create spline: {e:?}");
