@@ -39,7 +39,10 @@ fn way_added_system(
         return;
     }
     for (entity, way) in query.iter() {
-        let spline = way.spline.offset(SPLINE_OFFSET, OFFSET_ACCURACY);
+        let spline = way
+            .spline
+            .offset(SPLINE_OFFSET, OFFSET_ACCURACY)
+            .expect("spline offset should be valid");
         let spline_length = spline.get_length(ACCURACY);
         let bundle = (Distribution {
             flex: FlexBuilder::new()

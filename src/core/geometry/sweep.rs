@@ -25,10 +25,12 @@ impl Sweep {
     pub fn new(spline: &CubicBezierSpline, offsets: Vec6) -> Self {
         let mut left = spline
             .offset(offsets.left, OFFSET_ACCURACY)
+            .expect("spline offset should be valid")
             .flatten(FLATTEN_TOLERANCE)
             .into();
         let mut right = spline
             .offset(offsets.right, OFFSET_ACCURACY)
+            .expect("spline offset should be valid")
             .flatten(FLATTEN_TOLERANCE)
             .into();
         Polyline::equalize_vertices_count(&mut left, &mut right);

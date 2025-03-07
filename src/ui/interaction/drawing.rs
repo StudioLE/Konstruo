@@ -1,4 +1,4 @@
-use crate::beziers::{CubicBezier, CubicBezierError, CubicBezierSpline};
+use crate::beziers::CubicBezierSpline;
 use crate::geometry::vectors::is_almost_equal_to;
 use crate::infrastructure::*;
 use crate::ui::*;
@@ -6,7 +6,6 @@ use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use std::cmp::Ordering;
-use CreateSplineError::*;
 
 #[derive(Default, Resource)]
 pub struct Drawing {
@@ -14,14 +13,6 @@ pub struct Drawing {
     pub handles: Vec<Vec3>,
     pub entity: Option<Entity>,
     pub needs_update: bool,
-}
-
-#[allow(dead_code)]
-#[derive(Debug)]
-enum CreateSplineError {
-    NoCurves,
-    InvalidCounts(usize, usize),
-    CurveError(CubicBezierError),
 }
 
 impl Drawing {
@@ -62,7 +53,7 @@ impl Drawing {
                 }
             }
         };
-        let spline = match get_spline(origins, handles) {
+        let spline = match CubicBezierSpline::by_origins_and_handles(origins, handles) {
             Ok(spline) => spline,
             Err(e) => {
                 warn!("Failed to create spline: {e:?}");
@@ -93,7 +84,10 @@ impl Drawing {
             self.reset();
             return;
         };
-        let spline = match get_spline(self.origins.clone(), self.handles.clone()) {
+        let spline = match CubicBezierSpline::by_origins_and_handles(
+            self.origins.clone(),
+            self.handles.clone(),
+        ) {
             Ok(spline) => spline,
             Err(e) => {
                 warn!("Failed to create spline: {e:?}");
@@ -198,111 +192,4 @@ pub(super) fn update_way(
         way: entity,
         spline: way.spline.clone(),
     });
-}
-
-#[allow(clippy::indexing_slicing)]
-fn get_spline(
-    origins: Vec<Vec3>,
-    handles: Vec<Vec3>,
-) -> Result<CubicBezierSpline, CreateSplineError> {
-    if origins.is_empty()
-        || (origins.len() != handles.len() && origins.len() != (handles.len() + 1))
-    {
-        return Err(InvalidCounts(origins.len(), handles.len()));
-    }
-    let origins = origins.clone();
-    let handles = handles.clone();
-    let mut curves = Vec::new();
-    let count = origins.len() - 1;
-    for i in 0..count {
-        let start = origins[i];
-        let start_handle = handles[i];
-        let end = origins[i + 1];
-        let next_handle = handles.get(i + 1);
-        let end_handle = if let Some(next_handle) = next_handle {
-            let translation = end - *next_handle;
-            end + translation
-        } else {
-            start_handle
-        };
-        let curve = CubicBezier::new(start, start_handle, end_handle, end).map_err(CurveError)?;
-        curves.push(curve);
-    }
-    if curves.is_empty() {
-        return Err(NoCurves);
-    }
-    Ok(CubicBezierSpline::new(curves))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::beziers::ControlType::{End, Start, StartHandle};
-
-    fn example_spline() -> CubicBezierSpline {
-        CubicBezierSpline::new(vec![
-            CubicBezier::new(
-                Vec3::new(0.0, 70.0, 0.0),
-                Vec3::new(30.0, 70.0, 0.0),
-                Vec3::new(30.0, 40.0, 0.0),
-                Vec3::new(50.0, 40.0, 0.0),
-            )
-            .expect("should be valid"),
-            CubicBezier::new(
-                Vec3::new(50.0, 40.0, 0.0),
-                Vec3::new(70.0, 40.0, 0.0),
-                Vec3::new(70.0, 15.0, 0.0),
-                Vec3::new(70.0, 0.0, 0.0),
-            )
-            .expect("should be valid"),
-        ])
-    }
-
-    #[test]
-    #[allow(clippy::unwrap_used)]
-    fn get_spline_test_complete() -> Result<(), CreateSplineError> {
-        // Arrange
-        let example = example_spline();
-        let pressed = [
-            example.get_control(Start, 0).unwrap(),
-            example.get_control(Start, 1).unwrap(),
-            example.get_control(End, 1).unwrap(),
-        ];
-        let released = [
-            example.get_control(StartHandle, 0).unwrap(),
-            example.get_control(StartHandle, 1).unwrap(),
-            example.get_control(End, 1).unwrap() + Vec3::new(10.0, 0.0, 0.0),
-        ];
-
-        // Act
-        let result = get_spline(pressed.to_vec(), released.to_vec())?;
-
-        // Assert
-        assert_eq!(result.get_curves().len(), 2);
-        Ok(())
-    }
-
-    #[test]
-    #[allow(clippy::unwrap_used)]
-    fn get_spline_test_missing_released() -> Result<(), CreateSplineError> {
-        // Arrange
-        let example = example_spline();
-        let pressed = [
-            example.get_control(Start, 0).unwrap(),
-            example.get_control(Start, 1).unwrap(),
-            example.get_control(End, 1).unwrap(),
-        ];
-        let released = [
-            example.get_control(StartHandle, 0).unwrap(),
-            example.get_control(StartHandle, 1).unwrap(),
-            // example.get_control(End, 1).unwrap() + Vec3::new(10.0, 0.0, 0.0),
-        ];
-
-        // Act
-        let result = get_spline(pressed.to_vec(), released.to_vec())?;
-
-        // Assert
-        assert_eq!(result.get_curves().len(), 2);
-        Ok(())
-    }
 }

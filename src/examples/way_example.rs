@@ -1,4 +1,4 @@
-use crate::beziers::{CubicBezier, CubicBezierSpline};
+use crate::beziers::CubicBezierSpline;
 use crate::infrastructure::*;
 use bevy::prelude::*;
 
@@ -17,22 +17,7 @@ impl WayExample {
         materials: Res<WayMaterials>,
         way_meshes: Res<WayMeshes>,
     ) {
-        let spline = CubicBezierSpline::new(vec![
-            CubicBezier::new(
-                Vec3::new(0.0, 70.0, 0.0),
-                Vec3::new(30.0, 70.0, 0.0),
-                Vec3::new(30.0, 40.0, 0.0),
-                Vec3::new(50.0, 40.0, 0.0),
-            )
-            .expect("CubicBezier should be valid"),
-            CubicBezier::new(
-                Vec3::new(50.0, 40.0, 0.0),
-                Vec3::new(70.0, 40.0, 0.0),
-                Vec3::new(70.0, 15.0, 0.0),
-                Vec3::new(70.0, 0.0, 0.0),
-            )
-            .expect("CubicBezier should be valid"),
-        ]);
+        let spline = CubicBezierSpline::example();
         let way = Way::new(spline);
         let entity = way
             .clone()

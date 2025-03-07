@@ -95,7 +95,10 @@ fn redistribute_on_spline_changed(
             ..distribution.flex
         };
         let spline = if let Some(offset) = distribution.spline_offset {
-            event.spline.offset(offset, OFFSET_ACCURACY)
+            event
+                .spline
+                .offset(offset, OFFSET_ACCURACY)
+                .expect("spline offset should be valid")
         } else {
             event.spline.clone()
         };

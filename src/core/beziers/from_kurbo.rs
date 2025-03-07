@@ -1,4 +1,4 @@
-use crate::beziers::{CubicBezier, CubicBezierSpline};
+use crate::beziers::{CubicBezier, CubicBezierSpline, CubicBezierSplineError};
 use bevy::math::Vec3;
 use kurbo::{CubicBez, Point};
 use F32ConversionError::*;
@@ -49,11 +49,14 @@ impl CubicBezier {
 
 impl CubicBezierSpline {
     /// Convert from a collection of Kurbo [`CubicBez`] to a [`CubicBezierSpline`].
-    pub fn from_kurbo(segments: Vec<CubicBez>) -> Result<CubicBezierSpline, F32ConversionError> {
+    pub fn from_kurbo(
+        segments: Vec<CubicBez>,
+    ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
         let curves = segments
             .iter()
             .map(CubicBezier::from_kurbo)
-            .collect::<Result<_, _>>()?;
-        Ok(CubicBezierSpline::new(curves))
+            .collect::<Result<_, _>>()
+            .map_err(CubicBezierSplineError::Conversion)?;
+        CubicBezierSpline::new(curves)
     }
 }

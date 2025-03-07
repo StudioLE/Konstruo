@@ -1,5 +1,5 @@
 use super::*;
-use crate::beziers::from_kurbo::{f32_from_f64, vec3_from_kurbo};
+use crate::beziers::from_kurbo::{f32_from_f64, vec3_from_kurbo, F32ConversionError};
 use crate::beziers::internal_kurbo::bezpath_to_cubics;
 use crate::beziers::CubicBezier;
 use bevy::prelude::*;
@@ -9,6 +9,7 @@ use kurbo::{
     StrokeOpts,
 };
 use ControlType::*;
+use CubicBezierSplineError::*;
 
 /// A spline formed of one or more connected [`CubicBezier`].
 #[derive(Clone, Debug, Default)]
@@ -16,11 +17,75 @@ pub struct CubicBezierSpline {
     curves: Vec<CubicBezier>,
 }
 
+#[allow(dead_code)]
+#[derive(Debug)]
+pub enum CubicBezierSplineError {
+    NoCurves,
+    InvalidCounts(usize, usize),
+    Curve(CubicBezierError),
+    Conversion(F32ConversionError),
+}
+
 impl CubicBezierSpline {
-    /// Get a control.
+    /// Create a new [`CubicBezierSpline`].
+    pub fn new(curves: Vec<CubicBezier>) -> Result<Self, CubicBezierSplineError> {
+        if curves.is_empty() {
+            return Err(NoCurves);
+        }
+        Ok(Self { curves })
+    }
+
+    /// Create a new [`CubicBezierSpline`] from lists of origins and handles.
+    #[allow(clippy::indexing_slicing)]
+    pub fn by_origins_and_handles(
+        origins: Vec<Vec3>,
+        handles: Vec<Vec3>,
+    ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
+        if origins.is_empty()
+            || (origins.len() != handles.len() && origins.len() != (handles.len() + 1))
+        {
+            return Err(InvalidCounts(origins.len(), handles.len()));
+        }
+        let origins = origins.clone();
+        let handles = handles.clone();
+        let mut curves = Vec::new();
+        let count = origins.len() - 1;
+        for i in 0..count {
+            let start = origins[i];
+            let start_handle = handles[i];
+            let end = origins[i + 1];
+            let next_handle = handles.get(i + 1);
+            let end_handle = if let Some(next_handle) = next_handle {
+                let translation = end - *next_handle;
+                end + translation
+            } else {
+                start_handle
+            };
+            let curve = CubicBezier::new(start, start_handle, end_handle, end).map_err(Curve)?;
+            curves.push(curve);
+        }
+        CubicBezierSpline::new(curves)
+    }
+
     #[must_use]
-    pub fn new(curves: Vec<CubicBezier>) -> Self {
-        Self { curves }
+    pub(crate) fn example() -> CubicBezierSpline {
+        CubicBezierSpline::new(vec![
+            CubicBezier::new(
+                Vec3::new(0.0, 70.0, 0.0),
+                Vec3::new(30.0, 70.0, 0.0),
+                Vec3::new(30.0, 40.0, 0.0),
+                Vec3::new(50.0, 40.0, 0.0),
+            )
+            .expect("should be valid"),
+            CubicBezier::new(
+                Vec3::new(50.0, 40.0, 0.0),
+                Vec3::new(70.0, 40.0, 0.0),
+                Vec3::new(70.0, 15.0, 0.0),
+                Vec3::new(70.0, 0.0, 0.0),
+            )
+            .expect("should be valid"),
+        ])
+        .expect("should be valid")
     }
 
     /// Get the curves.
@@ -233,10 +298,13 @@ impl CubicBezierSpline {
         points
     }
 
-    /// Offset a bezier curve by a given distance.    ///
+    /// Offset a bezier curve by a given distance.
     /// - <https://raphlinus.github.io/curves/2022/09/09/parallel-beziers.html>
-    #[must_use]
-    pub fn offset(&self, distance: f32, accuracy: f32) -> CubicBezierSpline {
+    pub fn offset(
+        &self,
+        distance: f32,
+        accuracy: f32,
+    ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
         let kurbo_bezier = self.to_kurbo();
         let segments: Vec<CubicBez> = kurbo_bezier
             .iter()
@@ -246,11 +314,27 @@ impl CubicBezierSpline {
                 bezpath_to_cubics(path)
             })
             .collect();
-        CubicBezierSpline::from_kurbo(segments).expect("should not exceed f32 range")
+        CubicBezierSpline::from_kurbo(segments)
     }
 
-    #[must_use]
-    pub fn stroke(&self, distance: f32, tolerance: f32) -> Self {
+    /// Expand a stroke into a fill.
+    ///
+    /// The tolerance parameter controls the accuracy of the result. In general, the number
+    /// of subdivisions in the output scales to the -1/6 power of the parameter, for example
+    /// making it 1/64 as big generates twice as many segments. The appropriate value depends
+    /// on the application; if the result of the stroke will be scaled up, a smaller value is
+    /// needed.
+    ///
+    /// This method attempts a fairly high degree of correctness, but ultimately is based on
+    /// computing parallel curves and adding joins and caps, rather than computing the rigorously
+    /// correct parallel sweep (which requires evolutes in the general case).
+    ///
+    /// See Nehab 2020 for more discussion.
+    pub fn stroke(
+        &self,
+        distance: f32,
+        tolerance: f32,
+    ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
         let path = self.to_kurbo_bez_path();
         // let style = Stroke::new(distance);
         let style = Stroke {
@@ -265,6 +349,60 @@ impl CubicBezierSpline {
         // let options = StrokeOpts::default().opt_level(StrokeOptLevel::Optimized);
         let result = stroke(path, &style, &options, f64::from(tolerance));
         let segments = bezpath_to_cubics(result);
-        CubicBezierSpline::from_kurbo(segments).expect("should not exceed f32 range")
+        CubicBezierSpline::from_kurbo(segments)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::beziers::ControlType::{End, Start, StartHandle};
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn get_spline_test_complete() -> Result<(), CubicBezierSplineError> {
+        // Arrange
+        let example = CubicBezierSpline::example();
+        let pressed = vec![
+            example.get_control(Start, 0).unwrap(),
+            example.get_control(Start, 1).unwrap(),
+            example.get_control(End, 1).unwrap(),
+        ];
+        let released = vec![
+            example.get_control(StartHandle, 0).unwrap(),
+            example.get_control(StartHandle, 1).unwrap(),
+            example.get_control(End, 1).unwrap() + Vec3::new(10.0, 0.0, 0.0),
+        ];
+
+        // Act
+        let result = CubicBezierSpline::by_origins_and_handles(pressed, released)?;
+
+        // Assert
+        assert_eq!(result.get_curves().len(), 2);
+        Ok(())
+    }
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn get_spline_test_missing_released() -> Result<(), CubicBezierSplineError> {
+        // Arrange
+        let example = CubicBezierSpline::example();
+        let pressed = vec![
+            example.get_control(Start, 0).unwrap(),
+            example.get_control(Start, 1).unwrap(),
+            example.get_control(End, 1).unwrap(),
+        ];
+        let released = vec![
+            example.get_control(StartHandle, 0).unwrap(),
+            example.get_control(StartHandle, 1).unwrap(),
+            // example.get_control(End, 1).unwrap() + Vec3::new(10.0, 0.0, 0.0),
+        ];
+
+        // Act
+        let result = CubicBezierSpline::by_origins_and_handles(pressed, released)?;
+
+        // Assert
+        assert_eq!(result.get_curves().len(), 2);
+        Ok(())
     }
 }
