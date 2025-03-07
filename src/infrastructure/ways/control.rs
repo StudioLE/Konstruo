@@ -9,14 +9,12 @@ use ControlType::*;
 
 /// A control point that manipulates a [`Way`].
 #[derive(Component)]
-#[require(InheritedVisibility, Transform)]
+#[require(InheritedVisibility, Transform, EntityState)]
 pub struct WayControl {
     /// Type of the control.
     control_type: ControlType,
     /// Index of the Curve in the spline of the [`Way`].
     curve: usize,
-    /// Translation at the start of the drag operation.
-    drag: Option<Vec3>,
 }
 
 impl WayControl {
@@ -26,7 +24,6 @@ impl WayControl {
         Self {
             control_type,
             curve,
-            drag: None,
         }
     }
 
@@ -143,7 +140,7 @@ impl WayControl {
                 }
                 *visibility = match event.state {
                     EntityState::Selected => Visibility::Visible,
-                    EntityState::Hovered | EntityState::Default => Visibility::Hidden,
+                    _ => Visibility::Hidden,
                 };
             }
         }
@@ -162,13 +159,13 @@ fn get_transform(control_type: ControlType, position: Vec3) -> Transform {
 fn on_pointer_over(
     event: Trigger<Pointer<Over>>,
     materials: Res<WayMaterials>,
-    mut query: Query<(&WayControl, &mut MeshMaterial3d<StandardMaterial>)>,
+    mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((control, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((state, mut material)) = query.get_mut(event.entity()) else {
         error!("Failed to get material of WayControl");
         return;
     };
-    if control.drag.is_none() {
+    if state != &EntityState::Selected {
         *material = MeshMaterial3d(materials.control_node_over.clone());
     }
 }
@@ -176,13 +173,13 @@ fn on_pointer_over(
 fn on_pointer_out(
     event: Trigger<Pointer<Out>>,
     materials: Res<WayMaterials>,
-    mut query: Query<(&WayControl, &mut MeshMaterial3d<StandardMaterial>)>,
+    mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((control, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((state, mut material)) = query.get_mut(event.entity()) else {
         error!("Failed to get WayControl");
         return;
     };
-    if control.drag.is_none() {
+    if state != &EntityState::Selected {
         *material = MeshMaterial3d(materials.control_node.clone());
     }
 }
@@ -190,17 +187,13 @@ fn on_pointer_out(
 fn on_pointer_drag_start(
     event: Trigger<Pointer<DragStart>>,
     materials: Res<WayMaterials>,
-    mut query: Query<(
-        &mut WayControl,
-        &Transform,
-        &mut MeshMaterial3d<StandardMaterial>,
-    )>,
+    mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((mut control, transform, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((mut state, mut material)) = query.get_mut(event.entity()) else {
         error!("Failed to get WayControl");
         return;
     };
-    control.drag = Some(transform.translation);
+    *state = EntityState::Selected;
     *material = MeshMaterial3d(materials.control_node_drag.clone());
 }
 
@@ -236,12 +229,12 @@ fn on_pointer_drag(
 fn on_pointer_drag_end(
     event: Trigger<Pointer<DragEnd>>,
     materials: Res<WayMaterials>,
-    mut query: Query<(&mut WayControl, &mut MeshMaterial3d<StandardMaterial>)>,
+    mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((mut control, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((mut state, mut material)) = query.get_mut(event.entity()) else {
         error!("Failed to get WayControl");
         return;
     };
-    control.drag = None;
+    *state = EntityState::Selected;
     *material = MeshMaterial3d(materials.control_node.clone());
 }
