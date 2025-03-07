@@ -176,9 +176,9 @@ fn create_way(
     spline: CubicBezierSpline,
 ) {
     let way = Way::new(spline);
-    let entity = way.clone().spawn(commands, meshes, &way_meshes, &materials);
+    let entity = way.clone().spawn(commands, meshes, way_meshes, materials);
     for surface in WaySurface::default_surfaces() {
-        surface.spawn(commands, meshes, &materials, &way, entity);
+        surface.spawn(commands, meshes, materials, &way, entity);
     }
     drawing.entity = Some(entity);
 }

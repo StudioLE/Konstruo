@@ -1,8 +1,8 @@
+use crate::infrastructure::{SplineChangedEvent, Way};
 use crate::ui::*;
 use bevy::prelude::*;
 use std::fmt::{Display, Formatter};
 use Action::*;
-use crate::infrastructure::{SplineChangedEvent, Way};
 
 #[derive(Clone, Copy, Debug, Event)]
 pub enum Action {
@@ -22,6 +22,7 @@ pub enum Action {
 
 impl Action {
     /// System to respond to [`Action`] events.
+    #[allow(clippy::too_many_arguments)]
     pub(super) fn event_system(
         mut commands: Commands,
         mut events: EventReader<Action>,
@@ -30,7 +31,7 @@ impl Action {
         mut entity_states: Query<&mut EntityState>,
         mut drawing: ResMut<Drawing>,
         mut ways: Query<&mut Way>,
-        mut spline_changed_event:  EventWriter<SplineChangedEvent>,
+        mut spline_changed_event: EventWriter<SplineChangedEvent>,
     ) {
         for event in events.read() {
             match event {
