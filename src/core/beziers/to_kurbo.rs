@@ -22,7 +22,7 @@ impl CubicBezier {
 impl CubicBezierSpline {
     /// Convert to a collection of kurbo [`CubicBez`].
     pub(super) fn to_kurbo(&self) -> Vec<CubicBez> {
-        self.curves
+        self.get_curves()
             .iter()
             .map(super::cubic_bezier::CubicBezier::to_kurbo)
             .collect()

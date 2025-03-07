@@ -54,6 +54,6 @@ impl CubicBezierSpline {
             .iter()
             .map(CubicBezier::from_kurbo)
             .collect::<Result<_, _>>()?;
-        Ok(CubicBezierSpline { curves })
+        Ok(CubicBezierSpline::new(curves))
     }
 }

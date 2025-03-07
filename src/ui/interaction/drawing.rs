@@ -231,7 +231,7 @@ fn get_spline(
     if curves.is_empty() {
         return Err(NoCurves);
     }
-    Ok(CubicBezierSpline { curves })
+    Ok(CubicBezierSpline::new(curves))
 }
 
 #[cfg(test)]
@@ -240,22 +240,20 @@ mod tests {
     use crate::beziers::ControlType::{End, Start, StartHandle};
 
     fn example_spline() -> CubicBezierSpline {
-        CubicBezierSpline {
-            curves: vec![
-                CubicBezier {
-                    start: Vec3::new(0.0, 70.0, 0.0),
-                    start_handle: Vec3::new(30.0, 70.0, 0.0),
-                    end_handle: Vec3::new(30.0, 40.0, 0.0),
-                    end: Vec3::new(50.0, 40.0, 0.0),
-                },
-                CubicBezier {
-                    start: Vec3::new(50.0, 40.0, 0.0),
-                    start_handle: Vec3::new(70.0, 40.0, 0.0),
-                    end_handle: Vec3::new(70.0, 15.0, 0.0),
-                    end: Vec3::new(70.0, 0.0, 0.0),
-                },
-            ],
-        }
+        CubicBezierSpline::new(vec![
+            CubicBezier {
+                start: Vec3::new(0.0, 70.0, 0.0),
+                start_handle: Vec3::new(30.0, 70.0, 0.0),
+                end_handle: Vec3::new(30.0, 40.0, 0.0),
+                end: Vec3::new(50.0, 40.0, 0.0),
+            },
+            CubicBezier {
+                start: Vec3::new(50.0, 40.0, 0.0),
+                start_handle: Vec3::new(70.0, 40.0, 0.0),
+                end_handle: Vec3::new(70.0, 15.0, 0.0),
+                end: Vec3::new(70.0, 0.0, 0.0),
+            },
+        ])
     }
 
     #[test]
@@ -278,7 +276,7 @@ mod tests {
         let result = get_spline(pressed.to_vec(), released.to_vec())?;
 
         // Assert
-        assert_eq!(result.curves.len(), 2);
+        assert_eq!(result.get_curves().len(), 2);
         Ok(())
     }
 
@@ -302,7 +300,7 @@ mod tests {
         let result = get_spline(pressed.to_vec(), released.to_vec())?;
 
         // Assert
-        assert_eq!(result.curves.len(), 2);
+        assert_eq!(result.get_curves().len(), 2);
         Ok(())
     }
 }

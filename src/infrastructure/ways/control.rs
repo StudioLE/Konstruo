@@ -64,7 +64,7 @@ impl WayControl {
         way: &Way,
         parent: Entity,
     ) {
-        for (curve, bezier) in way.spline.curves.iter().enumerate() {
+        for (curve, bezier) in way.spline.get_curves().iter().enumerate() {
             let mut bundles = Vec::new();
             if curve == 0 {
                 bundles.push(Self::bundle(meshes, materials, Start, curve, bezier.start));

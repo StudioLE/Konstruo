@@ -1,6 +1,7 @@
+use super::*;
 use crate::beziers::from_kurbo::{f32_from_f64, vec3_from_kurbo};
 use crate::beziers::internal_kurbo::bezpath_to_cubics;
-use crate::beziers::{ControlType, CubicBezier};
+use crate::beziers::CubicBezier;
 use bevy::prelude::*;
 use kurbo::offset::CubicOffset;
 use kurbo::{
@@ -12,10 +13,22 @@ use ControlType::*;
 /// A spline formed of one or more connected [`CubicBezier`].
 #[derive(Clone, Debug, Default)]
 pub struct CubicBezierSpline {
-    pub curves: Vec<CubicBezier>,
+    curves: Vec<CubicBezier>,
 }
 
 impl CubicBezierSpline {
+    /// Get a control.
+    #[must_use]
+    pub fn new(curves: Vec<CubicBezier>) -> Self {
+        Self { curves }
+    }
+
+    /// Get the curves.
+    #[must_use]
+    pub fn get_curves(&self) -> &Vec<CubicBezier> {
+        &self.curves
+    }
+
     /// Get a control.
     #[must_use]
     pub fn get_control(&self, control_type: ControlType, curve: usize) -> Option<Vec3> {

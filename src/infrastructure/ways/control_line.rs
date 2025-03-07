@@ -30,7 +30,7 @@ impl WayControlLine {
         way: &Way,
         parent: Entity,
     ) {
-        for (i, bezier) in way.spline.curves.iter().enumerate() {
+        for (i, bezier) in way.spline.get_curves().iter().enumerate() {
             let i = i * 4;
             let start = (
                 WayControlLine::new(i, i + 1),
