@@ -44,10 +44,13 @@ impl Action {
                 Remove(entity) => {
                     remove(&mut commands, *entity);
                 }
+                Undo => {
+                    drawing.undo();
+                }
                 _ => {}
             };
             *interface = match event {
-                DrawWay => InterfaceState::DrawWay,
+                DrawWay | Undo => InterfaceState::DrawWay,
                 _ => InterfaceState::Default,
             };
         }

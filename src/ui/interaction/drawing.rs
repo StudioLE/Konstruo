@@ -9,10 +9,10 @@ use std::cmp::Ordering;
 
 #[derive(Default, Resource)]
 pub struct Drawing {
-    pub origins: Vec<Vec3>,
-    pub handles: Vec<Vec3>,
-    pub entity: Option<Entity>,
-    pub needs_update: bool,
+    origins: Vec<Vec3>,
+    handles: Vec<Vec3>,
+    entity: Option<Entity>,
+    needs_update: bool,
 }
 
 impl Drawing {
@@ -96,6 +96,13 @@ impl Drawing {
         };
         update_way(ways, curve_added, spline, entity);
         self.reset();
+    }
+
+    /// Remove the last control and handle.
+    pub(crate) fn undo(&mut self) {
+        self.handles.pop();
+        self.origins.pop();
+        self.needs_update = true;
     }
 
     fn reset(&mut self) {
