@@ -1,4 +1,3 @@
-use crate::geometry::Triangle;
 use bevy::prelude::*;
 
 /// A closed polygon where all vertices are on the same plane.
@@ -10,28 +9,15 @@ pub struct Polygon {
     vertices: Vec<Vec3>,
 }
 
-impl From<Vec<Vec3>> for Polygon {
-    fn from(vertices: Vec<Vec3>) -> Self {
-        Self { vertices }
-    }
-}
-
-impl From<Triangle> for Polygon {
-    fn from(triangle: Triangle) -> Polygon {
-        Polygon::new(triangle.to_vertices())
-    }
-}
-
 impl Polygon {
     /// Create a [`Polygon`].
     ///
     /// TODO: Add a check to ensure the first and last vertices are the same.
     #[must_use]
-    pub fn new(vertices: impl Into<Vec<Vec3>>) -> Self {
-        Self {
-            vertices: vertices.into(),
-        }
+    pub fn new(vertices: Vec<Vec3>) -> Self {
+        Self { vertices }
     }
+
     /// Create a square
     #[must_use]
     pub fn create_square(origin: Vec3, size: f32) -> Self {

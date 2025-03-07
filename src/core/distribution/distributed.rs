@@ -13,13 +13,3 @@ pub struct Distributed {
     /// Source item
     pub source: Distributable,
 }
-
-impl From<Distributable> for Distributed {
-    fn from(source: Distributable) -> Self {
-        Distributed {
-            size: Vec3::ZERO,
-            translation: Vec3::ZERO,
-            source,
-        }
-    }
-}

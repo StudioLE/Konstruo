@@ -7,12 +7,6 @@ pub struct Triangle {
     vertices: [Vec3; 3],
 }
 
-impl From<[Vec3; 3]> for Triangle {
-    fn from(vertices: [Vec3; 3]) -> Self {
-        Self { vertices }
-    }
-}
-
 impl Triangle {
     /// Create a [`Triangle`].
     #[must_use]

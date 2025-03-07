@@ -1,4 +1,4 @@
-use crate::geometry::TriangleList;
+use crate::geometry::*;
 use bevy::prelude::*;
 
 pub struct TriangularPrism {
@@ -26,23 +26,23 @@ impl Default for TriangularPrism {
 impl TriangularPrism {
     #[must_use]
     pub fn to_triangle_list(self) -> TriangleList {
-        let back = [self.back_right, self.back_left, self.back_top];
-        let front = [self.front_right, self.front_top, self.front_left];
-        let right_bottom = [self.back_right, self.front_top, self.front_right];
-        let right_top = [self.back_right, self.back_top, self.front_top];
-        let left_bottom = [self.back_left, self.front_left, self.front_top];
-        let left_top = [self.back_left, self.front_top, self.back_top];
-        let back_bottom = [self.back_right, self.front_right, self.back_left];
-        let front_bottom = [self.back_left, self.front_right, self.front_left];
-        TriangleList::new([
-            front.into(),
-            back.into(),
-            left_bottom.into(),
-            left_top.into(),
-            right_bottom.into(),
-            right_top.into(),
-            front_bottom.into(),
-            back_bottom.into(),
+        let back = Triangle::new([self.back_right, self.back_left, self.back_top]);
+        let front = Triangle::new([self.front_right, self.front_top, self.front_left]);
+        let right_bottom = Triangle::new([self.back_right, self.front_top, self.front_right]);
+        let right_top = Triangle::new([self.back_right, self.back_top, self.front_top]);
+        let left_bottom = Triangle::new([self.back_left, self.front_left, self.front_top]);
+        let left_top = Triangle::new([self.back_left, self.front_top, self.back_top]);
+        let back_bottom = Triangle::new([self.back_right, self.front_right, self.back_left]);
+        let front_bottom = Triangle::new([self.back_left, self.front_right, self.front_left]);
+        TriangleList::new(vec![
+            front,
+            back,
+            left_bottom,
+            left_top,
+            right_bottom,
+            right_top,
+            front_bottom,
+            back_bottom,
         ])
     }
 }

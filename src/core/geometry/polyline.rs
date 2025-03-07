@@ -19,8 +19,8 @@ impl From<Vec<Vec3>> for Polyline {
 impl Polyline {
     /// Create a [`Polyline`].
     #[must_use]
-    pub fn new(vertices: impl Into<Vec<Vec3>>) -> Self {
-        Self::from(vertices.into())
+    pub fn new(vertices: Vec<Vec3>) -> Self {
+        Self { vertices }
     }
 
     /// Get the vertices of the [`Polyline`].

@@ -53,7 +53,7 @@ impl Sweep {
             .get_vertices()
             .first()
             .expect("sweep edge should have vertices");
-        Polyline::new([left, right])
+        Polyline::new(vec![left, right])
     }
 
     fn get_front_top_edge(&self) -> Polyline {
@@ -67,7 +67,7 @@ impl Sweep {
             .get_vertices()
             .first()
             .expect("sweep edge should have vertices");
-        Polyline::new([left, right])
+        Polyline::new(vec![left, right])
     }
 
     fn get_back_bottom_edge(&self) -> Polyline {
@@ -81,7 +81,7 @@ impl Sweep {
             .get_vertices()
             .last()
             .expect("sweep edge should have vertices");
-        Polyline::new([left, right])
+        Polyline::new(vec![left, right])
     }
 
     fn get_back_top_edge(&self) -> Polyline {
@@ -95,7 +95,7 @@ impl Sweep {
             .get_vertices()
             .last()
             .expect("sweep edge should have vertices");
-        Polyline::new([left, right])
+        Polyline::new(vec![left, right])
     }
 
     /// Create a 3D [`TriangleList`] between two parallel polylines.

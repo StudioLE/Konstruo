@@ -12,10 +12,8 @@ pub struct LineList {
 impl LineList {
     /// Create a [`LineList`].
     #[must_use]
-    pub fn new(vertices: impl Into<Vec<[Vec3; 2]>>) -> Self {
-        Self {
-            lines: vertices.into(),
-        }
+    pub fn new(lines: Vec<[Vec3; 2]>) -> Self {
+        Self { lines }
     }
 
     /// Create a [`PrimitiveTopology::LineList`].

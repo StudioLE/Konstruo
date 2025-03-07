@@ -1,3 +1,4 @@
+use crate::distribution::Distributed;
 use crate::geometry::Vec6;
 use bevy::prelude::*;
 
@@ -29,6 +30,17 @@ impl Default for Distributable {
             order: usize::MAX,
             size: None,
             margin: None,
+        }
+    }
+}
+
+impl Distributable {
+    #[must_use]
+    pub fn to_distributed(self: Distributable) -> Distributed {
+        Distributed {
+            size: Vec3::ZERO,
+            translation: Vec3::ZERO,
+            source: self,
         }
     }
 }

@@ -10,19 +10,11 @@ pub struct TriangleList {
     triangles: Vec<Triangle>,
 }
 
-impl From<Vec<Triangle>> for TriangleList {
-    fn from(triangles: Vec<Triangle>) -> Self {
-        Self { triangles }
-    }
-}
-
 impl TriangleList {
     /// Create a [`TriangleList`].
     #[must_use]
-    pub fn new(triangles: impl Into<Vec<Triangle>>) -> Self {
-        Self {
-            triangles: triangles.into(),
-        }
+    pub fn new(triangles: Vec<Triangle>) -> Self {
+        Self { triangles }
     }
 
     /// Create a [`TriangleList`] between two parallel polylines.
@@ -95,7 +87,7 @@ impl TriangleList {
                     transform.transform_point(vertices[1]),
                     transform.transform_point(vertices[2]),
                 ];
-                Triangle::from(vertices)
+                Triangle::new(vertices)
             })
             .collect();
         Self { triangles }
