@@ -1,4 +1,5 @@
 use super::*;
+use crate::beziers::ControlType::*;
 use crate::geometry::Polyline;
 use crate::ui::{EntityState, EntityStateChanged};
 use bevy::prelude::*;
@@ -32,14 +33,16 @@ impl WayControlLine {
     ) {
         for (i, bezier) in way.spline.get_curves().iter().enumerate() {
             let i = i * 4;
+            let line = [bezier.get_control(Start), bezier.get_control(StartHandle)];
             let start = (
                 WayControlLine::new(i, i + 1),
-                Mesh3d(meshes.add(Polyline::new([bezier.start, bezier.start_handle]).to_mesh())),
+                Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
             );
+            let line = [bezier.get_control(End), bezier.get_control(EndHandle)];
             let end = (
                 WayControlLine::new(i + 3, i + 2),
-                Mesh3d(meshes.add(Polyline::new([bezier.end, bezier.end_handle]).to_mesh())),
+                Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
             );
             commands.spawn(start).set_parent(parent);

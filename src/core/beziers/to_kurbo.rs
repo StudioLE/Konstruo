@@ -1,4 +1,5 @@
 use crate::beziers::cubic_bezier_spline::CubicBezierSpline;
+use crate::beziers::ControlType::*;
 use crate::beziers::CubicBezier;
 use bevy::log::warn;
 use bevy::math::Vec3;
@@ -11,10 +12,10 @@ impl CubicBezier {
     #[must_use]
     pub fn to_kurbo(&self) -> CubicBez {
         CubicBez::new(
-            vec3_to_kurbo(self.start),
-            vec3_to_kurbo(self.start_handle),
-            vec3_to_kurbo(self.end_handle),
-            vec3_to_kurbo(self.end),
+            vec3_to_kurbo(self.get_control(Start)),
+            vec3_to_kurbo(self.get_control(StartHandle)),
+            vec3_to_kurbo(self.get_control(EndHandle)),
+            vec3_to_kurbo(self.get_control(End)),
         )
     }
 }
@@ -24,7 +25,7 @@ impl CubicBezierSpline {
     pub(super) fn to_kurbo(&self) -> Vec<CubicBez> {
         self.get_curves()
             .iter()
-            .map(super::cubic_bezier::CubicBezier::to_kurbo)
+            .map(CubicBezier::to_kurbo)
             .collect()
     }
 

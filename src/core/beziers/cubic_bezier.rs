@@ -13,10 +13,10 @@ use CubicBezierError::*;
 /// A single cubic bezier curve of four control points.
 #[derive(Clone, Debug, Default)]
 pub struct CubicBezier {
-    pub start: Vec3,
-    pub start_handle: Vec3,
-    pub end_handle: Vec3,
-    pub end: Vec3,
+    pub(super) start: Vec3,
+    pub(super) start_handle: Vec3,
+    pub(super) end_handle: Vec3,
+    pub(super) end: Vec3,
 }
 
 #[derive(Debug)]
@@ -25,6 +25,7 @@ pub enum CubicBezierError {
 }
 
 impl CubicBezier {
+    /// Create a new [`CubicBezier`].
     pub fn new(
         start: Vec3,
         start_handle: Vec3,

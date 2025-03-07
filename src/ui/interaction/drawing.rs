@@ -241,18 +241,20 @@ mod tests {
 
     fn example_spline() -> CubicBezierSpline {
         CubicBezierSpline::new(vec![
-            CubicBezier {
-                start: Vec3::new(0.0, 70.0, 0.0),
-                start_handle: Vec3::new(30.0, 70.0, 0.0),
-                end_handle: Vec3::new(30.0, 40.0, 0.0),
-                end: Vec3::new(50.0, 40.0, 0.0),
-            },
-            CubicBezier {
-                start: Vec3::new(50.0, 40.0, 0.0),
-                start_handle: Vec3::new(70.0, 40.0, 0.0),
-                end_handle: Vec3::new(70.0, 15.0, 0.0),
-                end: Vec3::new(70.0, 0.0, 0.0),
-            },
+            CubicBezier::new(
+                Vec3::new(0.0, 70.0, 0.0),
+                Vec3::new(30.0, 70.0, 0.0),
+                Vec3::new(30.0, 40.0, 0.0),
+                Vec3::new(50.0, 40.0, 0.0),
+            )
+            .expect("should be valid"),
+            CubicBezier::new(
+                Vec3::new(50.0, 40.0, 0.0),
+                Vec3::new(70.0, 40.0, 0.0),
+                Vec3::new(70.0, 15.0, 0.0),
+                Vec3::new(70.0, 0.0, 0.0),
+            )
+            .expect("should be valid"),
         ])
     }
 

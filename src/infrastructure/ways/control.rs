@@ -32,7 +32,7 @@ impl WayControl {
 
     /// Create a bundle for a [`WayControl`].
     #[must_use]
-    pub fn bundle(
+    fn bundle(
         meshes: &Res<WayMeshes>,
         materials: &Res<WayMaterials>,
         control_type: ControlType,
@@ -67,23 +67,35 @@ impl WayControl {
         for (curve, bezier) in way.spline.get_curves().iter().enumerate() {
             let mut bundles = Vec::new();
             if curve == 0 {
-                bundles.push(Self::bundle(meshes, materials, Start, curve, bezier.start));
+                bundles.push(Self::bundle(
+                    meshes,
+                    materials,
+                    Start,
+                    curve,
+                    bezier.get_control(Start),
+                ));
             }
             bundles.push(Self::bundle(
                 meshes,
                 materials,
                 StartHandle,
                 curve,
-                bezier.start_handle,
+                bezier.get_control(StartHandle),
             ));
             bundles.push(Self::bundle(
                 meshes,
                 materials,
                 EndHandle,
                 curve,
-                bezier.end_handle,
+                bezier.get_control(EndHandle),
             ));
-            bundles.push(Self::bundle(meshes, materials, End, curve, bezier.end));
+            bundles.push(Self::bundle(
+                meshes,
+                materials,
+                End,
+                curve,
+                bezier.get_control(End),
+            ));
             for bundle in bundles {
                 commands
                     .spawn(bundle)
