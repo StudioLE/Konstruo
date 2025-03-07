@@ -1,5 +1,5 @@
 use super::*;
-use crate::beziers::ControlType;
+use crate::beziers::{ControlType, CubicBezierSpline};
 use crate::mathematics::QUARTER_PI;
 use crate::ui::{Cursor, EntityState};
 use crate::ui::{EntityStateChanged, PrimaryCamera};
@@ -58,10 +58,10 @@ impl WayControl {
         commands: &mut Commands,
         meshes: &Res<WayMeshes>,
         materials: &Res<WayMaterials>,
-        way: &Way,
-        parent: Entity,
+        spline: &CubicBezierSpline,
+        way: Entity,
     ) {
-        for (curve, bezier) in way.spline.get_curves().iter().enumerate() {
+        for (curve, bezier) in spline.get_curves().iter().enumerate() {
             let mut bundles = Vec::new();
             if curve == 0 {
                 bundles.push(Self::bundle(
@@ -96,7 +96,7 @@ impl WayControl {
             for bundle in bundles {
                 commands
                     .spawn(bundle)
-                    .set_parent(parent)
+                    .set_parent(way)
                     .observe(on_pointer_over)
                     .observe(on_pointer_out)
                     .observe(on_pointer_drag_start)
@@ -106,9 +106,9 @@ impl WayControl {
         }
     }
 
-    /// Update the controls when the spline changes.
-    pub(super) fn on_spline_changed(
-        mut events: EventReader<SplineChanged>,
+    /// Update the [`Transform`] when a control is moved.
+    pub(super) fn on_control_moved(
+        mut events: EventReader<ControlMoved>,
         mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
     ) {
         for event in events.read() {
@@ -125,6 +125,25 @@ impl WayControl {
                 };
                 *transform = get_transform(control.control_type, translation);
             }
+        }
+    }
+
+    /// Re-spawn [`WayControl`] when a curve is added or removed.
+    pub(super) fn on_curve_added(
+        mut events: EventReader<CurveAdded>,
+        mut commands: Commands,
+        mut controls: Query<(Entity, &Parent), With<WayControl>>,
+        meshes: Res<WayMeshes>,
+        materials: Res<WayMaterials>,
+    ) {
+        for event in events.read() {
+            for (entity, parent) in &mut controls {
+                if parent.get() != event.way {
+                    continue;
+                }
+                commands.entity(entity).despawn();
+            }
+            WayControl::spawn(&mut commands, &meshes, &materials, &event.spline, event.way);
         }
     }
 
@@ -200,7 +219,7 @@ fn on_pointer_drag_start(
 #[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn on_pointer_drag(
     event: Trigger<Pointer<Drag>>,
-    mut event_writer: EventWriter<SplineChanged>,
+    mut event_writer: EventWriter<ControlMoved>,
     controls: Query<(&WayControl, &Parent, &mut Transform)>,
     mut ways: Query<(&mut Way, Entity)>,
     window: Query<&Window, With<PrimaryWindow>>,
@@ -220,7 +239,7 @@ fn on_pointer_drag(
     };
     way.spline
         .update_control(control.control_type, control.curve, translation);
-    event_writer.send(SplineChanged {
+    event_writer.send(ControlMoved {
         way: entity,
         spline: way.spline.clone(),
     });

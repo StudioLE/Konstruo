@@ -26,7 +26,7 @@ impl Drawing {
         way_meshes: Res<WayMeshes>,
         materials: Res<WayMaterials>,
         mut ways: Query<&mut Way>,
-        mut event_writer: EventWriter<SplineChanged>,
+        mut curve_added: EventWriter<CurveAdded>,
         motion: EventReader<MouseMotion>,
         window: Query<&Window, With<PrimaryWindow>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
@@ -71,14 +71,14 @@ impl Drawing {
             );
             return;
         };
-        update_way(&mut ways, &mut event_writer, spline, entity);
+        update_way(&mut ways, &mut curve_added, spline, entity);
     }
 
     /// Update the [`Way`] on complete.
     pub(crate) fn on_complete(
         &mut self,
         ways: &mut Query<&mut Way>,
-        event_writer: &mut EventWriter<SplineChanged>,
+        curve_added: &mut EventWriter<CurveAdded>,
     ) {
         let Some(entity) = self.entity else {
             self.reset();
@@ -94,7 +94,7 @@ impl Drawing {
                 return;
             }
         };
-        update_way(ways, event_writer, spline, entity);
+        update_way(ways, curve_added, spline, entity);
         self.reset();
     }
 
@@ -179,7 +179,7 @@ fn create_way(
 
 pub(super) fn update_way(
     ways: &mut Query<&mut Way>,
-    event_writer: &mut EventWriter<SplineChanged>,
+    curve_added: &mut EventWriter<CurveAdded>,
     spline: CubicBezierSpline,
     entity: Entity,
 ) {
@@ -188,7 +188,7 @@ pub(super) fn update_way(
         return;
     };
     *way = Way::new(spline);
-    event_writer.send(SplineChanged {
+    curve_added.send(CurveAdded {
         way: entity,
         spline: way.spline.clone(),
     });

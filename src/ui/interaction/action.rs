@@ -1,4 +1,4 @@
-use crate::infrastructure::{SplineChanged, Way};
+use crate::infrastructure::{CurveAdded, Way};
 use crate::ui::*;
 use bevy::prelude::*;
 use std::fmt::{Display, Formatter};
@@ -31,7 +31,7 @@ impl Action {
         mut entity_states: Query<&mut EntityState>,
         mut drawing: ResMut<Drawing>,
         mut ways: Query<&mut Way>,
-        mut spline_changed_event: EventWriter<SplineChanged>,
+        mut curve_added: EventWriter<CurveAdded>,
     ) {
         for event in events.read() {
             match event {
@@ -39,7 +39,7 @@ impl Action {
                     deselect(&mut changed, &mut entity_states, *entity);
                 }
                 FinishWay => {
-                    drawing.on_complete(&mut ways, &mut spline_changed_event);
+                    drawing.on_complete(&mut ways, &mut curve_added);
                 }
                 Remove(entity) => {
                     remove(&mut commands, *entity);

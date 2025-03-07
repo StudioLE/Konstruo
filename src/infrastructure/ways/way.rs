@@ -41,9 +41,8 @@ impl Way {
         Self { spline }
     }
 
-    /// System to update all children when the spline has changed.
-    #[allow(clippy::too_many_arguments, clippy::type_complexity)]
-    pub fn on_spline_changed(
+    /// Update [`Mesh3d`] and [`Distribution`] when the spline changes.
+    pub(super) fn on_spline_changed(
         mut events: EventReader<SplineChanged>,
         mut meshes: ResMut<Assets<Mesh>>,
         mut ways: Query<&mut Mesh3d, With<Way>>,
@@ -75,8 +74,8 @@ impl Way {
             MeshMaterial3d(materials.control_line.clone()),
         );
         let entity = commands.spawn(bundle).id();
-        WayControl::spawn(commands, way_meshes, materials, &self, entity);
-        WayControlLine::spawn(commands, meshes, materials, &self, entity);
+        WayControl::spawn(commands, way_meshes, materials, &self.spline, entity);
+        WayControlLine::spawn(commands, meshes, materials, &self.spline, entity);
         entity
     }
 }

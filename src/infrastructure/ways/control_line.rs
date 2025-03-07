@@ -1,5 +1,6 @@
 use super::*;
 use crate::beziers::ControlType::*;
+use crate::beziers::CubicBezierSpline;
 use crate::geometry::Polyline;
 use crate::ui::{EntityState, EntityStateChanged};
 use bevy::prelude::*;
@@ -28,10 +29,10 @@ impl WayControlLine {
         commands: &mut Commands,
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &Res<WayMaterials>,
-        way: &Way,
-        parent: Entity,
+        spline: &CubicBezierSpline,
+        way: Entity,
     ) {
-        for (i, bezier) in way.spline.get_curves().iter().enumerate() {
+        for (i, bezier) in spline.get_curves().iter().enumerate() {
             let i = i * 4;
             let line = vec![bezier.get_control(Start), bezier.get_control(StartHandle)];
             let start = (
@@ -45,8 +46,8 @@ impl WayControlLine {
                 Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
             );
-            commands.spawn(start).set_parent(parent);
-            commands.spawn(end).set_parent(parent);
+            commands.spawn(start).set_parent(way);
+            commands.spawn(end).set_parent(way);
         }
     }
 
@@ -68,9 +69,9 @@ impl WayControlLine {
         }
     }
 
-    /// Update the control lines when the spline changes.
-    pub(super) fn on_spline_changed(
-        mut events: EventReader<SplineChanged>,
+    /// Update the [`Transform`] when a control is moved.
+    pub(super) fn on_control_moved(
+        mut events: EventReader<ControlMoved>,
         mut lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
         mut meshes: ResMut<Assets<Mesh>>,
     ) {
@@ -79,6 +80,7 @@ impl WayControlLine {
                 if parent.get() != event.way {
                     continue;
                 }
+                // TODO: Update this to remove get_controls()
                 let control_points = event.spline.get_controls();
                 let Some(anchor) = control_points.get(line.anchor) else {
                     warn!(
@@ -96,6 +98,31 @@ impl WayControlLine {
                 };
                 *mesh = Mesh3d(meshes.add(Polyline::new(vec![*anchor, *handle]).to_mesh()));
             }
+        }
+    }
+
+    /// Re-spawn [`WayControlLine`] when a curve is added or removed.
+    pub(super) fn on_curve_added(
+        mut events: EventReader<CurveAdded>,
+        lines: Query<(Entity, &Parent), With<WayControlLine>>,
+        mut commands: Commands,
+        mut meshes: ResMut<Assets<Mesh>>,
+        materials: Res<WayMaterials>,
+    ) {
+        for event in events.read() {
+            for (entity, parent) in lines.iter() {
+                if parent.get() != event.way {
+                    continue;
+                }
+                commands.entity(entity).despawn();
+            }
+            WayControlLine::spawn(
+                &mut commands,
+                &mut meshes,
+                &materials,
+                &event.spline,
+                event.way,
+            );
         }
     }
 }
