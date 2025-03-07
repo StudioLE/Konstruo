@@ -9,19 +9,17 @@ use bevy::prelude::*;
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct WayControlLine {
-    /// Index of the anchor in the spline of the [`Way`].
-    pub anchor: usize,
-    /// Index of the handle in the spline of the [`Way`].
-    pub handle: usize,
+    /// Index of the Curve in the spline of the [`Way`].
+    curve: usize,
+    /// Is this a start or end.
+    is_start: bool,
 }
 
 impl WayControlLine {
     /// Create a new [`WayControlLine`]
-    fn new(start: usize, end: usize) -> Self {
-        Self {
-            anchor: start,
-            handle: end,
-        }
+    #[must_use]
+    pub fn new(curve: usize, is_start: bool) -> Self {
+        Self { curve, is_start }
     }
 
     /// Factory method to spawn [`WayControlLine`] for each control point in a [`Way`]
@@ -32,17 +30,16 @@ impl WayControlLine {
         spline: &CubicBezierSpline,
         way: Entity,
     ) {
-        for (i, bezier) in spline.get_curves().iter().enumerate() {
-            let i = i * 4;
+        for (curve, bezier) in spline.get_curves().iter().enumerate() {
             let line = vec![bezier.get_control(Start), bezier.get_control(StartHandle)];
             let start = (
-                WayControlLine::new(i, i + 1),
+                WayControlLine::new(curve, true),
                 Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
             );
             let line = vec![bezier.get_control(End), bezier.get_control(EndHandle)];
             let end = (
-                WayControlLine::new(i + 3, i + 2),
+                WayControlLine::new(curve, false),
                 Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
             );
@@ -80,23 +77,23 @@ impl WayControlLine {
                 if parent.get() != event.way {
                     continue;
                 }
-                // TODO: Update this to remove get_controls()
-                let control_points = event.spline.get_controls();
-                let Some(anchor) = control_points.get(line.anchor) else {
-                    warn!(
-                        "Failed to set WayControlLine. Index does not exist: {}",
-                        line.anchor
-                    );
-                    continue;
+                let anchor = if line.is_start { Start } else { End };
+                let handle = if line.is_start {
+                    StartHandle
+                } else {
+                    EndHandle
                 };
-                let Some(handle) = control_points.get(line.handle) else {
-                    warn!(
-                        "Failed to set WayControlLine. Index does not exist: {}",
-                        line.handle
-                    );
-                    continue;
-                };
-                *mesh = Mesh3d(meshes.add(Polyline::new(vec![*anchor, *handle]).to_mesh()));
+                let line = vec![
+                    event
+                        .spline
+                        .get_control(anchor, line.curve)
+                        .expect("control should exist"),
+                    event
+                        .spline
+                        .get_control(handle, line.curve)
+                        .expect("control should exist"),
+                ];
+                *mesh = Mesh3d(meshes.add(Polyline::new(line).to_mesh()));
             }
         }
     }
