@@ -96,7 +96,7 @@ impl WaySurface {
 
     /// Update the mesh geometry when the spline changes.
     pub(super) fn on_spline_changed(
-        mut events: EventReader<SplineChangedEvent>,
+        mut events: EventReader<SplineChanged>,
         mut surfaces: Query<(Entity, &WaySurface, &Parent, &mut Mesh3d)>,
         mut edges: Query<
             (&WaySurfaceEdge, &Parent, &mut Mesh3d),

@@ -108,7 +108,7 @@ impl WayControl {
 
     /// Update the controls when the spline changes.
     pub(super) fn on_spline_changed(
-        mut events: EventReader<SplineChangedEvent>,
+        mut events: EventReader<SplineChanged>,
         mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
     ) {
         for event in events.read() {
@@ -200,7 +200,7 @@ fn on_pointer_drag_start(
 #[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn on_pointer_drag(
     event: Trigger<Pointer<Drag>>,
-    mut event_writer: EventWriter<SplineChangedEvent>,
+    mut event_writer: EventWriter<SplineChanged>,
     controls: Query<(&WayControl, &Parent, &mut Transform)>,
     mut ways: Query<(&mut Way, Entity)>,
     window: Query<&Window, With<PrimaryWindow>>,
@@ -220,7 +220,7 @@ fn on_pointer_drag(
     };
     way.spline
         .update_control(control.control_type, control.curve, translation);
-    event_writer.send(SplineChangedEvent {
+    event_writer.send(SplineChanged {
         way: entity,
         spline: way.spline.clone(),
     });

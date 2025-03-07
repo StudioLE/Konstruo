@@ -26,7 +26,7 @@ impl Drawing {
         way_meshes: Res<WayMeshes>,
         materials: Res<WayMaterials>,
         mut ways: Query<&mut Way>,
-        mut event_writer: EventWriter<SplineChangedEvent>,
+        mut event_writer: EventWriter<SplineChanged>,
         motion: EventReader<MouseMotion>,
         window: Query<&Window, With<PrimaryWindow>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
@@ -78,7 +78,7 @@ impl Drawing {
     pub(crate) fn on_complete(
         &mut self,
         ways: &mut Query<&mut Way>,
-        event_writer: &mut EventWriter<SplineChangedEvent>,
+        event_writer: &mut EventWriter<SplineChanged>,
     ) {
         let Some(entity) = self.entity else {
             self.reset();
@@ -179,7 +179,7 @@ fn create_way(
 
 pub(super) fn update_way(
     ways: &mut Query<&mut Way>,
-    event_writer: &mut EventWriter<SplineChangedEvent>,
+    event_writer: &mut EventWriter<SplineChanged>,
     spline: CubicBezierSpline,
     entity: Entity,
 ) {
@@ -188,7 +188,7 @@ pub(super) fn update_way(
         return;
     };
     *way = Way::new(spline);
-    event_writer.send(SplineChangedEvent {
+    event_writer.send(SplineChanged {
         way: entity,
         spline: way.spline.clone(),
     });

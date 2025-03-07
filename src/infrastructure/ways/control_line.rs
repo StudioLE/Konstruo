@@ -70,7 +70,7 @@ impl WayControlLine {
 
     /// Update the control lines when the spline changes.
     pub(super) fn on_spline_changed(
-        mut events: EventReader<SplineChangedEvent>,
+        mut events: EventReader<SplineChanged>,
         mut lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
         mut meshes: ResMut<Assets<Mesh>>,
     ) {

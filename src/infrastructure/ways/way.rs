@@ -44,7 +44,7 @@ impl Way {
     /// System to update all children when the spline has changed.
     #[allow(clippy::too_many_arguments, clippy::type_complexity)]
     pub fn on_spline_changed(
-        mut events: EventReader<SplineChangedEvent>,
+        mut events: EventReader<SplineChanged>,
         mut meshes: ResMut<Assets<Mesh>>,
         mut ways: Query<&mut Mesh3d, With<Way>>,
         mut distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
@@ -83,7 +83,7 @@ impl Way {
 
 fn redistribute_on_spline_changed(
     distributions: &mut Query<(&mut Distribution, &Parent), Without<Distributable>>,
-    event: &SplineChangedEvent,
+    event: &SplineChanged,
 ) {
     for (mut distribution, parent) in distributions {
         if parent.get() != event.way {

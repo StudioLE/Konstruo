@@ -1,4 +1,4 @@
-use crate::infrastructure::{SplineChangedEvent, Way};
+use crate::infrastructure::{SplineChanged, Way};
 use crate::ui::*;
 use bevy::prelude::*;
 use std::fmt::{Display, Formatter};
@@ -31,7 +31,7 @@ impl Action {
         mut entity_states: Query<&mut EntityState>,
         mut drawing: ResMut<Drawing>,
         mut ways: Query<&mut Way>,
-        mut spline_changed_event: EventWriter<SplineChangedEvent>,
+        mut spline_changed_event: EventWriter<SplineChanged>,
     ) {
         for event in events.read() {
             match event {
