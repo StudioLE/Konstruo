@@ -132,12 +132,12 @@ impl WayControl {
     pub(super) fn on_curve_added(
         mut events: EventReader<CurveAdded>,
         mut commands: Commands,
-        mut controls: Query<(Entity, &Parent), With<WayControl>>,
+        controls: Query<(Entity, &Parent), With<WayControl>>,
         meshes: Res<WayMeshes>,
         materials: Res<WayMaterials>,
     ) {
         for event in events.read() {
-            for (entity, parent) in &mut controls {
+            for (entity, parent) in controls.iter() {
                 if parent.get() != event.way {
                     continue;
                 }
