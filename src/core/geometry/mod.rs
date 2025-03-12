@@ -1,3 +1,4 @@
+pub use edge::*;
 pub use line_list::*;
 pub use orientation::*;
 pub use polygon::*;
@@ -9,6 +10,7 @@ pub use triangle_strip::*;
 pub use triangular_prism::*;
 pub use vec6::*;
 pub use wireframe::*;
+mod edge;
 mod line_list;
 mod orientation;
 mod polygon;

@@ -5,6 +5,9 @@ use bevy::prelude::*;
 #[allow(clippy::struct_field_names)]
 #[derive(Resource)]
 pub struct WayMaterials {
+    /// Material for the center line.
+    pub center_line: Handle<StandardMaterial>,
+
     /// Material for [`WayControlHandle`] and [`WayControlOrigin`].
     pub control_node: Handle<StandardMaterial>,
 
@@ -17,6 +20,12 @@ pub struct WayMaterials {
     /// Material for the line from origin to handle of a way control.
     pub control_line: Handle<StandardMaterial>,
 
+    /// Material for the edge.
+    pub edge: Handle<StandardMaterial>,
+
+    /// Material for the surface wireframe.
+    pub wireframe: Handle<StandardMaterial>,
+
     /// Material for a road [`WaySurface`].
     pub carriageway: Handle<StandardMaterial>,
 
@@ -25,12 +34,6 @@ pub struct WayMaterials {
 
     /// Material for a road [`WaySurface`].
     pub verge: Handle<StandardMaterial>,
-
-    /// Material for the over state of a [`WaySurface`].
-    pub surface_over: Handle<StandardMaterial>,
-
-    /// Material for the edge over state of a [`WaySurface`].
-    pub surface_edge_over: Handle<StandardMaterial>,
 }
 
 impl WayMaterials {
@@ -40,6 +43,13 @@ impl WayMaterials {
         mut materials: ResMut<Assets<StandardMaterial>>,
     ) {
         commands.insert_resource(WayMaterials {
+            center_line: materials.add(StandardMaterial {
+                base_color: tailwind::SLATE_500.into(),
+                alpha_mode: AlphaMode::Opaque,
+                depth_bias: 1.0,
+                unlit: true,
+                ..default()
+            }),
             control_node: materials.add(StandardMaterial {
                 emissive: tailwind::GRAY_600.into(),
                 base_color: tailwind::GRAY_600.into(),
@@ -62,21 +72,33 @@ impl WayMaterials {
                 ..default()
             }),
             control_line: materials.add(StandardMaterial {
-                emissive: tailwind::SLATE_500.into(),
                 base_color: tailwind::SLATE_500.into(),
                 alpha_mode: AlphaMode::Opaque,
                 depth_bias: 1.0,
+                unlit: true,
+                ..default()
+            }),
+            edge: materials.add(StandardMaterial {
+                base_color: tailwind::BLUE_500.into(),
+                alpha_mode: AlphaMode::Opaque,
+                depth_bias: 10.0,
+                unlit: true,
+                ..default()
+            }),
+            wireframe: materials.add(StandardMaterial {
+                base_color: tailwind::SLATE_500.into(),
+                alpha_mode: AlphaMode::Opaque,
+                depth_bias: 1.0,
+                unlit: true,
                 ..default()
             }),
             carriageway: materials.add(StandardMaterial {
-                // base_color: tailwind::STONE_800.into(),
                 base_color: tailwind::STONE_400.into(),
                 perceptual_roughness: 1.0,
                 depth_bias: -1.0,
                 ..default()
             }),
             footway: materials.add(StandardMaterial {
-                // base_color: tailwind::STONE_700.into(),
                 base_color: tailwind::STONE_300.into(),
                 perceptual_roughness: 1.0,
                 depth_bias: -1.0,
@@ -86,19 +108,6 @@ impl WayMaterials {
                 base_color: tailwind::LIME_900.into(),
                 perceptual_roughness: 1.0,
                 depth_bias: -1.0,
-                ..default()
-            }),
-            surface_over: materials.add(StandardMaterial {
-                base_color: tailwind::BLUE_300.into(),
-                perceptual_roughness: 1.0,
-                depth_bias: -1.0,
-                ..default()
-            }),
-            surface_edge_over: materials.add(StandardMaterial {
-                base_color: tailwind::BLUE_500.into(),
-                alpha_mode: AlphaMode::Opaque,
-                depth_bias: 1.0,
-                unlit: true,
                 ..default()
             }),
         });

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-/// Wireframe of a mesh.
+/// Edge of a mesh.
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
-pub struct Wireframe;
+pub struct Edge;

@@ -5,7 +5,6 @@ pub use materials::*;
 pub use meshes::*;
 pub use plugin::*;
 pub use surface::*;
-pub use surface_edges::*;
 pub use way::*;
 
 mod control;
@@ -15,5 +14,4 @@ mod materials;
 mod meshes;
 mod plugin;
 mod surface;
-mod surface_edges;
 mod way;

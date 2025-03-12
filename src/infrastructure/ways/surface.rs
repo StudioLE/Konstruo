@@ -1,9 +1,8 @@
 use super::*;
-use crate::geometry::{Polyline, Sweep, TriangleList, Vec6, Wireframe};
+use crate::geometry::{Edge, Polyline, Sweep, TriangleList, Vec6, Wireframe};
 use crate::infrastructure::SurfaceType::{Carriageway, Footway};
 use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
 use crate::{Helpers, GROUND_HEIGHT};
-use bevy::ecs::query::QueryFilter;
 use bevy::prelude::*;
 use std::collections::HashSet;
 
@@ -82,14 +81,7 @@ impl WaySurface {
             .set_parent(way_entity)
             .id();
         spawn_wireframe(commands, meshes, materials, triangles, surface_entity);
-        spawn_edges(
-            commands,
-            meshes,
-            materials,
-            way_entity,
-            sweep,
-            surface_entity,
-        );
+        spawn_edges(commands, meshes, materials, sweep, surface_entity, false);
     }
 
     /// Update the mesh geometry when the spline changes.
@@ -97,18 +89,8 @@ impl WaySurface {
         mut commands: Commands,
         mut events: EventReader<SplineChanged>,
         mut surfaces: Query<(Entity, &WaySurface, &Parent, &mut Mesh3d)>,
-        mut edges: Query<
-            (&WaySurfaceEdge, &Parent, &mut Mesh3d),
-            (With<WaySurfaceEdge>, Without<WaySurface>),
-        >,
-        wireframes: Query<
-            (Entity, &Parent),
-            (
-                With<Wireframe>,
-                Without<WaySurface>,
-                Without<WaySurfaceEdge>,
-            ),
-        >,
+        edges: Query<(Entity, &Parent), (With<Edge>, Without<WaySurface>)>,
+        wireframes: Query<(Entity, &Parent), (With<Wireframe>, Without<WaySurface>, Without<Edge>)>,
         mut meshes: ResMut<Assets<Mesh>>,
         materials: Res<WayMaterials>,
     ) {
@@ -125,22 +107,44 @@ impl WaySurface {
                     continue;
                 }
                 let sweep = Sweep::new(&event.spline, surface.offsets);
-                let sweep_edges = sweep.get_edges();
-                let triangles = sweep.to_triangle_list();
+                let triangles = sweep.clone().to_triangle_list();
                 *mesh = Mesh3d(meshes.add(triangles.clone().to_mesh()));
-                for (edge, parent, mut mesh) in &mut edges {
-                    if parent.get() != entity {
-                        continue;
-                    }
-                    let polyline = sweep_edges
-                        .get(edge.index)
-                        .expect("edge index should exist")
-                        .clone()
-                        .to_mesh();
-                    *mesh = Mesh3d(meshes.add(polyline));
-                }
+                Helpers::despawn_children(&mut commands, &edges, entity);
+                spawn_edges(&mut commands, &mut meshes, &materials, sweep, entity, true);
                 Helpers::despawn_children(&mut commands, &wireframes, entity);
                 spawn_wireframe(&mut commands, &mut meshes, &materials, triangles, entity);
+            }
+        }
+        if count != 0 {
+            trace!("Responded to {} of {count} events", updated.len());
+        }
+    }
+
+    /// Update the [`Edge`] visibility when the [`EntityState`] of the [`Way`] changes.
+    pub(super) fn on_state_changed(
+        mut events: EventReader<EntityStateChanged>,
+        surfaces: Query<&Parent, (Without<Edge>, With<WaySurface>)>,
+        mut edges: Query<(&Parent, &mut Visibility), With<Edge>>,
+    ) {
+        let mut count = 0;
+        let mut updated = HashSet::new();
+        for event in events.read() {
+            count += 1;
+            if !updated.insert(event.entity) {
+                continue;
+            }
+            for (parent, mut visibility) in &mut edges {
+                let Ok(surface_parent) = surfaces.get(parent.get()) else {
+                    warn!("Failed to get WaySurface of Edge");
+                    continue;
+                };
+                if surface_parent.get() != event.entity {
+                    continue;
+                }
+                *visibility = match event.state {
+                    EntityState::Default => Visibility::Hidden,
+                    EntityState::Hovered | EntityState::Selected => Visibility::Visible,
+                };
             }
         }
         if count != 0 {
@@ -161,7 +165,7 @@ fn spawn_wireframe(
         let bundle = (
             Wireframe,
             Mesh3d(meshes.add(polyline.to_mesh())),
-            MeshMaterial3d(materials.control_line.clone()),
+            MeshMaterial3d(materials.wireframe.clone()),
         );
         commands.spawn(bundle).set_parent(surface_entity);
     }
@@ -171,19 +175,21 @@ fn spawn_edges(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &Res<WayMaterials>,
-    way_entity: Entity,
     sweep: Sweep,
     surface_entity: Entity,
+    is_selected: bool,
 ) {
     let edges = sweep.get_edges();
-    let material = materials.surface_edge_over.clone();
-    for (index, edge) in edges.into_iter().enumerate() {
+    let material = materials.edge.clone();
+    let visibility = if is_selected {
+        Visibility::Visible
+    } else {
+        Visibility::Hidden
+    };
+    for edge in edges {
         let bundle = (
-            WaySurfaceEdge {
-                index,
-                way: way_entity,
-            },
-            Visibility::Hidden,
+            Edge,
+            visibility,
             Mesh3d(meshes.add(edge.to_mesh())),
             MeshMaterial3d(material.clone()),
         );

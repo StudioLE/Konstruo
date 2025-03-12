@@ -71,7 +71,7 @@ impl Way {
         let bundle = (
             self.clone(),
             Mesh3d(meshes.add(Polyline::new(polyline).to_mesh())),
-            MeshMaterial3d(materials.control_line.clone()),
+            MeshMaterial3d(materials.center_line.clone()),
         );
         let entity = commands.spawn(bundle).id();
         WayControl::spawn(commands, way_meshes, materials, &self.spline, entity);
