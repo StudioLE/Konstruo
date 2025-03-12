@@ -6,6 +6,8 @@ use crate::{Helpers, GROUND_HEIGHT};
 use bevy::prelude::*;
 use std::collections::HashSet;
 
+static WIREFRAME_ENABLED: bool = false;
+
 /// A surface formed by two lines from a [`Way`].
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
@@ -80,7 +82,9 @@ impl WaySurface {
             .observe(on_pointer_click)
             .set_parent(way_entity)
             .id();
-        spawn_wireframe(commands, meshes, materials, triangles, surface_entity);
+        if WIREFRAME_ENABLED {
+            spawn_wireframe(commands, meshes, materials, triangles, surface_entity);
+        }
         spawn_edges(commands, meshes, materials, sweep, surface_entity, false);
     }
 
@@ -111,8 +115,10 @@ impl WaySurface {
                 *mesh = Mesh3d(meshes.add(triangles.clone().to_mesh()));
                 Helpers::despawn_children(&mut commands, &edges, entity);
                 spawn_edges(&mut commands, &mut meshes, &materials, sweep, entity, true);
-                Helpers::despawn_children(&mut commands, &wireframes, entity);
-                spawn_wireframe(&mut commands, &mut meshes, &materials, triangles, entity);
+                if WIREFRAME_ENABLED {
+                    Helpers::despawn_children(&mut commands, &wireframes, entity);
+                    spawn_wireframe(&mut commands, &mut meshes, &materials, triangles, entity);
+                }
             }
         }
         if count != 0 {
