@@ -30,6 +30,7 @@ impl WayControlLine {
         materials: &Res<WayMaterials>,
         spline: &CubicBezierSpline,
         way: Entity,
+        visibility: Visibility,
     ) {
         for (curve, bezier) in spline.get_curves().iter().enumerate() {
             let line = vec![bezier.get_control(Start), bezier.get_control(StartHandle)];
@@ -37,12 +38,14 @@ impl WayControlLine {
                 WayControlLine::new(curve, true),
                 Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
+                visibility,
             );
             let line = vec![bezier.get_control(End), bezier.get_control(EndHandle)];
             let end = (
                 WayControlLine::new(curve, false),
                 Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
+                visibility,
             );
             commands.spawn(start).set_parent(way);
             commands.spawn(end).set_parent(way);
@@ -115,6 +118,7 @@ impl WayControlLine {
                 &materials,
                 &event.spline,
                 event.way,
+                Visibility::Visible,
             );
         }
     }

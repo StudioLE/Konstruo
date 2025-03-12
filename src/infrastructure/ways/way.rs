@@ -74,8 +74,22 @@ impl Way {
             MeshMaterial3d(materials.center_line.clone()),
         );
         let entity = commands.spawn(bundle).id();
-        WayControl::spawn(commands, way_meshes, materials, &self.spline, entity);
-        WayControlLine::spawn(commands, meshes, materials, &self.spline, entity);
+        WayControl::spawn(
+            commands,
+            way_meshes,
+            materials,
+            &self.spline,
+            entity,
+            Visibility::Hidden,
+        );
+        WayControlLine::spawn(
+            commands,
+            meshes,
+            materials,
+            &self.spline,
+            entity,
+            Visibility::Hidden,
+        );
         entity
     }
 }

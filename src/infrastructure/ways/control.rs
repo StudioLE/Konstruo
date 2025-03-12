@@ -36,11 +36,13 @@ impl WayControl {
         control_type: ControlType,
         curve: usize,
         position: Vec3,
+        visibility: Visibility,
     ) -> (
         WayControl,
         Transform,
         Mesh3d,
         MeshMaterial3d<StandardMaterial>,
+        Visibility,
     ) {
         let mesh = match control_type {
             Start | End => meshes.control_origin.clone(),
@@ -51,6 +53,7 @@ impl WayControl {
             get_transform(control_type, position),
             Mesh3d(mesh),
             MeshMaterial3d(materials.control_node.clone()),
+            visibility,
         )
     }
 
@@ -61,6 +64,7 @@ impl WayControl {
         materials: &Res<WayMaterials>,
         spline: &CubicBezierSpline,
         way: Entity,
+        visibility: Visibility,
     ) {
         for (curve, bezier) in spline.get_curves().iter().enumerate() {
             let mut bundles = Vec::new();
@@ -71,6 +75,7 @@ impl WayControl {
                     Start,
                     curve,
                     bezier.get_control(Start),
+                    visibility,
                 ));
             }
             bundles.push(Self::bundle(
@@ -79,6 +84,7 @@ impl WayControl {
                 StartHandle,
                 curve,
                 bezier.get_control(StartHandle),
+                visibility,
             ));
             bundles.push(Self::bundle(
                 meshes,
@@ -86,6 +92,7 @@ impl WayControl {
                 EndHandle,
                 curve,
                 bezier.get_control(EndHandle),
+                visibility,
             ));
             bundles.push(Self::bundle(
                 meshes,
@@ -93,6 +100,7 @@ impl WayControl {
                 End,
                 curve,
                 bezier.get_control(End),
+                visibility,
             ));
             for bundle in bundles {
                 commands
@@ -139,7 +147,14 @@ impl WayControl {
     ) {
         for event in events.read() {
             Helpers::despawn_children(&mut commands, &controls, event.way);
-            WayControl::spawn(&mut commands, &meshes, &materials, &event.spline, event.way);
+            WayControl::spawn(
+                &mut commands,
+                &meshes,
+                &materials,
+                &event.spline,
+                event.way,
+                Visibility::Visible,
+            );
         }
     }
 
