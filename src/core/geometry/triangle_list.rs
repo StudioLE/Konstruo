@@ -17,6 +17,12 @@ impl TriangleList {
         Self { triangles }
     }
 
+    /// Get the [`Triangle`].
+    #[must_use]
+    pub fn get_triangles(&self) -> &Vec<Triangle> {
+        &self.triangles
+    }
+
     /// Create a [`TriangleList`] between two parallel polylines.
     ///
     /// If the polylines do not have an equal vertices count then the longest edge will be split.
