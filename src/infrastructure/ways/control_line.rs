@@ -3,6 +3,7 @@ use crate::beziers::ControlType::*;
 use crate::beziers::CubicBezierSpline;
 use crate::geometry::Polyline;
 use crate::ui::{EntityState, EntityStateChanged};
+use crate::Helpers;
 use bevy::prelude::*;
 
 /// A line between control points of a [`Way`].
@@ -107,12 +108,7 @@ impl WayControlLine {
         materials: Res<WayMaterials>,
     ) {
         for event in events.read() {
-            for (entity, parent) in lines.iter() {
-                if parent.get() != event.way {
-                    continue;
-                }
-                commands.entity(entity).despawn();
-            }
+            Helpers::despawn_children(&mut commands, &lines, event.way);
             WayControlLine::spawn(
                 &mut commands,
                 &mut meshes,

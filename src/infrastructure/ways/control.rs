@@ -3,6 +3,7 @@ use crate::beziers::{ControlType, CubicBezierSpline};
 use crate::mathematics::QUARTER_PI;
 use crate::ui::{Cursor, EntityState};
 use crate::ui::{EntityStateChanged, PrimaryCamera};
+use crate::Helpers;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use ControlType::*;
@@ -137,12 +138,7 @@ impl WayControl {
         materials: Res<WayMaterials>,
     ) {
         for event in events.read() {
-            for (entity, parent) in controls.iter() {
-                if parent.get() != event.way {
-                    continue;
-                }
-                commands.entity(entity).despawn();
-            }
+            Helpers::despawn_children(&mut commands, &controls, event.way);
             WayControl::spawn(&mut commands, &meshes, &materials, &event.spline, event.way);
         }
     }

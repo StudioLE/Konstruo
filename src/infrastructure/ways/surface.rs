@@ -2,7 +2,8 @@ use super::*;
 use crate::geometry::{Polyline, Sweep, TriangleList, Vec6, Wireframe};
 use crate::infrastructure::SurfaceType::{Carriageway, Footway};
 use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
-use crate::GROUND_HEIGHT;
+use crate::{Helpers, GROUND_HEIGHT};
+use bevy::ecs::query::QueryFilter;
 use bevy::prelude::*;
 use std::collections::HashSet;
 
@@ -138,12 +139,7 @@ impl WaySurface {
                         .to_mesh();
                     *mesh = Mesh3d(meshes.add(polyline));
                 }
-                for (wireframe, parent) in wireframes.iter() {
-                    if parent.get() != entity {
-                        continue;
-                    }
-                    commands.entity(wireframe).despawn();
-                }
+                Helpers::despawn_children(&mut commands, &wireframes, entity);
                 spawn_wireframe(&mut commands, &mut meshes, &materials, triangles, entity);
             }
         }
