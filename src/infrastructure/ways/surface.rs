@@ -98,14 +98,13 @@ impl WaySurface {
         mut meshes: ResMut<Assets<Mesh>>,
         materials: Res<WayMaterials>,
     ) {
-        let mut count = 0;
+        let mut duplicates = 0;
         let mut updated = HashSet::new();
         for event in events.read() {
-            count += 1;
-            if updated.contains(&event.way) {
+            if !updated.insert(event.way) {
+                duplicates += 1;
                 continue;
-            }
-            updated.insert(event.way);
+            };
             for (entity, surface, parent, mut mesh) in &mut surfaces {
                 if parent.get() != event.way {
                     continue;
@@ -121,8 +120,8 @@ impl WaySurface {
                 }
             }
         }
-        if count != 0 {
-            trace!("Responded to {} of {count} events", updated.len());
+        if duplicates > 0 {
+            trace!("Ignored {duplicates} duplicate SplineChanged events");
         }
     }
 
@@ -132,11 +131,11 @@ impl WaySurface {
         surfaces: Query<&Parent, (Without<Edge>, With<WaySurface>)>,
         mut edges: Query<(&Parent, &mut Visibility), With<Edge>>,
     ) {
-        let mut count = 0;
+        let mut duplicates = 0;
         let mut updated = HashSet::new();
         for event in events.read() {
-            count += 1;
-            if !updated.insert(event.entity) {
+            if !updated.insert(event) {
+                duplicates += 1;
                 continue;
             }
             for (parent, mut visibility) in &mut edges {
@@ -153,8 +152,8 @@ impl WaySurface {
                 };
             }
         }
-        if count != 0 {
-            trace!("Responded to {} of {count} events", updated.len());
+        if duplicates > 0 {
+            trace!("Ignored {duplicates} duplicate EntityStateChanged events");
         }
     }
 }
@@ -256,7 +255,6 @@ fn on_pointer_click(
     mut interface: ResMut<InterfaceState>,
     mut changed: EventWriter<EntityStateChanged>,
 ) {
-    trace!("WaySurface clicked");
     let Ok(parent) = surfaces.get(trigger.entity()) else {
         error!("Failed to get parent of WaySurface");
         return;
