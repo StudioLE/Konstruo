@@ -4,6 +4,8 @@ use crate::infrastructure::SurfaceType::{Carriageway, Footway};
 use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
 use crate::{Helpers, GROUND_HEIGHT};
 use bevy::prelude::*;
+use bevy::render::mesh::MeshAabb;
+use bevy::render::primitives::Aabb;
 use std::collections::HashSet;
 
 static WIREFRAME_ENABLED: bool = false;
@@ -92,7 +94,7 @@ impl WaySurface {
     pub(super) fn on_spline_changed(
         mut commands: Commands,
         mut events: EventReader<SplineChanged>,
-        mut surfaces: Query<(Entity, &WaySurface, &Parent, &mut Mesh3d)>,
+        mut surfaces: Query<(Entity, &WaySurface, &Parent, &mut Mesh3d, &mut Aabb)>,
         edges: Query<(Entity, &Parent), (With<Edge>, Without<WaySurface>)>,
         wireframes: Query<(Entity, &Parent), (With<Wireframe>, Without<WaySurface>, Without<Edge>)>,
         mut meshes: ResMut<Assets<Mesh>>,
@@ -105,13 +107,17 @@ impl WaySurface {
                 duplicates += 1;
                 continue;
             };
-            for (entity, surface, parent, mut mesh) in &mut surfaces {
+            for (entity, surface, parent, mut mesh, mut aabb) in &mut surfaces {
                 if parent.get() != event.way {
                     continue;
                 }
                 let sweep = Sweep::new(&event.spline, surface.offsets);
                 let triangles = sweep.clone().to_triangle_list();
-                *mesh = Mesh3d(meshes.add(triangles.clone().to_mesh()));
+                let m = triangles.clone().to_mesh();
+                // TODO: Due to entity picking bug the AABB must also be updated. This will likely be fixed in the future.
+                // https://github.com/bevyengine/bevy/issues/18221
+                *aabb = m.compute_aabb().expect("Should be able to compute AABB");
+                *mesh = Mesh3d(meshes.add(m));
                 Helpers::despawn_children(&mut commands, &edges, entity);
                 spawn_edges(&mut commands, &mut meshes, &materials, sweep, entity, true);
                 if WIREFRAME_ENABLED {
