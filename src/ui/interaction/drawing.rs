@@ -5,52 +5,64 @@ use crate::ui::*;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use std::cmp::Ordering;
 
-#[derive(Default, Resource)]
+#[derive(Resource)]
 pub struct Drawing {
     origins: Vec<Vec3>,
     handles: Vec<Vec3>,
-    entity: Option<Entity>,
-    needs_update: bool,
+    way: Entity,
+    is_ready: bool,
 }
 
 impl Drawing {
-    /// System to update a [`Way`]
-    #[allow(clippy::too_many_arguments)]
+    /// Create a new [`Drawing`] resource with a [`Way`].
+    fn new(
+        commands: &mut Commands,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        way_meshes: &Res<WayMeshes>,
+        materials: &Res<WayMaterials>,
+    ) -> Drawing {
+        let spline = CubicBezierSpline::example_2();
+        let way = Way::new(spline);
+        let entity = way.clone().spawn(commands, meshes, way_meshes, materials);
+        commands.entity(entity).insert(Visibility::Hidden);
+        for surface in WaySurface::default_surfaces() {
+            surface.spawn(commands, meshes, materials, &way, entity);
+        }
+        Drawing {
+            origins: Vec::new(),
+            handles: Vec::new(),
+            way: entity,
+            is_ready: false,
+        }
+    }
+
+    /// System to update a [`Way`].
     pub(super) fn update_system(
-        interface: Res<InterfaceState>,
-        mut commands: Commands,
-        mut drawing: ResMut<Drawing>,
-        mut meshes: ResMut<Assets<Mesh>>,
-        way_meshes: Res<WayMeshes>,
-        materials: Res<WayMaterials>,
-        mut ways: Query<&mut Way>,
+        drawing: Option<ResMut<Drawing>>,
+        mut ways: Query<(&mut Way, &mut Visibility)>,
         mut curve_added: EventWriter<CurveAdded>,
         motion: EventReader<MouseMotion>,
         window: Query<&Window, With<PrimaryWindow>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {
-        if *interface != InterfaceState::DrawWay
-            || drawing.handles.is_empty()
-            || (!drawing.needs_update && motion.is_empty())
-        {
+        let Some(mut drawing) = drawing else {
+            return;
+        };
+        if drawing.handles.is_empty() {
             return;
         }
-        drawing.needs_update = false;
+        if !drawing.is_changed() && motion.is_empty() {
+            return;
+        }
         let mut origins = drawing.origins.clone();
         let mut handles = drawing.handles.clone();
+        let handle_is_next = origins.len() > handles.len();
         if let Ok(cursor) = Cursor::from_window(&window, &camera) {
-            match origins.len().cmp(&handles.len()) {
-                Ordering::Less => {
-                    unreachable!("Origins count should always be greater than handles");
-                }
-                Ordering::Equal => {
-                    origins.push(cursor);
-                }
-                Ordering::Greater => {
-                    handles.push(cursor);
-                }
+            if handle_is_next {
+                handles.push(cursor);
+            } else {
+                origins.push(cursor);
             }
         };
         let spline = match CubicBezierSpline::by_origins_and_handles(origins, handles) {
@@ -60,18 +72,20 @@ impl Drawing {
                 return;
             }
         };
-        let Some(entity) = drawing.entity else {
-            create_way(
-                &mut drawing,
-                &mut commands,
-                &mut meshes,
-                &way_meshes,
-                &materials,
-                spline,
-            );
+        let Ok((mut way, mut visibility)) = ways.get_mut(drawing.way) else {
+            warn!("Failed to get Way: {:?}", drawing.way);
             return;
         };
-        update_way(&mut ways, &mut curve_added, spline, entity);
+        *way = Way::new(spline);
+        if drawing.is_ready {
+            *visibility = Visibility::Visible;
+        } else {
+            drawing.is_ready = true;
+        }
+        curve_added.send(CurveAdded {
+            way: drawing.way,
+            spline: way.spline.clone(),
+        });
     }
 
     /// Get the actions when [`Drawing`] is active.
@@ -93,17 +107,14 @@ impl Drawing {
     /// Update the [`Way`] on action button pressed.
     fn complete_action(
         _trigger: Trigger<Pointer<Up>>,
+        mut commands: Commands,
         mut interface: ResMut<InterfaceState>,
-        mut drawing: ResMut<Drawing>,
+        drawing: Res<Drawing>,
         mut ways: Query<&mut Way>,
         mut curve_added: EventWriter<CurveAdded>,
     ) {
         trace!("Complete button was pressed.");
         *interface = InterfaceState::Default;
-        let Some(entity) = drawing.entity else {
-            drawing.reset();
-            return;
-        };
         let spline = match CubicBezierSpline::by_origins_and_handles(
             drawing.origins.clone(),
             drawing.handles.clone(),
@@ -114,18 +125,31 @@ impl Drawing {
                 return;
             }
         };
-        update_way(&mut ways, &mut curve_added, spline, entity);
-        drawing.reset();
+        let Ok(mut way) = ways.get_mut(drawing.way) else {
+            warn!("Failed to get Way: {:?}", drawing.way);
+            return;
+        };
+        *way = Way::new(spline);
+        curve_added.send(CurveAdded {
+            way: drawing.way,
+            spline: way.spline.clone(),
+        });
+        commands.remove_resource::<Drawing>();
     }
 
     /// Activate [`InterfaceState::DrawWay`].
     pub(crate) fn start_action(
         _trigger: Trigger<Pointer<Up>>,
         mut interface: ResMut<InterfaceState>,
+        mut commands: Commands,
+        mut meshes: ResMut<Assets<Mesh>>,
+        way_meshes: Res<WayMeshes>,
+        materials: Res<WayMaterials>,
     ) {
         trace!("Draw Way button was pressed.");
         *interface = InterfaceState::DrawWay;
-        // TODO: Create Drawing resource
+        let drawing = Drawing::new(&mut commands, &mut meshes, &way_meshes, &materials);
+        commands.insert_resource(drawing);
     }
 
     /// Remove the last control and handle.
@@ -133,26 +157,17 @@ impl Drawing {
         trace!("Undo button was pressed.");
         drawing.handles.pop();
         drawing.origins.pop();
-        drawing.needs_update = true;
-    }
-
-    fn reset(&mut self) {
-        self.entity = None;
-        self.origins.clear();
-        self.handles.clear();
-        self.needs_update = false;
     }
 
     /// Add origin controls on pointer down.
     pub(crate) fn on_pointer_down(
         trigger: Trigger<Pointer<Down>>,
-        interface: Res<InterfaceState>,
-        mut drawing: ResMut<Drawing>,
+        drawing: Option<ResMut<Drawing>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {
-        if *interface != InterfaceState::DrawWay {
+        let Some(mut drawing) = drawing else {
             return;
-        }
+        };
         if trigger.button != PointerButton::Primary {
             return;
         };
@@ -166,13 +181,12 @@ impl Drawing {
     /// Add handle controls on pointer up.
     pub(crate) fn on_pointer_up(
         trigger: Trigger<Pointer<Up>>,
-        interface: Res<InterfaceState>,
-        mut drawing: ResMut<Drawing>,
+        drawing: Option<ResMut<Drawing>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {
-        if *interface != InterfaceState::DrawWay {
+        let Some(mut drawing) = drawing else {
             return;
-        }
+        };
         if trigger.button != PointerButton::Primary {
             return;
         };
@@ -195,39 +209,5 @@ impl Drawing {
             return;
         }
         drawing.handles.push(cursor);
-        drawing.needs_update = true;
     }
-}
-
-fn create_way(
-    drawing: &mut ResMut<Drawing>,
-    commands: &mut Commands,
-    meshes: &mut ResMut<Assets<Mesh>>,
-    way_meshes: &Res<WayMeshes>,
-    materials: &Res<WayMaterials>,
-    spline: CubicBezierSpline,
-) {
-    let way = Way::new(spline);
-    let entity = way.clone().spawn(commands, meshes, way_meshes, materials);
-    for surface in WaySurface::default_surfaces() {
-        surface.spawn(commands, meshes, materials, &way, entity);
-    }
-    drawing.entity = Some(entity);
-}
-
-pub(super) fn update_way(
-    ways: &mut Query<&mut Way>,
-    curve_added: &mut EventWriter<CurveAdded>,
-    spline: CubicBezierSpline,
-    entity: Entity,
-) {
-    let Ok(mut way) = ways.get_mut(entity) else {
-        warn!("Failed to get Way: {entity:?}");
-        return;
-    };
-    *way = Way::new(spline);
-    curve_added.send(CurveAdded {
-        way: entity,
-        spline: way.spline.clone(),
-    });
 }

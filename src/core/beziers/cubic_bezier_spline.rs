@@ -88,6 +88,18 @@ impl CubicBezierSpline {
         .expect("should be valid")
     }
 
+    #[must_use]
+    pub(crate) fn example_2() -> CubicBezierSpline {
+        CubicBezierSpline::new(vec![CubicBezier::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(50.0, 0.0, 0.0),
+            Vec3::new(100.0, 50.0, 0.0),
+            Vec3::new(100.0, 100.0, 0.0),
+        )
+        .expect("should be valid")])
+        .expect("should be valid")
+    }
+
     /// Get the curves.
     #[must_use]
     pub fn get_curves(&self) -> &Vec<CubicBezier> {
