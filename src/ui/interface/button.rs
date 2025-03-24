@@ -1,11 +1,9 @@
-use crate::ui::*;
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 use FloatingActionButtonSize::{Medium, Small};
 
 const ENABLED: Srgba = tailwind::SLATE_400;
 const HOVERED: Srgba = tailwind::BLUE_400;
-const PRESSED: Srgba = tailwind::RED_400;
 
 /// A floating action button.
 /// - <https://m3.material.io/components/floating-action-button/overview>
@@ -20,10 +18,10 @@ pub enum FloatingActionButtonSize {
 impl FloatingActionButton {
     pub fn spawn(
         commands: &mut Commands,
-        action: Action,
         size: FloatingActionButtonSize,
         icon: Handle<Image>,
         parent: Entity,
+        mut action: Observer,
     ) {
         let radius = match size {
             Small => 12.0,
@@ -51,7 +49,6 @@ impl FloatingActionButton {
             node,
             BackgroundColor(ENABLED.into()),
             BorderRadius::all(Val::Px(radius)),
-            action,
             FloatingActionButton,
         );
         let button = commands
@@ -59,8 +56,9 @@ impl FloatingActionButton {
             .set_parent(parent)
             .observe(on_pointer_over)
             .observe(on_pointer_out)
-            .observe(on_pointer_click)
             .id();
+        action.watch_entity(button);
+        commands.spawn(action);
         commands.spawn(ImageNode::new(icon)).set_parent(button);
     }
 }
@@ -85,17 +83,4 @@ fn on_pointer_out(
         return;
     };
     *bg = BackgroundColor(ENABLED.into());
-}
-
-fn on_pointer_click(
-    event: Trigger<Pointer<Click>>,
-    mut event_writer: EventWriter<Action>,
-    mut query: Query<(&mut BackgroundColor, &Action), With<FloatingActionButton>>,
-) {
-    let Ok((mut bg, action)) = query.get_mut(event.entity()) else {
-        error!("Failed to get FloatingActionButton");
-        return;
-    };
-    *bg = BackgroundColor(PRESSED.into());
-    event_writer.send(*action);
 }

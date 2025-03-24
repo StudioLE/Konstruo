@@ -74,19 +74,39 @@ impl Drawing {
         update_way(&mut ways, &mut curve_added, spline, entity);
     }
 
-    /// Update the [`Way`] on complete.
-    pub(crate) fn on_complete(
-        &mut self,
-        ways: &mut Query<&mut Way>,
-        curve_added: &mut EventWriter<CurveAdded>,
+    /// Get the actions when [`Drawing`] is active.
+    pub(crate) fn actions() -> Vec<Action> {
+        vec![
+            Action {
+                label: String::from("Undo"),
+                icon: Icon::font_awesome("undo"),
+                on_press: Observer::new(Drawing::undo_action),
+            },
+            Action {
+                label: String::from("Complete"),
+                icon: Icon::font_awesome("check"),
+                on_press: Observer::new(Drawing::complete_action),
+            },
+        ]
+    }
+
+    /// Update the [`Way`] on action button pressed.
+    fn complete_action(
+        _trigger: Trigger<Pointer<Up>>,
+        mut interface: ResMut<InterfaceState>,
+        mut drawing: ResMut<Drawing>,
+        mut ways: Query<&mut Way>,
+        mut curve_added: EventWriter<CurveAdded>,
     ) {
-        let Some(entity) = self.entity else {
-            self.reset();
+        trace!("Complete button was pressed.");
+        *interface = InterfaceState::Default;
+        let Some(entity) = drawing.entity else {
+            drawing.reset();
             return;
         };
         let spline = match CubicBezierSpline::by_origins_and_handles(
-            self.origins.clone(),
-            self.handles.clone(),
+            drawing.origins.clone(),
+            drawing.handles.clone(),
         ) {
             Ok(spline) => spline,
             Err(e) => {
@@ -94,15 +114,26 @@ impl Drawing {
                 return;
             }
         };
-        update_way(ways, curve_added, spline, entity);
-        self.reset();
+        update_way(&mut ways, &mut curve_added, spline, entity);
+        drawing.reset();
+    }
+
+    /// Activate [`InterfaceState::DrawWay`].
+    pub(crate) fn start_action(
+        _trigger: Trigger<Pointer<Up>>,
+        mut interface: ResMut<InterfaceState>,
+    ) {
+        trace!("Draw Way button was pressed.");
+        *interface = InterfaceState::DrawWay;
+        // TODO: Create Drawing resource
     }
 
     /// Remove the last control and handle.
-    pub(crate) fn undo(&mut self) {
-        self.handles.pop();
-        self.origins.pop();
-        self.needs_update = true;
+    fn undo_action(_trigger: Trigger<Pointer<Up>>, mut drawing: ResMut<Drawing>) {
+        trace!("Undo button was pressed.");
+        drawing.handles.pop();
+        drawing.origins.pop();
+        drawing.needs_update = true;
     }
 
     fn reset(&mut self) {

@@ -1,7 +1,6 @@
 use crate::ui::FloatingActionButtonSize::{Medium, Small};
 use crate::ui::*;
 use bevy::prelude::*;
-use Action::*;
 
 /// Vertical stack of [`FloatingActionButton`].
 ///
@@ -42,7 +41,7 @@ impl ActionBar {
         for entity in buttons.iter() {
             commands.entity(entity).despawn_recursive();
         }
-        let actions = get_actions(&state);
+        let actions = state.get_actions();
         spawn_actions(&mut commands, &assets, actions, bar);
     }
 }
@@ -84,28 +83,7 @@ fn spawn_actions(
     let last = actions.len() - 1;
     for (i, action) in actions.into_iter().enumerate() {
         let size = if i == last { Medium } else { Small };
-        let icon = action.get_icon().get_path();
-        FloatingActionButton::spawn(commands, action, size, assets.load(icon), bar);
-    }
-}
-
-#[must_use]
-fn get_actions(state: &InterfaceState) -> Vec<Action> {
-    match state {
-        InterfaceState::Default => {
-            vec![Settings, DrawWay]
-        }
-        InterfaceState::DrawWay => {
-            vec![Undo, FinishWay]
-        }
-        InterfaceState::WaySelected { way, .. } => {
-            vec![
-                Deselect(*way),
-                Remove(*way),
-                Info,
-                AddWaySurface,
-                AddBuildings,
-            ]
-        }
+        let icon = action.icon.get_path();
+        FloatingActionButton::spawn(commands, size, assets.load(icon), bar, action.on_press);
     }
 }
