@@ -132,7 +132,7 @@ impl Drawing {
         drawing.origins.push(cursor);
     }
 
-    /// Add handle controls on pointer down.
+    /// Add handle controls on pointer up.
     pub(crate) fn on_pointer_up(
         trigger: Trigger<Pointer<Up>>,
         interface: Res<InterfaceState>,
