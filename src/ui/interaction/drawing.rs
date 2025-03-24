@@ -1,5 +1,6 @@
-use crate::beziers::CubicBezierSpline;
+use crate::beziers::{ControlType, CubicBezierSpline};
 use crate::geometry::vectors::is_almost_equal_to;
+use crate::geometry::Polyline;
 use crate::infrastructure::*;
 use crate::ui::*;
 use bevy::input::mouse::MouseMotion;
@@ -11,6 +12,8 @@ pub struct Drawing {
     origins: Vec<Vec3>,
     handles: Vec<Vec3>,
     way: Entity,
+    control: Entity,
+    line: Entity,
     is_ready: bool,
 }
 
@@ -24,23 +27,49 @@ impl Drawing {
     ) -> Drawing {
         let spline = CubicBezierSpline::example_2();
         let way = Way::new(spline);
-        let entity = way.clone().spawn(commands, meshes, way_meshes, materials);
-        commands.entity(entity).insert(Visibility::Hidden);
+        let way_entity = way.clone().spawn(commands, meshes, way_meshes, materials);
+        commands.entity(way_entity).insert(Visibility::Hidden);
         for surface in WaySurface::default_surfaces() {
-            surface.spawn(commands, meshes, materials, &way, entity);
+            surface.spawn(commands, meshes, materials, &way, way_entity);
         }
+        let bundle = WayControl::bundle(
+            way_meshes,
+            materials,
+            ControlType::StartHandle,
+            0,
+            Vec3::ZERO,
+            Visibility::Hidden,
+        );
+        let control = commands.spawn(bundle).id();
+        let line = vec![Vec3::ZERO, Vec3::ONE];
+        let bundle = (
+            WayControlLine::new(0, true),
+            Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
+            MeshMaterial3d(materials.control_line.clone()),
+            Visibility::Hidden,
+        );
+        let line = commands.spawn(bundle).id();
         Drawing {
             origins: Vec::new(),
             handles: Vec::new(),
-            way: entity,
+            way: way_entity,
+            control,
+            line,
             is_ready: false,
         }
     }
 
     /// System to update a [`Way`].
+    #[allow(clippy::too_many_arguments)]
     pub(super) fn update_system(
         drawing: Option<ResMut<Drawing>>,
         mut ways: Query<(&mut Way, &mut Visibility)>,
+        mut controls: Query<(&mut Transform, &mut Visibility), (With<WayControl>, Without<Way>)>,
+        mut meshes: ResMut<Assets<Mesh>>,
+        mut lines: Query<
+            (&mut Mesh3d, &mut Visibility),
+            (With<WayControlLine>, Without<Way>, Without<WayControl>),
+        >,
         mut curve_added: EventWriter<CurveAdded>,
         motion: EventReader<MouseMotion>,
         window: Query<&Window, With<PrimaryWindow>>,
@@ -49,22 +78,49 @@ impl Drawing {
         let Some(mut drawing) = drawing else {
             return;
         };
-        if drawing.handles.is_empty() {
-            return;
-        }
         if !drawing.is_changed() && motion.is_empty() {
             return;
         }
         let mut origins = drawing.origins.clone();
         let mut handles = drawing.handles.clone();
-        let handle_is_next = origins.len() > handles.len();
-        if let Ok(cursor) = Cursor::from_window(&window, &camera) {
-            if handle_is_next {
-                handles.push(cursor);
-            } else {
-                origins.push(cursor);
-            }
+        let is_handle_next = origins.len() > handles.len();
+        let Ok(cursor) = Cursor::from_window(&window, &camera) else {
+            return;
         };
+        if is_handle_next {
+            handles.push(cursor);
+        } else {
+            origins.push(cursor);
+        }
+        // Update Control
+        let Ok((mut transform, mut visibility)) = controls.get_mut(drawing.control) else {
+            warn!("Failed to get WayControl: {:?}", drawing.control);
+            return;
+        };
+        if is_handle_next {
+            let position = *handles.last().expect("Should be at least one handle");
+            *transform = Transform::from_translation(position);
+            *visibility = Visibility::Visible;
+        } else {
+            *visibility = Visibility::Hidden;
+        }
+        // Update line
+        let Ok((mut mesh, mut visibility)) = lines.get_mut(drawing.line) else {
+            warn!("Failed to get WayControl: {:?}", drawing.control);
+            return;
+        };
+        if is_handle_next {
+            let start = *origins.last().expect("Should be at least one origin");
+            let end = *handles.last().expect("Should be at least one handle");
+            *mesh = Mesh3d(meshes.add(Polyline::new(vec![start, end]).to_mesh()));
+            *visibility = Visibility::Visible;
+        } else {
+            *visibility = Visibility::Hidden;
+        }
+        // Update Way
+        if origins.len() < 2 {
+            return;
+        }
         let spline = match CubicBezierSpline::by_origins_and_handles(origins, handles) {
             Ok(spline) => spline,
             Err(e) => {

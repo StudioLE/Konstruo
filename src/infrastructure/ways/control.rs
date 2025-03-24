@@ -30,7 +30,7 @@ impl WayControl {
 
     /// Create a bundle for a [`WayControl`].
     #[must_use]
-    fn bundle(
+    pub(crate) fn bundle(
         meshes: &Res<WayMeshes>,
         materials: &Res<WayMaterials>,
         control_type: ControlType,
