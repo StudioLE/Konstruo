@@ -2,10 +2,9 @@ use crate::architecture::{
     BuildingMaterials, BuildingMeshes, BuildingTemplates, ModularBuildingFactory,
 };
 use crate::distribution::*;
-use crate::infrastructure::{Way, OFFSET_ACCURACY};
+use crate::infrastructure::{Way, LENGTH_ACCURACY, OFFSET_ACCURACY};
 use bevy::prelude::*;
 
-const ACCURACY: f32 = 1e-3;
 const SPLINE_OFFSET: f32 = 10.0;
 
 pub struct FlexBuildingsAlongWayExample;
@@ -43,7 +42,7 @@ fn way_added_system(
             .spline
             .offset(SPLINE_OFFSET, OFFSET_ACCURACY)
             .expect("spline offset should be valid");
-        let spline_length = spline.get_length(ACCURACY);
+        let spline_length = spline.get_length(LENGTH_ACCURACY);
         let bundle = (Distribution {
             flex: FlexBuilder::new()
                 .with_bounds(Vec3::new(spline_length, 0.0, 0.0))

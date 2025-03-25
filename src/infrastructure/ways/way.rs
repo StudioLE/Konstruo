@@ -102,11 +102,6 @@ fn redistribute_on_spline_changed(
         if parent.get() != event.way {
             continue;
         }
-        let length = event.spline.get_length(LENGTH_ACCURACY);
-        let flex = FlexFactory {
-            bounds: distribution.flex.bounds.map(|bounds| bounds.with_x(length)),
-            ..distribution.flex
-        };
         let spline = if let Some(offset) = distribution.spline_offset {
             event
                 .spline
@@ -114,6 +109,11 @@ fn redistribute_on_spline_changed(
                 .expect("spline offset should be valid")
         } else {
             event.spline.clone()
+        };
+        let length = spline.get_length(LENGTH_ACCURACY);
+        let flex = FlexFactory {
+            bounds: distribution.flex.bounds.map(|bounds| bounds.with_x(length)),
+            ..distribution.flex
         };
         *distribution = Distribution {
             flex,
