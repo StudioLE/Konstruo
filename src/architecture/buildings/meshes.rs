@@ -1,4 +1,4 @@
-use crate::geometry::TriangularPrism;
+use crate::geometry::{TriangularPrism, Cuboid};
 use crate::mathematics::HALF_PI;
 use bevy::prelude::*;
 
@@ -16,13 +16,13 @@ pub struct BuildingMeshes {
 impl BuildingMeshes {
     /// System to insert [`BuildingMeshes`] on startup.
     pub(super) fn startup_system(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
-        let cuboid = Cuboid::from_size(Vec3::new(1.0, 1.0, 1.0));
+        let cuboid = Cuboid::default();
         let pitched_front_back = TriangularPrism::default();
         let pitched_left_right = TriangularPrism::default().with_transform(
             Transform::from_rotation(Quat::from_axis_angle(Vec3::Z, HALF_PI)),
         );
         commands.insert_resource(BuildingMeshes {
-            cuboid: meshes.add(cuboid),
+            cuboid: meshes.add(cuboid.to_triangles().to_mesh()),
             pitched_front_back: meshes.add(pitched_front_back.to_triangles().to_mesh()),
             pitched_left_right: meshes.add(pitched_left_right.to_triangles().to_mesh()),
         });
