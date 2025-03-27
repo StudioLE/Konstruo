@@ -66,7 +66,7 @@ impl Polyline {
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss
     )]
-    pub(super) fn equalize_vertices_count(left: &mut Polyline, right: &mut Polyline) {
+    pub(crate) fn equalize_vertices_count(left: &mut Polyline, right: &mut Polyline) {
         let difference = left.vertices.len() as isize - right.vertices.len() as isize;
         match difference.cmp(&0) {
             Ordering::Less => {

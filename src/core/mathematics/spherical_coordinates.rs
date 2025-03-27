@@ -128,11 +128,11 @@ pub fn get_cartesian_rotation(polar: f32, azimuth: f32) -> Vec3 {
 #[allow(non_snake_case)]
 mod tests {
     use super::*;
-    use crate::geometry::vectors::{angle_between_on_plane, is_almost_equal_to};
+    use crate::geometry::Vec3Helpers;
     use crate::mathematics::constants::*;
 
     fn assert_almost(expected: Vec3, actual: Vec3) {
-        let result = is_almost_equal_to(expected, actual);
+        let result = Vec3Helpers::is_almost_equal_to(expected, actual);
         assert!(result, "Expected: {expected}, Actual: {actual}");
     }
 
@@ -195,7 +195,7 @@ mod tests {
         assert_almost(expected.vector, spherical.vector);
         let round_trip = spherical.to_cartesian();
         assert_almost(cartesian, round_trip);
-        let angle = angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
+        let angle = Vec3Helpers::angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
         assert_f32_almost(HALF_PI, angle);
 
         // Top right
@@ -205,7 +205,7 @@ mod tests {
         assert_almost(expected.vector, spherical.vector);
         let round_trip = spherical.to_cartesian();
         assert_almost(cartesian, round_trip);
-        let angle = angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
+        let angle = Vec3Helpers::angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
         assert_f32_almost(0.0, angle);
 
         // Top front
@@ -215,7 +215,7 @@ mod tests {
         assert_almost(expected.vector, spherical.vector);
         let round_trip = spherical.to_cartesian();
         assert_almost(cartesian, round_trip);
-        let angle = angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
+        let angle = Vec3Helpers::angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
         assert_f32_almost(-HALF_PI, angle);
 
         // Top left
@@ -225,7 +225,7 @@ mod tests {
         assert_almost(expected.vector, spherical.vector);
         let round_trip = spherical.to_cartesian();
         assert_almost(cartesian, round_trip);
-        let angle = angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
+        let angle = Vec3Helpers::angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
         assert_f32_almost(PI, angle);
     }
 

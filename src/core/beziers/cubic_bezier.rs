@@ -1,7 +1,7 @@
 use crate::beziers::from_kurbo::{f32_from_f64, vec3_from_kurbo};
 use crate::beziers::to_kurbo::vec3_to_kurbo;
 use crate::beziers::*;
-use crate::geometry::vectors::is_almost_equal_to;
+use crate::geometry::Vec3Helpers;
 use bevy::prelude::*;
 use kurbo::{
     ParamCurve, ParamCurveArclen, ParamCurveCurvature, ParamCurveDeriv, ParamCurveExtrema,
@@ -32,13 +32,13 @@ impl CubicBezier {
         end_handle: Vec3,
         end: Vec3,
     ) -> Result<Self, CubicBezierError> {
-        if is_almost_equal_to(start, start_handle) {
+        if Vec3Helpers::is_almost_equal_to(start, start_handle) {
             return Err(TooClose(Start, StartHandle));
         }
-        if is_almost_equal_to(start, end) {
+        if Vec3Helpers::is_almost_equal_to(start, end) {
             return Err(TooClose(Start, End));
         }
-        if is_almost_equal_to(end_handle, end) {
+        if Vec3Helpers::is_almost_equal_to(end_handle, end) {
             return Err(TooClose(End, EndHandle));
         }
         Ok(Self {

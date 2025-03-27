@@ -1,6 +1,6 @@
 use crate::constraints::clamp_float::ClampFloat;
 use crate::constraints::clamp_vec3::ClampVec3;
-use crate::geometry::vectors::{is_almost_equal_to, is_almost_zero};
+use crate::geometry::Vec3Helpers;
 use bevy::prelude::*;
 
 /// A system to move the current translation to a target.
@@ -33,7 +33,7 @@ impl Translation {
             return;
         };
         let total_displacement = self.get_displacement_to(target);
-        if is_almost_zero(total_displacement) {
+        if Vec3Helpers::is_almost_zero(total_displacement) {
             self.current = target;
             self.remove_target();
             return;
@@ -71,7 +71,7 @@ impl Translation {
     /// Translation is clamped to the constraints.
     pub fn set_target(&mut self, target: Vec3) {
         let target = self.clamp.clamp(target);
-        if is_almost_equal_to(self.current, target) {
+        if Vec3Helpers::is_almost_equal_to(self.current, target) {
             self.remove_target();
         } else {
             self.target = Some(target);

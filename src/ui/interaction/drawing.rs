@@ -1,6 +1,5 @@
 use crate::beziers::{ControlType, CubicBezierSpline};
-use crate::geometry::vectors::is_almost_equal_to;
-use crate::geometry::Polyline;
+use crate::geometry::{Polyline, Vec3Helpers};
 use crate::infrastructure::*;
 use crate::ui::*;
 use bevy::input::mouse::MouseMotion;
@@ -259,7 +258,7 @@ impl Drawing {
             .origins
             .last()
             .expect("Should be a matching pressed");
-        if is_almost_equal_to(cursor, *last_pressed) {
+        if Vec3Helpers::is_almost_equal_to(cursor, *last_pressed) {
             warn!("Press and release are too close");
             drawing.origins.pop();
             return;

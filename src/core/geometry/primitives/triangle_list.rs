@@ -35,7 +35,7 @@ impl TriangleList {
     /// TODO: Check the polylines do not self-intersect
     #[must_use]
     #[allow(clippy::indexing_slicing)]
-    pub(super) fn between_polylines(left: Polyline, right: Polyline) -> Self {
+    pub(crate) fn between_polylines(left: Polyline, right: Polyline) -> Self {
         let triangles = left
             .to_vertices()
             .windows(2)
