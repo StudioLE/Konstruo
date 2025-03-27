@@ -1,16 +1,22 @@
-use crate::geometry::{TriangularPrism, Cuboid};
+use crate::geometry::{Cuboid, TriangularPrism};
 use crate::mathematics::HALF_PI;
 use bevy::prelude::*;
 
 #[allow(clippy::struct_field_names)]
 #[derive(Resource)]
 pub struct BuildingMeshes {
-    /// A cuboid mesh with 1.0 length edges centered at the origin.
+    /// Solid geometry of a [`BuildingModule`].
     pub cuboid: Handle<Mesh>,
-    /// A trianglular prism mesh with 1.0 lengths and height centered at the origin.
+    /// Solid geometry of a front to back pitched [`BuildingModule`].
     pub pitched_front_back: Handle<Mesh>,
-    /// A trianglular prism mesh with 1.0 lengths and height centered at the origin.
+    /// Solid geometry of a left to right pitched [`BuildingModule`].
     pub pitched_left_right: Handle<Mesh>,
+    /// Edge geometry of a [`BuildingModule`].
+    pub cuboid_edges: Handle<Mesh>,
+    /// Edge geometry of a front to back pitched [`BuildingModule`].
+    pub pitched_front_back_edges: Handle<Mesh>,
+    /// Edge geometry of a left to right pitched [`BuildingModule`].
+    pub pitched_left_right_edges: Handle<Mesh>,
 }
 
 impl BuildingMeshes {
@@ -21,10 +27,16 @@ impl BuildingMeshes {
         let pitched_left_right = TriangularPrism::default().with_transform(
             Transform::from_rotation(Quat::from_axis_angle(Vec3::Z, HALF_PI)),
         );
+        let cuboid_edges = cuboid.clone().to_edges();
+        let pitched_front_back_edges = pitched_front_back.clone().to_edges();
+        let pitched_left_right_edges = pitched_left_right.clone().to_edges();
         commands.insert_resource(BuildingMeshes {
             cuboid: meshes.add(cuboid.to_triangles().to_mesh()),
             pitched_front_back: meshes.add(pitched_front_back.to_triangles().to_mesh()),
             pitched_left_right: meshes.add(pitched_left_right.to_triangles().to_mesh()),
+            cuboid_edges: meshes.add(cuboid_edges.to_mesh()),
+            pitched_front_back_edges: meshes.add(pitched_front_back_edges.to_mesh()),
+            pitched_left_right_edges: meshes.add(pitched_left_right_edges.to_mesh()),
         });
     }
 }

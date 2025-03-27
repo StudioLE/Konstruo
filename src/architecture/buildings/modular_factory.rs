@@ -1,5 +1,6 @@
 use crate::architecture::*;
 use crate::distribution::{Distributable, Distribution, FlexBuilder};
+use crate::geometry::Edge;
 use bevy::prelude::*;
 
 /// Factory to produce vertically stacked modules
@@ -78,12 +79,24 @@ fn spawn_module(
         Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right.clone(),
         Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back.clone(),
     };
+    let edges = match module.roof {
+        None => meshes.cuboid_edges.clone(),
+        Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right_edges.clone(),
+        Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back_edges.clone(),
+    };
     let bundle = (
         Transform::from_scale(Vec3::new(module.width, module.length, module.height)),
         distributable,
         Mesh3d(mesh),
-        MeshMaterial3d(materials.module.clone()),
+        MeshMaterial3d(materials.face.clone()),
         module,
     );
-    commands.spawn(bundle).set_parent(parent);
+    let entity = commands.spawn(bundle).set_parent(parent).id();
+    let bundle = (
+        Mesh3d(edges),
+        MeshMaterial3d(materials.edges.clone()),
+        Edge,
+        Visibility::Hidden,
+    );
+    commands.spawn(bundle).set_parent(entity);
 }

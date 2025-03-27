@@ -4,8 +4,10 @@ use bevy::prelude::*;
 #[allow(clippy::struct_field_names)]
 #[derive(Resource)]
 pub struct BuildingMaterials {
-    /// Material for [`BuildingModule`].
-    pub module: Handle<StandardMaterial>,
+    /// Material for the face of a [`BuildingModule`].
+    pub face: Handle<StandardMaterial>,
+    /// Material for the edges of a [`BuildingModule`].
+    pub edges: Handle<StandardMaterial>,
 }
 
 impl BuildingMaterials {
@@ -15,7 +17,7 @@ impl BuildingMaterials {
         mut materials: ResMut<Assets<StandardMaterial>>,
     ) {
         commands.insert_resource(BuildingMaterials {
-            module: materials.add(StandardMaterial {
+            face: materials.add(StandardMaterial {
                 // base_color: tailwind::STONE_800.into(),
                 base_color: tailwind::STONE_400.into(),
                 perceptual_roughness: 1.0,
@@ -24,6 +26,13 @@ impl BuildingMaterials {
                 // cull_mode: None,
                 // unlit: true,
                 ..Default::default()
+            }),
+            edges: materials.add(StandardMaterial {
+                base_color: tailwind::BLUE_500.into(),
+                alpha_mode: AlphaMode::Opaque,
+                depth_bias: 10.0,
+                unlit: true,
+                ..default()
             }),
         });
     }
