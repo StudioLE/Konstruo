@@ -74,9 +74,9 @@ fn spawn_module(
         margin: module.margin,
     };
     let mesh = match module.roof {
-        None => meshes.cuboid_module.clone(),
-        Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right_module.clone(),
-        Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back_module.clone(),
+        None => meshes.cuboid.clone(),
+        Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right.clone(),
+        Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back.clone(),
     };
     let bundle = (
         Transform::from_scale(Vec3::new(module.width, module.length, module.height)),
