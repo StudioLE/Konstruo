@@ -2,22 +2,22 @@ use crate::architecture::{
     BuildingMaterials, BuildingMeshes, BuildingTemplates, ModularBuildingFactory,
 };
 use crate::distribution::*;
-use crate::infrastructure::{Way, LENGTH_ACCURACY, OFFSET_ACCURACY};
+use crate::infrastructure::{Path, LENGTH_ACCURACY, OFFSET_ACCURACY};
 use bevy::prelude::*;
 
 const SPLINE_OFFSET: f32 = 10.0;
 
-pub struct FlexBuildingsAlongWayExample;
+pub struct FlexBuildingsAlongPathExample;
 
 #[derive(Resource)]
 struct State {
     enabled: bool,
 }
 
-impl Plugin for FlexBuildingsAlongWayExample {
+impl Plugin for FlexBuildingsAlongPathExample {
     fn build(&self, app: &mut App) {
         app.insert_resource(State::default())
-            .add_systems(Update, way_added_system);
+            .add_systems(Update, path_added_system);
     }
 }
 
@@ -27,18 +27,18 @@ impl Default for State {
     }
 }
 
-fn way_added_system(
+fn path_added_system(
     mut commands: Commands,
     mut state: ResMut<State>,
     meshes: Res<BuildingMeshes>,
     materials: Res<BuildingMaterials>,
-    query: Query<(Entity, &Way), Added<Way>>,
+    query: Query<(Entity, &Path), Added<Path>>,
 ) {
     if !state.enabled {
         return;
     }
-    for (entity, way) in query.iter() {
-        let spline = way
+    for (entity, path) in query.iter() {
+        let spline = path
             .spline
             .offset(SPLINE_OFFSET, OFFSET_ACCURACY)
             .expect("spline offset should be valid");

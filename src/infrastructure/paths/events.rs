@@ -4,21 +4,21 @@ use bevy::prelude::*;
 /// Collate [`CurveAdded`] and [`ControlMoved`].
 #[derive(Debug, Event)]
 pub(super) struct SplineChanged {
-    pub way: Entity,
+    pub path: Entity,
     pub spline: CubicBezierSpline,
 }
 
 /// A control of a spline has been moved.
 #[derive(Debug, Event)]
 pub struct ControlMoved {
-    pub way: Entity,
+    pub path: Entity,
     pub spline: CubicBezierSpline,
 }
 
 /// A curve has been added (or removed) to a spline.
 #[derive(Debug, Event)]
 pub struct CurveAdded {
-    pub way: Entity,
+    pub path: Entity,
     pub spline: CubicBezierSpline,
 }
 
@@ -30,7 +30,7 @@ impl SplineChanged {
     ) {
         for event in events.read() {
             writer.send(SplineChanged {
-                way: event.way,
+                path: event.path,
                 spline: event.spline.clone(),
             });
         }
@@ -43,7 +43,7 @@ impl SplineChanged {
     ) {
         for event in events.read() {
             writer.send(SplineChanged {
-                way: event.way,
+                path: event.path,
                 spline: event.spline.clone(),
             });
         }

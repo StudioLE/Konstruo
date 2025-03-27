@@ -26,14 +26,14 @@ fn main() {
         .add_plugins(SunPlugin)
         .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)
-        .add_plugins(WaysPlugin)
+        .add_plugins(PathPlugin)
         // .add_plugins(AxisMarkerExample)
         // .add_plugins(BuildingsExample)
         // .add_plugins(FlexAlongBezierExample)
-        .add_plugins(FlexBuildingsAlongWayExample)
+        .add_plugins(FlexBuildingsAlongPathExample)
         // .add_plugins(FlexNestedExample)
         // .add_plugins(FlexVerticallyExample)
         // .add_plugins(FlexWrappingExample)
-        .add_plugins(WayExample)
+        .add_plugins(PathExample)
         .run();
 }

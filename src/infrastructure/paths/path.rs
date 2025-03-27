@@ -18,24 +18,24 @@ pub const LENGTH_ACCURACY: f32 = 1e-3;
 
 /// A road, route or path defined by one or more cubic bezier curves.
 ///
-/// The way defines the center of the road, route or path.
+/// The path defines the center of the road, route or path.
 ///
-/// In typical use a single way defines the path of multiple constructs.
+/// In typical use a single path defines the path of multiple constructs.
 /// For example a road may have two vehicular lanes and a pavement on each side.
-/// Changing the way would change each of these entities, and even affect the buildings
+/// Changing the path would change each of these entities, and even affect the buildings
 /// distributed alongside.
 ///
-/// The way does not have a transform. Its geometry is defined by the control points of its cubic bezier curves.
+/// The path does not have a transform. Its geometry is defined by the control points of its cubic bezier curves.
 #[derive(Clone, Component)]
 #[require(InheritedVisibility, Transform, EntityState)]
-pub struct Way {
-    /// Get the cubic bezier curves of the way.
+pub struct Path {
+    /// Get the cubic bezier curves of the path.
     /// All vectors are
     pub spline: CubicBezierSpline,
 }
 
-impl Way {
-    /// Create a [`Way`]
+impl Path {
+    /// Create a [`Path`]
     #[must_use]
     pub fn new(spline: CubicBezierSpline) -> Self {
         Self { spline }
@@ -45,12 +45,12 @@ impl Way {
     pub(super) fn on_spline_changed(
         mut events: EventReader<SplineChanged>,
         mut meshes: ResMut<Assets<Mesh>>,
-        mut ways: Query<&mut Mesh3d, With<Way>>,
+        mut paths: Query<&mut Mesh3d, With<Path>>,
         mut distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
     ) {
         for event in events.read() {
-            let Ok(mut mesh) = ways.get_mut(event.way) else {
-                warn!("Failed to get Way");
+            let Ok(mut mesh) = paths.get_mut(event.path) else {
+                warn!("Failed to get Path");
                 continue;
             };
             let polyline = event.spline.flatten(FLATTEN_TOLERANCE);
@@ -59,13 +59,13 @@ impl Way {
         }
     }
 
-    /// Spawn a [`Way`] along with its [`Mesh3d`], [`WayControl`], and [`WayControlLine`].
+    /// Spawn a [`Path`] along with its [`Mesh3d`], [`PathControl`], and [`PathControlLine`].
     pub fn spawn(
         self,
         commands: &mut Commands,
         meshes: &mut ResMut<Assets<Mesh>>,
-        way_meshes: &Res<WayMeshes>,
-        materials: &Res<WayMaterials>,
+        path_meshes: &Res<PathMeshes>,
+        materials: &Res<PathMaterials>,
     ) -> Entity {
         let polyline = self.spline.flatten(FLATTEN_TOLERANCE);
         let bundle = (
@@ -74,15 +74,15 @@ impl Way {
             MeshMaterial3d(materials.center_line.clone()),
         );
         let entity = commands.spawn(bundle).id();
-        WayControl::spawn(
+        PathControl::spawn(
             commands,
-            way_meshes,
+            path_meshes,
             materials,
             &self.spline,
             entity,
             Visibility::Hidden,
         );
-        WayControlLine::spawn(
+        PathControlLine::spawn(
             commands,
             meshes,
             materials,
@@ -99,7 +99,7 @@ fn redistribute_on_spline_changed(
     event: &SplineChanged,
 ) {
     for (mut distribution, parent) in distributions {
-        if parent.get() != event.way {
+        if parent.get() != event.path {
             continue;
         }
         let spline = if let Some(offset) = distribution.spline_offset {

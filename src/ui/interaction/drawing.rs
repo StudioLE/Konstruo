@@ -11,29 +11,29 @@ use bevy::window::PrimaryWindow;
 pub struct Drawing {
     origins: Vec<Vec3>,
     handles: Vec<Vec3>,
-    way: Entity,
+    path: Entity,
     control: Entity,
     line: Entity,
     is_ready: bool,
 }
 
 impl Drawing {
-    /// Create a new [`Drawing`] resource with a [`Way`].
+    /// Create a new [`Drawing`] resource with a [`Path`].
     fn new(
         commands: &mut Commands,
         meshes: &mut ResMut<Assets<Mesh>>,
-        way_meshes: &Res<WayMeshes>,
-        materials: &Res<WayMaterials>,
+        path_meshes: &Res<PathMeshes>,
+        materials: &Res<PathMaterials>,
     ) -> Drawing {
         let spline = CubicBezierSpline::example_2();
-        let way = Way::new(spline);
-        let way_entity = way.clone().spawn(commands, meshes, way_meshes, materials);
-        commands.entity(way_entity).insert(Visibility::Hidden);
-        for surface in WaySurface::default_surfaces() {
-            surface.spawn(commands, meshes, materials, &way, way_entity);
+        let path = Path::new(spline);
+        let path_entity = path.clone().spawn(commands, meshes, path_meshes, materials);
+        commands.entity(path_entity).insert(Visibility::Hidden);
+        for surface in PathSurface::default_surfaces() {
+            surface.spawn(commands, meshes, materials, &path, path_entity);
         }
-        let bundle = WayControl::bundle(
-            way_meshes,
+        let bundle = PathControl::bundle(
+            path_meshes,
             materials,
             ControlType::StartHandle,
             0,
@@ -43,7 +43,7 @@ impl Drawing {
         let control = commands.spawn(bundle).id();
         let line = vec![Vec3::ZERO, Vec3::ONE];
         let bundle = (
-            WayControlLine::new(0, true),
+            PathControlLine::new(0, true),
             Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
             MeshMaterial3d(materials.control_line.clone()),
             Visibility::Hidden,
@@ -52,23 +52,23 @@ impl Drawing {
         Drawing {
             origins: Vec::new(),
             handles: Vec::new(),
-            way: way_entity,
+            path: path_entity,
             control,
             line,
             is_ready: false,
         }
     }
 
-    /// System to update a [`Way`].
+    /// System to update a [`Path`].
     #[allow(clippy::too_many_arguments)]
     pub(super) fn update_system(
         drawing: Option<ResMut<Drawing>>,
-        mut ways: Query<(&mut Way, &mut Visibility)>,
-        mut controls: Query<(&mut Transform, &mut Visibility), (With<WayControl>, Without<Way>)>,
+        mut paths: Query<(&mut Path, &mut Visibility)>,
+        mut controls: Query<(&mut Transform, &mut Visibility), (With<PathControl>, Without<Path>)>,
         mut meshes: ResMut<Assets<Mesh>>,
         mut lines: Query<
             (&mut Mesh3d, &mut Visibility),
-            (With<WayControlLine>, Without<Way>, Without<WayControl>),
+            (With<PathControlLine>, Without<Path>, Without<PathControl>),
         >,
         mut curve_added: EventWriter<CurveAdded>,
         motion: EventReader<MouseMotion>,
@@ -94,7 +94,7 @@ impl Drawing {
         }
         // Update Control
         let Ok((mut transform, mut visibility)) = controls.get_mut(drawing.control) else {
-            warn!("Failed to get WayControl: {:?}", drawing.control);
+            warn!("Failed to get PathControl: {:?}", drawing.control);
             return;
         };
         if is_handle_next {
@@ -106,7 +106,7 @@ impl Drawing {
         }
         // Update line
         let Ok((mut mesh, mut visibility)) = lines.get_mut(drawing.line) else {
-            warn!("Failed to get WayControl: {:?}", drawing.control);
+            warn!("Failed to get PathControl: {:?}", drawing.control);
             return;
         };
         if is_handle_next {
@@ -117,7 +117,7 @@ impl Drawing {
         } else {
             *visibility = Visibility::Hidden;
         }
-        // Update Way
+        // Update Path
         if origins.len() < 2 {
             return;
         }
@@ -128,19 +128,19 @@ impl Drawing {
                 return;
             }
         };
-        let Ok((mut way, mut visibility)) = ways.get_mut(drawing.way) else {
-            warn!("Failed to get Way: {:?}", drawing.way);
+        let Ok((mut path, mut visibility)) = paths.get_mut(drawing.path) else {
+            warn!("Failed to get Path: {:?}", drawing.path);
             return;
         };
-        *way = Way::new(spline);
+        *path = Path::new(spline);
         if drawing.is_ready {
             *visibility = Visibility::Visible;
         } else {
             drawing.is_ready = true;
         }
         curve_added.send(CurveAdded {
-            way: drawing.way,
-            spline: way.spline.clone(),
+            path: drawing.path,
+            spline: path.spline.clone(),
         });
     }
 
@@ -160,13 +160,13 @@ impl Drawing {
         ]
     }
 
-    /// Update the [`Way`] on action button pressed.
+    /// Update the [`Path`] on action button pressed.
     fn complete_action(
         _trigger: Trigger<Pointer<Up>>,
         mut commands: Commands,
         mut interface: ResMut<InterfaceState>,
         drawing: Res<Drawing>,
-        mut ways: Query<&mut Way>,
+        mut paths: Query<&mut Path>,
         mut curve_added: EventWriter<CurveAdded>,
     ) {
         trace!("Complete button was pressed.");
@@ -181,30 +181,30 @@ impl Drawing {
                 return;
             }
         };
-        let Ok(mut way) = ways.get_mut(drawing.way) else {
-            warn!("Failed to get Way: {:?}", drawing.way);
+        let Ok(mut path) = paths.get_mut(drawing.path) else {
+            warn!("Failed to get Path: {:?}", drawing.path);
             return;
         };
-        *way = Way::new(spline);
+        *path = Path::new(spline);
         curve_added.send(CurveAdded {
-            way: drawing.way,
-            spline: way.spline.clone(),
+            path: drawing.path,
+            spline: path.spline.clone(),
         });
         commands.remove_resource::<Drawing>();
     }
 
-    /// Activate [`InterfaceState::DrawWay`].
+    /// Activate [`InterfaceState::DrawPath`].
     pub(crate) fn start_action(
         _trigger: Trigger<Pointer<Up>>,
         mut interface: ResMut<InterfaceState>,
         mut commands: Commands,
         mut meshes: ResMut<Assets<Mesh>>,
-        way_meshes: Res<WayMeshes>,
-        materials: Res<WayMaterials>,
+        path_meshes: Res<PathMeshes>,
+        materials: Res<PathMaterials>,
     ) {
-        trace!("Draw Way button was pressed.");
-        *interface = InterfaceState::DrawWay;
-        let drawing = Drawing::new(&mut commands, &mut meshes, &way_meshes, &materials);
+        trace!("Draw Path button was pressed.");
+        *interface = InterfaceState::DrawPath;
+        let drawing = Drawing::new(&mut commands, &mut meshes, &path_meshes, &materials);
         commands.insert_resource(drawing);
     }
 

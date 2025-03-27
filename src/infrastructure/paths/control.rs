@@ -8,18 +8,18 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use ControlType::*;
 
-/// A control point that manipulates a [`Way`].
+/// A control point that manipulates a [`Path`].
 #[derive(Component)]
 #[require(InheritedVisibility, Transform, EntityState)]
-pub struct WayControl {
+pub struct PathControl {
     /// Type of the control.
     control_type: ControlType,
-    /// Index of the Curve in the spline of the [`Way`].
+    /// Index of the Curve in the spline of the [`Path`].
     curve: usize,
 }
 
-impl WayControl {
-    /// Create a new [`WayControl`].
+impl PathControl {
+    /// Create a new [`PathControl`].
     #[must_use]
     pub fn new(control_type: ControlType, curve: usize) -> Self {
         Self {
@@ -28,17 +28,17 @@ impl WayControl {
         }
     }
 
-    /// Create a bundle for a [`WayControl`].
+    /// Create a bundle for a [`PathControl`].
     #[must_use]
     pub(crate) fn bundle(
-        meshes: &Res<WayMeshes>,
-        materials: &Res<WayMaterials>,
+        meshes: &Res<PathMeshes>,
+        materials: &Res<PathMaterials>,
         control_type: ControlType,
         curve: usize,
         position: Vec3,
         visibility: Visibility,
     ) -> (
-        WayControl,
+        PathControl,
         Transform,
         Mesh3d,
         MeshMaterial3d<StandardMaterial>,
@@ -49,7 +49,7 @@ impl WayControl {
             _ => meshes.control_handle.clone(),
         };
         (
-            WayControl::new(control_type, curve),
+            PathControl::new(control_type, curve),
             get_transform(control_type, position),
             Mesh3d(mesh),
             MeshMaterial3d(materials.control_node.clone()),
@@ -57,13 +57,13 @@ impl WayControl {
         )
     }
 
-    /// Factory method to spawn [`WayControl`] for each control point in a [`Way`]
+    /// Factory method to spawn [`PathControl`] for each control point in a [`Path`]
     pub(super) fn spawn(
         commands: &mut Commands,
-        meshes: &Res<WayMeshes>,
-        materials: &Res<WayMaterials>,
+        meshes: &Res<PathMeshes>,
+        materials: &Res<PathMaterials>,
         spline: &CubicBezierSpline,
-        way: Entity,
+        path: Entity,
         visibility: Visibility,
     ) {
         for (curve, bezier) in spline.get_curves().iter().enumerate() {
@@ -105,7 +105,7 @@ impl WayControl {
             for bundle in bundles {
                 commands
                     .spawn(bundle)
-                    .set_parent(way)
+                    .set_parent(path)
                     .observe(on_pointer_over)
                     .observe(on_pointer_out)
                     .observe(on_pointer_drag_start)
@@ -118,18 +118,18 @@ impl WayControl {
     /// Update the [`Transform`] when a control is moved.
     pub(super) fn on_control_moved(
         mut events: EventReader<ControlMoved>,
-        mut controls: Query<(&WayControl, &Parent, &mut Transform)>,
+        mut controls: Query<(&PathControl, &Parent, &mut Transform)>,
     ) {
         for event in events.read() {
             for (control, parent, mut transform) in &mut controls {
-                if parent.get() != event.way {
+                if parent.get() != event.path {
                     continue;
                 }
                 let Some(translation) = event
                     .spline
                     .get_control(control.control_type, control.curve)
                 else {
-                    warn!("Failed to set WayControl transform. Control does not exist");
+                    warn!("Failed to set PathControl transform. Control does not exist");
                     continue;
                 };
                 *transform = get_transform(control.control_type, translation);
@@ -137,31 +137,31 @@ impl WayControl {
         }
     }
 
-    /// Re-spawn [`WayControl`] when a curve is added or removed.
+    /// Re-spawn [`PathControl`] when a curve is added or removed.
     pub(super) fn on_curve_added(
         mut events: EventReader<CurveAdded>,
         mut commands: Commands,
-        controls: Query<(Entity, &Parent), With<WayControl>>,
-        meshes: Res<WayMeshes>,
-        materials: Res<WayMaterials>,
+        controls: Query<(Entity, &Parent), With<PathControl>>,
+        meshes: Res<PathMeshes>,
+        materials: Res<PathMaterials>,
     ) {
         for event in events.read() {
-            Helpers::despawn_children(&mut commands, &controls, event.way);
-            WayControl::spawn(
+            Helpers::despawn_children(&mut commands, &controls, event.path);
+            PathControl::spawn(
                 &mut commands,
                 &meshes,
                 &materials,
                 &event.spline,
-                event.way,
+                event.path,
                 Visibility::Visible,
             );
         }
     }
 
-    /// Update the [`WayControl`] visibility when the [`EntityState`] of the [`Way`] changes.
+    /// Update the [`PathControl`] visibility when the [`EntityState`] of the [`Path`] changes.
     pub(super) fn on_state_changed(
         mut events: EventReader<EntityStateChanged>,
-        mut controls: Query<(&Parent, &mut Visibility), With<WayControl>>,
+        mut controls: Query<(&Parent, &mut Visibility), With<PathControl>>,
     ) {
         for event in events.read() {
             for (parent, mut visibility) in &mut controls {
@@ -188,11 +188,11 @@ fn get_transform(control_type: ControlType, position: Vec3) -> Transform {
 
 fn on_pointer_over(
     event: Trigger<Pointer<Over>>,
-    materials: Res<WayMaterials>,
+    materials: Res<PathMaterials>,
     mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
     let Ok((state, mut material)) = query.get_mut(event.entity()) else {
-        error!("Failed to get material of WayControl");
+        error!("Failed to get material of PathControl");
         return;
     };
     if state != &EntityState::Selected {
@@ -202,11 +202,11 @@ fn on_pointer_over(
 
 fn on_pointer_out(
     event: Trigger<Pointer<Out>>,
-    materials: Res<WayMaterials>,
+    materials: Res<PathMaterials>,
     mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
     let Ok((state, mut material)) = query.get_mut(event.entity()) else {
-        error!("Failed to get WayControl");
+        error!("Failed to get PathControl");
         return;
     };
     if state != &EntityState::Selected {
@@ -216,11 +216,11 @@ fn on_pointer_out(
 
 fn on_pointer_drag_start(
     event: Trigger<Pointer<DragStart>>,
-    materials: Res<WayMaterials>,
+    materials: Res<PathMaterials>,
     mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
     let Ok((mut state, mut material)) = query.get_mut(event.entity()) else {
-        error!("Failed to get WayControl");
+        error!("Failed to get PathControl");
         return;
     };
     *state = EntityState::Selected;
@@ -231,38 +231,38 @@ fn on_pointer_drag_start(
 fn on_pointer_drag(
     event: Trigger<Pointer<Drag>>,
     mut event_writer: EventWriter<ControlMoved>,
-    controls: Query<(&WayControl, &Parent, &mut Transform)>,
-    mut ways: Query<(&mut Way, Entity)>,
+    controls: Query<(&PathControl, &Parent, &mut Transform)>,
+    mut paths: Query<(&mut Path, Entity)>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
 ) {
     let Ok((control, parent, _transform)) = controls.get(event.entity()) else {
-        error!("Failed to get WayControl");
+        error!("Failed to get PathControl");
         return;
     };
     let Ok(translation) = Cursor::from_window(&window, &camera) else {
         warn!("Failed to get cursor on ground");
         return;
     };
-    let Ok((mut way, entity)) = ways.get_mut(parent.get()) else {
-        warn!("Failed to get Way");
+    let Ok((mut path, entity)) = paths.get_mut(parent.get()) else {
+        warn!("Failed to get Path");
         return;
     };
-    way.spline
+    path.spline
         .update_control(control.control_type, control.curve, translation);
     event_writer.send(ControlMoved {
-        way: entity,
-        spline: way.spline.clone(),
+        path: entity,
+        spline: path.spline.clone(),
     });
 }
 
 fn on_pointer_drag_end(
     event: Trigger<Pointer<DragEnd>>,
-    materials: Res<WayMaterials>,
+    materials: Res<PathMaterials>,
     mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
     let Ok((mut state, mut material)) = query.get_mut(event.entity()) else {
-        error!("Failed to get WayControl");
+        error!("Failed to get PathControl");
         return;
     };
     *state = EntityState::Selected;

@@ -6,56 +6,56 @@ use crate::ui::{EntityState, EntityStateChanged};
 use crate::Helpers;
 use bevy::prelude::*;
 
-/// A line between control points of a [`Way`].
+/// A line between control points of a [`Path`].
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
-pub struct WayControlLine {
-    /// Index of the Curve in the spline of the [`Way`].
+pub struct PathControlLine {
+    /// Index of the Curve in the spline of the [`Path`].
     curve: usize,
     /// Is this a start or end.
     is_start: bool,
 }
 
-impl WayControlLine {
-    /// Create a new [`WayControlLine`]
+impl PathControlLine {
+    /// Create a new [`PathControlLine`]
     #[must_use]
     pub fn new(curve: usize, is_start: bool) -> Self {
         Self { curve, is_start }
     }
 
-    /// Factory method to spawn [`WayControlLine`] for each control point in a [`Way`]
+    /// Factory method to spawn [`PathControlLine`] for each control point in a [`Path`]
     pub(super) fn spawn(
         commands: &mut Commands,
         meshes: &mut ResMut<Assets<Mesh>>,
-        materials: &Res<WayMaterials>,
+        materials: &Res<PathMaterials>,
         spline: &CubicBezierSpline,
-        way: Entity,
+        path: Entity,
         visibility: Visibility,
     ) {
         for (curve, bezier) in spline.get_curves().iter().enumerate() {
             let line = vec![bezier.get_control(Start), bezier.get_control(StartHandle)];
             let start = (
-                WayControlLine::new(curve, true),
+                PathControlLine::new(curve, true),
                 Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
                 visibility,
             );
             let line = vec![bezier.get_control(End), bezier.get_control(EndHandle)];
             let end = (
-                WayControlLine::new(curve, false),
+                PathControlLine::new(curve, false),
                 Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(materials.control_line.clone()),
                 visibility,
             );
-            commands.spawn(start).set_parent(way);
-            commands.spawn(end).set_parent(way);
+            commands.spawn(start).set_parent(path);
+            commands.spawn(end).set_parent(path);
         }
     }
 
-    /// Update the [`WayControlLine`] visibility when the [`EntityState`] of the [`Way`] changes.
+    /// Update the [`PathControlLine`] visibility when the [`EntityState`] of the [`Path`] changes.
     pub(super) fn on_state_changed(
         mut events: EventReader<EntityStateChanged>,
-        mut lines: Query<(&Parent, &mut Visibility), With<WayControlLine>>,
+        mut lines: Query<(&Parent, &mut Visibility), With<PathControlLine>>,
     ) {
         for event in events.read() {
             for (parent, mut visibility) in &mut lines {
@@ -73,12 +73,12 @@ impl WayControlLine {
     /// Update the [`Transform`] when a control is moved.
     pub(super) fn on_control_moved(
         mut events: EventReader<ControlMoved>,
-        mut lines: Query<(&WayControlLine, &Parent, &mut Mesh3d), Without<Way>>,
+        mut lines: Query<(&PathControlLine, &Parent, &mut Mesh3d), Without<Path>>,
         mut meshes: ResMut<Assets<Mesh>>,
     ) {
         for event in events.read() {
             for (line, parent, mut mesh) in &mut lines {
-                if parent.get() != event.way {
+                if parent.get() != event.path {
                     continue;
                 }
                 let anchor = if line.is_start { Start } else { End };
@@ -102,22 +102,22 @@ impl WayControlLine {
         }
     }
 
-    /// Re-spawn [`WayControlLine`] when a curve is added or removed.
+    /// Re-spawn [`PathControlLine`] when a curve is added or removed.
     pub(super) fn on_curve_added(
         mut events: EventReader<CurveAdded>,
-        lines: Query<(Entity, &Parent), With<WayControlLine>>,
+        lines: Query<(Entity, &Parent), With<PathControlLine>>,
         mut commands: Commands,
         mut meshes: ResMut<Assets<Mesh>>,
-        materials: Res<WayMaterials>,
+        materials: Res<PathMaterials>,
     ) {
         for event in events.read() {
-            Helpers::despawn_children(&mut commands, &lines, event.way);
-            WayControlLine::spawn(
+            Helpers::despawn_children(&mut commands, &lines, event.path);
+            PathControlLine::spawn(
                 &mut commands,
                 &mut meshes,
                 &materials,
                 &event.spline,
-                event.way,
+                event.path,
                 Visibility::Visible,
             );
         }

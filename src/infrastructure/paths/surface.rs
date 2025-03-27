@@ -10,11 +10,11 @@ use std::collections::HashSet;
 
 static WIREFRAME_ENABLED: bool = false;
 
-/// A surface formed by two lines from a [`Way`].
+/// A surface formed by two lines from a [`Path`].
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
-pub struct WaySurface {
-    /// Offsets from the way.
+pub struct PathSurface {
+    /// Offsets from the path.
     ///
     /// Front and Back values are ignored.
     offsets: Vec6,
@@ -24,23 +24,23 @@ pub struct WaySurface {
 
 /// Type of surface.
 pub enum SurfaceType {
-    /// - <https://en.wikipedia.org/wiki/Carriageway>
+    /// - <https://en.wikipedia.org/wiki/Carriagepath>
     Carriageway,
-    /// - <https://en.wikipedia.org/wiki/Footway>
+    /// - <https://en.wikipedia.org/wiki/Footpath>
     Footway,
     /// - <https://en.wikipedia.org/wiki/Road_verge>
     Verge,
 }
 
-impl WaySurface {
-    /// Create a new [`WaySurface`] offset from [`Way`].
+impl PathSurface {
+    /// Create a new [`PathSurface`] offset from [`Path`].
     #[must_use]
     pub fn new(offsets: Vec6, purpose: SurfaceType) -> Self {
         let offsets = offsets.fix_order();
         Self { offsets, purpose }
     }
 
-    /// Create a new [`WaySurface`] centered at [`Way`].
+    /// Create a new [`PathSurface`] centered at [`Path`].
     #[must_use]
     pub fn centered(width: f32, depth: f32, purpose: SurfaceType) -> Self {
         Self::new(
@@ -50,24 +50,24 @@ impl WaySurface {
     }
 
     #[must_use]
-    pub fn default_surfaces() -> Vec<WaySurface> {
+    pub fn default_surfaces() -> Vec<PathSurface> {
         vec![
-            WaySurface::centered(4.8, 0.025, Carriageway),
-            WaySurface::new(Vec6::new(2.4, 4.4, 0.0, 0.0, 0.0, 0.125), Footway),
-            WaySurface::new(Vec6::new(-4.4, -2.4, 0.0, 0.0, 0.0, 0.125), Footway),
+            PathSurface::centered(4.8, 0.025, Carriageway),
+            PathSurface::new(Vec6::new(2.4, 4.4, 0.0, 0.0, 0.0, 0.125), Footway),
+            PathSurface::new(Vec6::new(-4.4, -2.4, 0.0, 0.0, 0.0, 0.125), Footway),
         ]
     }
 
-    /// Spawn a [`WaySurface`] with its mesh geometry.
+    /// Spawn a [`PathSurface`] with its mesh geometry.
     pub fn spawn(
         self,
         commands: &mut Commands,
         meshes: &mut ResMut<Assets<Mesh>>,
-        materials: &Res<WayMaterials>,
-        way: &Way,
-        way_entity: Entity,
+        materials: &Res<PathMaterials>,
+        path: &Path,
+        path_entity: Entity,
     ) {
-        let sweep = Sweep::new(&way.spline, self.offsets);
+        let sweep = Sweep::new(&path.spline, self.offsets);
         let material = materials.get_surface(&self.purpose);
         let triangles = sweep.clone().to_triangle_list();
         let bundle = (
@@ -82,7 +82,7 @@ impl WaySurface {
             .observe(on_pointer_over)
             .observe(on_pointer_out)
             .observe(on_pointer_click)
-            .set_parent(way_entity)
+            .set_parent(path_entity)
             .id();
         if WIREFRAME_ENABLED {
             spawn_wireframe(commands, meshes, materials, triangles, surface_entity);
@@ -94,21 +94,24 @@ impl WaySurface {
     pub(super) fn on_spline_changed(
         mut commands: Commands,
         mut events: EventReader<SplineChanged>,
-        mut surfaces: Query<(Entity, &WaySurface, &Parent, &mut Mesh3d, &mut Aabb)>,
-        edges: Query<(Entity, &Parent), (With<Edge>, Without<WaySurface>)>,
-        wireframes: Query<(Entity, &Parent), (With<Wireframe>, Without<WaySurface>, Without<Edge>)>,
+        mut surfaces: Query<(Entity, &PathSurface, &Parent, &mut Mesh3d, &mut Aabb)>,
+        edges: Query<(Entity, &Parent), (With<Edge>, Without<PathSurface>)>,
+        wireframes: Query<
+            (Entity, &Parent),
+            (With<Wireframe>, Without<PathSurface>, Without<Edge>),
+        >,
         mut meshes: ResMut<Assets<Mesh>>,
-        materials: Res<WayMaterials>,
+        materials: Res<PathMaterials>,
     ) {
         let mut duplicates = 0;
         let mut updated = HashSet::new();
         for event in events.read() {
-            if !updated.insert(event.way) {
+            if !updated.insert(event.path) {
                 duplicates += 1;
                 continue;
             };
             for (entity, surface, parent, mut mesh, mut aabb) in &mut surfaces {
-                if parent.get() != event.way {
+                if parent.get() != event.path {
                     continue;
                 }
                 let sweep = Sweep::new(&event.spline, surface.offsets);
@@ -131,10 +134,10 @@ impl WaySurface {
         }
     }
 
-    /// Update the [`Edge`] visibility when the [`EntityState`] of the [`Way`] changes.
+    /// Update the [`Edge`] visibility when the [`EntityState`] of the [`Path`] changes.
     pub(super) fn on_state_changed(
         mut events: EventReader<EntityStateChanged>,
-        surfaces: Query<&Parent, (Without<Edge>, With<WaySurface>)>,
+        surfaces: Query<&Parent, (Without<Edge>, With<PathSurface>)>,
         mut edges: Query<(&Parent, &mut Visibility), With<Edge>>,
     ) {
         let mut duplicates = 0;
@@ -146,7 +149,7 @@ impl WaySurface {
             }
             for (parent, mut visibility) in &mut edges {
                 let Ok(surface_parent) = surfaces.get(parent.get()) else {
-                    warn!("Failed to get WaySurface of Edge");
+                    warn!("Failed to get PathSurface of Edge");
                     continue;
                 };
                 if surface_parent.get() != event.entity {
@@ -167,7 +170,7 @@ impl WaySurface {
 fn spawn_wireframe(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
-    materials: &Res<WayMaterials>,
+    materials: &Res<PathMaterials>,
     triangles: TriangleList,
     surface_entity: Entity,
 ) {
@@ -185,7 +188,7 @@ fn spawn_wireframe(
 fn spawn_edges(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
-    materials: &Res<WayMaterials>,
+    materials: &Res<PathMaterials>,
     sweep: Sweep,
     surface_entity: Entity,
     is_selected: bool,
@@ -211,15 +214,15 @@ fn spawn_edges(
 fn on_pointer_over(
     trigger: Trigger<Pointer<Over>>,
     mut changed: EventWriter<EntityStateChanged>,
-    mut ways: Query<&mut EntityState, With<Way>>,
-    surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
+    mut paths: Query<&mut EntityState, With<Path>>,
+    surfaces: Query<&Parent, (With<PathSurface>, Without<Path>)>,
 ) {
     let Ok(parent) = surfaces.get(trigger.entity()) else {
-        error!("Failed to get parent of WaySurface");
+        error!("Failed to get parent of PathSurface");
         return;
     };
-    let Ok(mut state) = ways.get_mut(parent.get()) else {
-        warn!("Failed to get Way");
+    let Ok(mut state) = paths.get_mut(parent.get()) else {
+        warn!("Failed to get Path");
         return;
     };
     if *state != EntityState::Selected {
@@ -234,15 +237,15 @@ fn on_pointer_over(
 fn on_pointer_out(
     trigger: Trigger<Pointer<Out>>,
     mut changed: EventWriter<EntityStateChanged>,
-    mut ways: Query<&mut EntityState, With<Way>>,
-    surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
+    mut paths: Query<&mut EntityState, With<Path>>,
+    surfaces: Query<&Parent, (With<PathSurface>, Without<Path>)>,
 ) {
     let Ok(parent) = surfaces.get(trigger.entity()) else {
-        error!("Failed to get parent of WaySurface");
+        error!("Failed to get parent of PathSurface");
         return;
     };
-    let Ok(mut state) = ways.get_mut(parent.get()) else {
-        warn!("Failed to get Way");
+    let Ok(mut state) = paths.get_mut(parent.get()) else {
+        warn!("Failed to get Path");
         return;
     };
     if *state != EntityState::Selected {
@@ -256,23 +259,23 @@ fn on_pointer_out(
 
 fn on_pointer_click(
     trigger: Trigger<Pointer<Click>>,
-    surfaces: Query<&Parent, (With<WaySurface>, Without<Way>)>,
-    mut ways: Query<&mut EntityState, With<Way>>,
+    surfaces: Query<&Parent, (With<PathSurface>, Without<Path>)>,
+    mut paths: Query<&mut EntityState, With<Path>>,
     mut interface: ResMut<InterfaceState>,
     mut changed: EventWriter<EntityStateChanged>,
 ) {
     let Ok(parent) = surfaces.get(trigger.entity()) else {
-        error!("Failed to get parent of WaySurface");
+        error!("Failed to get parent of PathSurface");
         return;
     };
-    let Ok(mut way_state) = ways.get_mut(parent.get()) else {
-        warn!("Failed to get Way");
+    let Ok(mut path_state) = paths.get_mut(parent.get()) else {
+        warn!("Failed to get Path");
         return;
     };
-    if *way_state != EntityState::Selected {
-        *way_state = EntityState::Selected;
-        *interface = InterfaceState::WaySelected {
-            way: parent.get(),
+    if *path_state != EntityState::Selected {
+        *path_state = EntityState::Selected;
+        *interface = InterfaceState::PathSelected {
+            path: parent.get(),
             surface: trigger.entity(),
         };
         changed.send(EntityStateChanged {

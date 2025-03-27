@@ -55,11 +55,11 @@ impl Interceptor {
             return;
         };
         *visibility = match *interface {
-            InterfaceState::DrawWay => Visibility::Visible,
+            InterfaceState::DrawPath => Visibility::Visible,
             _ => Visibility::Hidden,
         };
         *text = match *interface {
-            InterfaceState::DrawWay => Text::new("Drawing"),
+            InterfaceState::DrawPath => Text::new("Drawing"),
             _ => Text::new("Default"),
         };
     }

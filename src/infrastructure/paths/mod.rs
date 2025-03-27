@@ -3,15 +3,15 @@ pub use control_line::*;
 pub use events::*;
 pub use materials::*;
 pub use meshes::*;
+pub use path::*;
 pub use plugin::*;
 pub use surface::*;
-pub use way::*;
 
 mod control;
 mod control_line;
 mod events;
 mod materials;
 mod meshes;
+mod path;
 mod plugin;
 mod surface;
-mod way;

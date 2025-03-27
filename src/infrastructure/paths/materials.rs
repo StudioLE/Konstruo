@@ -4,20 +4,20 @@ use bevy::prelude::*;
 
 #[allow(clippy::struct_field_names)]
 #[derive(Resource)]
-pub struct WayMaterials {
+pub struct PathMaterials {
     /// Material for the center line.
     pub center_line: Handle<StandardMaterial>,
 
-    /// Material for [`WayControlHandle`] and [`WayControlOrigin`].
+    /// Material for the default state of [`PathControl`].
     pub control_node: Handle<StandardMaterial>,
 
-    /// Material for the over state of [`WayControlHandle`] and [`WayControlOrigin`].
+    /// Material for the over state of [`PathControl`].
     pub control_node_over: Handle<StandardMaterial>,
 
-    /// Material for the over state of [`WayControlHandle`] and [`WayControlOrigin`].
+    /// Material for the drag state of [`PathControl`].
     pub control_node_drag: Handle<StandardMaterial>,
 
-    /// Material for the line from origin to handle of a way control.
+    /// Material for a [`PathControlLine`].
     pub control_line: Handle<StandardMaterial>,
 
     /// Material for the edge.
@@ -26,23 +26,23 @@ pub struct WayMaterials {
     /// Material for the surface wireframe.
     pub wireframe: Handle<StandardMaterial>,
 
-    /// Material for a road [`WaySurface`].
+    /// Material for a road [`PathSurface`].
     pub carriageway: Handle<StandardMaterial>,
 
-    /// Material for a road [`WaySurface`].
+    /// Material for a road [`PathSurface`].
     pub footway: Handle<StandardMaterial>,
 
-    /// Material for a road [`WaySurface`].
+    /// Material for a road [`PathSurface`].
     pub verge: Handle<StandardMaterial>,
 }
 
-impl WayMaterials {
-    /// System to insert [`WayMaterials`] on startup.
+impl PathMaterials {
+    /// System to insert [`PathMaterials`] on startup.
     pub(super) fn startup_system(
         mut commands: Commands,
         mut materials: ResMut<Assets<StandardMaterial>>,
     ) {
-        commands.insert_resource(WayMaterials {
+        commands.insert_resource(PathMaterials {
             center_line: materials.add(StandardMaterial {
                 base_color: tailwind::SLATE_500.into(),
                 alpha_mode: AlphaMode::Opaque,

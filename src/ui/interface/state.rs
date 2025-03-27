@@ -5,12 +5,12 @@ use bevy::prelude::*;
 pub enum InterfaceState {
     #[default]
     Default,
-    DrawWay,
-    /// A [`Way`] was selected by clicking on a [`WaySurface`].
-    WaySelected {
-        /// [`Way`]
-        way: Entity,
-        /// [`WaySurface`] that was selected
+    DrawPath,
+    /// A [`Path`] was selected by clicking on a [`PathSurface`].
+    PathSelected {
+        /// [`Path`]
+        path: Entity,
+        /// [`PathSurface`] that was selected
         surface: Entity,
     },
 }
@@ -21,8 +21,8 @@ impl InterfaceState {
     pub(super) fn get_actions(&self) -> Vec<Action> {
         match self {
             InterfaceState::Default => default_actions(),
-            InterfaceState::DrawWay => Drawing::actions(),
-            InterfaceState::WaySelected { .. } => Selection::actions(),
+            InterfaceState::DrawPath => Drawing::actions(),
+            InterfaceState::PathSelected { .. } => Selection::actions(),
         }
     }
 }
@@ -35,7 +35,7 @@ fn default_actions() -> Vec<Action> {
             on_press: Observer::new(settings_action),
         },
         Action {
-            label: String::from("Draw Way"),
+            label: String::from("Draw Path"),
             icon: Icon::font_awesome("bezier-curve"),
             on_press: Observer::new(Drawing::start_action),
         },

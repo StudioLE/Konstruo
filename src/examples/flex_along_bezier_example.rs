@@ -1,5 +1,5 @@
 use crate::distribution::*;
-use crate::infrastructure::Way;
+use crate::infrastructure::Path;
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 
@@ -9,18 +9,18 @@ pub struct FlexAlongBezierExample;
 
 impl Plugin for FlexAlongBezierExample {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, way_added_system);
+        app.add_systems(Update, path_added_system);
     }
 }
 
-fn way_added_system(
+fn path_added_system(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    query: Query<(Entity, &Way), Added<Way>>,
+    query: Query<(Entity, &Path), Added<Path>>,
 ) {
-    for (entity, way) in query.iter() {
-        let spline_length = way.spline.get_length(ACCURACY);
+    for (entity, path) in query.iter() {
+        let spline_length = path.spline.get_length(ACCURACY);
         let bundle = (
             Distribution {
                 flex: FlexBuilder::new()
@@ -33,7 +33,7 @@ fn way_added_system(
                     .with_align_items_normal(AlignItems::Start)
                     .with_gap(Vec3::new(3.0, 10.0, 10.0))
                     .build(),
-                spline: Some(way.spline.clone()),
+                spline: Some(path.spline.clone()),
                 translate_to_ground: true,
                 ..default()
             },
