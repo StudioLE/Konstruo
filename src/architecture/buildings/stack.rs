@@ -1,12 +1,9 @@
 use super::*;
 use bevy::prelude::*;
 
+/// A vertical stack of [`BuildingModule`].
 #[derive(Clone, Component, Debug)]
 #[require(InheritedVisibility, Transform)]
 pub struct BuildingModuleStack {
-    pub definition: BuildingModule,
-    pub levels: usize,
-    pub level_height: f32,
-    pub roof_height: f32,
-    pub roof_style: Option<RoofStyle>,
+    pub modules: Vec<BuildingModule>,
 }

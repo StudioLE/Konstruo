@@ -1,6 +1,8 @@
 use crate::architecture::{BuildingModule, BuildingModuleStack, ModularBuildingFactory, RoofStyle};
 use crate::geometry::Vec6;
-use bevy::prelude::default;
+
+const LEVEL_HEIGHT: f32 = 2.400;
+const ROOF_HEIGHT: f32 = 1.800;
 
 pub struct BuildingTemplates;
 pub struct StackTemplates;
@@ -88,41 +90,59 @@ impl BuildingTemplates {
 impl StackTemplates {
     /// Beds: 2
     /// Persons: 4
-    /// Storeys: 2
+    /// Storeys: 1
     /// NIA: 75 sq m
     /// Orientation: Parallel
     #[must_use]
     fn _2b4p1s() -> BuildingModuleStack {
         BuildingModuleStack {
-            definition: BuildingModule {
-                width: 12.000,
-                length: 7.200,
-                ..default()
-            },
-            levels: 1,
-            level_height: 2.400,
-            roof_height: 1.800,
-            roof_style: Some(RoofStyle::PitchFrontToBack),
+            modules: vec![
+                BuildingModule {
+                    level: 0,
+                    width: 12.000,
+                    length: 7.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 1,
+                    width: 12.000,
+                    length: 7.200,
+                    height: ROOF_HEIGHT,
+                    margin: None,
+                    roof: Some(RoofStyle::PitchFrontToBack),
+                },
+            ],
         }
     }
 
     /// Beds: 2
     /// Persons: 4
-    /// Storeys: 2
+    /// Storeys: 1
     /// NIA: 75 sq m
     /// Orientation: Perpendicular
     #[must_use]
     fn _2b4p1s_perp() -> BuildingModuleStack {
         BuildingModuleStack {
-            definition: BuildingModule {
-                width: 7.200,
-                length: 12.000,
-                ..default()
-            },
-            levels: 1,
-            level_height: 2.400,
-            roof_height: 1.800,
-            roof_style: Some(RoofStyle::PitchLeftToRight),
+            modules: vec![
+                BuildingModule {
+                    level: 0,
+                    width: 7.200,
+                    length: 12.000,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 1,
+                    width: 7.200,
+                    length: 12.000,
+                    height: ROOF_HEIGHT,
+                    margin: None,
+                    roof: Some(RoofStyle::PitchLeftToRight),
+                },
+            ],
         }
     }
 
@@ -134,15 +154,32 @@ impl StackTemplates {
     #[must_use]
     fn _3b6p2s() -> BuildingModuleStack {
         BuildingModuleStack {
-            definition: BuildingModule {
-                width: 10.200,
-                length: 6.000,
-                ..default()
-            },
-            levels: 2,
-            level_height: 2.400,
-            roof_height: 1.800,
-            roof_style: Some(RoofStyle::PitchFrontToBack),
+            modules: vec![
+                BuildingModule {
+                    level: 0,
+                    width: 10.200,
+                    length: 6.000,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 1,
+                    width: 10.200,
+                    length: 6.000,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 2,
+                    width: 10.200,
+                    length: 6.000,
+                    height: ROOF_HEIGHT,
+                    margin: None,
+                    roof: Some(RoofStyle::PitchFrontToBack),
+                },
+            ],
         }
     }
 
@@ -154,15 +191,32 @@ impl StackTemplates {
     #[must_use]
     fn _3b6p2s_perp() -> BuildingModuleStack {
         BuildingModuleStack {
-            definition: BuildingModule {
-                width: 6.000,
-                length: 10.200,
-                ..default()
-            },
-            levels: 2,
-            level_height: 2.400,
-            roof_height: 1.800,
-            roof_style: Some(RoofStyle::PitchLeftToRight),
+            modules: vec![
+                BuildingModule {
+                    level: 0,
+                    width: 6.000,
+                    length: 10.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 1,
+                    width: 6.000,
+                    length: 10.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 2,
+                    width: 6.000,
+                    length: 10.200,
+                    height: ROOF_HEIGHT,
+                    margin: None,
+                    roof: Some(RoofStyle::PitchLeftToRight),
+                },
+            ],
         }
     }
 
@@ -174,15 +228,32 @@ impl StackTemplates {
     #[must_use]
     fn _4b8p2s() -> BuildingModuleStack {
         BuildingModuleStack {
-            definition: BuildingModule {
-                width: 10.200,
-                length: 7.200,
-                ..default()
-            },
-            levels: 2,
-            level_height: 2.400,
-            roof_height: 2.400,
-            roof_style: Some(RoofStyle::PitchFrontToBack),
+            modules: vec![
+                BuildingModule {
+                    level: 0,
+                    width: 10.200,
+                    length: 7.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 1,
+                    width: 10.200,
+                    length: 7.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 2,
+                    width: 10.200,
+                    length: 7.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: Some(RoofStyle::PitchFrontToBack),
+                },
+            ],
         }
     }
 
@@ -194,15 +265,32 @@ impl StackTemplates {
     #[must_use]
     fn _4b8p2s_perp() -> BuildingModuleStack {
         BuildingModuleStack {
-            definition: BuildingModule {
-                width: 7.200,
-                length: 10.200,
-                ..default()
-            },
-            levels: 2,
-            level_height: 2.400,
-            roof_height: 2.400,
-            roof_style: Some(RoofStyle::PitchLeftToRight),
+            modules: vec![
+                BuildingModule {
+                    level: 0,
+                    width: 7.200,
+                    length: 10.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 1,
+                    width: 7.200,
+                    length: 10.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 2,
+                    width: 7.200,
+                    length: 10.200,
+                    height: LEVEL_HEIGHT,
+                    margin: None,
+                    roof: Some(RoofStyle::PitchLeftToRight),
+                },
+            ],
         }
     }
 
@@ -212,16 +300,24 @@ impl StackTemplates {
     #[must_use]
     fn _2g() -> BuildingModuleStack {
         BuildingModuleStack {
-            definition: BuildingModule {
-                width: 6.000,
-                length: 5.400,
-                margin: Some(Vec6::default().with_back(0.600)),
-                ..default()
-            },
-            levels: 1,
-            level_height: 2.400,
-            roof_height: 1.800,
-            roof_style: Some(RoofStyle::PitchFrontToBack),
+            modules: vec![
+                BuildingModule {
+                    level: 0,
+                    width: 6.000,
+                    length: 5.400,
+                    height: LEVEL_HEIGHT,
+                    margin: Some(Vec6::default().with_back(0.600)),
+                    roof: None,
+                },
+                BuildingModule {
+                    level: 1,
+                    width: 6.000,
+                    length: 5.400,
+                    height: ROOF_HEIGHT,
+                    margin: Some(Vec6::default().with_back(0.600)),
+                    roof: Some(RoofStyle::PitchFrontToBack),
+                },
+            ],
         }
     }
 }

@@ -5,8 +5,6 @@ use bevy::prelude::*;
 #[derive(Debug, Default, Clone, Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct BuildingModule {
-    /// Index of the module within the building storey
-    pub index: usize,
     /// Level number
     /// 0: Ground
     /// 1: First

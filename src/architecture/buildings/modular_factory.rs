@@ -18,9 +18,9 @@ impl ModularBuildingFactory {
         materials: &Res<BuildingMaterials>,
         entity: Entity,
     ) {
-        for (index, stack) in self.stacks.iter().enumerate() {
-            let modules = create_stacked_modules(index, stack);
-            let parent = spawn_stack(commands, index, stack.clone(), entity);
+        for (index, stack) in self.stacks.into_iter().enumerate() {
+            let modules = stack.modules.clone();
+            let parent = spawn_stack(commands, index, stack, entity);
             for (order, module) in modules.into_iter().enumerate() {
                 spawn_module(commands, meshes, materials, order, module, parent);
             }
@@ -37,30 +37,6 @@ fn spawn_distribution() -> Distribution {
         translate_to_ground: true,
         ..default()
     }
-}
-
-#[allow(clippy::as_conversions, clippy::cast_possible_wrap)]
-fn create_stacked_modules(index: usize, stack: &BuildingModuleStack) -> Vec<BuildingModule> {
-    let levels = 0..stack.levels;
-    let mut modules: Vec<BuildingModule> = levels
-        .map(|level| BuildingModule {
-            index,
-            level: level as isize,
-            height: stack.level_height,
-            roof: None,
-            ..stack.definition
-        })
-        .collect();
-    if let Some(roof) = stack.roof_style.clone() {
-        modules.push(BuildingModule {
-            index,
-            level: stack.levels as isize,
-            height: stack.roof_height,
-            roof: Some(roof),
-            ..stack.definition
-        });
-    };
-    modules
 }
 
 fn spawn_stack(
