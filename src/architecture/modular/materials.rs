@@ -18,17 +18,12 @@ impl BuildingMaterials {
     ) {
         commands.insert_resource(BuildingMaterials {
             face: materials.add(StandardMaterial {
-                // base_color: tailwind::STONE_800.into(),
-                base_color: tailwind::STONE_400.into(),
+                base_color: tailwind::STONE_300.into(),
                 perceptual_roughness: 1.0,
-                // depth_bias: -1.0,
-                // double_sided: true,
-                // cull_mode: None,
-                // unlit: true,
                 ..Default::default()
             }),
             edges: materials.add(StandardMaterial {
-                base_color: tailwind::BLUE_500.into(),
+                base_color: tailwind::STONE_400.into(),
                 alpha_mode: AlphaMode::Opaque,
                 depth_bias: 10.0,
                 unlit: true,
