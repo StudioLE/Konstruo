@@ -149,7 +149,6 @@ impl PathSurface {
             }
             for (parent, mut visibility) in &mut edges {
                 let Ok(surface_parent) = surfaces.get(parent.get()) else {
-                    warn!("Failed to get PathSurface of Edge");
                     continue;
                 };
                 if surface_parent.get() != event.entity {
