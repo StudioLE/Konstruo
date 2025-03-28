@@ -10,6 +10,7 @@ use bevy::prelude::*;
 pub struct BuildingModule;
 
 /// A factory for creating [`BuildingModule`].
+#[derive(Clone, Debug)]
 pub struct BuildingModuleFactory {
     /// Level number
     /// 0: Ground
@@ -26,6 +27,19 @@ pub struct BuildingModuleFactory {
     pub margin: Option<Vec6>,
     /// Is this a pitched module?
     pub pitch: Option<Pitch>,
+}
+
+impl Default for BuildingModuleFactory {
+    fn default() -> Self {
+        Self {
+            level: 0,
+            width: 1.000,
+            length: 1.000,
+            height: 2.400,
+            margin: None,
+            pitch: None,
+        }
+    }
 }
 
 impl BuildingModuleFactory {

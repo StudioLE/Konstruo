@@ -1,9 +1,7 @@
-use crate::architecture::{
-    BuildingModuleFactory, BuildingModuleStackFactory, ModularBuildingFactory, Pitch,
-};
+use crate::architecture::*;
 use crate::geometry::Vec6;
+use bevy::prelude::default;
 
-const LEVEL_HEIGHT: f32 = 2.400;
 const ROOF_HEIGHT: f32 = 1.800;
 
 pub struct BuildingTemplates;
@@ -103,17 +101,15 @@ impl StackTemplates {
                     level: 0,
                     width: 12.000,
                     length: 7.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 1,
                     width: 12.000,
                     length: 7.200,
                     height: ROOF_HEIGHT,
-                    margin: None,
                     pitch: Some(Pitch::FrontToBack),
+                    ..default()
                 },
             ],
         }
@@ -132,17 +128,15 @@ impl StackTemplates {
                     level: 0,
                     width: 7.200,
                     length: 12.000,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 1,
                     width: 7.200,
                     length: 12.000,
                     height: ROOF_HEIGHT,
-                    margin: None,
                     pitch: Some(Pitch::LeftToRight),
+                    ..default()
                 },
             ],
         }
@@ -161,25 +155,21 @@ impl StackTemplates {
                     level: 0,
                     width: 10.200,
                     length: 6.000,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 1,
                     width: 10.200,
                     length: 6.000,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 2,
                     width: 10.200,
                     length: 6.000,
                     height: ROOF_HEIGHT,
-                    margin: None,
                     pitch: Some(Pitch::FrontToBack),
+                    ..default()
                 },
             ],
         }
@@ -198,25 +188,21 @@ impl StackTemplates {
                     level: 0,
                     width: 6.000,
                     length: 10.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 1,
                     width: 6.000,
                     length: 10.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 2,
                     width: 6.000,
                     length: 10.200,
                     height: ROOF_HEIGHT,
-                    margin: None,
                     pitch: Some(Pitch::LeftToRight),
+                    ..default()
                 },
             ],
         }
@@ -235,25 +221,20 @@ impl StackTemplates {
                     level: 0,
                     width: 10.200,
                     length: 7.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 1,
                     width: 10.200,
                     length: 7.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 2,
                     width: 10.200,
                     length: 7.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
                     pitch: Some(Pitch::FrontToBack),
+                    ..default()
                 },
             ],
         }
@@ -272,25 +253,20 @@ impl StackTemplates {
                     level: 0,
                     width: 7.200,
                     length: 10.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 1,
                     width: 7.200,
                     length: 10.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 2,
                     width: 7.200,
                     length: 10.200,
-                    height: LEVEL_HEIGHT,
-                    margin: None,
                     pitch: Some(Pitch::LeftToRight),
+                    ..default()
                 },
             ],
         }
@@ -307,9 +283,8 @@ impl StackTemplates {
                     level: 0,
                     width: 6.000,
                     length: 5.400,
-                    height: LEVEL_HEIGHT,
                     margin: Some(Vec6::default().with_back(0.600)),
-                    pitch: None,
+                    ..default()
                 },
                 BuildingModuleFactory {
                     level: 1,
@@ -318,6 +293,7 @@ impl StackTemplates {
                     height: ROOF_HEIGHT,
                     margin: Some(Vec6::default().with_back(0.600)),
                     pitch: Some(Pitch::FrontToBack),
+                    ..default()
                 },
             ],
         }
