@@ -37,7 +37,7 @@ fn path_added_system(
     if !state.enabled {
         return;
     }
-    for (entity, path) in query.iter() {
+    for (path_entity, path) in query.iter() {
         let spline = path
             .spline
             .offset(SPLINE_OFFSET, OFFSET_ACCURACY)
@@ -54,11 +54,13 @@ fn path_added_system(
             translate_to_ground: true,
             ..default()
         },);
-        let parent = commands.spawn(bundle).set_parent(entity).id();
+        let distribution_entity = commands.spawn(bundle).set_parent(path_entity).id();
         for (distributable, factory) in get_items() {
-            let bundle = (distributable, factory.clone());
-            let entity = commands.spawn(bundle).set_parent(parent).id();
-            factory.spawn_children(&mut commands, &meshes, &materials, entity);
+            let plot = factory.spawn(&mut commands, &meshes, &materials);
+            commands
+                .entity(plot)
+                .insert(distributable)
+                .set_parent(distribution_entity);
         }
         state.enabled = false;
     }

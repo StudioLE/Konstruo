@@ -1,4 +1,6 @@
-use crate::architecture::{BuildingModule, BuildingModuleStack, ModularBuildingFactory, Pitch};
+use crate::architecture::{
+    BuildingModule, BuildingModuleStackFactory, ModularBuildingFactory, Pitch,
+};
 use crate::geometry::Vec6;
 
 const LEVEL_HEIGHT: f32 = 2.400;
@@ -94,8 +96,8 @@ impl StackTemplates {
     /// NIA: 75 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _2b4p1s() -> BuildingModuleStack {
-        BuildingModuleStack {
+    fn _2b4p1s() -> BuildingModuleStackFactory {
+        BuildingModuleStackFactory {
             modules: vec![
                 BuildingModule {
                     level: 0,
@@ -123,8 +125,8 @@ impl StackTemplates {
     /// NIA: 75 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    fn _2b4p1s_perp() -> BuildingModuleStack {
-        BuildingModuleStack {
+    fn _2b4p1s_perp() -> BuildingModuleStackFactory {
+        BuildingModuleStackFactory {
             modules: vec![
                 BuildingModule {
                     level: 0,
@@ -152,8 +154,8 @@ impl StackTemplates {
     /// NIA: 104 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _3b6p2s() -> BuildingModuleStack {
-        BuildingModuleStack {
+    fn _3b6p2s() -> BuildingModuleStackFactory {
+        BuildingModuleStackFactory {
             modules: vec![
                 BuildingModule {
                     level: 0,
@@ -189,8 +191,8 @@ impl StackTemplates {
     /// NIA: 104 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    fn _3b6p2s_perp() -> BuildingModuleStack {
-        BuildingModuleStack {
+    fn _3b6p2s_perp() -> BuildingModuleStackFactory {
+        BuildingModuleStackFactory {
             modules: vec![
                 BuildingModule {
                     level: 0,
@@ -226,8 +228,8 @@ impl StackTemplates {
     /// NIA: 127 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _4b8p2s() -> BuildingModuleStack {
-        BuildingModuleStack {
+    fn _4b8p2s() -> BuildingModuleStackFactory {
+        BuildingModuleStackFactory {
             modules: vec![
                 BuildingModule {
                     level: 0,
@@ -263,8 +265,8 @@ impl StackTemplates {
     /// NIA: 127 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    fn _4b8p2s_perp() -> BuildingModuleStack {
-        BuildingModuleStack {
+    fn _4b8p2s_perp() -> BuildingModuleStackFactory {
+        BuildingModuleStackFactory {
             modules: vec![
                 BuildingModule {
                     level: 0,
@@ -298,8 +300,8 @@ impl StackTemplates {
     /// NIA: 26 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _2g() -> BuildingModuleStack {
-        BuildingModuleStack {
+    fn _2g() -> BuildingModuleStackFactory {
+        BuildingModuleStackFactory {
             modules: vec![
                 BuildingModule {
                     level: 0,

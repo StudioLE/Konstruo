@@ -12,7 +12,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(MeshPickingPlugin)
         .add_plugins(AxisMarkerPlugin)
-        .add_plugins(BuildingsPlugin)
+        .add_plugins(ModularBuildingsPlugin)
         // .add_plugins(CursorGizmoPlugin)
         .add_plugins(DistributionPlugin)
         .add_plugins(InterfacePlugin)

@@ -16,7 +16,6 @@ impl BuildingsExample {
         materials: Res<BuildingMaterials>,
     ) {
         let building = BuildingTemplates::_4b8p2s2g_perp();
-        let entity = commands.spawn(building.clone()).id();
-        building.spawn_children(&mut commands, &meshes, &materials, entity);
+        building.spawn(&mut commands, &meshes, &materials);
     }
 }
