@@ -50,7 +50,7 @@ impl FlexFactory {
             align_content: AlignContent::Start,
             align_items: self.align_items_normal,
             gap: self.gap,
-            bounds: None,
+            bounds: self.bounds,
         };
         taffy.execute(&mut container);
         let taffy = TaffyFlexFactory {
