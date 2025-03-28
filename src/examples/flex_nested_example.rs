@@ -1,4 +1,5 @@
 use crate::distribution::*;
+use crate::examples::ExampleHelpers;
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 
@@ -20,18 +21,7 @@ fn startup_system(
         .with_axis(Vec3::X, Vec3::Y)
         .with_gap(Vec3::splat(2.0))
         .build();
-    let bundle = (
-        Distribution {
-            flex,
-            generate_container_mesh: true,
-            translate_to_ground: true,
-            ..default()
-        },
-        Mesh3d::default(),
-        Transform::default(),
-        MeshMaterial3d(get_container_material(&mut materials)),
-    );
-    let root = commands.spawn(bundle).id();
+    let root = ExampleHelpers::spawn_container(&mut commands, &mut meshes, &mut materials, flex);
 
     // Create and spawn the first nested item
     let flex = FlexBuilder::new()

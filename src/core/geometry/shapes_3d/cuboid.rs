@@ -17,20 +17,26 @@ pub struct Cuboid {
 
 impl Default for Cuboid {
     fn default() -> Self {
-        Self {
-            bottom_front_left: Vec3::new(-0.5, -0.5, -0.5),
-            bottom_front_right: Vec3::new(0.5, -0.5, -0.5),
-            bottom_back_left: Vec3::new(-0.5, 0.5, -0.5),
-            bottom_back_right: Vec3::new(0.5, 0.5, -0.5),
-            top_front_left: Vec3::new(-0.5, -0.5, 0.5),
-            top_front_right: Vec3::new(0.5, -0.5, 0.5),
-            top_back_left: Vec3::new(-0.5, 0.5, 0.5),
-            top_back_right: Vec3::new(0.5, 0.5, 0.5),
-        }
+        Self::new(Vec3::ONE)
     }
 }
 
 impl Cuboid {
+    /// Create a new [`Cuboid`].
+    #[must_use]
+    pub fn new(size: Vec3) -> Self {
+        Self {
+            bottom_front_left: Vec3::new(size.x * -0.5, size.y * -0.5, size.z * -0.5),
+            bottom_front_right: Vec3::new(size.x * 0.5, size.y * -0.5, size.z * -0.5),
+            bottom_back_left: Vec3::new(size.x * -0.5, size.y * 0.5, size.z * -0.5),
+            bottom_back_right: Vec3::new(size.x * 0.5, size.y * 0.5, size.z * -0.5),
+            top_front_left: Vec3::new(size.x * -0.5, size.y * -0.5, size.z * 0.5),
+            top_front_right: Vec3::new(size.x * 0.5, size.y * -0.5, size.z * 0.5),
+            top_back_left: Vec3::new(size.x * -0.5, size.y * 0.5, size.z * 0.5),
+            top_back_right: Vec3::new(size.x * 0.5, size.y * 0.5, size.z * 0.5),
+        }
+    }
+
     /// Get the triangules as a [`TriangleList`].
     #[must_use]
     pub fn to_triangles(self) -> TriangleList {

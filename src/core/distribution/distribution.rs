@@ -16,10 +16,6 @@ pub struct Distribution {
     ///
     /// This is not applied to nested distributions.
     pub translate_to_ground: bool,
-    /// Should a [`Cuboid`] mesh be generated with the container size.
-    ///
-    /// This is not applied to nested distributions.
-    pub generate_container_mesh: bool,
 }
 
 #[derive(Debug)]
@@ -32,7 +28,7 @@ impl Distribution {
     pub fn distribute(
         &self,
         children: &Children,
-        query: &mut Query<(
+        distributables: &mut Query<(
             Entity,
             &Distributable,
             &mut Transform,
@@ -41,7 +37,7 @@ impl Distribution {
         )>,
     ) -> Container {
         let children = children.to_vec();
-        self.distribute_internal(&children, query)
+        self.distribute_internal(&children, distributables)
     }
 
     /// Distribute the [`Distributable`] children.
@@ -51,7 +47,7 @@ impl Distribution {
     fn distribute_internal(
         &self,
         children: &Vec<Entity>,
-        query: &mut Query<(
+        distributables: &mut Query<(
             Entity,
             &Distributable,
             &mut Transform,
@@ -59,11 +55,11 @@ impl Distribution {
             Option<&Children>,
         )>,
     ) -> Container {
-        let unsorted = process_children(children, query);
+        let unsorted = process_children(children, distributables);
         let (entities, items) = sort_and_split_children(unsorted);
         let container = self.flex.execute(items);
         for (entity, distributed) in entities.iter().zip(&container.items) {
-            let components = query.get_mut(*entity).expect("entity exists");
+            let components = distributables.get_mut(*entity).expect("entity exists");
             let mut transform = components.2;
             if let Some(spline) = &self.spline {
                 match get_transform_along_spline(spline, distributed, transform.scale) {
@@ -87,15 +83,17 @@ impl Distribution {
     ///
     /// A root [`Distribution`] is one that is not itself [`Distributable`].
     pub fn added_system(
-        mut meshes: ResMut<Assets<Mesh>>,
         mut roots: Query<
-            (
-                &Distribution,
-                &mut Transform,
-                Option<&mut Mesh3d>,
-                &Children,
-            ),
+            (Entity, &Distribution, &mut Transform, &Children),
             (Added<Distribution>, Without<Distributable>),
+        >,
+        mut containers: Query<
+            (&Parent, &mut Transform),
+            (
+                With<DiagnosticContainer>,
+                Without<Distributable>,
+                Without<Distribution>,
+            ),
         >,
         mut distributables: Query<(
             Entity,
@@ -105,15 +103,16 @@ impl Distribution {
             Option<&Children>,
         )>,
     ) {
-        for (distribution, mut transform, mesh, children) in roots.iter_mut() {
+        for (entity, distribution, mut transform, children) in roots.iter_mut() {
             let container = distribution.distribute(children, &mut distributables);
             if distribution.translate_to_ground {
                 translate_to_ground(&container, &mut transform);
             }
-            if distribution.generate_container_mesh {
-                if let Some(mut mesh) = mesh {
-                    replace_cuboid_mesh(&mut meshes, &container, &mut mesh);
+            for (parent, mut transform) in containers.iter_mut() {
+                if parent.get() != entity {
+                    continue;
                 }
+                *transform = transform.with_scale(container.size);
             }
         }
     }
@@ -197,16 +196,6 @@ fn translate_to_ground(container: &Container, transform: &mut Transform) {
     *transform = Transform::from_translation(translation)
         .with_rotation(transform.rotation)
         .with_scale(transform.scale);
-}
-
-/// Replace the [`Mesh3d`] with a [`Cuboid`] mesh scaled to the container size.
-fn replace_cuboid_mesh(
-    meshes: &mut ResMut<Assets<Mesh>>,
-    container: &Container,
-    mesh: &mut Mesh3d,
-) {
-    let cuboid = Cuboid::from_size(container.size);
-    *mesh = Mesh3d(meshes.add(cuboid));
 }
 
 fn get_transform_along_spline(

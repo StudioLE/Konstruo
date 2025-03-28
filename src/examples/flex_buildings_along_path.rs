@@ -52,7 +52,6 @@ fn path_added_system(
             spline: Some(spline),
             spline_offset: Some(SPLINE_OFFSET),
             translate_to_ground: true,
-            ..default()
         },);
         let distribution_entity = commands.spawn(bundle).set_parent(path_entity).id();
         for (distributable, factory) in get_items() {

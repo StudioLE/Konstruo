@@ -9,3 +9,7 @@ pub struct Container {
     /// Items
     pub items: Vec<Distributed>,
 }
+
+/// An entity with a transform scaled to the size of [`Container`].
+#[derive(Clone, Component, Debug, Default)]
+pub struct DiagnosticContainer;
