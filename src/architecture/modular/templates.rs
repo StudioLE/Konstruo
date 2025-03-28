@@ -1,5 +1,5 @@
 use crate::architecture::{
-    BuildingModule, BuildingModuleStackFactory, ModularBuildingFactory, Pitch,
+    BuildingModuleFactory, BuildingModuleStackFactory, ModularBuildingFactory, Pitch,
 };
 use crate::geometry::Vec6;
 
@@ -99,7 +99,7 @@ impl StackTemplates {
     fn _2b4p1s() -> BuildingModuleStackFactory {
         BuildingModuleStackFactory {
             modules: vec![
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 0,
                     width: 12.000,
                     length: 7.200,
@@ -107,7 +107,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 1,
                     width: 12.000,
                     length: 7.200,
@@ -128,7 +128,7 @@ impl StackTemplates {
     fn _2b4p1s_perp() -> BuildingModuleStackFactory {
         BuildingModuleStackFactory {
             modules: vec![
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 0,
                     width: 7.200,
                     length: 12.000,
@@ -136,7 +136,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 1,
                     width: 7.200,
                     length: 12.000,
@@ -157,7 +157,7 @@ impl StackTemplates {
     fn _3b6p2s() -> BuildingModuleStackFactory {
         BuildingModuleStackFactory {
             modules: vec![
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 0,
                     width: 10.200,
                     length: 6.000,
@@ -165,7 +165,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 1,
                     width: 10.200,
                     length: 6.000,
@@ -173,7 +173,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 2,
                     width: 10.200,
                     length: 6.000,
@@ -194,7 +194,7 @@ impl StackTemplates {
     fn _3b6p2s_perp() -> BuildingModuleStackFactory {
         BuildingModuleStackFactory {
             modules: vec![
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 0,
                     width: 6.000,
                     length: 10.200,
@@ -202,7 +202,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 1,
                     width: 6.000,
                     length: 10.200,
@@ -210,7 +210,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 2,
                     width: 6.000,
                     length: 10.200,
@@ -231,7 +231,7 @@ impl StackTemplates {
     fn _4b8p2s() -> BuildingModuleStackFactory {
         BuildingModuleStackFactory {
             modules: vec![
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 0,
                     width: 10.200,
                     length: 7.200,
@@ -239,7 +239,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 1,
                     width: 10.200,
                     length: 7.200,
@@ -247,7 +247,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 2,
                     width: 10.200,
                     length: 7.200,
@@ -268,7 +268,7 @@ impl StackTemplates {
     fn _4b8p2s_perp() -> BuildingModuleStackFactory {
         BuildingModuleStackFactory {
             modules: vec![
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 0,
                     width: 7.200,
                     length: 10.200,
@@ -276,7 +276,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 1,
                     width: 7.200,
                     length: 10.200,
@@ -284,7 +284,7 @@ impl StackTemplates {
                     margin: None,
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 2,
                     width: 7.200,
                     length: 10.200,
@@ -303,7 +303,7 @@ impl StackTemplates {
     fn _2g() -> BuildingModuleStackFactory {
         BuildingModuleStackFactory {
             modules: vec![
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 0,
                     width: 6.000,
                     length: 5.400,
@@ -311,7 +311,7 @@ impl StackTemplates {
                     margin: Some(Vec6::default().with_back(0.600)),
                     pitch: None,
                 },
-                BuildingModule {
+                BuildingModuleFactory {
                     level: 1,
                     width: 6.000,
                     length: 5.400,

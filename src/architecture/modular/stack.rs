@@ -2,14 +2,14 @@ use super::*;
 use crate::distribution::{Distributable, Distribution, FlexBuilder};
 use bevy::prelude::*;
 
-/// A vertical stack of [`BuildingModule`].
+/// A vertical stack of [`BuildingModuleFactory`].
 #[derive(Clone, Component, Debug)]
 #[require(InheritedVisibility, Transform)]
 pub struct BuildingModuleStack;
 
 /// A factory to create a [`BuildingModuleStack`].
 pub struct BuildingModuleStackFactory {
-    pub modules: Vec<BuildingModule>,
+    pub modules: Vec<BuildingModuleFactory>,
 }
 
 impl BuildingModuleStack {
@@ -31,7 +31,7 @@ impl BuildingModuleStack {
 }
 
 impl BuildingModuleStackFactory {
-    /// Spawn the hierarchy of [`BuildingModuleStack`] > [`BuildingModule`].
+    /// Spawn the hierarchy of [`BuildingModuleStack`] > [`BuildingModuleFactory`].
     pub(super) fn spawn(
         self,
         commands: &mut Commands,
