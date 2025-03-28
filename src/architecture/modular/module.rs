@@ -1,6 +1,7 @@
-use crate::architecture::{BuildingMaterials, BuildingMeshes, Level, Pitch};
+use crate::architecture::Pitch;
+use crate::architecture::*;
 use crate::distribution::Distributable;
-use crate::geometry::{Edge, Vec6};
+use crate::geometry::*;
 use bevy::prelude::*;
 
 /// A building module.
@@ -29,36 +30,57 @@ pub struct BuildingModuleFactory {
 
 impl BuildingModuleFactory {
     /// Create a bundle for [`BuildingModule`].
-    fn bundle(
+    fn bundle(&self, order: usize) -> (BuildingModule, Level, Distributable) {
+        let distributable = Distributable {
+            order,
+            size: Some(self.get_scale()),
+            margin: self.margin,
+        };
+        (BuildingModule, Level { level: self.level }, distributable)
+    }
+
+    /// Create a bundle for the solid geometry of [`BuildingModule`].
+    fn solid_bundle(
         &self,
         meshes: &Res<BuildingMeshes>,
         materials: &Res<BuildingMaterials>,
-        order: usize,
-    ) -> (
-        BuildingModule,
-        Level,
-        Transform,
-        Distributable,
-        Mesh3d,
-        MeshMaterial3d<StandardMaterial>,
-    ) {
-        let distributable = Distributable {
-            order,
-            size: Some(Vec3::new(self.width, self.length, self.height)),
-            margin: self.margin,
-        };
+    ) -> (Solid, Transform, Mesh3d, MeshMaterial3d<StandardMaterial>) {
         let mesh = match self.pitch {
             None => meshes.cuboid.clone(),
             Some(Pitch::LeftToRight) => meshes.pitch_left_right.clone(),
             Some(Pitch::FrontToBack) => meshes.pitch_front_back.clone(),
         };
         (
-            BuildingModule,
-            Level { level: self.level },
-            Transform::from_scale(Vec3::new(self.width, self.length, self.height)),
-            distributable,
+            Solid,
+            Transform::from_scale(self.get_scale()),
             Mesh3d(mesh),
             MeshMaterial3d(materials.face.clone()),
+        )
+    }
+
+    /// Create a bundle for the edge geometry of [`BuildingModule`].
+    fn edge_bundle(
+        &self,
+        meshes: &Res<BuildingMeshes>,
+        materials: &Res<BuildingMaterials>,
+    ) -> (
+        Edge,
+        Transform,
+        Mesh3d,
+        MeshMaterial3d<StandardMaterial>,
+        Visibility,
+    ) {
+        let mesh = match self.pitch {
+            None => meshes.cuboid_edges.clone(),
+            Some(Pitch::LeftToRight) => meshes.pitch_left_right_edges.clone(),
+            Some(Pitch::FrontToBack) => meshes.pitch_front_back_edges.clone(),
+        };
+        (
+            Edge,
+            Transform::from_scale(self.get_scale()),
+            Mesh3d(mesh),
+            MeshMaterial3d(materials.edges.clone()),
+            Visibility::Hidden,
         )
     }
 
@@ -71,20 +93,17 @@ impl BuildingModuleFactory {
         order: usize,
         parent: Entity,
     ) {
-        let bundle = self.bundle(meshes, materials, order);
+        let bundle = self.bundle(order);
         let entity = commands.spawn(bundle).set_parent(parent).id();
-        let edges = match self.pitch {
-            None => meshes.cuboid_edges.clone(),
-            Some(Pitch::LeftToRight) => meshes.pitch_left_right_edges.clone(),
-            Some(Pitch::FrontToBack) => meshes.pitch_front_back_edges.clone(),
-        };
-        let bundle = (
-            Mesh3d(edges),
-            MeshMaterial3d(materials.edges.clone()),
-            Edge,
-            Visibility::Hidden,
-        );
+        let bundle = self.solid_bundle(meshes, materials);
         commands.spawn(bundle).set_parent(entity);
+        let bundle = self.edge_bundle(meshes, materials);
+        commands.spawn(bundle).set_parent(entity);
+    }
+
+    /// Get the scale of [`BuildingModule`].
+    fn get_scale(&self) -> Vec3 {
+        Vec3::new(self.width, self.length, self.height)
     }
 }
 

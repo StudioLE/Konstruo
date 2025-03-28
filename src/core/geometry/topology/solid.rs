@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-/// A representation of the edges of an entity.
+/// A representation of solid geometry of an entity.
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
-pub struct Edge;
+pub struct Solid;
