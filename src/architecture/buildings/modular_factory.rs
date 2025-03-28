@@ -1,3 +1,4 @@
+use crate::architecture::Pitch;
 use crate::architecture::*;
 use crate::distribution::{Distributable, Distribution, FlexBuilder};
 use crate::geometry::Edge;
@@ -74,15 +75,15 @@ fn spawn_module(
         size: Some(Vec3::new(module.width, module.length, module.height)),
         margin: module.margin,
     };
-    let mesh = match module.roof {
+    let mesh = match module.pitch {
         None => meshes.cuboid.clone(),
-        Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right.clone(),
-        Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back.clone(),
+        Some(Pitch::LeftToRight) => meshes.pitch_left_right.clone(),
+        Some(Pitch::FrontToBack) => meshes.pitch_front_back.clone(),
     };
-    let edges = match module.roof {
+    let edges = match module.pitch {
         None => meshes.cuboid_edges.clone(),
-        Some(RoofStyle::PitchLeftToRight) => meshes.pitched_left_right_edges.clone(),
-        Some(RoofStyle::PitchFrontToBack) => meshes.pitched_front_back_edges.clone(),
+        Some(Pitch::LeftToRight) => meshes.pitch_left_right_edges.clone(),
+        Some(Pitch::FrontToBack) => meshes.pitch_front_back_edges.clone(),
     };
     let bundle = (
         Transform::from_scale(Vec3::new(module.width, module.length, module.height)),

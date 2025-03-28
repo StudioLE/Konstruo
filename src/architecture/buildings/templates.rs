@@ -1,4 +1,4 @@
-use crate::architecture::{BuildingModule, BuildingModuleStack, ModularBuildingFactory, RoofStyle};
+use crate::architecture::{BuildingModule, BuildingModuleStack, ModularBuildingFactory, Pitch};
 use crate::geometry::Vec6;
 
 const LEVEL_HEIGHT: f32 = 2.400;
@@ -103,7 +103,7 @@ impl StackTemplates {
                     length: 7.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 1,
@@ -111,7 +111,7 @@ impl StackTemplates {
                     length: 7.200,
                     height: ROOF_HEIGHT,
                     margin: None,
-                    roof: Some(RoofStyle::PitchFrontToBack),
+                    pitch: Some(Pitch::FrontToBack),
                 },
             ],
         }
@@ -132,7 +132,7 @@ impl StackTemplates {
                     length: 12.000,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 1,
@@ -140,7 +140,7 @@ impl StackTemplates {
                     length: 12.000,
                     height: ROOF_HEIGHT,
                     margin: None,
-                    roof: Some(RoofStyle::PitchLeftToRight),
+                    pitch: Some(Pitch::LeftToRight),
                 },
             ],
         }
@@ -161,7 +161,7 @@ impl StackTemplates {
                     length: 6.000,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 1,
@@ -169,7 +169,7 @@ impl StackTemplates {
                     length: 6.000,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 2,
@@ -177,7 +177,7 @@ impl StackTemplates {
                     length: 6.000,
                     height: ROOF_HEIGHT,
                     margin: None,
-                    roof: Some(RoofStyle::PitchFrontToBack),
+                    pitch: Some(Pitch::FrontToBack),
                 },
             ],
         }
@@ -198,7 +198,7 @@ impl StackTemplates {
                     length: 10.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 1,
@@ -206,7 +206,7 @@ impl StackTemplates {
                     length: 10.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 2,
@@ -214,7 +214,7 @@ impl StackTemplates {
                     length: 10.200,
                     height: ROOF_HEIGHT,
                     margin: None,
-                    roof: Some(RoofStyle::PitchLeftToRight),
+                    pitch: Some(Pitch::LeftToRight),
                 },
             ],
         }
@@ -235,7 +235,7 @@ impl StackTemplates {
                     length: 7.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 1,
@@ -243,7 +243,7 @@ impl StackTemplates {
                     length: 7.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 2,
@@ -251,7 +251,7 @@ impl StackTemplates {
                     length: 7.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: Some(RoofStyle::PitchFrontToBack),
+                    pitch: Some(Pitch::FrontToBack),
                 },
             ],
         }
@@ -272,7 +272,7 @@ impl StackTemplates {
                     length: 10.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 1,
@@ -280,7 +280,7 @@ impl StackTemplates {
                     length: 10.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 2,
@@ -288,7 +288,7 @@ impl StackTemplates {
                     length: 10.200,
                     height: LEVEL_HEIGHT,
                     margin: None,
-                    roof: Some(RoofStyle::PitchLeftToRight),
+                    pitch: Some(Pitch::LeftToRight),
                 },
             ],
         }
@@ -307,7 +307,7 @@ impl StackTemplates {
                     length: 5.400,
                     height: LEVEL_HEIGHT,
                     margin: Some(Vec6::default().with_back(0.600)),
-                    roof: None,
+                    pitch: None,
                 },
                 BuildingModule {
                     level: 1,
@@ -315,7 +315,7 @@ impl StackTemplates {
                     length: 5.400,
                     height: ROOF_HEIGHT,
                     margin: Some(Vec6::default().with_back(0.600)),
-                    roof: Some(RoofStyle::PitchFrontToBack),
+                    pitch: Some(Pitch::FrontToBack),
                 },
             ],
         }

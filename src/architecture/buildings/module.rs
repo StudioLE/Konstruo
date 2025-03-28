@@ -1,4 +1,4 @@
-use crate::architecture::RoofStyle;
+use crate::architecture::Pitch;
 use crate::geometry::Vec6;
 use bevy::prelude::*;
 
@@ -18,6 +18,6 @@ pub struct BuildingModule {
     pub height: f32,
     /// Margins or offsets
     pub margin: Option<Vec6>,
-    /// Is this a roof module?
-    pub roof: Option<RoofStyle>,
+    /// Is this a pitched module?
+    pub pitch: Option<Pitch>,
 }
