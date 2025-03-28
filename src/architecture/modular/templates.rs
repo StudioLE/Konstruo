@@ -1,6 +1,6 @@
 use crate::architecture::*;
-use crate::geometry::Vec6;
-use bevy::prelude::default;
+use crate::geometry::{Orientation, Vec6};
+use bevy::prelude::{default, JustifyContent};
 
 const ROOF_HEIGHT: f32 = 1.800;
 
@@ -214,6 +214,7 @@ impl StackTemplates {
     /// NIA: 127 sq m
     /// Orientation: Parallel
     #[must_use]
+    #[allow(clippy::too_many_lines)]
     fn _4b8p2s() -> BuildingModuleStackFactory {
         BuildingModuleStackFactory {
             modules: vec![
@@ -221,12 +222,100 @@ impl StackTemplates {
                     level: 0,
                     width: 10.200,
                     length: 7.200,
+                    openings: Some(vec![
+                        OpeningFactory {
+                            side: Orientation::Front,
+                            justify_content: JustifyContent::SpaceEvenly,
+                            openings: vec![
+                                OpeningInfo {
+                                    width: 1.200,
+                                    height: 1.500,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                                OpeningInfo {
+                                    width: 0.900,
+                                    height: 2.100,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                                OpeningInfo {
+                                    width: 1.200,
+                                    height: 1.500,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                            ],
+                        },
+                        OpeningFactory {
+                            side: Orientation::Back,
+                            justify_content: JustifyContent::SpaceEvenly,
+                            openings: vec![
+                                OpeningInfo {
+                                    width: 1.200,
+                                    height: 1.500,
+                                    margin: Some(Vec6::default().with_top(0.300).with_left(0.800)),
+                                },
+                                OpeningInfo {
+                                    width: 2.700,
+                                    height: 2.100,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                                OpeningInfo {
+                                    width: 1.200,
+                                    height: 1.500,
+                                    margin: Some(Vec6::default().with_top(0.300).with_right(0.800)),
+                                },
+                            ],
+                        },
+                    ]),
                     ..default()
                 },
                 BuildingModuleFactory {
                     level: 1,
                     width: 10.200,
                     length: 7.200,
+                    openings: Some(vec![
+                        OpeningFactory {
+                            side: Orientation::Front,
+                            justify_content: JustifyContent::SpaceEvenly,
+                            openings: vec![
+                                OpeningInfo {
+                                    width: 1.200,
+                                    height: 1.500,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                                OpeningInfo {
+                                    width: 0.600,
+                                    height: 1.000,
+                                    margin: Some(Vec6::new(0.150, 0.150, 0.0, 0.0, 0.0, 0.300)),
+                                },
+                                OpeningInfo {
+                                    width: 1.200,
+                                    height: 1.500,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                            ],
+                        },
+                        OpeningFactory {
+                            side: Orientation::Back,
+                            justify_content: JustifyContent::SpaceEvenly,
+                            openings: vec![
+                                OpeningInfo {
+                                    width: 1.200,
+                                    height: 1.500,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                                OpeningInfo {
+                                    width: 0.600,
+                                    height: 1.000,
+                                    margin: Some(Vec6::new(0.150, 0.150, 0.0, 0.0, 0.0, 0.300)),
+                                },
+                                OpeningInfo {
+                                    width: 1.200,
+                                    height: 1.500,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                            ],
+                        },
+                    ]),
                     ..default()
                 },
                 BuildingModuleFactory {
@@ -284,6 +373,33 @@ impl StackTemplates {
                     width: 6.000,
                     length: 5.400,
                     margin: Some(Vec6::default().with_back(0.600)),
+                    openings: Some(vec![
+                        OpeningFactory {
+                            side: Orientation::Front,
+                            justify_content: JustifyContent::Center,
+                            openings: vec![OpeningInfo {
+                                width: 4.800,
+                                height: 2.100,
+                                margin: Some(Vec6::default().with_top(0.300)),
+                            }],
+                        },
+                        OpeningFactory {
+                            side: Orientation::Back,
+                            justify_content: JustifyContent::SpaceEvenly,
+                            openings: vec![
+                                OpeningInfo {
+                                    width: 0.900,
+                                    height: 2.100,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                                OpeningInfo {
+                                    width: 1.800,
+                                    height: 1.200,
+                                    margin: Some(Vec6::default().with_top(0.300)),
+                                },
+                            ],
+                        },
+                    ]),
                     ..default()
                 },
                 BuildingModuleFactory {

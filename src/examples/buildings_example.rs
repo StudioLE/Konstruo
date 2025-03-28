@@ -15,7 +15,7 @@ impl BuildingsExample {
         meshes: Res<BuildingMeshes>,
         materials: Res<BuildingMaterials>,
     ) {
-        let building = BuildingTemplates::_4b8p2s2g_perp();
+        let building = BuildingTemplates::_4b8p2s2g();
         building.spawn(&mut commands, &meshes, &materials);
     }
 }

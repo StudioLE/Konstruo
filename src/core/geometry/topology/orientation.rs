@@ -1,3 +1,4 @@
+use crate::mathematics::{HALF_PI, PI};
 use bevy::math::Vec3;
 use Orientation::*;
 
@@ -82,5 +83,16 @@ impl Orientation {
         orientation
             .iter()
             .fold(Vec3::ZERO, |acc, orientation| acc + orientation.to_vector())
+    }
+
+    /// Get the z rotation of the orientation.
+    #[must_use]
+    pub fn get_z_rotation(&self) -> f32 {
+        match self {
+            Left => -HALF_PI,
+            Right => HALF_PI,
+            Back => PI,
+            _ => 0.0,
+        }
     }
 }

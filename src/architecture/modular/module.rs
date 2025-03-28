@@ -27,6 +27,8 @@ pub struct BuildingModuleFactory {
     pub margin: Option<Vec6>,
     /// Is this a pitched module?
     pub pitch: Option<Pitch>,
+    /// Is this a pitched module?
+    pub openings: Option<Vec<OpeningFactory>>,
 }
 
 impl Default for BuildingModuleFactory {
@@ -38,6 +40,7 @@ impl Default for BuildingModuleFactory {
             height: 2.400,
             margin: None,
             pitch: None,
+            openings: None,
         }
     }
 }
@@ -58,7 +61,13 @@ impl BuildingModuleFactory {
         &self,
         meshes: &Res<BuildingMeshes>,
         materials: &Res<BuildingMaterials>,
-    ) -> (Solid, Transform, Mesh3d, MeshMaterial3d<StandardMaterial>) {
+    ) -> (
+        Solid,
+        Transform,
+        Mesh3d,
+        MeshMaterial3d<StandardMaterial>,
+        Visibility,
+    ) {
         let mesh = match self.pitch {
             None => meshes.cuboid.clone(),
             Some(Pitch::LeftToRight) => meshes.pitch_left_right.clone(),
@@ -69,6 +78,7 @@ impl BuildingModuleFactory {
             Transform::from_scale(self.get_scale()),
             Mesh3d(mesh),
             MeshMaterial3d(materials.face.clone()),
+            Visibility::Visible,
         )
     }
 
@@ -94,7 +104,7 @@ impl BuildingModuleFactory {
             Transform::from_scale(self.get_scale()),
             Mesh3d(mesh),
             MeshMaterial3d(materials.edges.clone()),
-            Visibility::Hidden,
+            Visibility::Visible,
         )
     }
 
@@ -108,11 +118,14 @@ impl BuildingModuleFactory {
         parent: Entity,
     ) {
         let bundle = self.bundle(order);
-        let entity = commands.spawn(bundle).set_parent(parent).id();
+        let module = commands.spawn(bundle).set_parent(parent).id();
         let bundle = self.solid_bundle(meshes, materials);
-        commands.spawn(bundle).set_parent(entity);
+        commands.spawn(bundle).set_parent(module);
         let bundle = self.edge_bundle(meshes, materials);
-        commands.spawn(bundle).set_parent(entity);
+        commands.spawn(bundle).set_parent(module);
+        for openings in self.openings.iter().flatten() {
+            openings.spawn(commands, meshes, materials, self.get_scale(), module);
+        }
     }
 
     /// Get the scale of [`BuildingModule`].
