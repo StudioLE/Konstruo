@@ -103,7 +103,9 @@ impl ExampleHelpers {
         })
     }
 
-    fn get_item_material(materials: &mut ResMut<Assets<StandardMaterial>>) -> Handle<StandardMaterial> {
+    fn get_item_material(
+        materials: &mut ResMut<Assets<StandardMaterial>>,
+    ) -> Handle<StandardMaterial> {
         materials.add(StandardMaterial {
             base_color: tailwind::RED_600.with_alpha(0.5).into(),
             perceptual_roughness: 1.0,
@@ -123,5 +125,4 @@ impl ExampleHelpers {
             ..default()
         })
     }
-
 }
