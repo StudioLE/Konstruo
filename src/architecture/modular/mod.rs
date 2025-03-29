@@ -12,4 +12,5 @@ mod meshes;
 mod module;
 mod plugin;
 mod stack;
+#[allow(clippy::too_many_lines)]
 mod templates;
