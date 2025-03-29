@@ -21,14 +21,14 @@ impl ExampleHelpers {
         let bundle = (
             DiagnosticContainer,
             Transform::default(),
-            Mesh3d(meshes.add(Cuboid::default().to_triangles().to_mesh())),
+            Mesh3d(meshes.add(Cuboid::default().get_triangles().to_mesh())),
             MeshMaterial3d(Self::get_container_material(materials)),
         );
         commands.spawn(bundle).set_parent(distribution_entity);
         let bundle = (
             DiagnosticContainer,
             Transform::default(),
-            Mesh3d(meshes.add(Cuboid::default().to_edges().to_mesh())),
+            Mesh3d(meshes.add(Cuboid::default().get_edges().to_mesh())),
             MeshMaterial3d(Self::get_container_edge_material(materials)),
         );
         commands.spawn(bundle).set_parent(distribution_entity);
@@ -65,15 +65,15 @@ impl ExampleHelpers {
         distribution_entity: Entity,
     ) -> Entity {
         let size = distributable.size.expect("size should be set");
-        let cuboid = Cuboid::new(size);
+        let cuboid = Cuboid::new(Transform::from_scale(size));
         let bundle = (
             distributable,
-            Mesh3d(meshes.add(cuboid.clone().to_triangles().to_mesh())),
+            Mesh3d(meshes.add(cuboid.clone().get_triangles().to_mesh())),
             MeshMaterial3d(material),
         );
         let item = commands.spawn(bundle).set_parent(distribution_entity).id();
         let bundle = (
-            Mesh3d(meshes.add(cuboid.to_edges().to_mesh())),
+            Mesh3d(meshes.add(cuboid.get_edges().to_mesh())),
             MeshMaterial3d(edge_material),
         );
         commands.spawn(bundle).set_parent(item);

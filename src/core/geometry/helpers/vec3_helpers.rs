@@ -16,6 +16,11 @@ impl Vec3Helpers {
         a.abs_diff_eq(b, EPSILON)
     }
 
+    pub fn assert_almost_equal_to(expected: Vec3, actual: Vec3) {
+        let result = Vec3Helpers::is_almost_equal_to(expected, actual);
+        assert!(result, "Expected: {expected}, Actual: {actual}");
+    }
+
     #[must_use]
     pub fn fix_floating_vectors(vector: Vec3) -> Vec3 {
         let x = fix_floating(vector.x);
@@ -52,5 +57,13 @@ impl Vec3Helpers {
         } else {
             angle
         }
+    }
+
+    #[must_use]
+    pub fn invert_0_and_1(vector: Vec3) -> Vec3 {
+        let x = if vector.x == 0.0 { 1.0 } else { 0.0 };
+        let y = if vector.y == 0.0 { 1.0 } else { 0.0 };
+        let z = if vector.z == 0.0 { 1.0 } else { 0.0 };
+        Vec3::new(x, y, z)
     }
 }

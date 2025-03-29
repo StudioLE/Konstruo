@@ -131,11 +131,6 @@ mod tests {
     use crate::geometry::Vec3Helpers;
     use crate::mathematics::constants::*;
 
-    fn assert_almost(expected: Vec3, actual: Vec3) {
-        let result = Vec3Helpers::is_almost_equal_to(expected, actual);
-        assert!(result, "Expected: {expected}, Actual: {actual}");
-    }
-
     #[allow(clippy::absolute_paths)]
     fn assert_f32_almost(expected: f32, actual: f32) {
         let result = (expected - actual).abs() < 1e-3;
@@ -146,44 +141,44 @@ mod tests {
     fn _spherical_to_cartesian__polar() {
         let actual = SphericalCoordinates::new(1.0, -QUARTER_PI, QUARTER_PI).to_cartesian();
         let expected = Vec3::new(-0.5, -0.5, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, 0.0, QUARTER_PI).to_cartesian();
         let expected = Vec3::new(0.0, 0.0, 1.0);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, QUARTER_PI, QUARTER_PI).to_cartesian();
         let expected = Vec3::new(0.5, 0.5, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, HALF_PI, QUARTER_PI).to_cartesian();
         let expected = Vec3::new(ONE_OVER_ROOT_2, ONE_OVER_ROOT_2, 0.0);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, PI, QUARTER_PI).to_cartesian();
         let expected = Vec3::new(0.0, 0.0, -1.0);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
     }
 
     #[test]
     fn _spherical_to_cartesian__azimuth() {
         let actual = SphericalCoordinates::new(1.0, QUARTER_PI, -QUARTER_PI).to_cartesian();
         let expected = Vec3::new(0.5, -0.5, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, QUARTER_PI, 0.0).to_cartesian();
         let expected = Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, QUARTER_PI, QUARTER_PI).to_cartesian();
         let expected = Vec3::new(0.5, 0.5, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, QUARTER_PI, HALF_PI).to_cartesian();
         let expected = Vec3::new(0.0, ONE_OVER_ROOT_2, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, QUARTER_PI, PI).to_cartesian();
         let expected = Vec3::new(-ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, QUARTER_PI, PI + HALF_PI).to_cartesian();
         let expected = Vec3::new(0.0, -ONE_OVER_ROOT_2, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
         let actual = SphericalCoordinates::new(1.0, QUARTER_PI, TWO_PI).to_cartesian();
         let expected = Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2);
-        assert_almost(expected, actual);
+        Vec3Helpers::assert_almost_equal_to(expected, actual);
     }
 
     #[test]
@@ -192,9 +187,9 @@ mod tests {
         let cartesian = Vec3::new(0.0, ONE_OVER_ROOT_2, ONE_OVER_ROOT_2);
         let spherical = SphericalCoordinates::from_cartesian(cartesian);
         let expected = SphericalCoordinates::new(1.0, QUARTER_PI, HALF_PI);
-        assert_almost(expected.vector, spherical.vector);
+        Vec3Helpers::assert_almost_equal_to(expected.vector, spherical.vector);
         let round_trip = spherical.to_cartesian();
-        assert_almost(cartesian, round_trip);
+        Vec3Helpers::assert_almost_equal_to(cartesian, round_trip);
         let angle = Vec3Helpers::angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
         assert_f32_almost(HALF_PI, angle);
 
@@ -202,9 +197,9 @@ mod tests {
         let cartesian = Vec3::new(ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2);
         let spherical = SphericalCoordinates::from_cartesian(cartesian);
         let expected = SphericalCoordinates::new(1.0, QUARTER_PI, 0.0);
-        assert_almost(expected.vector, spherical.vector);
+        Vec3Helpers::assert_almost_equal_to(expected.vector, spherical.vector);
         let round_trip = spherical.to_cartesian();
-        assert_almost(cartesian, round_trip);
+        Vec3Helpers::assert_almost_equal_to(cartesian, round_trip);
         let angle = Vec3Helpers::angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
         assert_f32_almost(0.0, angle);
 
@@ -212,9 +207,9 @@ mod tests {
         let cartesian = Vec3::new(0.0, -ONE_OVER_ROOT_2, ONE_OVER_ROOT_2);
         let spherical = SphericalCoordinates::from_cartesian(cartesian);
         let expected = SphericalCoordinates::new(1.0, QUARTER_PI, -HALF_PI);
-        assert_almost(expected.vector, spherical.vector);
+        Vec3Helpers::assert_almost_equal_to(expected.vector, spherical.vector);
         let round_trip = spherical.to_cartesian();
-        assert_almost(cartesian, round_trip);
+        Vec3Helpers::assert_almost_equal_to(cartesian, round_trip);
         let angle = Vec3Helpers::angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
         assert_f32_almost(-HALF_PI, angle);
 
@@ -222,9 +217,9 @@ mod tests {
         let cartesian = Vec3::new(-ONE_OVER_ROOT_2, 0.0, ONE_OVER_ROOT_2);
         let spherical = SphericalCoordinates::from_cartesian(cartesian);
         let expected = SphericalCoordinates::new(1.0, QUARTER_PI, PI);
-        assert_almost(expected.vector, spherical.vector);
+        Vec3Helpers::assert_almost_equal_to(expected.vector, spherical.vector);
         let round_trip = spherical.to_cartesian();
-        assert_almost(cartesian, round_trip);
+        Vec3Helpers::assert_almost_equal_to(cartesian, round_trip);
         let angle = Vec3Helpers::angle_between_on_plane(Vec3::X, cartesian, Vec3::Z);
         assert_f32_almost(PI, angle);
     }

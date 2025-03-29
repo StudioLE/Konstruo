@@ -38,4 +38,13 @@ impl Triangle {
         let normal = u.cross(v);
         normal.normalize()
     }
+
+    /// Get the normal vector of the [`Triangle`].
+    #[must_use]
+    pub fn from_rectangle(rectangle: [Vec3; 4]) -> [Triangle; 2] {
+        [
+            Triangle::new([rectangle[0], rectangle[1], rectangle[2]]),
+            Triangle::new([rectangle[0], rectangle[2], rectangle[3]]),
+        ]
+    }
 }

@@ -27,11 +27,11 @@ impl BuildingMeshes {
         let pitched_left_right = TriangularPrism::default().with_transform(
             Transform::from_rotation(Quat::from_axis_angle(Vec3::Z, HALF_PI)),
         );
-        let cuboid_edges = cuboid.clone().to_edges();
+        let cuboid_edges = cuboid.clone().get_edges();
         let pitched_front_back_edges = pitched_front_back.clone().to_edges();
         let pitched_left_right_edges = pitched_left_right.clone().to_edges();
         commands.insert_resource(BuildingMeshes {
-            cuboid: meshes.add(cuboid.to_triangles().to_mesh()),
+            cuboid: meshes.add(cuboid.get_triangles().to_mesh()),
             pitch_front_back: meshes.add(pitched_front_back.to_triangles().to_mesh()),
             pitch_left_right: meshes.add(pitched_left_right.to_triangles().to_mesh()),
             cuboid_edges: meshes.add(cuboid_edges.to_mesh()),
