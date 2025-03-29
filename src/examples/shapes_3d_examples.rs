@@ -1,6 +1,7 @@
 use crate::examples::ExampleMaterials;
 use crate::geometry::{Cuboid, Edge, Solid};
 use bevy::prelude::*;
+use crate::mathematics::QUARTER_PI;
 
 pub struct Shapes3DExample;
 
@@ -17,7 +18,8 @@ impl Shapes3DExample {
         mut materials: ResMut<Assets<StandardMaterial>>,
     ) {
         let transform = Transform::from_translation(Vec3::new(3.0, 2.0, 1.0))
-            .with_scale(Vec3::new(3.0, 2.0, 1.0));
+            .with_scale(Vec3::new(3.0, 2.0, 1.0))
+            .with_rotation(Quat::from_axis_angle(Vec3::Z, QUARTER_PI));
         let cuboid = Cuboid::new(transform);
         let bundle = (
             Solid,
