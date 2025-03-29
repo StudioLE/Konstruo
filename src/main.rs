@@ -36,5 +36,6 @@ fn main() {
         // .add_plugins(FlexWrappingExample)
         .add_plugins(PathExample)
         // .add_plugins(Shapes3DExample)
+        // .add_plugins(SubdivisionExample)
         .run();
 }

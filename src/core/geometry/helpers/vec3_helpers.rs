@@ -74,4 +74,33 @@ impl Vec3Helpers {
         let count = vectors.len() as f32;
         total / count
     }
+
+    #[must_use]
+    #[allow(clippy::indexing_slicing)]
+    pub fn is_ccw(vertices: &[Vec3], normal: Vec3) -> Option<bool> {
+        if vertices.len() < 3 {
+            return None;
+        }
+        let edge1 = vertices[1] - vertices[0];
+        let edge2 = vertices[2] - vertices[0];
+        let cross = edge1.cross(edge2);
+        let dot = cross.dot(normal);
+        Some(dot > 0.0)
+    }
+
+    #[must_use]
+    pub fn project_point_to_line(point: Vec3, line: [Vec3; 2]) -> Vec3 {
+        let vector = line[1] - line[0];
+        Vec3Helpers::project_point_to_line_internal(point, line[0], vector.normalize())
+    }
+
+    #[must_use]
+    fn project_point_to_line_internal(point: Vec3, point_on_line: Vec3, direction: Vec3) -> Vec3 {
+        // Vector from line point to the point being projected
+        let vector = point - point_on_line;
+        // Projection of vector on line
+        let projection = direction * vector.dot(direction);
+        // Add projection to the line's starting point
+        point_on_line + projection
+    }
 }

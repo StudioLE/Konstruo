@@ -51,4 +51,25 @@ impl ExampleMaterials {
             ..default()
         }
     }
+
+    #[allow(dead_code)]
+    pub(super) fn yellow_face() -> StandardMaterial {
+        StandardMaterial {
+            base_color: tailwind::YELLOW_500.with_alpha(0.5).into(),
+            perceptual_roughness: 1.0,
+            alpha_mode: AlphaMode::Blend,
+            unlit: true,
+            ..default()
+        }
+    }
+
+    #[allow(dead_code)]
+    pub(super) fn yellow_edge() -> StandardMaterial {
+        StandardMaterial {
+            base_color: tailwind::YELLOW_500.into(),
+            perceptual_roughness: 1.0,
+            unlit: true,
+            ..default()
+        }
+    }
 }
