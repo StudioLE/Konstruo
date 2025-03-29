@@ -35,5 +35,6 @@ fn main() {
         // .add_plugins(FlexVerticallyExample)
         // .add_plugins(FlexWrappingExample)
         .add_plugins(PathExample)
+        // .add_plugins(Shapes3DExample)
         .run();
 }

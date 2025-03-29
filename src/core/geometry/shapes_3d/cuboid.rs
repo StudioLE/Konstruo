@@ -60,7 +60,7 @@ impl Cuboid {
 
     /// Get the triangles as a [`TriangleList`].
     #[must_use]
-    pub fn get_triangles(self) -> TriangleList {
+    pub fn get_triangles(&self) -> TriangleList {
         let triangles = Orientation::get_all()
             .map(|face| self.get_face(face))
             .map(Triangle::from_rectangle)
