@@ -66,4 +66,12 @@ impl Vec3Helpers {
         let z = if vector.z == 0.0 { 1.0 } else { 0.0 };
         Vec3::new(x, y, z)
     }
+
+    #[must_use]
+    #[allow(clippy::as_conversions, clippy::cast_precision_loss)]
+    pub fn mean(vectors: &[Vec3]) -> Vec3 {
+        let total = vectors.iter().sum::<Vec3>();
+        let count = vectors.len() as f32;
+        total / count
+    }
 }
