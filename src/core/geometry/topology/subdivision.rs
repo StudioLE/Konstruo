@@ -11,17 +11,37 @@ pub struct Subdivision {
     pub cross_axis: Vec3,
 }
 
+#[derive(Debug)]
+pub enum SubdivisionError {
+    BoundWinding,
+    GetBoundTop,
+    GetBoundBottom,
+    OpeningWinding(usize),
+    GetOpeningLeft(usize),
+    GetOpeningRight(usize),
+}
+
 impl Subdivision {
     /// Divide into multiple rectangles.
-    #[must_use]
-    pub fn execute(self) -> Option<Vec<[Vec3; 4]>> {
-        let mut top_bound = get_edge_by_direction(&get_edges(self.bounds), self.main_axis.neg())?;
-        let mut bottom_bound = get_edge_by_direction(&get_edges(self.bounds), self.main_axis)?;
+    pub fn execute(self) -> Result<Vec<[Vec3; 4]>, SubdivisionError> {
+        let normal = self.main_axis.cross(self.cross_axis).normalize();
+        if !Vec3Helpers::is_ccw(&self.bounds, normal).expect("bounds should be valid") {
+            return Err(SubdivisionError::BoundWinding);
+        }
+        let mut top_bound = get_edge_by_direction(&get_edges(self.bounds), self.main_axis.neg())
+            .ok_or(SubdivisionError::GetBoundTop)?;
+        let mut bottom_bound = get_edge_by_direction(&get_edges(self.bounds), self.main_axis)
+            .ok_or(SubdivisionError::GetBoundTop)?;
         let mut rectangles = Vec::new();
-        for opening in self.openings {
+        for (index, opening) in self.openings.into_iter().enumerate() {
+            if Vec3Helpers::is_ccw(&opening, normal).expect("opening should be valid") {
+                return Err(SubdivisionError::OpeningWinding(index));
+            }
             let edges = get_edges(opening);
-            let left = get_edge_by_direction(&edges, self.cross_axis)?;
-            let right = get_edge_by_direction(&edges, self.cross_axis.neg())?;
+            let left = get_edge_by_direction(&edges, self.cross_axis)
+                .ok_or(SubdivisionError::GetOpeningLeft(index))?;
+            let right = get_edge_by_direction(&edges, self.cross_axis.neg())
+                .ok_or(SubdivisionError::GetOpeningRight(index))?;
             // Create rectangle to the left of the opening
             let full = [
                 bottom_bound[0],
@@ -54,7 +74,7 @@ impl Subdivision {
         // Create last rectangle
         let last = [bottom_bound[0], bottom_bound[1], top_bound[0], top_bound[1]];
         push_if_not_zero(&mut rectangles, last);
-        Some(rectangles)
+        Ok(rectangles)
     }
 
     pub(crate) fn example() -> Self {
@@ -112,7 +132,8 @@ fn push_if_not_zero(rectangles: &mut Vec<[Vec3; 4]>, rectangle: [Vec3; 4]) {
 
 #[allow(clippy::indexing_slicing)]
 fn get_edges(rectangle: [Vec3; 4]) -> Vec<[Vec3; 2]> {
-    rectangle.windows(2).map(|x| [x[0], x[1]]).collect()
+    let polygon = Polygon::from_open(rectangle.to_vec()).expect("polygon should be valid");
+    polygon.get_edges()
 }
 
 #[allow(clippy::indexing_slicing)]
@@ -140,7 +161,7 @@ mod tests {
         let result = subdivision.execute();
 
         // Assert
-        assert!(result.is_some());
+        assert!(result.is_ok());
         assert_eq!(result.expect("should be some").len(), 12);
     }
 }

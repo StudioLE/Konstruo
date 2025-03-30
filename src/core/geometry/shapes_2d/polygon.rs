@@ -90,4 +90,11 @@ impl Polygon {
             .length()
             / 2.0
     }
+
+    /// Get the individual edge lines of the [`Polygon`].
+    #[must_use]
+    #[allow(clippy::indexing_slicing)]
+    pub fn get_edges(self) -> Vec<[Vec3; 2]> {
+        self.vertices.windows(2).map(|x| [x[0], x[1]]).collect()
+    }
 }
