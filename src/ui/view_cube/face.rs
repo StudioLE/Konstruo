@@ -18,7 +18,7 @@ impl ViewCubeFace {
         materials: Res<ViewCubeMaterials>,
     ) {
         for orientation in Orientation::get_all() {
-            let material = match_material(&materials, &orientation);
+            let material = match_material(&materials, orientation);
             let vector = orientation.to_facing_in();
             let mut transform = Transform::from_translation(vector * 0.5);
             transform.look_at(Vec3::ZERO, vector.normalize());
@@ -40,7 +40,7 @@ impl ViewCubeFace {
 
 fn match_material(
     materials: &Res<ViewCubeMaterials>,
-    orientation: &Orientation,
+    orientation: Orientation,
 ) -> Handle<StandardMaterial> {
     match orientation {
         Front | Back => materials.face_y.clone(),
@@ -70,7 +70,7 @@ fn on_pointer_out(
         error!("Failed to get material of ViewCubeFace");
         return;
     };
-    *material = MeshMaterial3d(match_material(&materials, &face.orientation));
+    *material = MeshMaterial3d(match_material(&materials, face.orientation));
 }
 
 fn on_pointer_click(
@@ -87,5 +87,5 @@ fn on_pointer_click(
         return;
     };
     debug!("Clicked ViewCubeFace: {:?}", face.orientation);
-    orbit.orientate(&[face.orientation.clone()]);
+    orbit.orientate(&[face.orientation]);
 }

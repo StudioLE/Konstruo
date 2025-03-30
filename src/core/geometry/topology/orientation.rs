@@ -1,7 +1,8 @@
-use std::ops::Neg;
 use crate::geometry::Vec3Helpers;
 use crate::mathematics::{HALF_PI, PI};
 use bevy::math::Vec3;
+use std::fmt::{Display, Formatter};
+use std::ops::Neg;
 use Orientation::*;
 
 /// Orientation terminology according to the six sides of a cuboid.
@@ -11,7 +12,7 @@ use Orientation::*;
 /// An edge is defined by two orientations.
 ///
 /// A corner is defined by three orientations.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Orientation {
     Front,
     Back,
@@ -21,7 +22,20 @@ pub enum Orientation {
     Bottom,
 }
 
-impl Orientation {}
+impl Display for Orientation {
+    #[allow(clippy::absolute_paths)]
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            Front => "Front",
+            Back => "Back",
+            Left => "Left",
+            Right => "Right",
+            Top => "Top",
+            Bottom => "Bottom",
+        };
+        formatter.write_str(name)
+    }
+}
 
 impl Orientation {
     /// Get all [`Orientation`]
