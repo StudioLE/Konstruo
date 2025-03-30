@@ -146,7 +146,7 @@ impl BuildingModuleFactory {
             Transform::from_scale(self.get_scale()),
             Mesh3d(mesh),
             MeshMaterial3d(materials.edges.clone()),
-            Visibility::Visible,
+            Visibility::Hidden,
         )
     }
 
@@ -196,6 +196,7 @@ impl BuildingModuleFactory {
                     Edge,
                     Mesh3d(meshes.add(opening.get_edges().to_mesh())),
                     MeshMaterial3d(materials.edges.clone()),
+                    Visibility::Hidden,
                 );
                 commands.spawn(bundle).set_parent(module);
                 let mesh = TriangleList::from_rectangles(vec![
@@ -208,7 +209,7 @@ impl BuildingModuleFactory {
                 .to_mesh();
                 let bundle = (
                     Opening,
-                    Edge,
+                    Solid,
                     Mesh3d(meshes.add(mesh)),
                     MeshMaterial3d(materials.face.clone()),
                 );

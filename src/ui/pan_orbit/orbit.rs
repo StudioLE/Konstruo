@@ -5,7 +5,7 @@ use crate::geometry::Orientation::{Bottom, Top};
 use crate::kinematics::Translation;
 use crate::mathematics::constants::*;
 use crate::mathematics::SphericalCoordinates;
-use crate::CAMERA_MAX;
+use crate::{CAMERA_MAX, CAMERA_MIN};
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
@@ -34,7 +34,7 @@ impl Default for Orbit {
             translation: Translation {
                 current: Vec3::new(DEFAULT_RADIUS, 0.0, -HALF_PI),
                 clamp: ClampVec3 {
-                    x: ClampFloat::Fixed(10.0, CAMERA_MAX),
+                    x: ClampFloat::Fixed(CAMERA_MIN, CAMERA_MAX),
                     y: ClampFloat::Fixed(0.0, PI),
                     z: ClampFloat::Wrapped(TWO_PI),
                 },

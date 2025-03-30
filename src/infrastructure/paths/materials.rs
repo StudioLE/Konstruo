@@ -94,19 +94,19 @@ impl PathMaterials {
             }),
             carriageway: materials.add(StandardMaterial {
                 base_color: tailwind::STONE_400.into(),
-                perceptual_roughness: 1.0,
+                perceptual_roughness: 0.8,
                 depth_bias: -1.0,
                 ..default()
             }),
             footway: materials.add(StandardMaterial {
                 base_color: tailwind::STONE_300.into(),
-                perceptual_roughness: 1.0,
+                perceptual_roughness: 0.8,
                 depth_bias: -1.0,
                 ..default()
             }),
             verge: materials.add(StandardMaterial {
                 base_color: tailwind::LIME_900.into(),
-                perceptual_roughness: 1.0,
+                perceptual_roughness: 0.8,
                 depth_bias: -1.0,
                 ..default()
             }),

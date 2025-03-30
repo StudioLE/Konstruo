@@ -19,7 +19,7 @@ impl BuildingMaterials {
         commands.insert_resource(BuildingMaterials {
             face: materials.add(StandardMaterial {
                 base_color: tailwind::STONE_300.into(),
-                perceptual_roughness: 1.0,
+                perceptual_roughness: 0.8,
                 ..Default::default()
             }),
             edges: materials.add(StandardMaterial {

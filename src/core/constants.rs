@@ -1,4 +1,7 @@
 /// Extent of the camera pan and orbit radius.
+pub const CAMERA_MIN: f32 = 10.0;
+
+/// Extent of the camera pan and orbit radius.
 pub const CAMERA_MAX: f32 = 2_500.0;
 
 /// Extent of the grid.
