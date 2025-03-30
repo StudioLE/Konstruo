@@ -1,5 +1,5 @@
 use crate::architecture::{BuildingMaterials, BuildingMeshes};
-use crate::distribution::{Distributable, Distribution, FlexBuilder};
+use crate::distribution::{Container, Distributable, Distribution, FlexBuilder};
 use crate::geometry::{Orientation, Vec6};
 use bevy::prelude::*;
 use Orientation::*;
@@ -81,5 +81,31 @@ impl OpeningFactory {
             );
             commands.spawn(bundle).set_parent(distribution);
         }
+    }
+
+    /// Distribute the openings.
+    #[must_use]
+    pub fn distribute(&self, bounds: Vec3, right: Vec3, up: Vec3) -> Container {
+        let distributables = self
+            .openings
+            .iter()
+            .enumerate()
+            .map(|(order, opening)| {
+                let scale = Vec3::new(opening.width, DEPTH, opening.height);
+                Distributable {
+                    order,
+                    size: Some(scale),
+                    margin: opening.margin,
+                }
+            })
+            .collect();
+        let flex = FlexBuilder::new()
+            .with_axis(right, up)
+            .with_bounds(bounds)
+            .with_justify_content(self.justify_content)
+            .with_align_items_cross(AlignItems::End)
+            .with_align_items_normal(AlignItems::End)
+            .build();
+        flex.execute(distributables)
     }
 }

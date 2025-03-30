@@ -4,6 +4,7 @@ use crate::distribution::Distributable;
 use crate::geometry::Cuboid;
 use crate::geometry::*;
 use bevy::prelude::*;
+use Orientation::*;
 
 /// A building module.
 #[derive(Clone, Component, Debug, Default)]
@@ -59,8 +60,7 @@ impl BuildingModuleFactory {
 
     /// Create a bundle for the cuboid solid geometry of [`BuildingModule`] with subtracted openings.
     fn cuboid_solid_bundle(
-        &self,
-        meshes: &mut ResMut<Assets<Mesh>>,
+        mesh: Handle<Mesh>,
         materials: &Res<BuildingMaterials>,
     ) -> (
         Solid,
@@ -69,7 +69,6 @@ impl BuildingModuleFactory {
         MeshMaterial3d<StandardMaterial>,
         Visibility,
     ) {
-        let mesh = meshes.add(self.create_cuboid_with_openings().to_mesh());
         (
             Solid,
             Transform::default(),
@@ -105,14 +104,24 @@ impl BuildingModuleFactory {
         )
     }
 
-    fn create_cuboid_with_openings(&self) -> TriangleList {
-        let cuboid = Cuboid::new(Transform::from_scale(self.get_scale()));
-        let mut triangles = Vec::new();
-        for orientation in Orientation::get_all() {
-            let face = cuboid.get_face(orientation);
-            triangles.append(&mut Triangle::from_rectangle(face).to_vec());
-        }
-        TriangleList::new(triangles)
+    fn distribute_openings(&self, side: Orientation) -> Option<Vec<Cuboid>> {
+        let (right, up, _back) = side.to_elevation_axis();
+        // TODO: This will ignore duplicate orientations
+        let factories = self.openings.as_ref()?;
+        let factory = factories.iter().find(|factory| factory.side == side)?;
+        let container = factory.distribute(self.get_scale(), right, up);
+        let openings = container
+            .items
+            .iter()
+            .map(|item| {
+                let transform = Transform::from_translation(item.translation)
+                    .with_scale(item.source.size.expect("size should be set"))
+                    .with_rotation(Quat::from_rotation_z(side.get_z_rotation()));
+                // TODO: Rotation is likely incorrect for top
+                Cuboid::new(transform)
+            })
+            .collect();
+        Some(openings)
     }
 
     /// Create a bundle for the edge geometry of [`BuildingModule`].
@@ -151,25 +160,87 @@ impl BuildingModuleFactory {
         order: usize,
         parent: Entity,
     ) {
+        if let Some(pitch) = self.pitch {
+            self.spawn_pitched(commands, building_meshes, materials, pitch, order, parent);
+        } else {
+            self.spawn_cuboid(commands, meshes, building_meshes, materials, order, parent);
+        };
+    }
+
+    /// Spawn a [`BuildingModule`] and hidden [`Edge`].
+    pub(super) fn spawn_cuboid(
+        &self,
+        commands: &mut Commands,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        building_meshes: &Res<BuildingMeshes>,
+        materials: &Res<BuildingMaterials>,
+        order: usize,
+        parent: Entity,
+    ) {
         let bundle = self.bundle(order);
         let module = commands.spawn(bundle).set_parent(parent).id();
-        let bundle = if let Some(pitch) = self.pitch {
-            self.pitched_solid_bundle(building_meshes, materials, pitch)
-        } else {
-            self.cuboid_solid_bundle(meshes, materials)
-        };
-        commands.spawn(bundle).set_parent(module);
         let bundle = self.edge_bundle(building_meshes, materials);
         commands.spawn(bundle).set_parent(module);
-        for openings in self.openings.iter().flatten() {
-            openings.spawn(
-                commands,
-                building_meshes,
-                materials,
-                self.get_scale(),
-                module,
-            );
+        let cuboid = Cuboid::new(Transform::from_scale(self.get_scale()));
+        let mut rectangles = Vec::new();
+        for side in Orientation::get_all() {
+            let face = cuboid.get_face(side);
+            let Some(openings) = self.distribute_openings(side) else {
+                rectangles.push(face);
+                continue;
+            };
+            let mut opening_faces = Vec::new();
+            for opening in openings {
+                let bundle = (
+                    Opening,
+                    Edge,
+                    Mesh3d(meshes.add(opening.get_edges().to_mesh())),
+                    MeshMaterial3d(materials.edges.clone()),
+                );
+                commands.spawn(bundle).set_parent(module);
+                let f = opening.get_face(Front);
+                opening_faces.push([f[3], f[2], f[1], f[0]]);
+            }
+            let (right, up, _back) = side.to_elevation_axis();
+            let subdivision = Subdivision {
+                bounds: face,
+                openings: opening_faces,
+                main_axis: right,
+                cross_axis: up,
+            };
+            match subdivision.execute() {
+                Ok(mut s) => rectangles.append(&mut s),
+                Err(e) => {
+                    rectangles.push(face);
+                    warn!("Failed to create openings in BuildingModule {side} facade: {e:?}");
+                }
+            };
         }
+        let triangles = rectangles
+            .into_iter()
+            .flat_map(Triangle::from_rectangle)
+            .collect();
+        let mesh = TriangleList::new(triangles).to_mesh();
+        let bundle = Self::cuboid_solid_bundle(meshes.add(mesh), materials);
+        commands.spawn(bundle).set_parent(module);
+    }
+
+    /// Spawn a [`BuildingModule`] and hidden [`Edge`].
+    fn spawn_pitched(
+        &self,
+        commands: &mut Commands,
+        meshes: &Res<BuildingMeshes>,
+        materials: &Res<BuildingMaterials>,
+        pitch: Pitch,
+        order: usize,
+        parent: Entity,
+    ) {
+        let bundle = self.bundle(order);
+        let module = commands.spawn(bundle).set_parent(parent).id();
+        let bundle = self.pitched_solid_bundle(meshes, materials, pitch);
+        commands.spawn(bundle).set_parent(module);
+        let bundle = self.edge_bundle(meshes, materials);
+        commands.spawn(bundle).set_parent(module);
     }
 
     /// Get the scale of [`BuildingModule`].
