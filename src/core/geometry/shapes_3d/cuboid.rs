@@ -18,7 +18,7 @@ impl Cuboid {
     /// Get a vertex.
     #[must_use]
     pub fn get_vertex(&self, corner: [Orientation; 3]) -> Vec3 {
-        let facing = Orientation::get_vector(&corner);
+        let facing = Orientation::get_facing_in(&corner);
         let vertex = facing * 0.5;
         self.transform.transform_point(vertex)
     }
@@ -26,7 +26,7 @@ impl Cuboid {
     /// Get the start and end of an edge.
     #[must_use]
     pub fn get_edge(&self, edge: [Orientation; 2]) -> [Vec3; 2] {
-        let facing = Orientation::get_vector(&edge);
+        let facing = Orientation::get_facing_in(&edge);
         let center = 0.5 * facing;
         let cross = Vec3Helpers::invert_0_and_1(facing);
         let start = center - cross * 0.5;
@@ -39,7 +39,7 @@ impl Cuboid {
     /// When looking at the face the winding will be CCW.
     #[must_use]
     pub fn get_face(&self, face: Orientation) -> [Vec3; 4] {
-        let facing = face.to_vector();
+        let facing = face.to_facing_in();
         let center = 0.5 * facing;
         let normal = if Vec3Helpers::is_almost_equal_to(facing.abs(), Vec3::X) {
             Vec3::Y

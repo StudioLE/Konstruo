@@ -19,7 +19,7 @@ impl ViewCubeFace {
     ) {
         for orientation in Orientation::get_all() {
             let material = match_material(&materials, &orientation);
-            let vector = orientation.to_vector();
+            let vector = orientation.to_facing_in();
             let mut transform = Transform::from_translation(vector * 0.5);
             transform.look_at(Vec3::ZERO, vector.normalize());
             let bundle = (

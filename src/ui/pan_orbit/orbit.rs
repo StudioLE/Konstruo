@@ -100,7 +100,7 @@ impl Orbit {
         } else if orientation == [Bottom] {
             Vec3::new(radius, PI, -HALF_PI)
         } else {
-            let vector = Orientation::get_vector(orientation).normalize();
+            let vector = Orientation::get_facing_in(orientation).normalize();
             SphericalCoordinates::from_cartesian(vector)
                 .vector
                 .with_x(radius)

@@ -17,7 +17,7 @@ impl ViewCubeCorner {
         materials: Res<ViewCubeMaterials>,
     ) {
         for orientation in Orientation::get_all_corners() {
-            let vector = Orientation::get_vector(&orientation);
+            let vector = Orientation::get_facing_in(&orientation);
             let bundle = (
                 ViewCubeCorner { orientation },
                 Mesh3d(meshes.corner.clone()),

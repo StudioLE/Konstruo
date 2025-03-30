@@ -19,7 +19,7 @@ impl ViewCubeEdge {
         materials: Res<ViewCubeMaterials>,
     ) {
         for orientation in Orientation::get_all_edges() {
-            let vector = Orientation::get_vector(&orientation);
+            let vector = Orientation::get_facing_in(&orientation);
             let mut transform = Transform::from_translation(vector * 0.4);
             transform.scale = Vec3::splat(0.6) - vector.abs() * 0.4;
             let bundle = (

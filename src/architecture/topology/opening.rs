@@ -46,7 +46,7 @@ impl OpeningFactory {
             Left | Right => Vec3::new(size.y, 0.0, size.z),
             _ => Vec3::new(size.x, 0.0, size.z),
         };
-        let translation = (size - DEPTH) * self.side.to_vector() * 0.5;
+        let translation = (size - DEPTH) * self.side.to_facing_in() * 0.5;
         let rotation = self.side.get_z_rotation();
         let transform =
             Transform::from_rotation(Quat::from_rotation_z(rotation)).with_translation(translation);

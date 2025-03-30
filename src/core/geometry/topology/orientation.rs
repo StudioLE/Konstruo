@@ -1,3 +1,5 @@
+use std::ops::Neg;
+use crate::geometry::Vec3Helpers;
 use crate::mathematics::{HALF_PI, PI};
 use bevy::math::Vec3;
 use Orientation::*;
@@ -66,7 +68,7 @@ impl Orientation {
     ///
     /// This is the opposite of the vector looking at an elevation with the orientation name.
     #[must_use]
-    pub fn to_vector(&self) -> Vec3 {
+    pub fn to_facing_in(&self) -> Vec3 {
         match self {
             Front => Vec3::NEG_Y,
             Back => Vec3::Y,
@@ -77,12 +79,35 @@ impl Orientation {
         }
     }
 
-    /// Get the vector facing in the combined orientation
+    /// Get the vector facing towards the elevation with the orientation name.
     #[must_use]
-    pub fn get_vector(orientation: &[Orientation]) -> Vec3 {
-        orientation
-            .iter()
-            .fold(Vec3::ZERO, |acc, orientation| acc + orientation.to_vector())
+    pub fn to_facing_to(&self) -> Vec3 {
+        self.to_facing_in().neg()
+    }
+
+    /// Get the vector facing in the combined orientation.
+    ///
+    /// This is the opposite of the vector looking at an elevation with the orientation name.
+    #[must_use]
+    pub fn get_facing_in(orientation: &[Orientation]) -> Vec3 {
+        orientation.iter().fold(Vec3::ZERO, |acc, orientation| {
+            acc + orientation.to_facing_in()
+        })
+    }
+
+    /// Get the axis when looking at the elevation.
+    #[must_use]
+    pub fn to_elevation_axis(&self) -> (Vec3, Vec3, Vec3) {
+        let back = self.to_facing_to();
+        let up = if Vec3Helpers::is_almost_equal_to(back, Vec3::Z) {
+            Vec3::NEG_Y
+        } else if Vec3Helpers::is_almost_equal_to(back, Vec3::NEG_Z) {
+            Vec3::Y
+        } else {
+            Vec3::Z
+        };
+        let right = back.cross(up).normalize();
+        (right, up, back)
     }
 
     /// Get the z rotation of the orientation.
@@ -94,5 +119,38 @@ impl Orientation {
             Back => PI,
             _ => 0.0,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn to_elevation_axis() {
+        let (right, up, back) = Front.to_elevation_axis();
+        assert_eq!(right, Vec3::X);
+        assert_eq!(up, Vec3::Z);
+        assert_eq!(back, Vec3::Y);
+        let (right, up, back) = Right.to_elevation_axis();
+        assert_eq!(right, Vec3::Y);
+        assert_eq!(up, Vec3::Z);
+        assert_eq!(back, Vec3::NEG_X);
+        let (right, up, back) = Back.to_elevation_axis();
+        assert_eq!(right, Vec3::NEG_X);
+        assert_eq!(up, Vec3::Z);
+        assert_eq!(back, Vec3::NEG_Y);
+        let (right, up, back) = Left.to_elevation_axis();
+        assert_eq!(right, Vec3::NEG_Y);
+        assert_eq!(up, Vec3::Z);
+        assert_eq!(back, Vec3::X);
+        let (right, up, back) = Top.to_elevation_axis();
+        assert_eq!(right, Vec3::X);
+        assert_eq!(up, Vec3::Y);
+        assert_eq!(back, Vec3::NEG_Z);
+        let (right, up, back) = Bottom.to_elevation_axis();
+        assert_eq!(right, Vec3::X);
+        assert_eq!(up, Vec3::NEG_Y);
+        assert_eq!(back, Vec3::Z);
     }
 }
