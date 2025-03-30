@@ -1,7 +1,8 @@
-use crate::geometry::Vec3Helpers;
+use crate::geometry::{Polygon, Vec3Helpers};
 use bevy::prelude::*;
 use std::ops::Neg;
 
+/// A strategy to subdivide a rectangle into multiple rectangle by subtracting openings.
 #[derive(Clone)]
 pub struct Subdivision {
     pub bounds: [Vec3; 4],
@@ -11,6 +12,7 @@ pub struct Subdivision {
 }
 
 impl Subdivision {
+    /// Divide into multiple rectangles.
     #[must_use]
     pub fn execute(self) -> Option<Vec<[Vec3; 4]>> {
         let mut top_bound = get_edge_by_direction(&get_edges(self.bounds), self.main_axis.neg())?;
@@ -21,15 +23,15 @@ impl Subdivision {
             let left = get_edge_by_direction(&edges, self.cross_axis)?;
             let right = get_edge_by_direction(&edges, self.cross_axis.neg())?;
             // Create rectangle to the left of the opening
-            let rectangle = [
+            let full = [
                 bottom_bound[0],
                 Vec3Helpers::project_point_to_line(left[0], bottom_bound),
                 Vec3Helpers::project_point_to_line(left[0], top_bound),
                 top_bound[1],
             ];
-            top_bound[1] = rectangle[2];
-            bottom_bound[0] = rectangle[1];
-            rectangles.push(rectangle);
+            top_bound[1] = full[2];
+            bottom_bound[0] = full[1];
+            push_if_not_zero(&mut rectangles, full);
             // Create rectangle above the opening
             let above = [
                 left[1],
@@ -46,13 +48,65 @@ impl Subdivision {
             ];
             top_bound[1] = above[2];
             bottom_bound[0] = below[1];
-            rectangles.push(above);
-            rectangles.push(below);
+            push_if_not_zero(&mut rectangles, above);
+            push_if_not_zero(&mut rectangles, below);
         }
-        // Create final region
-        let rectangle = [bottom_bound[0], bottom_bound[1], top_bound[0], top_bound[1]];
-        rectangles.push(rectangle);
+        // Create last rectangle
+        let last = [bottom_bound[0], bottom_bound[1], top_bound[0], top_bound[1]];
+        push_if_not_zero(&mut rectangles, last);
         Some(rectangles)
+    }
+
+    pub(crate) fn example() -> Self {
+        Self {
+            bounds: [
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(12.0, 0.0, 0.0),
+                Vec3::new(12.0, 12.0, 0.0),
+                Vec3::new(0.0, 12.0, 0.0),
+            ],
+            openings: vec![
+                [
+                    Vec3::new(1.0, 3.0, 0.0),
+                    Vec3::new(1.0, 9.0, 0.0),
+                    Vec3::new(2.0, 9.0, 0.0),
+                    Vec3::new(2.0, 3.0, 0.0),
+                ],
+                [
+                    Vec3::new(3.0, 2.0, 0.0),
+                    Vec3::new(3.0, 5.0, 0.0),
+                    Vec3::new(4.0, 5.0, 0.0),
+                    Vec3::new(4.0, 2.0, 0.0),
+                ],
+                [
+                    Vec3::new(4.0, 7.0, 0.0),
+                    Vec3::new(4.0, 10.0, 0.0),
+                    Vec3::new(5.0, 10.0, 0.0),
+                    Vec3::new(5.0, 7.0, 0.0),
+                ],
+                [
+                    Vec3::new(6.0, 0.0, 0.0),
+                    Vec3::new(6.0, 12.0, 0.0),
+                    Vec3::new(8.0, 12.0, 0.0),
+                    Vec3::new(8.0, 0.0, 0.0),
+                ],
+                [
+                    Vec3::new(9.0, 6.0, 0.0),
+                    Vec3::new(9.0, 12.0, 0.0),
+                    Vec3::new(11.0, 12.0, 0.0),
+                    Vec3::new(11.0, 6.0, 0.0),
+                ],
+            ],
+            main_axis: Vec3::X,
+            cross_axis: Vec3::Y,
+        }
+    }
+}
+
+fn push_if_not_zero(rectangles: &mut Vec<[Vec3; 4]>, rectangle: [Vec3; 4]) {
+    let polygon = Polygon::from_open(rectangle.to_vec()).expect("polygon should be valid");
+    if polygon.get_area() > 0.0 {
+        rectangles.push(rectangle);
     }
 }
 
@@ -60,6 +114,7 @@ impl Subdivision {
 fn get_edges(rectangle: [Vec3; 4]) -> Vec<[Vec3; 2]> {
     rectangle.windows(2).map(|x| [x[0], x[1]]).collect()
 }
+
 #[allow(clippy::indexing_slicing)]
 fn get_edge_by_direction(edges: &[[Vec3; 2]], direction: Vec3) -> Option<[Vec3; 2]> {
     edges
@@ -70,4 +125,22 @@ fn get_edge_by_direction(edges: &[[Vec3; 2]], direction: Vec3) -> Option<[Vec3; 
             Vec3Helpers::is_almost_equal_to(direction, direction2)
         })
         .copied()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn execute() {
+        // Arrange
+        let subdivision = Subdivision::example();
+
+        // Act
+        let result = subdivision.execute();
+
+        // Assert
+        assert!(result.is_some());
+        assert_eq!(result.expect("should be some").len(), 12);
+    }
 }

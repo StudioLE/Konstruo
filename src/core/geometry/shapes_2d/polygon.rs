@@ -18,6 +18,13 @@ impl Polygon {
         Self { vertices }
     }
 
+    /// Create a [`Polygon`] by closing an open polyline.
+    #[must_use]
+    pub fn from_open(mut vertices: Vec<Vec3>) -> Option<Self> {
+        vertices.push(*vertices.first()?);
+        Some(Self::new(vertices))
+    }
+
     /// Create a square
     #[must_use]
     pub fn create_square(origin: Vec3, size: f32) -> Self {
@@ -73,7 +80,6 @@ impl Polygon {
     ///
     /// This assumes the vertices are on the same plane and that the polygon is closed
     /// so the first and last vertices must be the same.
-    ///
     #[must_use]
     #[allow(clippy::indexing_slicing)]
     pub fn get_area(&self) -> f32 {

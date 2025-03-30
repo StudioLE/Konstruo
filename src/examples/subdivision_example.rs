@@ -16,48 +16,7 @@ impl SubdivisionExample {
         mut meshes: ResMut<Assets<Mesh>>,
         mut materials: ResMut<Assets<StandardMaterial>>,
     ) {
-        let subdivision = Subdivision {
-            bounds: [
-                Vec3::new(0.0, 0.0, 0.0),
-                Vec3::new(12.0, 0.0, 0.0),
-                Vec3::new(12.0, 12.0, 0.0),
-                Vec3::new(0.0, 12.0, 0.0),
-            ],
-            openings: vec![
-                [
-                    Vec3::new(1.0, 3.0, 0.0),
-                    Vec3::new(1.0, 9.0, 0.0),
-                    Vec3::new(2.0, 9.0, 0.0),
-                    Vec3::new(2.0, 3.0, 0.0),
-                ],
-                [
-                    Vec3::new(3.0, 2.0, 0.0),
-                    Vec3::new(3.0, 5.0, 0.0),
-                    Vec3::new(4.0, 5.0, 0.0),
-                    Vec3::new(4.0, 2.0, 0.0),
-                ],
-                [
-                    Vec3::new(4.0, 7.0, 0.0),
-                    Vec3::new(4.0, 10.0, 0.0),
-                    Vec3::new(5.0, 10.0, 0.0),
-                    Vec3::new(5.0, 7.0, 0.0),
-                ],
-                [
-                    Vec3::new(6.0, 0.0, 0.0),
-                    Vec3::new(6.0, 12.0, 0.0),
-                    Vec3::new(8.0, 12.0, 0.0),
-                    Vec3::new(8.0, 0.0, 0.0),
-                ],
-                [
-                    Vec3::new(9.0, 6.0, 0.0),
-                    Vec3::new(9.0, 12.0, 0.0),
-                    Vec3::new(11.0, 12.0, 0.0),
-                    Vec3::new(11.0, 6.0, 0.0),
-                ],
-            ],
-            main_axis: Vec3::X,
-            cross_axis: Vec3::Y,
-        };
+        let subdivision = Subdivision::example();
         let regions = subdivision.execute().expect("should be valid");
         for region in regions {
             spawn_rectangle(&mut commands, &mut meshes, &mut materials, region);
