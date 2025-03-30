@@ -56,6 +56,16 @@ impl Cuboid {
         .map(|point| self.transform.transform_point(point))
     }
 
+    /// Get the vertices forming a face.
+    ///
+    /// When looking at the face the winding will be CW.
+    #[must_use]
+    pub fn get_face_reversed(&self, face: Orientation) -> [Vec3; 4] {
+        let mut face = self.get_face(face);
+        face.reverse();
+        face
+    }
+
     /// Get the edges as a [`LineList`].
     #[must_use]
     pub fn get_edges(&self) -> LineList {

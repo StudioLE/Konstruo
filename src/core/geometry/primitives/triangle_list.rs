@@ -17,6 +17,16 @@ impl TriangleList {
         Self { triangles }
     }
 
+    /// Create a [`TriangleList`] from rectangles.
+    #[must_use]
+    pub fn from_rectangles(rectangles: Vec<[Vec3; 4]>) -> Self {
+        let triangles = rectangles
+            .into_iter()
+            .flat_map(Triangle::from_rectangle)
+            .collect();
+        Self { triangles }
+    }
+
     /// Get the [`Triangle`].
     #[must_use]
     pub fn get_triangles(&self) -> &Vec<Triangle> {

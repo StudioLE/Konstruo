@@ -189,7 +189,7 @@ impl BuildingModuleFactory {
                 rectangles.push(face);
                 continue;
             };
-            let mut opening_faces = Vec::new();
+            let mut opening_rectangles = Vec::new();
             for opening in openings {
                 let bundle = (
                     Opening,
@@ -198,13 +198,27 @@ impl BuildingModuleFactory {
                     MeshMaterial3d(materials.edges.clone()),
                 );
                 commands.spawn(bundle).set_parent(module);
-                let f = opening.get_face(Front);
-                opening_faces.push([f[3], f[2], f[1], f[0]]);
+                let mesh = TriangleList::from_rectangles(vec![
+                    opening.get_face_reversed(Back),
+                    opening.get_face_reversed(Left),
+                    opening.get_face_reversed(Right),
+                    opening.get_face_reversed(Top),
+                    opening.get_face_reversed(Bottom),
+                ])
+                .to_mesh();
+                let bundle = (
+                    Opening,
+                    Edge,
+                    Mesh3d(meshes.add(mesh)),
+                    MeshMaterial3d(materials.face.clone()),
+                );
+                commands.spawn(bundle).set_parent(module);
+                opening_rectangles.push(opening.get_face_reversed(Front));
             }
             let (right, up, _back) = side.to_elevation_axis();
             let subdivision = Subdivision {
                 bounds: face,
-                openings: opening_faces,
+                openings: opening_rectangles,
                 main_axis: right,
                 cross_axis: up,
             };
@@ -216,11 +230,7 @@ impl BuildingModuleFactory {
                 }
             };
         }
-        let triangles = rectangles
-            .into_iter()
-            .flat_map(Triangle::from_rectangle)
-            .collect();
-        let mesh = TriangleList::new(triangles).to_mesh();
+        let mesh = TriangleList::from_rectangles(rectangles).to_mesh();
         let bundle = Self::cuboid_solid_bundle(meshes.add(mesh), materials);
         commands.spawn(bundle).set_parent(module);
     }
