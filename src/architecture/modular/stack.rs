@@ -35,7 +35,8 @@ impl BuildingModuleStackFactory {
     pub(super) fn spawn(
         self,
         commands: &mut Commands,
-        meshes: &Res<BuildingMeshes>,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        building_meshes: &Res<BuildingMeshes>,
         materials: &Res<BuildingMaterials>,
         index: usize,
         plot: Entity,
@@ -43,7 +44,7 @@ impl BuildingModuleStackFactory {
         let bundle = BuildingModuleStack::bundle(index);
         let stack = commands.spawn(bundle).set_parent(plot).id();
         for (order, module) in self.modules.into_iter().enumerate() {
-            module.spawn(commands, meshes, materials, order, stack);
+            module.spawn(commands, meshes, building_meshes, materials, order, stack);
         }
         stack
     }

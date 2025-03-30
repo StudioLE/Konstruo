@@ -1,6 +1,7 @@
 use crate::architecture::Pitch;
 use crate::architecture::*;
 use crate::distribution::Distributable;
+use crate::geometry::Cuboid;
 use crate::geometry::*;
 use bevy::prelude::*;
 
@@ -56,10 +57,10 @@ impl BuildingModuleFactory {
         (BuildingModule, Level { level: self.level }, distributable)
     }
 
-    /// Create a bundle for the solid geometry of [`BuildingModule`].
-    fn solid_bundle(
+    /// Create a bundle for the cuboid solid geometry of [`BuildingModule`] with subtracted openings.
+    fn cuboid_solid_bundle(
         &self,
-        meshes: &Res<BuildingMeshes>,
+        meshes: &mut ResMut<Assets<Mesh>>,
         materials: &Res<BuildingMaterials>,
     ) -> (
         Solid,
@@ -68,10 +69,32 @@ impl BuildingModuleFactory {
         MeshMaterial3d<StandardMaterial>,
         Visibility,
     ) {
-        let mesh = match self.pitch {
-            None => meshes.cuboid.clone(),
-            Some(Pitch::LeftToRight) => meshes.pitch_left_right.clone(),
-            Some(Pitch::FrontToBack) => meshes.pitch_front_back.clone(),
+        let mesh = meshes.add(self.create_cuboid_with_openings().to_mesh());
+        (
+            Solid,
+            Transform::default(),
+            Mesh3d(mesh),
+            MeshMaterial3d(materials.face.clone()),
+            Visibility::Visible,
+        )
+    }
+
+    /// Create a bundle for the pitched solid geometry of [`BuildingModule`].
+    fn pitched_solid_bundle(
+        &self,
+        meshes: &Res<BuildingMeshes>,
+        materials: &Res<BuildingMaterials>,
+        pitch: Pitch,
+    ) -> (
+        Solid,
+        Transform,
+        Mesh3d,
+        MeshMaterial3d<StandardMaterial>,
+        Visibility,
+    ) {
+        let mesh = match pitch {
+            Pitch::LeftToRight => meshes.pitch_left_right.clone(),
+            Pitch::FrontToBack => meshes.pitch_front_back.clone(),
         };
         (
             Solid,
@@ -80,6 +103,16 @@ impl BuildingModuleFactory {
             MeshMaterial3d(materials.face.clone()),
             Visibility::Visible,
         )
+    }
+
+    fn create_cuboid_with_openings(&self) -> TriangleList {
+        let cuboid = Cuboid::new(Transform::from_scale(self.get_scale()));
+        let mut triangles = Vec::new();
+        for orientation in Orientation::get_all() {
+            let face = cuboid.get_face(orientation);
+            triangles.append(&mut Triangle::from_rectangle(face).to_vec());
+        }
+        TriangleList::new(triangles)
     }
 
     /// Create a bundle for the edge geometry of [`BuildingModule`].
@@ -112,19 +145,30 @@ impl BuildingModuleFactory {
     pub(super) fn spawn(
         &self,
         commands: &mut Commands,
-        meshes: &Res<BuildingMeshes>,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        building_meshes: &Res<BuildingMeshes>,
         materials: &Res<BuildingMaterials>,
         order: usize,
         parent: Entity,
     ) {
         let bundle = self.bundle(order);
         let module = commands.spawn(bundle).set_parent(parent).id();
-        let bundle = self.solid_bundle(meshes, materials);
+        let bundle = if let Some(pitch) = self.pitch {
+            self.pitched_solid_bundle(building_meshes, materials, pitch)
+        } else {
+            self.cuboid_solid_bundle(meshes, materials)
+        };
         commands.spawn(bundle).set_parent(module);
-        let bundle = self.edge_bundle(meshes, materials);
+        let bundle = self.edge_bundle(building_meshes, materials);
         commands.spawn(bundle).set_parent(module);
         for openings in self.openings.iter().flatten() {
-            openings.spawn(commands, meshes, materials, self.get_scale(), module);
+            openings.spawn(
+                commands,
+                building_meshes,
+                materials,
+                self.get_scale(),
+                module,
+            );
         }
     }
 

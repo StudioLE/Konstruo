@@ -5,8 +5,6 @@ use bevy::prelude::*;
 #[allow(clippy::struct_field_names)]
 #[derive(Resource)]
 pub struct BuildingMeshes {
-    /// Solid geometry of a [`BuildingModule`].
-    pub cuboid: Handle<Mesh>,
     /// Solid geometry of a front to back pitched [`BuildingModule`].
     pub pitch_front_back: Handle<Mesh>,
     /// Solid geometry of a left to right pitched [`BuildingModule`].
@@ -31,7 +29,6 @@ impl BuildingMeshes {
         let pitched_front_back_edges = pitched_front_back.clone().get_edges();
         let pitched_left_right_edges = pitched_left_right.clone().get_edges();
         commands.insert_resource(BuildingMeshes {
-            cuboid: meshes.add(cuboid.get_triangles().to_mesh()),
             pitch_front_back: meshes.add(pitched_front_back.get_triangles().to_mesh()),
             pitch_left_right: meshes.add(pitched_left_right.get_triangles().to_mesh()),
             cuboid_edges: meshes.add(cuboid_edges.to_mesh()),

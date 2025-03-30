@@ -30,7 +30,8 @@ impl Default for State {
 fn path_added_system(
     mut commands: Commands,
     mut state: ResMut<State>,
-    meshes: Res<BuildingMeshes>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    building_meshes: Res<BuildingMeshes>,
     materials: Res<BuildingMaterials>,
     query: Query<(Entity, &Path), Added<Path>>,
 ) {
@@ -55,7 +56,7 @@ fn path_added_system(
         },);
         let distribution_entity = commands.spawn(bundle).set_parent(path_entity).id();
         for (distributable, factory) in get_items() {
-            let plot = factory.spawn(&mut commands, &meshes, &materials);
+            let plot = factory.spawn(&mut commands, &mut meshes, &building_meshes, &materials);
             commands
                 .entity(plot)
                 .insert(distributable)

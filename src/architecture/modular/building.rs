@@ -34,13 +34,14 @@ impl ModularBuildingFactory {
     pub fn spawn(
         self,
         commands: &mut Commands,
-        meshes: &Res<BuildingMeshes>,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        building_meshes: &Res<BuildingMeshes>,
         materials: &Res<BuildingMaterials>,
     ) -> Entity {
         let bundle = ModularBuilding::bundle();
         let plot = commands.spawn(bundle).id();
         for (index, stack) in self.stacks.into_iter().enumerate() {
-            stack.spawn(commands, meshes, materials, index, plot);
+            stack.spawn(commands, meshes, building_meshes, materials, index, plot);
         }
         plot
     }
