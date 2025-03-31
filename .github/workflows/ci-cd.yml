@@ -139,6 +139,21 @@ jobs:
         fi
       continue-on-error: true
 
+    - name: Restore Cargo Fix
+      id: cargo-fix-cache
+      uses: actions/cache/restore@v4
+      with:
+        key: cargo-fix-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}-${{ needs.release.outputs.version }}
+        restore-keys: |
+          cargo-fix-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}-
+          cargo-fix-${{ runner.os }}-
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+
     - name: Cargo Fix
       run: |
         cargo fix --release --allow-dirty --message-format short
@@ -150,6 +165,18 @@ jobs:
           git commit -m "style: Apply code style with \`cargo fix\`"
         fi
       continue-on-error: true
+
+    - name: Cache Fix Cargo
+      if: always()
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cargo-fix-cache.outputs.cache-primary-key }}
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
 
     - name: Cargo Clippy
       run: |
