@@ -1,3 +1,9 @@
+## Getting Started
+
+Try the [WebAssembly demo](http://konstruo.studiole.uk/latest).
+
+Download binaries from [GitHub releases](https://github.com/StudioLE/Konstruo/releases).
+
 ## About
 
 With Konstruo you can design, plan, and build villages, towns, and cities.
@@ -10,11 +16,11 @@ Konstruo is a standalone open-ended city-building game giving you the freedom to
 
 ### For AEC Design Professionals
 
-Konstruo is an intuitive [urban planning](https://en.wikipedia.org/wiki/Urban_planning) tool developed with the expertise of someone who once did this themselves. Wether you're completing a simple capacity study or a detailed urban masterplan Konstruo has the tools to make it happen quickly, intuitively, and without tedium. 
+Konstruo is an intuitive [urban planning](https://en.wikipedia.org/wiki/Urban_planning) tool developed with the expertise of someone who once did this themselves. Wether you're completing a simple capacity study or a detailed urban masterplan Konstruo has the tools to make it happen quickly, intuitively, and without tedium.
 
 ### For Game Developers and Modders
 
-Konstruo is implemented as a collection of plugins for the [Bevy](https://bevyengine.org/) game engine. You are encouraged to build on the foundations of Konstruo to enhance the experience for gamers. Implement new building methods, enhance the UI, or add new game and simulation logic. 
+Konstruo is implemented as a collection of plugins for the [Bevy](https://bevyengine.org/) game engine. You are encouraged to build on the foundations of Konstruo to enhance the experience for gamers. Implement new building methods, enhance the UI, or add new game and simulation logic.
 
 Konstruo itself is opinionated but with your expertise you can change that. If you want to add simulation or challenges then you're encouraged to do so.
 
@@ -44,7 +50,7 @@ Binaries for Mac aren't currently compiled but you can do so quickly by followin
 > [!NOTE]
 > Please be aware that Konstruo deviates from the Bevy conventions for [coordiante systems](https://bevy-cheatbook.github.io/fundamentals/coords.html).
 >
-> Bevy and Konstruo both implement right hand coordinate systems, however, Konstruo follows the AEC software convention of **Z up**. The reasons for this are simple. In the real world buildings, roads etc are always designed primarily in plan (looking from the sky down onto the ground), then they're extruded up (one floor placed upon another). 
+> Bevy and Konstruo both implement right hand coordinate systems, however, Konstruo follows the AEC software convention of **Z up**. The reasons for this are simple. In the real world buildings, roads etc are always designed primarily in plan (looking from the sky down onto the ground), then they're extruded up (one floor placed upon another).
 >
 > Therefore for the geometry of most buildings, roads etc it's drawn first as a 2D polygon on the ground before being extruded up into a 3D prism. It's therefore logical to draw first on the XY plane before extruded up on the Z axis.
 
@@ -62,9 +68,9 @@ The bezier library provides `CubicBezier` and `CubicBezierSpline` struct for Bev
 
 #### Distribution library [`src/core/distribution`](tree/main/src/core/distribution)
 
-Logic to distribute enitites in 3D based on [CSS flexbox layout](https://css-tricks.com/snippets/css/a-guide-to-flexbox/). 
+Logic to distribute enitites in 3D based on [CSS flexbox layout](https://css-tricks.com/snippets/css/a-guide-to-flexbox/).
 
-The distribution library provides an intuitive fluent `FlexboxBuilder` struct. You provide the size and margin of the items you want to distribute, set the various alignment options, including optional cuboid bound or container constraints and the layout engine returns the center points for each item distributed according to your instructions, along with the size of the container they fit within. 
+The distribution library provides an intuitive fluent `FlexboxBuilder` struct. You provide the size and margin of the items you want to distribute, set the various alignment options, including optional cuboid bound or container constraints and the layout engine returns the center points for each item distributed according to your instructions, along with the size of the container they fit within.
 
 The distribution library is powered by the [taffy](https://github.com/DioxusLabs/taffy) layout library that already powers Bevy's 2D UI layout.
 
