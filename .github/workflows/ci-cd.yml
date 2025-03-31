@@ -333,10 +333,37 @@ jobs:
         path: ${{ steps.artifact.outputs.name }}.7z
 
 
+  git-tag:
+    name: Tag
+    runs-on: ubuntu-24.04
+    if: needs.release.outputs.version != '' && contains(needs.release.outputs.version, '-')
+    needs:
+    - release
+    - test
+    - build
+    steps:
+
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: git config
+      run: |
+        git config user.name "CI/CD"
+        git config user.email "cicd.tbxeq@passmail.com"
+
+    - name: git tag
+      run: git tag "v${{ needs.release.outputs.version }}"
+
+    - name: git push
+      run: git push origin "v${{ needs.release.outputs.version }}"
+
+
   github-release:
     name: Release
     runs-on: ubuntu-24.04
-    if: needs.release.outputs.version != ''
+    if: needs.release.outputs.version != '' && ! contains(needs.release.outputs.version, '-')
     needs:
     - release
     - test
