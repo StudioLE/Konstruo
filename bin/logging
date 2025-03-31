@@ -1,0 +1,99 @@
+#!/bin/bash
+
+if [[ "${LOG_LEVEL}" == "trace" ]]
+then
+  LOG_LEVEL=0
+elif [[ "${LOG_LEVEL}" == "debug" ]]
+then
+  LOG_LEVEL=1
+elif [[ "${LOG_LEVEL}" == "information" || "${LOG_LEVEL}" == "info" ]]
+then
+  LOG_LEVEL=2
+elif [[ "${LOG_LEVEL}" == "warning" || "${LOG_LEVEL}" == "warn" ]]
+then
+  LOG_LEVEL=3
+elif [[ "${LOG_LEVEL}" == "error" ]]
+then
+  LOG_LEVEL=4
+elif [[ "${LOG_LEVEL}" == "critical" || "${LOG_LEVEL}" == "crit" ]]
+then
+  LOG_LEVEL=5
+elif [[ "${LOG_LEVEL}" == "none" || "${LOG_LEVEL}" == "silent" ]]
+then
+  LOG_LEVEL=6
+else
+  LOG_LEVEL=0
+fi
+
+RESET="\e[0m"
+BOLD="\e[1m"
+DIM="\e[2m"
+RED="\e[31m"
+GREEN="\e[32m"
+YELLOW="\e[33m"
+BLUE="\e[34m"
+PURPLE="\e[35m"
+DARK_GRAY="\e[90m"
+
+log-timestamp () {
+  echo -ne "${DIM}$(date +"%Y-%m-%d %H:%M:%S%:z")${RESET} " >&2
+}
+
+log-success () {
+  log-timestamp
+  echo -e "${GREEN}DONE${RESET} ${GREEN}✓${RESET} $1" >&2
+}
+
+log-critical () {
+  if [[ "${LOG_LEVEL}" -gt 5 ]]
+  then
+    return
+  fi
+  log-timestamp
+  echo -e "${PURPLE}CRIT${RESET} ${PURPLE}⭍${RESET} $1" >&2
+}
+
+log-error () {
+  if [[ "${LOG_LEVEL}" -gt 4 ]]
+  then
+    return
+  fi
+  log-timestamp
+  echo -e "${RED}ERRO${RESET} ${RED}!${RESET} $1" >&2
+}
+
+log-warning () {
+  if [[ "${LOG_LEVEL}" -gt 3 ]]
+  then
+    return
+  fi
+  log-timestamp
+  echo -e "${YELLOW}WARN${RESET} ${YELLOW}△${RESET} $1" >&2
+}
+
+log-information () {
+  if [[ "${LOG_LEVEL}" -gt 2 ]]
+  then
+    return
+  fi
+  log-timestamp
+  echo -e "${BLUE}INFO${RESET} ${BLUE}○${RESET} $1" >&2
+}
+
+log-debug () {
+  if [[ "${LOG_LEVEL}" -gt 1 ]]
+  then
+    return
+  fi
+  log-timestamp
+  echo -e "${DIM}DBUG *${RESET} $1" >&2
+}
+
+log-trace () {
+  if [[ "${LOG_LEVEL}" -gt 0 ]]
+  then
+    return
+  fi
+  log-timestamp
+  echo -e "${DIM}TRAC ↩${RESET} $1" >&2
+}

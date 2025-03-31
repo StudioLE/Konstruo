@@ -1,3 +1,5 @@
+use bevy::app::PluginGroupBuilder;
+use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
 use konstruo::architecture::*;
 use konstruo::distribution::DistributionPlugin;
@@ -9,7 +11,7 @@ use konstruo::ui::*;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(default_plugins())
         .add_plugins(MeshPickingPlugin)
         .add_plugins(AxisMarkerPlugin)
         .add_plugins(ModularBuildingsPlugin)
@@ -38,4 +40,17 @@ fn main() {
         // .add_plugins(Shapes3DExample)
         // .add_plugins(SubdivisionExample)
         .run();
+}
+
+fn default_plugins() -> PluginGroupBuilder {
+    if cfg!(target_arch = "wasm32") {
+        trace!("Configuring DefaultPlugins for WebAssembly");
+        DefaultPlugins.set(AssetPlugin {
+            file_path: "/assets".to_owned(),
+            meta_check: AssetMetaCheck::Never,
+            ..default()
+        })
+    } else {
+        DefaultPlugins.build()
+    }
 }

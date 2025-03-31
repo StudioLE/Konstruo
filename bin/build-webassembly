@@ -1,0 +1,32 @@
+#!/bin/bash
+
+TARGET="wasm32-unknown-unknown"
+NAME="konstruo"
+OUTPUT_DIRECTORY="web"
+
+source ./bin/logging
+
+log-information "${BOLD}Building${RESET} WebAssembly release with cargo"
+
+if cargo build --no-default-features --release --target "${TARGET}"
+then
+  log-debug "${BOLD}Successfully${RESET} built WebAssembly release"
+else
+  log-error "${BOLD}Failed${RESET} to build WebAssembly release"
+  exit 1
+fi
+
+log-information "${BOLD}Generating${RESET} WebAssembly bindings"
+
+if wasm-bindgen \
+  --no-typescript \
+  --target web \
+  --out-dir "${OUTPUT_DIRECTORY}" \
+  --out-name ${NAME} \
+  "target/${TARGET}/release/${NAME}.wasm"
+then
+  log-debug "${BOLD}Successfully${RESET} generated WebAssembly bindings"
+else
+  log-error "${BOLD}Failed${RESET} to generate WebAssembly bindings"
+  exit 1
+fi
