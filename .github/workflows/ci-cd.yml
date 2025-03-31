@@ -73,7 +73,7 @@ jobs:
 
     - name: Install dependencies
       run: >
-        sudo apt-get install 
+        sudo apt-get install
         g++
         pkg-config
         libx11-dev
@@ -197,7 +197,7 @@ jobs:
     - name: Install dependencies
       if: contains(matrix.os, 'ubuntu')
       run: >
-        sudo apt-get install 
+        sudo apt-get install
         g++
         pkg-config
         libx11-dev
@@ -255,13 +255,13 @@ jobs:
       run: |
         ARTIFACT="${{ env.NAME }}-${{ needs.release.outputs.version }}-${{ matrix.target }}"
         mkdir "${ARTIFACT}"
-        echo "name=${ARTIFACT}" >> $GITHUB_OUTPUT        
+        echo "name=${ARTIFACT}" >> $GITHUB_OUTPUT
 
     - name: Copy binary
       if: matrix.target != 'wasm32-unknown-unknown'
       run: >
         cp target/${{ matrix.target }}/release/${{ env.NAME }}
-        ${{ steps.artifact.outputs.name}}/
+        ${{ steps.artifact.outputs.name }}/
 
     - name: Install wasm-bindgen-cli
       if: matrix.target == 'wasm32-unknown-unknown'
@@ -282,25 +282,28 @@ jobs:
       if: matrix.target == 'wasm32-unknown-unknown'
       run: >
         wasm-bindgen --no-typescript --target web
-        --out-dir artifacts
+        --out-dir web
         --out-name ${{ env.NAME }}
         target/${{ matrix.target }}/release/${{ env.NAME }}.wasm
 
     - name: Copy WebAssembly
       if: matrix.target == 'wasm32-unknown-unknown'
       run: |
-        cp artifacts/* ${{ steps.artifact.outputs.name}}/
+        cp web/index.html ${{ steps.artifact.outputs.name }}/
+        cp web/${{ env.NAME }}.js ${{ steps.artifact.outputs.name }}/
+        cp web/${{ env.NAME }}_bg.wasm ${{ steps.artifact.outputs.name }}/
+        cp web/style.css ${{ steps.artifact.outputs.name }}/
 
     - name: Create archive
       run: >
-        7z a 
-        ${{ steps.artifact.outputs.name}}.7z
-        ${{ steps.artifact.outputs.name}}
+        7z a
+        ${{ steps.artifact.outputs.name }}.7z
+        ${{ steps.artifact.outputs.name }}
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{ steps.artifact.outputs.name}}
-        path: ${{ steps.artifact.outputs.name}}.7z
+        name: ${{ steps.artifact.outputs.name }}
+        path: ${{ steps.artifact.outputs.name }}.7z
 
 
   github-release:
@@ -357,3 +360,62 @@ jobs:
         ${{ env.NAME }}-${{ needs.release.outputs.version }}-*
         --clobber
         --repo "${{ github.repository }}"
+
+
+  push-webassembly:
+    name: Push WebAssembly
+    runs-on: ubuntu-24.04
+    if: needs.release.outputs.version != ''
+    needs:
+    - release
+    - test
+    - build
+    steps:
+
+    - name: Set artifact name
+      id: artifact
+      run: |
+        ARTIFACT=
+        mkdir "${ARTIFACT}"
+        echo "name=${ARTIFACT}" >> $GITHUB_OUTPUT
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        repository: StudioLE/KonstruoWeb
+        token: ${{ secrets.WEB_REPO_TOKEN }}
+
+    - name: Remove latest
+      continue-on-error: true
+      run: rm -rf latest
+
+    - name: Download archive
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.NAME }}-${{ needs.release.outputs.version }}-wasm32-unknown-unknown
+        path: artifacts
+
+    - name: Extract archive
+      run: 7z e artifacts/*.7z -olatest
+
+    - name: Remove archive
+      run: rm artifacts/*.7z
+
+    - name: List
+      run: ls -R1 latest
+
+    - name: Copy
+      run: cp -r latest v${{ needs.release.outputs.version }}
+
+    - name: Commit
+      run: |
+        git config user.name "CI/CD"
+        git config user.email "cicd.tbxeq@passmail.com"
+        git add --all
+        git commit --allow-empty -m "feat: Added ${{ needs.release.outputs.version }} WebAssembly build"
+
+    - name: Status
+      run: git status
+
+    - name: Push
+      run: git push
