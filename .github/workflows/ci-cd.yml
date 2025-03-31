@@ -380,15 +380,21 @@ jobs:
         repository: StudioLE/KonstruoWeb
         token: ${{ secrets.WEB_REPO_TOKEN }}
 
-    - name: Remove
+    - name: Remove latest
       continue-on-error: true
       run: rm -rf latest
 
-    - name: Download
+    - name: Download archive
       uses: actions/download-artifact@v4
       with:
         name: ${{ needs.build.outputs.artifact }}
-        path: latest
+        path: artifacts
+
+    - name: Extract archive
+      run: 7z e artifacts/*.7z -olatest
+
+    - name: Remove archive
+      run: artifacts/*.7z
 
     - name: List
       run: ls -R1 latest
