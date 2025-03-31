@@ -394,7 +394,7 @@ jobs:
       run: 7z e artifacts/*.7z -olatest
 
     - name: Remove archive
-      run: artifacts/*.7z
+      run: rm artifacts/*.7z
 
     - name: List
       run: ls -R1 latest
