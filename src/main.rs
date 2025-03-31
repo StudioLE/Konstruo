@@ -45,11 +45,19 @@ fn main() {
 fn default_plugins() -> PluginGroupBuilder {
     if cfg!(target_arch = "wasm32") {
         trace!("Configuring DefaultPlugins for WebAssembly");
-        DefaultPlugins.set(AssetPlugin {
-            file_path: "/assets".to_owned(),
-            meta_check: AssetMetaCheck::Never,
-            ..default()
-        })
+        DefaultPlugins
+            .set(AssetPlugin {
+                file_path: "/assets".to_owned(),
+                meta_check: AssetMetaCheck::Never,
+                ..default()
+            })
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    canvas: Some("#primary-window".into()),
+                    ..default()
+                }),
+                ..default()
+            })
     } else {
         DefaultPlugins.build()
     }
