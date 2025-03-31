@@ -399,13 +399,6 @@ jobs:
     - build
     steps:
 
-    - name: Set artifact name
-      id: artifact
-      run: |
-        ARTIFACT=
-        mkdir "${ARTIFACT}"
-        echo "name=${ARTIFACT}" >> $GITHUB_OUTPUT
-
     - name: Checkout
       uses: actions/checkout@v4
       with:
