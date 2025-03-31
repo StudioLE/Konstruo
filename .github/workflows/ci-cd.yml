@@ -179,8 +179,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs:
     - release
-    outputs:
-      artifact: ${{ steps.artifact.outputs.name }}
     strategy:
       fail-fast: false
       matrix:
@@ -374,6 +372,13 @@ jobs:
     - build
     steps:
 
+    - name: Set artifact name
+      id: artifact
+      run: |
+        ARTIFACT=
+        mkdir "${ARTIFACT}"
+        echo "name=${ARTIFACT}" >> $GITHUB_OUTPUT
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -387,7 +392,7 @@ jobs:
     - name: Download archive
       uses: actions/download-artifact@v4
       with:
-        name: ${{ needs.build.outputs.artifact }}
+        name: ${{ env.NAME }}-${{ needs.release.outputs.version }}-wasm32-unknown-unknown
         path: artifacts
 
     - name: Extract archive
@@ -400,7 +405,7 @@ jobs:
       run: ls -R1 latest
 
     - name: Copy
-      run: cp -r latest ${{ needs.release.outputs.version }}
+      run: cp -r latest v${{ needs.release.outputs.version }}
 
     - name: Commit
       run: |
