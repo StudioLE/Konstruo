@@ -111,18 +111,6 @@ jobs:
     - name: Cargo Build
       run: cargo build --release
 
-    - name: Cache Cargo
-      if: always()
-      uses: actions/cache/save@v4
-      with:
-        key: ${{ steps.cargo-cache.outputs.cache-primary-key }}
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-
     - name: Git Config
       run: |
         git config user.name "CI/CD"
@@ -162,6 +150,18 @@ jobs:
           git commit -m "style: Apply code style with \`cargo clippy --fix\`"
         fi
       continue-on-error: true
+
+    - name: Cache Cargo
+      if: always()
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.cargo-cache.outputs.cache-primary-key }}
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
 
     - name: Git Status
       run: git status
