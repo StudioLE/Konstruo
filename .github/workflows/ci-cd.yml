@@ -409,8 +409,8 @@ jobs:
 
     - name: Commit
       run: |
-        git config user.name "${{ github.actor }}"
-        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git config user.name "CI/CD"
+        git config user.email "cicd.tbxeq@passmail.com"
         git add --all
         git commit --allow-empty -m "feat: Added ${{ needs.release.outputs.version }} WebAssembly build"
 
