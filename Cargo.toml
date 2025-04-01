@@ -5,9 +5,9 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-bevy = { version = "0.15.1" }
-kurbo = "0.11.0"
-taffy = "0.7.5"
+bevy = { version = "0.15.3" }
+kurbo = "0.11.1"
+taffy = "0.8.0"
 
 [features]
 default = ["dynamic"]
