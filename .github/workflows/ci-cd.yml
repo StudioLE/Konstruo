@@ -240,6 +240,21 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
+    - name: Checkout Assets
+      uses: actions/checkout@v4
+      with:
+        repository: StudioLE/KonstruoWeb
+        token: ${{ secrets.WEB_REPO_TOKEN }}
+        path: ${{ runner.temp }}/assets-repo
+        fetch-depth: 1
+        ref: assets
+
+    - name: Copy Assets
+      run: cp -r ${{ runner.temp }}/assets-repo/assets/* assets/
+
+    - name: List Assets
+      run: ls -R1 assets
+
     - name: Restore Cargo
       id: cargo-cache
       uses: actions/cache/restore@v4
