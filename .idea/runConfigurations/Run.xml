@@ -3,9 +3,7 @@
     <option name="buildProfileId" value="dev" />
     <option name="command" value="run" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-    <envs>
-      <env name="RUST_LOG" value="bevy=trace,bevy_render=info,wgpu_core=info,konstruo=trace" />
-    </envs>
+    <envs />
     <option name="emulateTerminal" value="true" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
