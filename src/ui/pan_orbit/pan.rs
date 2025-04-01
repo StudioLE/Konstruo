@@ -3,7 +3,6 @@ use crate::constraints::clamp_vec3::ClampVec3;
 use crate::kinematics::Translation;
 use crate::ui::pan_orbit::orbit::DEFAULT_RADIUS;
 use crate::CAMERA_MAX;
-use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
 pub(super) const SPEED_MODIFIER: f32 = 2.0;
@@ -56,17 +55,6 @@ impl Pan {
     pub(crate) fn in_direction(&mut self, direction: Vec3) {
         let velocity = direction * self.translation.speed;
         self.translation.set_target_relative_to_current(velocity);
-    }
-
-    /// Pan the camera in the direction of the mouse motion.
-    #[allow(dead_code)]
-    fn in_direction_of_motion(&mut self, mouse: MouseMotion) {
-        let direction = mouse.delta.normalize();
-        let polar = direction.y * -1.0 * 0.1;
-        let azimuthal = direction.x * -1.0 * 0.04;
-        let displacement = Vec3::new(0.0, polar, azimuthal);
-        self.translation
-            .set_target_relative_to_current(displacement);
     }
 
     /// Pan the camera by translation from the start of the drag

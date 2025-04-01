@@ -84,6 +84,9 @@ impl Orbit {
 
     /// Orbit the camera in the direction of the mouse motion.
     pub(super) fn in_direction_of_motion(&mut self, mouse: MouseMotion) {
+        if mouse.delta == Vec2::ZERO {
+            return;
+        }
         let direction = mouse.delta.normalize();
         let polar = direction.y * -1.0 * 0.1;
         let azimuthal = direction.x * -1.0 * 0.04;
