@@ -206,12 +206,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs:
     - release
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
         include:
         - target: x86_64-unknown-linux-gnu
           os: ubuntu-24.04
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
         - target: wasm32-unknown-unknown
           os: ubuntu-24.04
 
