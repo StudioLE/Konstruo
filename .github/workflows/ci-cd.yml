@@ -290,6 +290,24 @@ jobs:
         cp target/${{ matrix.target }}/release/${{ env.NAME }}
         ${{ steps.artifact.outputs.name }}/
 
+    - name: Checkout Assets
+      if: matrix.target != 'wasm32-unknown-unknown'
+      uses: actions/checkout@v4
+      with:
+        repository: StudioLE/KonstruoWeb
+        token: ${{ secrets.WEB_REPO_TOKEN }}
+        path: assets-repo
+        fetch-depth: 1
+        ref: assets
+
+    - name: Copy Assets
+      if: matrix.target != 'wasm32-unknown-unknown'
+      run: cp -r assets-repo/assets ${{ steps.artifact.outputs.name }}/assets
+
+    - name: Remove Assets repo
+      if: matrix.target != 'wasm32-unknown-unknown'
+      run: rm -rf assets-repo
+
     - name: Install wasm-bindgen-cli
       if: matrix.target == 'wasm32-unknown-unknown'
       run: >
