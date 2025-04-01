@@ -19,10 +19,10 @@ pub const GROUND_ELEVATION: f32 = -0.075;
 pub const GROUND_ELEVATION: f32 = -0.200;
 
 /// Elevation of the grid plane
-/// 
-/// Grid will z-fight with ground plane beneath and path surface above. 
-/// 
-/// This value works for reasonable zoom levels but fighting occurs when zoomed out 
+///
+/// Grid will z-fight with ground plane beneath and path surface above.
+///
+/// This value works for reasonable zoom levels but fighting occurs when zoomed out
 /// at which point it's not noticable.
 #[cfg(not(target_arch = "wasm32"))]
 pub const GRID_ELEVATION: f32 = -0.060;
@@ -30,6 +30,6 @@ pub const GRID_ELEVATION: f32 = -0.060;
 pub const GRID_ELEVATION: f32 = -0.100;
 
 /// Elevation of paths
-/// 
+///
 /// Paths are extruded upwards so the top elevation is higher.
 pub const PATH_ELEVATION: f32 = -0.050;
