@@ -2,7 +2,7 @@ use super::*;
 use crate::geometry::{Edge, Polyline, Sweep, TriangleList, Vec6, Wireframe};
 use crate::infrastructure::SurfaceType::{Carriageway, Footway};
 use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
-use crate::{Helpers, GROUND_HEIGHT};
+use crate::{Helpers, PATH_ELEVATION};
 use bevy::prelude::*;
 use bevy::render::mesh::MeshAabb;
 use bevy::render::primitives::Aabb;
@@ -74,7 +74,7 @@ impl PathSurface {
             self,
             Mesh3d(meshes.add(triangles.clone().to_mesh())),
             MeshMaterial3d(material),
-            Transform::from_translation(Vec3::new(0.0, 0.0, GROUND_HEIGHT)),
+            Transform::from_translation(Vec3::new(0.0, 0.0, PATH_ELEVATION)),
             PickingBehavior::default(),
         );
         let surface_entity = commands

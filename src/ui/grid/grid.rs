@@ -1,6 +1,6 @@
 use super::*;
 use crate::geometry::LineList;
-use crate::{GRID_HEIGHT, GRID_MAX};
+use crate::{GRID_ELEVATION, GRID_MAX};
 use bevy::prelude::*;
 
 #[allow(clippy::integer_division)]
@@ -57,10 +57,10 @@ fn create_lines() -> [LineList; 3] {
     for i in range {
         let a = i as f32 - radius;
         let b = (radius.powi(2) - a.powi(2)).sqrt();
-        let start_x = Vec3::new(a, b, GRID_HEIGHT);
-        let end_x = Vec3::new(a, -b, GRID_HEIGHT);
-        let start_y = Vec3::new(-b, a, GRID_HEIGHT);
-        let end_y = Vec3::new(b, a, GRID_HEIGHT);
+        let start_x = Vec3::new(a, b, GRID_ELEVATION);
+        let end_x = Vec3::new(a, -b, GRID_ELEVATION);
+        let start_y = Vec3::new(-b, a, GRID_ELEVATION);
+        let end_y = Vec3::new(b, a, GRID_ELEVATION);
         if i % SPACING[2] == 0 {
             major.push([start_x, end_x]);
             major.push([start_y, end_y]);

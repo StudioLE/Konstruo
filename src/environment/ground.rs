@@ -1,4 +1,4 @@
-use crate::{ENVIRONMENT_MAX, GROUND_HEIGHT};
+use crate::{ENVIRONMENT_MAX, GROUND_ELEVATION};
 use bevy::asset::Assets;
 use bevy::color::palettes::*;
 use bevy::prelude::*;
@@ -35,7 +35,7 @@ impl Ground {
             Ground,
             Mesh3d(meshes.add(mesh)),
             MeshMaterial3d(materials.add(material)),
-            Transform::from_xyz(0.0, 0.0, GROUND_HEIGHT),
+            Transform::from_xyz(0.0, 0.0, GROUND_ELEVATION),
         );
         commands.spawn(bundle);
     }

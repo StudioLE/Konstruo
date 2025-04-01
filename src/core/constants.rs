@@ -11,7 +11,18 @@ pub const GRID_MAX: u32 = 10_000;
 pub const ENVIRONMENT_MAX: f32 = 10_000.0;
 
 /// Elevation of the ground plane
-pub const GROUND_HEIGHT: f32 = -0.050;
+/// 
+/// A lower elevation is used for WebAssembly to prevent z-fighting
+#[cfg(not(target_arch = "wasm32"))]
+pub const GROUND_ELEVATION: f32 = -0.050;
+#[cfg(target_arch = "wasm32")]
+pub const GROUND_ELEVATION: f32 = -0.200;
 
 /// Elevation of the grid plane
-pub const GRID_HEIGHT: f32 = -0.040;
+#[cfg(not(target_arch = "wasm32"))]
+pub const GRID_ELEVATION: f32 = -0.040;
+#[cfg(target_arch = "wasm32")]
+pub const GRID_ELEVATION: f32 = -0.100;
+
+/// Elevation of paths
+pub const PATH_ELEVATION: f32 = -0.050;
