@@ -20,6 +20,7 @@ impl GridMaterials {
                 base_color: tailwind::LIME_900.with_alpha(0.3).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
+                depth_bias: -2.0,
                 unlit: true,
                 ..Default::default()
             }),
@@ -27,6 +28,7 @@ impl GridMaterials {
                 base_color: tailwind::LIME_900.with_alpha(0.6).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
+                depth_bias: -2.0,
                 unlit: true,
                 ..Default::default()
             }),
@@ -34,6 +36,7 @@ impl GridMaterials {
                 base_color: tailwind::LIME_700.with_alpha(0.4).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
+                depth_bias: 1.0,
                 unlit: true,
                 ..Default::default()
             }),

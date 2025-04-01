@@ -26,7 +26,7 @@ impl Ground {
         let material = StandardMaterial {
             base_color: tailwind::LIME_800.into(),
             perceptual_roughness: 1.0,
-            depth_bias: -2.0,
+            depth_bias: -3.0,
             double_sided: true,
             cull_mode: Some(Face::Back),
             ..default()
