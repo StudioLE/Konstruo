@@ -3,6 +3,8 @@ use bevy::asset::AssetMetaCheck;
 use bevy::log::Level;
 use bevy::log::LogPlugin;
 use bevy::prelude::*;
+use bevy::render::settings::{Backends, RenderCreation, WgpuSettings};
+use bevy::render::RenderPlugin;
 use konstruo::architecture::*;
 use konstruo::distribution::DistributionPlugin;
 use konstruo::environment::*;
@@ -49,6 +51,8 @@ fn configure_default_plugins() -> PluginGroupBuilder {
     let plugins = DefaultPlugins.set(configure_log_plugin());
     if cfg!(target_arch = "wasm32") {
         configure_webassembly(plugins)
+    } else if cfg!(windows) {
+        configure_windows(plugins)
     } else {
         plugins
     }
@@ -109,4 +113,15 @@ fn configure_webassembly(plugins: PluginGroupBuilder) -> PluginGroupBuilder {
             }),
             ..default()
         })
+}
+
+fn configure_windows(plugins: PluginGroupBuilder) -> PluginGroupBuilder {
+    trace!("Configuring DefaultPlugins for Windows");
+    plugins.set(RenderPlugin {
+        render_creation: RenderCreation::Automatic(WgpuSettings {
+            backends: Some(Backends::VULKAN),
+            ..default()
+        }),
+        ..default()
+    })
 }
