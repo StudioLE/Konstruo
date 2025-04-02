@@ -12,7 +12,7 @@ pub struct SunPlugin;
 
 impl Plugin for SunPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(DirectionalLightShadowMap { size: 1024 * 8 })
+        app.insert_resource(DirectionalLightShadowMap { size: 1024 * 2 })
             // .insert_resource(AmbientLight {
             //     color: tailwind::AMBER_50.into(),
             //     brightness: 1_000.0,
