@@ -2,21 +2,25 @@
 
 Try the [WebAssembly demo](http://konstruo.studiole.uk/latest).
 
-Download binaries from [GitHub releases](https://github.com/StudioLE/Konstruo/releases).
+Download binaries for Windows and Linux from [GitHub releases](https://github.com/StudioLE/Konstruo/releases).
+
+Or build from source by following the [build instructions](BUILD.md).
+
+See the current status with videos of [implemented features](https://github.com/StudioLE/Konstruo/issues/28)
 
 ## About
 
 With Konstruo you can design, plan, and build villages, towns, and cities.
 
-Konstruo is many things:
-
 ### For Gamers
 
-Konstruo is a standalone open-ended city-building game giving you the freedom to build villages, towns, and cities with intuitive [urban planning](https://en.wikipedia.org/wiki/Urban_planning) tools developed by industry experts.
+Konstruo is a standalone scenario based town building game giving you the freedom to build villages, towns, and cities with intuitive [urban planning](https://en.wikipedia.org/wiki/Urban_planning) tools.
+
+You'll need to overcome complex constraints to build an optimal community for different sites.
 
 ### For AEC Design Professionals
 
-Konstruo is an intuitive [urban planning](https://en.wikipedia.org/wiki/Urban_planning) tool developed with the expertise of someone who once did this themselves. Wether you're completing a simple capacity study or a detailed urban masterplan Konstruo has the tools to make it happen quickly, intuitively, and without tedium.
+Konstruo is an intuitive [urban planning](https://en.wikipedia.org/wiki/Urban_planning) tool developed with the expertise of someone who once did this themselves. Wether you're completing a simple capacity study or a detailed urban masterplan Konstruo has the tools to make it happen quickly, intuitively, and without the tedium of conventional methods.
 
 ### For Game Developers and Modders
 
@@ -24,28 +28,35 @@ Konstruo is implemented as a collection of plugins for the [Bevy](https://bevyen
 
 Konstruo itself is opinionated but with your expertise you can change that. If you want to add simulation or challenges then you're encouraged to do so.
 
-### For AEC Software Developers
+## Features
 
-## Getting Started
+Right now Konstruo has the absolute basics of a working prototype:
 
-Konstruo is available for Linux, Windows, and Mac.
+- Pan and orbit behaviours for the camera are based on [spherical coordinates](https://mathworld.wolfram.com/SphericalCoordinates.html). They work with either the middle mouse button or the WASD keys (with shift for orbit).
 
-### Linux
+https://github.com/user-attachments/assets/dd268532-60c1-4e45-bf82-f3c88dfd60c8
 
-Binaries for Linux are compiled by the CI pipeline and included as GitHub release assets. Simply find the latest [GitHub Release](https://github.com/StudioLE/Konstruo/releases) and download the asset targetting `x86_64-unknown-linux-gnu`.
+https://github.com/user-attachments/assets/20d0a58f-b0c2-44fe-972e-2af98f0b18c8
 
-### Windows
+- An interactive View Cube gives an alternate and more precise method of orientation.
 
-Binaries for Windows aren't currently compiled but you can do so quickly by following the [build instructions](BUILD.md).
+https://github.com/user-attachments/assets/8d9618a6-efd9-4227-a833-9d93336f8f45
 
-### Mac
+- Roads can be selected to adjust the bézier spline.
 
-As an Apple user you appreciate that good design comes at great cost. Therefore the first step is to send me an exorbitant amount of money.
+https://github.com/user-attachments/assets/7ccd00a4-b999-422a-98db-61fa7c896efe
 
-Binaries for Mac aren't currently compiled but you can do so quickly by following the [build instructions](BUILD.md).
+- Roads and paths can be drawn as bézier splines (click and drag to place the handle).
+
+https://github.com/user-attachments/assets/9a177f4b-45d0-4533-bc2f-b34eca606dfa
+
+- UI is loosely based on Material Design 3. The intention is to keep the UI as minimal as possible so buttons are only shown in specific contexts (ie after selecting a road).
+
+- Houses can be distributed alongside a road using FlexBox. Currently the UI doesn't allow adding houses to a new road but I'll probably add that next.
+
+- Houses are procedurally generated without any external models/assets. Each house is simply an array of cuboid modules. Window and door openings are distributed across the facade with FlexBox. See: https://github.com/StudioLE/Konstruo/blob/ab59a6a7aa5174585696c7d48b1f0b0f2f3ac89f/src/architecture/modular/templates.rs#L97-L160
 
 ## Bevy Plugins and Libraries
-
 
 > [!NOTE]
 > Please be aware that Konstruo deviates from the Bevy conventions for [coordiante systems](https://bevy-cheatbook.github.io/fundamentals/coords.html).
@@ -74,9 +85,21 @@ The distribution library provides an intuitive fluent `FlexboxBuilder` struct. Y
 
 The distribution library is powered by the [taffy](https://github.com/DioxusLabs/taffy) layout library that already powers Bevy's 2D UI layout.
 
-#### Geometry library [`src/core/geometry`](tree/main/src/core/geometry)
+#### Primitive geometry library [`src/core/geometry/primitives`](tree/main/src/core/geometry)
 
 Includes struct for `Polyline` (`LineStrip`), `LineList`, `TriangleList` and `TriangleStrip` to simplify the generation of `Mesh` without the abstract complexity of Bevy's `PrimitiveTopology`.
+
+#### Transform based 3D shape library [`src/core/geometry/shapes_3d`](tree/main/src/core/geometry)
+
+Includes struct for `Cuboid`, `TrianglularPrism`, and `Sweep` that are transformable and have methods to get specific vertices, edges, and faces.
+
+#### Geometry topolology library [`src/core/geometry/topology`](tree/main/src/core/geometry)
+
+Includes:
+- `Orientation` enum for identifting individual faces of a cuboid (eg: `Front`), edges as a pair (eg: `[Front, Left]`), or vertices as a triplet: (`[Top, Front Left]`).
+- `Subdivision` logic for creating a rectangular openings in a rectangle.
+- `Vec6` a struct for defining 3D margins or offsets.
+- `Edge`, `Solid`, `Wireframe` marker components.
 
 #### Kinematics library [`src/core/kinematics`](tree/main/src/core/kinematics)
 
@@ -90,7 +113,7 @@ Basic essentials for `f32` along with methods for working with [spherical coordi
 
 #### Architecture plugins [`src/architecture`](tree/main/src/architecture)
 
-Generate modular buildings.
+Procedurally generate modular buildings
 
 #### Environment plugins [`src/environment`](tree/main/src/environment)
 
@@ -98,9 +121,9 @@ Graphical components for the sun, sky, and ground.
 
 #### Infrastructure plugins [`src/infrastructure`](tree/main/src/infrastructure)
 
-`Way` components for Bevy's entity component system that are drawn as a cubic bézier.
+`Path` components for Bevy's entity component system that are drawn as a cubic bézier.
 
-Way are the foundational component of Konstruo.In its most basic use a way defines the centerline of a road so the way is used to generate the 3D representation of the road surface, the footway (pavement or sidewalk) alongside, and then is defines the zones where buildings are distributed alongside the road.
+`Path` are the foundational component of Konstruo. In its most basic use a way defines the centerline of a road so the way is used to generate the 3D representation of the road surface, the footway (pavement or sidewalk) alongside, and then is defines the zones where buildings are distributed alongside the road.
 
 #### UI plugins [`src/ui`](tree/main/src/ui)
 
