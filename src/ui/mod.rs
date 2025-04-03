@@ -7,6 +7,7 @@ pub use grid::*;
 pub use interaction::*;
 pub use interface::*;
 pub use pan_orbit::*;
+pub use pressed::*;
 pub use view_cube::*;
 
 mod axis_marker;
@@ -18,4 +19,5 @@ mod grid;
 mod interaction;
 mod interface;
 mod pan_orbit;
+mod pressed;
 mod view_cube;

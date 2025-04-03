@@ -29,6 +29,7 @@ fn main() {
         .add_plugins(GroundPlugin)
         .add_plugins(OriginMarkerPlugin)
         .add_plugins(PanOrbitCameraPlugin)
+        .add_plugins(PressedKeysPlugin)
         .add_plugins(SkyPlugin)
         .add_plugins(SunPlugin)
         .add_plugins(ViewCubePlugin)
