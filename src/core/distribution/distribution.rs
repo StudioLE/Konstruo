@@ -167,8 +167,8 @@ fn process_children(
                 distributable.size = Some(container.size);
             } else {
                 warn!("Entity has `Distribution` component but no children: {entity}");
-            };
-        };
+            }
+        }
         unsorted.push((*entity, distributable));
     }
     unsorted

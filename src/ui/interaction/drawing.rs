@@ -225,7 +225,7 @@ impl Drawing {
         };
         if trigger.button != PointerButton::Primary {
             return;
-        };
+        }
         let Ok(cursor) = Cursor::from_position(&camera, trigger.pointer_location.position) else {
             warn!("Failed to get cursor position");
             return;
@@ -244,7 +244,7 @@ impl Drawing {
         };
         if trigger.button != PointerButton::Primary {
             return;
-        };
+        }
         let Ok(cursor) = Cursor::from_position(&camera, trigger.pointer_location.position) else {
             warn!("Failed to get cursor position");
             return;

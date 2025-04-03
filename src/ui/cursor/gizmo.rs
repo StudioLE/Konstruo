@@ -22,5 +22,5 @@ fn axis_gizmo_system(
 ) {
     if let Ok(position) = Cursor::from_window(&window, &camera) {
         AxisGizmo::draw_at(gizmos, position, GIZMO_LENGTH);
-    };
+    }
 }

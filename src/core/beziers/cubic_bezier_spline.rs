@@ -287,7 +287,7 @@ impl CubicBezierSpline {
                     self.curves[curve + 1].start_handle += translation;
                 }
             }
-        };
+        }
     }
 
     /// Flatten a [`CubicBezier`] into a polyline.

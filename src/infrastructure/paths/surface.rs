@@ -109,7 +109,7 @@ impl PathSurface {
             if !updated.insert(event.path) {
                 duplicates += 1;
                 continue;
-            };
+            }
             for (entity, surface, parent, mut mesh, mut aabb) in &mut surfaces {
                 if parent.get() != event.path {
                     continue;
