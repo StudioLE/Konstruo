@@ -7,13 +7,13 @@ use bevy::prelude::*;
 #[require(InheritedVisibility, Transform)]
 pub struct ModularBuilding;
 
-/// Factory to horizontally array vertical stacks of [`BuildingModule`].
-pub struct ModularBuildingFactory {
-    pub stacks: Vec<BuildingModuleStackFactory>,
+/// A definition to horizontally array vertical stacks of [`BuildingModule`].
+pub struct ModularBuildingInfo {
+    pub stacks: Vec<BuildingModuleStackInfo>,
 }
 
 impl ModularBuilding {
-    /// Create a bundle for [`ModularBuildingFactory`].
+    /// Create a bundle for [`ModularBuildingInfo`].
     fn bundle() -> (ModularBuilding, Distribution) {
         (
             ModularBuilding,
@@ -29,19 +29,13 @@ impl ModularBuilding {
     }
 }
 
-impl ModularBuildingFactory {
+impl ModularBuildingFactory<'_> {
     /// Spawn the full hierarchy of [`BuildingPlot`] > [`BuildingModuleStack`] > [`BuildingModule`].
-    pub fn spawn(
-        self,
-        commands: &mut Commands,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        building_meshes: &Res<BuildingMeshes>,
-        materials: &Res<BuildingMaterials>,
-    ) -> Entity {
+    pub fn spawn(&mut self, building: ModularBuildingInfo) -> Entity {
         let bundle = ModularBuilding::bundle();
-        let plot = commands.spawn(bundle).id();
-        for (index, stack) in self.stacks.into_iter().enumerate() {
-            stack.spawn(commands, meshes, building_meshes, materials, index, plot);
+        let plot = self.commands.spawn(bundle).id();
+        for (index, stack) in building.stacks.into_iter().enumerate() {
+            self.spawn_stack(stack, index, plot);
         }
         plot
     }

@@ -15,8 +15,8 @@ impl BuildingTemplates {
     /// NIA: 75 sq m
     /// Orientation: Parallel
     #[must_use]
-    pub fn _2b4p1s0g() -> ModularBuildingFactory {
-        ModularBuildingFactory {
+    pub fn _2b4p1s0g() -> ModularBuildingInfo {
+        ModularBuildingInfo {
             stacks: vec![StackTemplates::_2b4p1s()],
         }
     }
@@ -28,8 +28,8 @@ impl BuildingTemplates {
     /// NIA: 75 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    pub fn _2b4p1s0g_perp() -> ModularBuildingFactory {
-        ModularBuildingFactory {
+    pub fn _2b4p1s0g_perp() -> ModularBuildingInfo {
+        ModularBuildingInfo {
             stacks: vec![StackTemplates::_2b4p1s_perp()],
         }
     }
@@ -41,8 +41,8 @@ impl BuildingTemplates {
     /// NIA: 104 sq m
     /// Orientation: Parallel
     #[must_use]
-    pub fn _3b6p2s2g() -> ModularBuildingFactory {
-        ModularBuildingFactory {
+    pub fn _3b6p2s2g() -> ModularBuildingInfo {
+        ModularBuildingInfo {
             stacks: vec![StackTemplates::_3b6p2s(), StackTemplates::_2g()],
         }
     }
@@ -54,8 +54,8 @@ impl BuildingTemplates {
     /// NIA: 104 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    pub fn _3b6p2s2g_perp() -> ModularBuildingFactory {
-        ModularBuildingFactory {
+    pub fn _3b6p2s2g_perp() -> ModularBuildingInfo {
+        ModularBuildingInfo {
             stacks: vec![StackTemplates::_3b6p2s_perp(), StackTemplates::_2g()],
         }
     }
@@ -67,8 +67,8 @@ impl BuildingTemplates {
     /// NIA: 127 sq m
     /// Orientation: Parallel
     #[must_use]
-    pub fn _4b8p2s2g() -> ModularBuildingFactory {
-        ModularBuildingFactory {
+    pub fn _4b8p2s2g() -> ModularBuildingInfo {
+        ModularBuildingInfo {
             stacks: vec![StackTemplates::_4b8p2s(), StackTemplates::_2g()],
         }
     }
@@ -80,8 +80,8 @@ impl BuildingTemplates {
     /// NIA: 127 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    pub fn _4b8p2s2g_perp() -> ModularBuildingFactory {
-        ModularBuildingFactory {
+    pub fn _4b8p2s2g_perp() -> ModularBuildingInfo {
+        ModularBuildingInfo {
             stacks: vec![StackTemplates::_4b8p2s_perp(), StackTemplates::_2g()],
         }
     }
@@ -94,10 +94,10 @@ impl StackTemplates {
     /// NIA: 75 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _2b4p1s() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _2b4p1s() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 10.200,
                     length: 8.400,
@@ -147,7 +147,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 10.200,
                     length: 8.400,
@@ -165,10 +165,10 @@ impl StackTemplates {
     /// NIA: 75 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    fn _2b4p1s_perp() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _2b4p1s_perp() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 8.400,
                     length: 10.200,
@@ -213,7 +213,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 8.400,
                     length: 10.200,
@@ -230,10 +230,10 @@ impl StackTemplates {
     /// NIA: 75 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _2b4p1s_long() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _2b4p1s_long() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 12.000,
                     length: 7.200,
@@ -283,7 +283,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 12.000,
                     length: 7.200,
@@ -301,10 +301,10 @@ impl StackTemplates {
     /// NIA: 75 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    fn _2b4p1s_long_perp() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _2b4p1s_long_perp() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 7.200,
                     length: 12.000,
@@ -349,7 +349,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 7.200,
                     length: 12.000,
@@ -367,10 +367,10 @@ impl StackTemplates {
     /// NIA: 104 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _3b6p2s() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _3b6p2s() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 10.200,
                     length: 6.000,
@@ -420,7 +420,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 10.200,
                     length: 6.000,
@@ -470,7 +470,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 2,
                     width: 10.200,
                     length: 6.000,
@@ -488,10 +488,10 @@ impl StackTemplates {
     /// NIA: 104 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    fn _3b6p2s_perp() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _3b6p2s_perp() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 6.000,
                     length: 10.200,
@@ -536,7 +536,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 6.000,
                     length: 10.200,
@@ -586,7 +586,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 2,
                     width: 6.000,
                     length: 10.200,
@@ -604,10 +604,10 @@ impl StackTemplates {
     /// NIA: 127 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _4b8p2s() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _4b8p2s() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 10.200,
                     length: 7.200,
@@ -657,7 +657,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 10.200,
                     length: 7.200,
@@ -707,7 +707,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 2,
                     width: 10.200,
                     length: 7.200,
@@ -724,10 +724,10 @@ impl StackTemplates {
     /// NIA: 127 sq m
     /// Orientation: Perpendicular
     #[must_use]
-    fn _4b8p2s_perp() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _4b8p2s_perp() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 7.200,
                     length: 10.200,
@@ -772,7 +772,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 7.200,
                     length: 10.200,
@@ -822,7 +822,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 2,
                     width: 7.200,
                     length: 10.200,
@@ -837,10 +837,10 @@ impl StackTemplates {
     /// NIA: 26 sq m
     /// Orientation: Parallel
     #[must_use]
-    fn _2g() -> BuildingModuleStackFactory {
-        BuildingModuleStackFactory {
+    fn _2g() -> BuildingModuleStackInfo {
+        BuildingModuleStackInfo {
             modules: vec![
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 0,
                     width: 6.000,
                     length: 5.400,
@@ -874,7 +874,7 @@ impl StackTemplates {
                     ]),
                     ..default()
                 },
-                BuildingModuleFactory {
+                BuildingModuleInfo {
                     level: 1,
                     width: 6.000,
                     length: 5.400,

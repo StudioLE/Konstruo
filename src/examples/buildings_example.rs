@@ -11,12 +11,17 @@ impl Plugin for BuildingsExample {
 
 impl BuildingsExample {
     fn startup_system(
-        mut commands: Commands,
-        mut meshes: ResMut<Assets<Mesh>>,
+        commands: Commands,
+        meshes: ResMut<Assets<Mesh>>,
         building_meshes: Res<BuildingMeshes>,
         materials: Res<BuildingMaterials>,
     ) {
-        let building = BuildingTemplates::_4b8p2s2g();
-        building.spawn(&mut commands, &mut meshes, &building_meshes, &materials);
+        let mut factory = ModularBuildingFactory {
+            commands,
+            meshes,
+            building_meshes,
+            materials,
+        };
+        factory.spawn(BuildingTemplates::_4b8p2s2g());
     }
 }

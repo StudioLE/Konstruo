@@ -2,14 +2,14 @@ use super::*;
 use crate::distribution::{Distributable, Distribution, FlexBuilder};
 use bevy::prelude::*;
 
-/// A vertical stack of [`BuildingModuleFactory`].
+/// A vertical stack of [`BuildingModuleInfo`].
 #[derive(Clone, Component, Debug)]
 #[require(InheritedVisibility, Transform)]
 pub struct BuildingModuleStack;
 
-/// A factory to create a [`BuildingModuleStack`].
-pub struct BuildingModuleStackFactory {
-    pub modules: Vec<BuildingModuleFactory>,
+/// A defintion to create a [`BuildingModuleStack`].
+pub struct BuildingModuleStackInfo {
+    pub modules: Vec<BuildingModuleInfo>,
 }
 
 impl BuildingModuleStack {
@@ -30,22 +30,19 @@ impl BuildingModuleStack {
     }
 }
 
-impl BuildingModuleStackFactory {
-    /// Spawn the hierarchy of [`BuildingModuleStack`] > [`BuildingModuleFactory`].
-    pub(super) fn spawn(
-        self,
-        commands: &mut Commands,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        building_meshes: &Res<BuildingMeshes>,
-        materials: &Res<BuildingMaterials>,
+impl ModularBuildingFactory<'_> {
+    /// Spawn the hierarchy of [`BuildingModuleStack`] > [`BuildingModuleInfo`].
+    pub(super) fn spawn_stack(
+        &mut self,
+        stack: BuildingModuleStackInfo,
         index: usize,
         plot: Entity,
     ) -> Entity {
         let bundle = BuildingModuleStack::bundle(index);
-        let stack = commands.spawn(bundle).set_parent(plot).id();
-        for (order, module) in self.modules.into_iter().enumerate() {
-            module.spawn(commands, meshes, building_meshes, materials, order, stack);
+        let stack_entity = self.commands.spawn(bundle).set_parent(plot).id();
+        for (order, module) in stack.modules.into_iter().enumerate() {
+            self.spawn_module(&module, order, stack_entity);
         }
-        stack
+        stack_entity
     }
 }

@@ -1,5 +1,6 @@
 use crate::architecture::{
     BuildingMaterials, BuildingMeshes, BuildingTemplates, ModularBuildingFactory,
+    ModularBuildingInfo,
 };
 use crate::distribution::*;
 use crate::infrastructure::{Path, LENGTH_ACCURACY, OFFSET_ACCURACY};
@@ -28,9 +29,9 @@ impl Default for State {
 }
 
 fn path_added_system(
-    mut commands: Commands,
+    commands: Commands,
     mut state: ResMut<State>,
-    mut meshes: ResMut<Assets<Mesh>>,
+    meshes: ResMut<Assets<Mesh>>,
     building_meshes: Res<BuildingMeshes>,
     materials: Res<BuildingMaterials>,
     query: Query<(Entity, &Path), Added<Path>>,
@@ -38,6 +39,12 @@ fn path_added_system(
     if !state.enabled {
         return;
     }
+    let mut factory = ModularBuildingFactory {
+        commands,
+        meshes,
+        building_meshes,
+        materials,
+    };
     for (path_entity, path) in query.iter() {
         let spline = path
             .spline
@@ -54,10 +61,11 @@ fn path_added_system(
             spline_offset: Some(SPLINE_OFFSET),
             translate_to_ground: true,
         },);
-        let distribution_entity = commands.spawn(bundle).set_parent(path_entity).id();
-        for (distributable, factory) in get_items() {
-            let plot = factory.spawn(&mut commands, &mut meshes, &building_meshes, &materials);
-            commands
+        let distribution_entity = factory.commands.spawn(bundle).set_parent(path_entity).id();
+        for (distributable, building) in get_items() {
+            let plot = factory.spawn(building);
+            factory
+                .commands
                 .entity(plot)
                 .insert(distributable)
                 .set_parent(distribution_entity);
@@ -66,7 +74,7 @@ fn path_added_system(
     }
 }
 
-fn get_items() -> Vec<(Distributable, ModularBuildingFactory)> {
+fn get_items() -> Vec<(Distributable, ModularBuildingInfo)> {
     vec![
         (
             Distributable {
