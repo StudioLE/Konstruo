@@ -10,7 +10,7 @@ use bevy::prelude::*;
 pub struct ActionBar;
 
 impl ActionBar {
-    /// System to setup the [`ActionBar`]
+    /// System to create an [`ActionBar`] positioned to the bottom left of the [`PrimaryCamera`].
     pub(super) fn startup_system(
         mut commands: Commands,
         query: Query<Entity, With<PrimaryCamera>>,
@@ -19,8 +19,9 @@ impl ActionBar {
             warn!("Failed to get PrimaryCamera");
             return;
         };
-        let parent = commands.spawn(parent_bundle(camera)).id();
-        commands.spawn(bundle()).set_parent(parent);
+        commands
+            .spawn(fullscreen_bundle(camera))
+            .with_child(bar_bundle());
     }
 
     /// System to update the [`ActionBar`] when [`InterfaceState`] is changed.
@@ -46,7 +47,7 @@ impl ActionBar {
     }
 }
 
-fn parent_bundle(camera: Entity) -> impl Bundle {
+fn fullscreen_bundle(camera: Entity) -> impl Bundle {
     (
         UiTargetCamera(camera),
         Node {
@@ -61,7 +62,7 @@ fn parent_bundle(camera: Entity) -> impl Bundle {
     )
 }
 
-fn bundle() -> impl Bundle {
+fn bar_bundle() -> impl Bundle {
     (
         ActionBar,
         Node {

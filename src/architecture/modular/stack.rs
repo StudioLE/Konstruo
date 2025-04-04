@@ -14,7 +14,7 @@ pub struct BuildingModuleStackInfo {
 
 impl BuildingModuleStack {
     /// Create a bundle for [`BuildingModuleStack`].
-    pub(super) fn bundle(index: usize) -> (BuildingModuleStack, Distributable, Distribution) {
+    pub(super) fn bundle(index: usize, parent: Entity) -> impl Bundle {
         (
             BuildingModuleStack,
             Distributable {
@@ -26,6 +26,7 @@ impl BuildingModuleStack {
                 translate_to_ground: true,
                 ..default()
             },
+            ChildOf { parent },
         )
     }
 }
@@ -38,8 +39,8 @@ impl ModularBuildingFactory<'_> {
         index: usize,
         plot: Entity,
     ) -> Entity {
-        let bundle = BuildingModuleStack::bundle(index);
-        let stack_entity = self.commands.spawn(bundle).set_parent(plot).id();
+        let bundle = BuildingModuleStack::bundle(index, plot);
+        let stack_entity = self.commands.spawn(bundle).id();
         for (order, module) in stack.modules.into_iter().enumerate() {
             self.spawn_module(&module, order, stack_entity);
         }

@@ -124,7 +124,7 @@ impl PathFactory<'_> {
             for bundle in bundles {
                 self.commands
                     .spawn(bundle)
-                    .set_parent(path)
+                    .insert(ChildOf { parent: path })
                     .observe(on_pointer_over)
                     .observe(on_pointer_out)
                     .observe(on_pointer_drag_start)

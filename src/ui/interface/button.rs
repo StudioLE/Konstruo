@@ -16,13 +16,26 @@ pub enum FloatingActionButtonSize {
 }
 
 impl FloatingActionButton {
+    #[allow(clippy::must_use_candidate)]
     pub fn spawn(
         commands: &mut Commands,
         size: FloatingActionButtonSize,
         icon: Handle<Image>,
         parent: Entity,
         mut action: Observer,
-    ) {
+    ) -> Entity {
+        let button = commands
+            .spawn(Self::button_bundle(size, parent))
+            .observe(on_pointer_over)
+            .observe(on_pointer_out)
+            .with_child(Self::icon_bundle(icon))
+            .id();
+        action.watch_entity(button);
+        commands.spawn(action);
+        button
+    }
+
+    fn button_bundle(size: FloatingActionButtonSize, parent: Entity) -> impl Bundle {
         let radius = match size {
             Small => 12.0,
             Medium => 16.0,
@@ -35,31 +48,26 @@ impl FloatingActionButton {
             Small => 8.0,
             Medium => 16.0,
         };
-        let node = Node {
-            padding: UiRect::all(Val::Px(padding)),
-            margin: UiRect::all(Val::Px(margin)),
-            min_height: Val::Px(24.0 + padding * 2.0),
-            min_width: Val::Px(24.0 + padding * 2.0),
-            overflow: Overflow::visible(),
-            align_items: AlignItems::Center,
-            justify_content: JustifyContent::Center,
-            ..default()
-        };
-        let bundle = (
-            node,
+        (
+            FloatingActionButton,
+            ChildOf { parent },
+            Node {
+                padding: UiRect::all(Val::Px(padding)),
+                margin: UiRect::all(Val::Px(margin)),
+                min_height: Val::Px(24.0 + padding * 2.0),
+                min_width: Val::Px(24.0 + padding * 2.0),
+                overflow: Overflow::visible(),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
             BackgroundColor(ENABLED.into()),
             BorderRadius::all(Val::Px(radius)),
-            FloatingActionButton,
-        );
-        let button = commands
-            .spawn(bundle)
-            .set_parent(parent)
-            .observe(on_pointer_over)
-            .observe(on_pointer_out)
-            .id();
-        action.watch_entity(button);
-        commands.spawn(action);
-        commands.spawn(ImageNode::new(icon)).set_parent(button);
+        )
+    }
+
+    fn icon_bundle(icon: Handle<Image>) -> impl Bundle {
+        ImageNode::new(icon)
     }
 }
 

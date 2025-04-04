@@ -9,7 +9,7 @@ const FRAME_COLOR: Srgba = tailwind::SLATE_400;
 #[derive(Component)]
 pub struct Interceptor;
 
-/// Intercept pointer events.
+/// A UI frame that intercepts pointer events and displays a label indicating the active mode.
 #[derive(Component)]
 pub struct InterceptorLabel;
 
@@ -25,16 +25,17 @@ impl Interceptor {
             return;
         };
         let font = assets.load(DEFAULT_FONT);
-        let parent = commands
-            .spawn(interceptor_bundle(camera))
-            .observe(Drawing::on_pointer_down)
-            .observe(Drawing::on_pointer_up)
-            .id();
-        let parent = commands.spawn(frame_bundle()).set_parent(parent).id();
         commands
-            .spawn(label_container_bundle())
-            .set_parent(parent)
-            .with_child(label_text_bundle(font));
+            .spawn(interceptor_bundle(camera))
+            .with_children(|commands| {
+                commands.spawn(frame_bundle()).with_children(|commands| {
+                    commands
+                        .spawn(label_container_bundle())
+                        .with_child(label_text_bundle(font));
+                });
+            })
+            .observe(Drawing::on_pointer_down)
+            .observe(Drawing::on_pointer_up);
     }
 
     /// System to update the [`Interceptor`] visibility when [`InterfaceState`] is changed.
@@ -66,16 +67,7 @@ impl Interceptor {
 }
 
 #[must_use]
-fn interceptor_bundle(
-    camera: Entity,
-) -> (
-    Interceptor,
-    Node,
-    Pickable,
-    ZIndex,
-    UiTargetCamera,
-    Visibility,
-) {
+fn interceptor_bundle(camera: Entity) -> impl Bundle {
     (
         Interceptor,
         Node {
@@ -91,7 +83,7 @@ fn interceptor_bundle(
 }
 
 #[must_use]
-fn frame_bundle() -> (Node, BorderColor, BorderRadius) {
+fn frame_bundle() -> impl Bundle {
     (
         Node {
             border: UiRect::all(Val::Px(8.0)),
@@ -106,7 +98,7 @@ fn frame_bundle() -> (Node, BorderColor, BorderRadius) {
 }
 
 #[must_use]
-fn label_container_bundle() -> (Node, BackgroundColor, BorderColor, BorderRadius) {
+fn label_container_bundle() -> impl Bundle {
     (
         Node {
             padding: UiRect::px(8.0, 8.0, 4.0, 4.0),
@@ -119,7 +111,7 @@ fn label_container_bundle() -> (Node, BackgroundColor, BorderColor, BorderRadius
 }
 
 #[must_use]
-fn label_text_bundle(font: Handle<Font>) -> (InterceptorLabel, Text, TextColor, TextFont) {
+fn label_text_bundle(font: Handle<Font>) -> impl Bundle {
     (
         InterceptorLabel,
         Text::new("Drawing"),

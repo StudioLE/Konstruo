@@ -2,6 +2,8 @@ use crate::geometry::{Polygon, Vec3Helpers};
 use bevy::prelude::*;
 use std::ops::Neg;
 
+// TODO: Rename to RectangularOpeningSubtraction
+
 /// A strategy to subdivide a rectangle into multiple rectangle by subtracting openings.
 #[derive(Clone)]
 pub struct Subdivision {

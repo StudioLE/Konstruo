@@ -29,37 +29,31 @@ impl PressedKeysPlugin {
             return;
         };
         let font = assets.load(DEFAULT_FONT);
-        let full = commands.spawn(fullscreen(camera)).id();
-        let container = commands.spawn(container()).set_parent(full).id();
-        let mouse = commands
-            .spawn(PressedMouseButton::container_bundle())
-            .set_parent(container)
-            .id();
-        let row = commands
-            .spawn(PressedMouseButton::buttons_row_bundle())
-            .set_parent(mouse)
-            .id();
         commands
-            .spawn(PressedMouseButton::body_bundle())
-            .set_parent(mouse);
-        commands
-            .spawn(PressedMouseButton::button_left_bundle())
-            .set_parent(row);
-        commands
-            .spawn(PressedMouseButton::button_middle_bundle())
-            .set_parent(row);
-        commands
-            .spawn(PressedMouseButton::button_right_bundle())
-            .set_parent(row);
-        for _index in 0..PressedKey::KEYS.len() {
-            let entity = commands
-                .spawn(PressedKey::key_bundle())
-                .set_parent(container)
-                .id();
-            commands
-                .spawn(PressedKey::key_label_bundle(font.clone()))
-                .set_parent(entity);
-        }
+            .spawn(fullscreen_bundle(camera))
+            .with_children(|commands| {
+                commands
+                    .spawn(container_bundle())
+                    .with_children(|commands| {
+                        commands
+                            .spawn(PressedMouseButton::container_bundle())
+                            .with_children(|commands| {
+                                commands
+                                    .spawn(PressedMouseButton::buttons_row_bundle())
+                                    .with_children(|commands| {
+                                        commands.spawn(PressedMouseButton::button_left_bundle());
+                                        commands.spawn(PressedMouseButton::button_middle_bundle());
+                                        commands.spawn(PressedMouseButton::button_right_bundle());
+                                    });
+                                commands.spawn(PressedMouseButton::body_bundle());
+                            });
+                        for _index in 0..PressedKey::KEYS.len() {
+                            commands
+                                .spawn(PressedKey::key_bundle())
+                                .with_child(PressedKey::key_label_bundle(font.clone()));
+                        }
+                    });
+            });
     }
 
     pub(super) fn inactive_color() -> Color {
@@ -67,7 +61,7 @@ impl PressedKeysPlugin {
     }
 }
 
-fn fullscreen(camera: Entity) -> impl Bundle {
+fn fullscreen_bundle(camera: Entity) -> impl Bundle {
     (
         UiTargetCamera(camera),
         Node {
@@ -82,7 +76,7 @@ fn fullscreen(camera: Entity) -> impl Bundle {
     )
 }
 
-fn container() -> impl Bundle {
+fn container_bundle() -> impl Bundle {
     (
         Node {
             margin: UiRect::px(16.0, 16.0, 16.0, 16.0),

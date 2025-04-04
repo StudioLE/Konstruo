@@ -147,14 +147,13 @@ impl PathFactory<'_> {
     pub fn spawn_surface(&mut self, surface: PathSurface, path: &Path, path_entity: Entity) {
         let sweep = Sweep::new(&path.spline, surface.offsets);
         let triangles = sweep.clone().to_triangle_list();
-        let surface_bundle = self.surface_bundle(surface, triangles.clone());
+        let surface_bundle = self.surface_bundle(surface, triangles.clone(), path_entity);
         let surface_entity = self
             .commands
             .spawn(surface_bundle)
             .observe(on_pointer_over)
             .observe(on_pointer_out)
             .observe(on_pointer_click)
-            .set_parent(path_entity)
             .id();
         if WIREFRAME_ENABLED {
             self.spawn_wireframe(triangles, surface_entity);
@@ -163,7 +162,12 @@ impl PathFactory<'_> {
     }
 
     /// Spawn a [`PathSurface`] with its mesh geometry.
-    fn surface_bundle(&mut self, surface: PathSurface, triangles: TriangleList) -> impl Bundle {
+    fn surface_bundle(
+        &mut self,
+        surface: PathSurface,
+        triangles: TriangleList,
+        parent: Entity,
+    ) -> impl Bundle {
         let material = self.materials.get_surface(&surface.purpose);
         (
             surface,
@@ -171,6 +175,7 @@ impl PathFactory<'_> {
             MeshMaterial3d(material),
             Transform::from_translation(Vec3::new(0.0, 0.0, PATH_ELEVATION)),
             Pickable::default(),
+            ChildOf { parent },
         )
     }
 
@@ -182,13 +187,14 @@ impl PathFactory<'_> {
                 Wireframe,
                 Mesh3d(self.meshes.add(polyline.to_mesh())),
                 MeshMaterial3d(self.materials.wireframe.clone()),
+                ChildOf { parent },
             );
-            self.commands.spawn(bundle).set_parent(parent);
+            self.commands.spawn(bundle);
         }
     }
 
     // TODO: Revise to create a single edges entity
-    fn spawn_edges(&mut self, sweep: Sweep, surface_entity: Entity, is_selected: bool) {
+    fn spawn_edges(&mut self, sweep: Sweep, parent: Entity, is_selected: bool) {
         let edges = sweep.get_edges();
         let material = self.materials.edge.clone();
         let visibility = if is_selected {
@@ -202,8 +208,9 @@ impl PathFactory<'_> {
                 visibility,
                 Mesh3d(self.meshes.add(edge.to_mesh())),
                 MeshMaterial3d(material.clone()),
+                ChildOf { parent },
             );
-            self.commands.spawn(bundle).set_parent(surface_entity);
+            self.commands.spawn(bundle);
         }
     }
 }

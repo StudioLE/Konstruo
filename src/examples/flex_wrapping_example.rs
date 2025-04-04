@@ -1,5 +1,5 @@
 use crate::distribution::*;
-use crate::examples::ExampleHelpers;
+use crate::examples::ExampleFactory;
 use bevy::prelude::*;
 
 pub struct FlexWrappingExample;
@@ -11,10 +11,15 @@ impl Plugin for FlexWrappingExample {
 }
 
 fn startup_system(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    commands: Commands,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    let mut factory = ExampleFactory {
+        commands,
+        meshes,
+        materials,
+    };
     let flex = FlexBuilder::new()
         .with_axis(Vec3::X, Vec3::Y)
         .with_bounds(Vec3::new(10.0, 20.0, 30.0))
@@ -25,16 +30,9 @@ fn startup_system(
         .with_align_items_normal(AlignItems::Start)
         .with_gap(Vec3::new(0.5, 0.5, 3.0))
         .build();
-    let distribution_entity =
-        ExampleHelpers::spawn_container(&mut commands, &mut meshes, &mut materials, flex);
+    let distribution_entity = factory.spawn_container(flex);
     let items = get_items();
-    ExampleHelpers::spawn_items(
-        &mut commands,
-        &mut meshes,
-        &mut materials,
-        items,
-        distribution_entity,
-    );
+    factory.spawn_items(items, distribution_entity);
 }
 
 fn get_items() -> Vec<Distributable> {

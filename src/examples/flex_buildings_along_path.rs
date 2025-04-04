@@ -1,7 +1,4 @@
-use crate::architecture::{
-    BuildingMaterials, BuildingMeshes, BuildingTemplates, ModularBuildingFactory,
-    ModularBuildingInfo,
-};
+use crate::architecture::*;
 use crate::distribution::*;
 use crate::infrastructure::{Path, LENGTH_ACCURACY, OFFSET_ACCURACY};
 use bevy::prelude::*;
@@ -28,6 +25,44 @@ impl Default for State {
     }
 }
 
+impl ModularBuildingFactory<'_> {
+    fn spawn_example(&mut self, entity: Entity, path: &Path) -> Entity {
+        let distribution = distribution_bundle(path, entity);
+        let distribution_entity = self.commands.spawn(distribution).id();
+        for (distributable, building) in get_items() {
+            let plot = self.spawn(building);
+            self.commands
+                .entity(plot)
+                .insert(distributable)
+                .insert(ChildOf {
+                    parent: distribution_entity,
+                });
+        }
+        distribution_entity
+    }
+}
+
+fn distribution_bundle(path: &Path, parent: Entity) -> impl Bundle {
+    let spline = path
+        .spline
+        .offset(SPLINE_OFFSET, OFFSET_ACCURACY)
+        .expect("spline offset should be valid");
+    let spline_length = spline.get_length(LENGTH_ACCURACY);
+    (
+        Distribution {
+            flex: FlexBuilder::new()
+                .with_bounds(Vec3::new(spline_length, 0.0, 0.0))
+                .with_justify_content(JustifyContent::SpaceAround)
+                .with_align_items_cross(AlignItems::FlexStart)
+                .build(),
+            spline: Some(spline),
+            spline_offset: Some(SPLINE_OFFSET),
+            translate_to_ground: true,
+        },
+        ChildOf { parent },
+    )
+}
+
 fn path_added_system(
     commands: Commands,
     mut state: ResMut<State>,
@@ -45,31 +80,8 @@ fn path_added_system(
         building_meshes,
         materials,
     };
-    for (path_entity, path) in query.iter() {
-        let spline = path
-            .spline
-            .offset(SPLINE_OFFSET, OFFSET_ACCURACY)
-            .expect("spline offset should be valid");
-        let spline_length = spline.get_length(LENGTH_ACCURACY);
-        let bundle = (Distribution {
-            flex: FlexBuilder::new()
-                .with_bounds(Vec3::new(spline_length, 0.0, 0.0))
-                .with_justify_content(JustifyContent::SpaceAround)
-                .with_align_items_cross(AlignItems::FlexStart)
-                .build(),
-            spline: Some(spline),
-            spline_offset: Some(SPLINE_OFFSET),
-            translate_to_ground: true,
-        },);
-        let distribution_entity = factory.commands.spawn(bundle).set_parent(path_entity).id();
-        for (distributable, building) in get_items() {
-            let plot = factory.spawn(building);
-            factory
-                .commands
-                .entity(plot)
-                .insert(distributable)
-                .set_parent(distribution_entity);
-        }
+    for (entity, path) in query.iter() {
+        factory.spawn_example(entity, path);
         state.enabled = false;
     }
 }

@@ -110,6 +110,7 @@ impl PathFactory<'_> {
                 Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(self.materials.control_line.clone()),
                 visibility,
+                ChildOf { parent: path },
             );
             let line = vec![bezier.get_control(End), bezier.get_control(EndHandle)];
             let end = (
@@ -117,9 +118,10 @@ impl PathFactory<'_> {
                 Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(self.materials.control_line.clone()),
                 visibility,
+                ChildOf { parent: path },
             );
-            self.commands.spawn(start).set_parent(path);
-            self.commands.spawn(end).set_parent(path);
+            self.commands.spawn(start);
+            self.commands.spawn(end);
         }
     }
 }

@@ -142,27 +142,22 @@ impl ModularBuildingFactory<'_> {
             .into_iter()
             .filter_map(|(_, values)| values)
             .flatten();
-        let module_bundle = Self::module_bundle(module, order);
+        let module_bundle = Self::module_bundle(module, order, parent);
         let module_edge_bundle = self.module_edges_bundle(module);
         let modules_faces_bundle = self.cuboid_faces_bundle(rectangles);
         let module_entity = self
             .commands
             .spawn(module_bundle)
-            .set_parent(parent)
             .with_children(|commands| {
                 commands.spawn(module_edge_bundle);
                 commands.spawn(modules_faces_bundle);
             })
             .id();
         for opening in openings {
-            let opening_edges_bundle = self.opening_edges_bundle(&opening);
-            self.commands
-                .spawn(opening_edges_bundle)
-                .set_parent(module_entity);
-            let opening_faces_bundle = self.opening_faces_bundle(&opening);
-            self.commands
-                .spawn(opening_faces_bundle)
-                .set_parent(module_entity);
+            let opening_edges_bundle = self.opening_edges_bundle(&opening, module_entity);
+            self.commands.spawn(opening_edges_bundle);
+            let opening_faces_bundle = self.opening_faces_bundle(&opening, module_entity);
+            self.commands.spawn(opening_faces_bundle);
         }
     }
 
@@ -177,14 +172,13 @@ impl ModularBuildingFactory<'_> {
         let solid = self.pitched_solid_bundle(module, pitch);
         let edges = self.module_edges_bundle(module);
         self.commands
-            .spawn(Self::module_bundle(module, order))
-            .set_parent(parent)
+            .spawn(Self::module_bundle(module, order, parent))
             .with_child(solid)
             .with_child(edges);
     }
 
     /// Create a bundle for [`BuildingModule`].
-    fn module_bundle(module: &BuildingModuleInfo, order: usize) -> impl Bundle {
+    fn module_bundle(module: &BuildingModuleInfo, order: usize, parent: Entity) -> impl Bundle {
         let distributable = Distributable {
             order,
             size: Some(module.get_scale()),
@@ -196,6 +190,7 @@ impl ModularBuildingFactory<'_> {
                 level: module.level,
             },
             distributable,
+            ChildOf { parent },
         )
     }
 
@@ -242,18 +237,19 @@ impl ModularBuildingFactory<'_> {
         )
     }
 
-    fn opening_edges_bundle(&mut self, cuboid: &Cuboid) -> impl Bundle {
+    fn opening_edges_bundle(&mut self, cuboid: &Cuboid, parent: Entity) -> impl Bundle {
         (
             Opening,
             Edge,
             Mesh3d(self.meshes.add(cuboid.get_edges().to_mesh())),
             MeshMaterial3d(self.materials.edges.clone()),
             Visibility::Hidden,
+            ChildOf { parent },
         )
     }
 
     /// Create the inside faces of an opening.
-    fn opening_faces_bundle(&mut self, cuboid: &Cuboid) -> impl Bundle {
+    fn opening_faces_bundle(&mut self, cuboid: &Cuboid, parent: Entity) -> impl Bundle {
         let triangles = TriangleList::from_rectangles(vec![
             cuboid.get_face_reversed(Back),
             cuboid.get_face_reversed(Left),
@@ -266,6 +262,7 @@ impl ModularBuildingFactory<'_> {
             Solid,
             Mesh3d(self.meshes.add(triangles.to_mesh())),
             MeshMaterial3d(self.materials.face.clone()),
+            ChildOf { parent },
         )
     }
 }
