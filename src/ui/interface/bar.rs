@@ -15,7 +15,7 @@ impl ActionBar {
         mut commands: Commands,
         query: Query<Entity, With<PrimaryCamera>>,
     ) {
-        let Ok(camera) = query.get_single() else {
+        let Ok(camera) = query.single() else {
             warn!("Failed to get PrimaryCamera");
             return;
         };
@@ -34,12 +34,12 @@ impl ActionBar {
         if !state.is_changed() {
             return;
         }
-        let Ok(bar) = bars.get_single() else {
+        let Ok(bar) = bars.single() else {
             warn!("Failed to get ActionsBar");
             return;
         };
         for entity in buttons.iter() {
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn();
         }
         let actions = state.get_actions();
         spawn_actions(&mut commands, &assets, actions, bar);

@@ -20,7 +20,7 @@ impl Interceptor {
         query: Query<Entity, With<PrimaryCamera>>,
         assets: Res<AssetServer>,
     ) {
-        let Ok(camera) = query.get_single() else {
+        let Ok(camera) = query.single() else {
             warn!("Failed to get PrimaryCamera");
             return;
         };
@@ -46,11 +46,11 @@ impl Interceptor {
         if !interface.is_changed() {
             return;
         }
-        let Ok(mut visibility) = interceptors.get_single_mut() else {
+        let Ok(mut visibility) = interceptors.single_mut() else {
             warn!("Failed to get Visibility of Interceptor");
             return;
         };
-        let Ok(mut text) = labels.get_single_mut() else {
+        let Ok(mut text) = labels.single_mut() else {
             warn!("Failed to get Visibility of Interceptor");
             return;
         };

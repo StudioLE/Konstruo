@@ -44,7 +44,7 @@ impl Cursor {
 fn get_position_from_window(
     window: &Query<&Window, With<PrimaryWindow>>,
 ) -> Result<Vec2, CursorPositionError> {
-    let window = window.get_single().map_err(|_| NoPrimaryWindow)?;
+    let window = window.single().map_err(|_| NoPrimaryWindow)?;
     window.cursor_position().ok_or(CursorOutsideWindow)
 }
 
@@ -53,7 +53,7 @@ fn get_ray_from_position(
     camera: &Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     position: Vec2,
 ) -> Result<Ray3d, CursorPositionError> {
-    let (camera, camera_transform) = camera.get_single().map_err(|_| NoPrimaryCamera)?;
+    let (camera, camera_transform) = camera.single().map_err(|_| NoPrimaryCamera)?;
     camera
         .viewport_to_world(camera_transform, position)
         .map_err(|_| InvalidRay)

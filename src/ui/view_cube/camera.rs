@@ -45,10 +45,10 @@ impl ViewCubeCamera {
         orbit: Query<&Orbit, Changed<Orbit>>,
         mut transform: Query<&mut Transform, With<ViewCubeCamera>>,
     ) {
-        let Ok(orbit) = orbit.get_single() else {
+        let Ok(orbit) = orbit.single() else {
             return;
         };
-        let Ok(mut transform) = transform.get_single_mut() else {
+        let Ok(mut transform) = transform.single_mut() else {
             warn!("Failed to get ViewCubeCamera");
             return;
         };

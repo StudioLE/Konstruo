@@ -12,7 +12,7 @@ impl Pan {
         orbits: Query<&Orbit>,
         keys: Res<ButtonInput<KeyCode>>,
     ) {
-        let Ok((mut pan, children)) = pan.get_single_mut() else {
+        let Ok((mut pan, children)) = pan.single_mut() else {
             warn!("Failed to get Pan");
             return;
         };
@@ -57,7 +57,7 @@ impl Pan {
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
         buttons: Res<ButtonInput<MouseButton>>,
     ) {
-        let Ok(mut pan) = pan.get_single_mut() else {
+        let Ok(mut pan) = pan.single_mut() else {
             warn!("Failed to get Pan");
             return;
         };
@@ -80,7 +80,7 @@ impl Pan {
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
         mut motion: EventReader<MouseMotion>,
     ) {
-        let Ok((mut pan, transform)) = pan.get_single_mut() else {
+        let Ok((mut pan, transform)) = pan.single_mut() else {
             warn!("Failed to get Pan");
             return;
         };

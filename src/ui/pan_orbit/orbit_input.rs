@@ -11,7 +11,7 @@ impl Orbit {
         mut query: Query<&mut Orbit>,
         keys: Res<ButtonInput<KeyCode>>,
     ) {
-        let Ok(mut orbit) = query.get_single_mut() else {
+        let Ok(mut orbit) = query.single_mut() else {
             warn!("Failed to get Orbit");
             return;
         };
@@ -50,7 +50,7 @@ impl Orbit {
         mut query: Query<&mut Orbit>,
         buttons: Res<ButtonInput<MouseButton>>,
     ) {
-        let Ok(mut orbit) = query.get_single_mut() else {
+        let Ok(mut orbit) = query.single_mut() else {
             warn!("Failed to get Orbit");
             return;
         };
@@ -69,7 +69,7 @@ impl Orbit {
         keys: Res<ButtonInput<KeyCode>>,
         mut motion_event: EventReader<MouseMotion>,
     ) {
-        let Ok(mut orbit) = query.get_single_mut() else {
+        let Ok(mut orbit) = query.single_mut() else {
             warn!("Failed to get Orbit");
             return;
         };
@@ -88,7 +88,7 @@ impl Orbit {
         mut query: Query<&mut Orbit>,
         mut wheel_event: EventReader<MouseWheel>,
     ) {
-        let Ok(mut orbit) = query.get_single_mut() else {
+        let Ok(mut orbit) = query.single_mut() else {
             warn!("Failed to get Orbit");
             return;
         };

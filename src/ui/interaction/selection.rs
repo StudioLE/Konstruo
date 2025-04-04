@@ -86,7 +86,7 @@ impl Selection {
             warn!("Expected InterfaceState::PathSelected: {interface:?}");
             return;
         };
-        commands.entity(path).despawn_recursive();
+        commands.entity(path).despawn();
         *interface = InterfaceState::Default;
     }
 }

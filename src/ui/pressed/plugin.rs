@@ -24,7 +24,7 @@ impl PressedKeysPlugin {
         query: Query<Entity, With<PrimaryCamera>>,
         assets: Res<AssetServer>,
     ) {
-        let Ok(camera) = query.get_single() else {
+        let Ok(camera) = query.single() else {
             warn!("Failed to get PrimaryCamera");
             return;
         };

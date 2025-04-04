@@ -82,7 +82,7 @@ fn on_pointer_click(
         error!("Failed to get clicked ViewCubeFace");
         return;
     };
-    let Ok(mut orbit) = orbit.get_single_mut() else {
+    let Ok(mut orbit) = orbit.single_mut() else {
         error!("Failed to get Orbit");
         return;
     };

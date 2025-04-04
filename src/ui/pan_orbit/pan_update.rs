@@ -21,7 +21,7 @@ impl Pan {
         mut query: Query<&mut Pan>,
         orbit: Query<&Orbit, Changed<Orbit>>,
     ) {
-        let Ok(orbit) = orbit.get_single() else {
+        let Ok(orbit) = orbit.single() else {
             return;
         };
         // trace!("Updating Pan as Orbit has changed");
