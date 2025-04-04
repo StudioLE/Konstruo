@@ -17,47 +17,6 @@ pub struct Drawing {
 }
 
 impl Drawing {
-    /// Create a new [`Drawing`] resource with a [`Path`].
-    fn new(
-        commands: &mut Commands,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        path_meshes: &Res<PathMeshes>,
-        materials: &Res<PathMaterials>,
-    ) -> Drawing {
-        let spline = CubicBezierSpline::example_2();
-        let path = Path::new(spline);
-        let path_entity = path.clone().spawn(commands, meshes, path_meshes, materials);
-        commands.entity(path_entity).insert(Visibility::Hidden);
-        for surface in PathSurface::default_surfaces() {
-            surface.spawn(commands, meshes, materials, &path, path_entity);
-        }
-        let bundle = PathControl::bundle(
-            path_meshes,
-            materials,
-            ControlType::StartHandle,
-            0,
-            Vec3::ZERO,
-            Visibility::Hidden,
-        );
-        let control = commands.spawn(bundle).id();
-        let line = vec![Vec3::ZERO, Vec3::ONE];
-        let bundle = (
-            PathControlLine::new(0, true),
-            Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
-            MeshMaterial3d(materials.control_line.clone()),
-            Visibility::Hidden,
-        );
-        let line = commands.spawn(bundle).id();
-        Drawing {
-            origins: Vec::new(),
-            handles: Vec::new(),
-            path: path_entity,
-            control,
-            line,
-            is_ready: false,
-        }
-    }
-
     /// System to update a [`Path`].
     #[allow(clippy::too_many_arguments)]
     pub(super) fn update_system(
@@ -196,15 +155,21 @@ impl Drawing {
     pub(crate) fn start_action(
         _trigger: Trigger<Pointer<Up>>,
         mut interface: ResMut<InterfaceState>,
-        mut commands: Commands,
-        mut meshes: ResMut<Assets<Mesh>>,
+        commands: Commands,
+        meshes: ResMut<Assets<Mesh>>,
         path_meshes: Res<PathMeshes>,
         materials: Res<PathMaterials>,
     ) {
         trace!("Draw Path button was pressed.");
         *interface = InterfaceState::DrawPath;
-        let drawing = Drawing::new(&mut commands, &mut meshes, &path_meshes, &materials);
-        commands.insert_resource(drawing);
+        let mut factory = PathFactory {
+            commands,
+            meshes,
+            path_meshes,
+            materials,
+        };
+        let drawing = factory.create_drawing();
+        factory.commands.insert_resource(drawing);
     }
 
     /// Remove the last control and handle.
@@ -264,5 +229,37 @@ impl Drawing {
             return;
         }
         drawing.handles.push(cursor);
+    }
+}
+
+impl PathFactory<'_> {
+    /// Spawn temporary [`Path`] entities and create a new [`Drawing`] resource.
+    fn create_drawing(&mut self) -> Drawing {
+        let spline = CubicBezierSpline::example_2();
+        let path = Path::new(spline);
+        let path_entity = self.spawn_path(path.clone());
+        self.commands.entity(path_entity).insert(Visibility::Hidden);
+        for surface in PathSurface::default_surfaces() {
+            self.spawn_surface(surface, &path, path_entity);
+        }
+        let bundle =
+            self.control_bundle(ControlType::StartHandle, 0, Vec3::ZERO, Visibility::Hidden);
+        let control = self.commands.spawn(bundle).id();
+        let line = vec![Vec3::ZERO, Vec3::ONE];
+        let bundle = (
+            PathControlLine::new(0, true),
+            Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
+            MeshMaterial3d(self.materials.control_line.clone()),
+            Visibility::Hidden,
+        );
+        let line = self.commands.spawn(bundle).id();
+        Drawing {
+            origins: Vec::new(),
+            handles: Vec::new(),
+            path: path_entity,
+            control,
+            line,
+            is_ready: false,
+        }
     }
 }

@@ -12,18 +12,22 @@ impl Plugin for PathExample {
 
 impl PathExample {
     fn startup_system(
-        mut commands: Commands,
-        mut meshes: ResMut<Assets<Mesh>>,
+        commands: Commands,
+        meshes: ResMut<Assets<Mesh>>,
         materials: Res<PathMaterials>,
         path_meshes: Res<PathMeshes>,
     ) {
+        let mut factory = PathFactory {
+            commands,
+            meshes,
+            path_meshes,
+            materials,
+        };
         let spline = CubicBezierSpline::example();
         let path = Path::new(spline);
-        let entity = path
-            .clone()
-            .spawn(&mut commands, &mut meshes, &path_meshes, &materials);
+        let entity = factory.spawn_path(path.clone());
         for surface in PathSurface::default_surfaces() {
-            surface.spawn(&mut commands, &mut meshes, &materials, &path, entity);
+            factory.spawn_surface(surface, &path, entity);
         }
     }
 }

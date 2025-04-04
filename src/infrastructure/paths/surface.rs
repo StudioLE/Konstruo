@@ -58,41 +58,13 @@ impl PathSurface {
         ]
     }
 
-    /// Spawn a [`PathSurface`] with its mesh geometry.
-    pub fn spawn(
-        self,
-        commands: &mut Commands,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        materials: &Res<PathMaterials>,
-        path: &Path,
-        path_entity: Entity,
-    ) {
-        let sweep = Sweep::new(&path.spline, self.offsets);
-        let material = materials.get_surface(&self.purpose);
-        let triangles = sweep.clone().to_triangle_list();
-        let bundle = (
-            self,
-            Mesh3d(meshes.add(triangles.clone().to_mesh())),
-            MeshMaterial3d(material),
-            Transform::from_translation(Vec3::new(0.0, 0.0, PATH_ELEVATION)),
-            PickingBehavior::default(),
-        );
-        let surface_entity = commands
-            .spawn(bundle)
-            .observe(on_pointer_over)
-            .observe(on_pointer_out)
-            .observe(on_pointer_click)
-            .set_parent(path_entity)
-            .id();
-        if WIREFRAME_ENABLED {
-            spawn_wireframe(commands, meshes, materials, triangles, surface_entity);
-        }
-        spawn_edges(commands, meshes, materials, sweep, surface_entity, false);
-    }
-
     /// Update the mesh geometry when the spline changes.
+    #[allow(clippy::too_many_arguments)]
     pub(super) fn on_spline_changed(
-        mut commands: Commands,
+        commands: Commands,
+        meshes: ResMut<Assets<Mesh>>,
+        path_meshes: Res<PathMeshes>,
+        materials: Res<PathMaterials>,
         mut events: EventReader<SplineChanged>,
         mut surfaces: Query<(Entity, &PathSurface, &Parent, &mut Mesh3d, &mut Aabb)>,
         edges: Query<(Entity, &Parent), (With<Edge>, Without<PathSurface>)>,
@@ -100,9 +72,13 @@ impl PathSurface {
             (Entity, &Parent),
             (With<Wireframe>, Without<PathSurface>, Without<Edge>),
         >,
-        mut meshes: ResMut<Assets<Mesh>>,
-        materials: Res<PathMaterials>,
     ) {
+        let mut factory = PathFactory {
+            commands,
+            meshes,
+            path_meshes,
+            materials,
+        };
         let mut duplicates = 0;
         let mut updated = HashSet::new();
         for event in events.read() {
@@ -120,12 +96,12 @@ impl PathSurface {
                 // TODO: Due to entity picking bug the AABB must also be updated. This will likely be fixed in the future.
                 // https://github.com/bevyengine/bevy/issues/18221
                 *aabb = m.compute_aabb().expect("Should be able to compute AABB");
-                *mesh = Mesh3d(meshes.add(m));
-                Helpers::despawn_children(&mut commands, &edges, entity);
-                spawn_edges(&mut commands, &mut meshes, &materials, sweep, entity, true);
+                *mesh = Mesh3d(factory.meshes.add(m));
+                Helpers::despawn_children(&mut factory.commands, &edges, entity);
+                factory.spawn_edges(sweep, entity, true);
                 if WIREFRAME_ENABLED {
-                    Helpers::despawn_children(&mut commands, &wireframes, entity);
-                    spawn_wireframe(&mut commands, &mut meshes, &materials, triangles, entity);
+                    Helpers::despawn_children(&mut factory.commands, &wireframes, entity);
+                    factory.spawn_wireframe(triangles, entity);
                 }
             }
         }
@@ -166,47 +142,69 @@ impl PathSurface {
     }
 }
 
-fn spawn_wireframe(
-    commands: &mut Commands,
-    meshes: &mut ResMut<Assets<Mesh>>,
-    materials: &Res<PathMaterials>,
-    triangles: TriangleList,
-    surface_entity: Entity,
-) {
-    for triangle in triangles.get_triangles() {
-        let polyline = Polyline::new(triangle.get_vertices().to_vec());
-        let bundle = (
-            Wireframe,
-            Mesh3d(meshes.add(polyline.to_mesh())),
-            MeshMaterial3d(materials.wireframe.clone()),
-        );
-        commands.spawn(bundle).set_parent(surface_entity);
+impl PathFactory<'_> {
+    /// Spawn a [`PathSurface`] with its mesh geometry.
+    pub fn spawn_surface(&mut self, surface: PathSurface, path: &Path, path_entity: Entity) {
+        let sweep = Sweep::new(&path.spline, surface.offsets);
+        let triangles = sweep.clone().to_triangle_list();
+        let surface_bundle = self.surface_bundle(surface, triangles.clone());
+        let surface_entity = self
+            .commands
+            .spawn(surface_bundle)
+            .observe(on_pointer_over)
+            .observe(on_pointer_out)
+            .observe(on_pointer_click)
+            .set_parent(path_entity)
+            .id();
+        if WIREFRAME_ENABLED {
+            self.spawn_wireframe(triangles, surface_entity);
+        }
+        self.spawn_edges(sweep, surface_entity, false);
     }
-}
 
-fn spawn_edges(
-    commands: &mut Commands,
-    meshes: &mut ResMut<Assets<Mesh>>,
-    materials: &Res<PathMaterials>,
-    sweep: Sweep,
-    surface_entity: Entity,
-    is_selected: bool,
-) {
-    let edges = sweep.get_edges();
-    let material = materials.edge.clone();
-    let visibility = if is_selected {
-        Visibility::Visible
-    } else {
-        Visibility::Hidden
-    };
-    for edge in edges {
-        let bundle = (
-            Edge,
-            visibility,
-            Mesh3d(meshes.add(edge.to_mesh())),
-            MeshMaterial3d(material.clone()),
-        );
-        commands.spawn(bundle).set_parent(surface_entity);
+    /// Spawn a [`PathSurface`] with its mesh geometry.
+    fn surface_bundle(&mut self, surface: PathSurface, triangles: TriangleList) -> impl Bundle {
+        let material = self.materials.get_surface(&surface.purpose);
+        (
+            surface,
+            Mesh3d(self.meshes.add(triangles.clone().to_mesh())),
+            MeshMaterial3d(material),
+            Transform::from_translation(Vec3::new(0.0, 0.0, PATH_ELEVATION)),
+            PickingBehavior::default(),
+        )
+    }
+
+    // TODO: Revise to create a single wireframe
+    fn spawn_wireframe(&mut self, triangles: TriangleList, parent: Entity) {
+        for triangle in triangles.get_triangles() {
+            let polyline = Polyline::new(triangle.get_vertices().to_vec());
+            let bundle = (
+                Wireframe,
+                Mesh3d(self.meshes.add(polyline.to_mesh())),
+                MeshMaterial3d(self.materials.wireframe.clone()),
+            );
+            self.commands.spawn(bundle).set_parent(parent);
+        }
+    }
+
+    // TODO: Revise to create a single edges entity
+    fn spawn_edges(&mut self, sweep: Sweep, surface_entity: Entity, is_selected: bool) {
+        let edges = sweep.get_edges();
+        let material = self.materials.edge.clone();
+        let visibility = if is_selected {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+        for edge in edges {
+            let bundle = (
+                Edge,
+                visibility,
+                Mesh3d(self.meshes.add(edge.to_mesh())),
+                MeshMaterial3d(material.clone()),
+            );
+            self.commands.spawn(bundle).set_parent(surface_entity);
+        }
     }
 }
 

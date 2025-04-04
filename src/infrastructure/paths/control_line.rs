@@ -23,35 +23,6 @@ impl PathControlLine {
         Self { curve, is_start }
     }
 
-    /// Factory method to spawn [`PathControlLine`] for each control point in a [`Path`]
-    pub(super) fn spawn(
-        commands: &mut Commands,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        materials: &Res<PathMaterials>,
-        spline: &CubicBezierSpline,
-        path: Entity,
-        visibility: Visibility,
-    ) {
-        for (curve, bezier) in spline.get_curves().iter().enumerate() {
-            let line = vec![bezier.get_control(Start), bezier.get_control(StartHandle)];
-            let start = (
-                PathControlLine::new(curve, true),
-                Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
-                MeshMaterial3d(materials.control_line.clone()),
-                visibility,
-            );
-            let line = vec![bezier.get_control(End), bezier.get_control(EndHandle)];
-            let end = (
-                PathControlLine::new(curve, false),
-                Mesh3d(meshes.add(Polyline::new(line).to_mesh())),
-                MeshMaterial3d(materials.control_line.clone()),
-                visibility,
-            );
-            commands.spawn(start).set_parent(path);
-            commands.spawn(end).set_parent(path);
-        }
-    }
-
     /// Update the [`PathControlLine`] visibility when the [`EntityState`] of the [`Path`] changes.
     pub(super) fn on_state_changed(
         mut events: EventReader<EntityStateChanged>,
@@ -106,20 +77,49 @@ impl PathControlLine {
     pub(super) fn on_curve_added(
         mut events: EventReader<CurveAdded>,
         lines: Query<(Entity, &Parent), With<PathControlLine>>,
-        mut commands: Commands,
-        mut meshes: ResMut<Assets<Mesh>>,
+        commands: Commands,
+        meshes: ResMut<Assets<Mesh>>,
+        path_meshes: Res<PathMeshes>,
         materials: Res<PathMaterials>,
     ) {
+        let mut factory = PathFactory {
+            commands,
+            meshes,
+            path_meshes,
+            materials,
+        };
         for event in events.read() {
-            Helpers::despawn_children(&mut commands, &lines, event.path);
-            PathControlLine::spawn(
-                &mut commands,
-                &mut meshes,
-                &materials,
-                &event.spline,
-                event.path,
-                Visibility::Visible,
+            Helpers::despawn_children(&mut factory.commands, &lines, event.path);
+            factory.spawn_control_lines(&event.spline, event.path, Visibility::Visible);
+        }
+    }
+}
+
+impl PathFactory<'_> {
+    /// Spawn [`PathControlLine`] between the two sets of control point in a [`Path`]
+    pub(super) fn spawn_control_lines(
+        &mut self,
+        spline: &CubicBezierSpline,
+        path: Entity,
+        visibility: Visibility,
+    ) {
+        for (curve, bezier) in spline.get_curves().iter().enumerate() {
+            let line = vec![bezier.get_control(Start), bezier.get_control(StartHandle)];
+            let start = (
+                PathControlLine::new(curve, true),
+                Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
+                MeshMaterial3d(self.materials.control_line.clone()),
+                visibility,
             );
+            let line = vec![bezier.get_control(End), bezier.get_control(EndHandle)];
+            let end = (
+                PathControlLine::new(curve, false),
+                Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
+                MeshMaterial3d(self.materials.control_line.clone()),
+                visibility,
+            );
+            self.commands.spawn(start).set_parent(path);
+            self.commands.spawn(end).set_parent(path);
         }
     }
 }

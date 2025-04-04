@@ -28,93 +28,6 @@ impl PathControl {
         }
     }
 
-    /// Create a bundle for a [`PathControl`].
-    #[must_use]
-    pub(crate) fn bundle(
-        meshes: &Res<PathMeshes>,
-        materials: &Res<PathMaterials>,
-        control_type: ControlType,
-        curve: usize,
-        position: Vec3,
-        visibility: Visibility,
-    ) -> (
-        PathControl,
-        Transform,
-        Mesh3d,
-        MeshMaterial3d<StandardMaterial>,
-        Visibility,
-    ) {
-        let mesh = match control_type {
-            Start | End => meshes.control_origin.clone(),
-            _ => meshes.control_handle.clone(),
-        };
-        (
-            PathControl::new(control_type, curve),
-            get_transform(control_type, position),
-            Mesh3d(mesh),
-            MeshMaterial3d(materials.control_node.clone()),
-            visibility,
-        )
-    }
-
-    /// Factory method to spawn [`PathControl`] for each control point in a [`Path`]
-    pub(super) fn spawn(
-        commands: &mut Commands,
-        meshes: &Res<PathMeshes>,
-        materials: &Res<PathMaterials>,
-        spline: &CubicBezierSpline,
-        path: Entity,
-        visibility: Visibility,
-    ) {
-        for (curve, bezier) in spline.get_curves().iter().enumerate() {
-            let mut bundles = Vec::new();
-            if curve == 0 {
-                bundles.push(Self::bundle(
-                    meshes,
-                    materials,
-                    Start,
-                    curve,
-                    bezier.get_control(Start),
-                    visibility,
-                ));
-            }
-            bundles.push(Self::bundle(
-                meshes,
-                materials,
-                StartHandle,
-                curve,
-                bezier.get_control(StartHandle),
-                visibility,
-            ));
-            bundles.push(Self::bundle(
-                meshes,
-                materials,
-                EndHandle,
-                curve,
-                bezier.get_control(EndHandle),
-                visibility,
-            ));
-            bundles.push(Self::bundle(
-                meshes,
-                materials,
-                End,
-                curve,
-                bezier.get_control(End),
-                visibility,
-            ));
-            for bundle in bundles {
-                commands
-                    .spawn(bundle)
-                    .set_parent(path)
-                    .observe(on_pointer_over)
-                    .observe(on_pointer_out)
-                    .observe(on_pointer_drag_start)
-                    .observe(on_pointer_drag)
-                    .observe(on_pointer_drag_end);
-            }
-        }
-    }
-
     /// Update the [`Transform`] when a control is moved.
     pub(super) fn on_control_moved(
         mut events: EventReader<ControlMoved>,
@@ -140,21 +53,21 @@ impl PathControl {
     /// Re-spawn [`PathControl`] when a curve is added or removed.
     pub(super) fn on_curve_added(
         mut events: EventReader<CurveAdded>,
-        mut commands: Commands,
+        commands: Commands,
         controls: Query<(Entity, &Parent), With<PathControl>>,
-        meshes: Res<PathMeshes>,
+        meshes: ResMut<Assets<Mesh>>,
+        path_meshes: Res<PathMeshes>,
         materials: Res<PathMaterials>,
     ) {
+        let mut factory = PathFactory {
+            commands,
+            meshes,
+            path_meshes,
+            materials,
+        };
         for event in events.read() {
-            Helpers::despawn_children(&mut commands, &controls, event.path);
-            PathControl::spawn(
-                &mut commands,
-                &meshes,
-                &materials,
-                &event.spline,
-                event.path,
-                Visibility::Visible,
-            );
+            Helpers::despawn_children(&mut factory.commands, &controls, event.path);
+            factory.spawn_controls(&event.spline, event.path, Visibility::Visible);
         }
     }
 
@@ -174,6 +87,73 @@ impl PathControl {
                 };
             }
         }
+    }
+}
+
+impl PathFactory<'_> {
+    /// Spawn [`PathControl`] for each control point in a [`Path`]
+    pub(super) fn spawn_controls(
+        &mut self,
+        spline: &CubicBezierSpline,
+        path: Entity,
+        visibility: Visibility,
+    ) {
+        for (curve, bezier) in spline.get_curves().iter().enumerate() {
+            let mut bundles = Vec::new();
+            if curve == 0 {
+                bundles.push(self.control_bundle(
+                    Start,
+                    curve,
+                    bezier.get_control(Start),
+                    visibility,
+                ));
+            }
+            bundles.push(self.control_bundle(
+                StartHandle,
+                curve,
+                bezier.get_control(StartHandle),
+                visibility,
+            ));
+            bundles.push(self.control_bundle(
+                EndHandle,
+                curve,
+                bezier.get_control(EndHandle),
+                visibility,
+            ));
+            bundles.push(self.control_bundle(End, curve, bezier.get_control(End), visibility));
+            for bundle in bundles {
+                self.commands
+                    .spawn(bundle)
+                    .set_parent(path)
+                    .observe(on_pointer_over)
+                    .observe(on_pointer_out)
+                    .observe(on_pointer_drag_start)
+                    .observe(on_pointer_drag)
+                    .observe(on_pointer_drag_end);
+            }
+        }
+    }
+
+    /// Create a bundle for a [`PathControl`].
+    #[must_use]
+    pub(crate) fn control_bundle(
+        &mut self,
+        control_type: ControlType,
+        curve: usize,
+        position: Vec3,
+        visibility: Visibility,
+    ) -> impl Bundle {
+        let mesh = match control_type {
+            Start | End => self.path_meshes.control_origin.clone(),
+            _ => self.path_meshes.control_handle.clone(),
+        };
+        (
+            PathControl::new(control_type, curve),
+            get_transform(control_type, position),
+            Mesh3d(mesh),
+            MeshMaterial3d(self.materials.control_node.clone()),
+            visibility,
+        )
     }
 }
 

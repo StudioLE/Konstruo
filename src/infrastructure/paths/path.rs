@@ -58,39 +58,28 @@ impl Path {
             redistribute_on_spline_changed(&mut distributions, event);
         }
     }
+}
 
+impl PathFactory<'_> {
     /// Spawn a [`Path`] along with its [`Mesh3d`], [`PathControl`], and [`PathControlLine`].
-    pub fn spawn(
-        self,
-        commands: &mut Commands,
-        meshes: &mut ResMut<Assets<Mesh>>,
-        path_meshes: &Res<PathMeshes>,
-        materials: &Res<PathMaterials>,
-    ) -> Entity {
-        let polyline = self.spline.flatten(FLATTEN_TOLERANCE);
-        let bundle = (
-            self.clone(),
-            Mesh3d(meshes.add(Polyline::new(polyline).to_mesh())),
-            MeshMaterial3d(materials.center_line.clone()),
-        );
-        let entity = commands.spawn(bundle).id();
-        PathControl::spawn(
-            commands,
-            path_meshes,
-            materials,
-            &self.spline,
-            entity,
-            Visibility::Hidden,
-        );
-        PathControlLine::spawn(
-            commands,
-            meshes,
-            materials,
-            &self.spline,
-            entity,
-            Visibility::Hidden,
-        );
+    #[allow(clippy::must_use_candidate)]
+    pub fn spawn_path(&mut self, path: Path) -> Entity {
+        let spline = path.spline.clone();
+        let bundle = self.path_bundle(path);
+        let entity = self.commands.spawn(bundle).id();
+        self.spawn_controls(&spline, entity, Visibility::Hidden);
+        self.spawn_control_lines(&spline, entity, Visibility::Hidden);
         entity
+    }
+
+    #[must_use]
+    pub fn path_bundle(&mut self, path: Path) -> impl Bundle {
+        let polyline = path.spline.flatten(FLATTEN_TOLERANCE);
+        (
+            path,
+            Mesh3d(self.meshes.add(Polyline::new(polyline).to_mesh())),
+            MeshMaterial3d(self.materials.center_line.clone()),
+        )
     }
 }
 
