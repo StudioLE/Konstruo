@@ -1,9 +1,11 @@
+pub use axis::*;
 pub use edge::*;
 pub use orientation::*;
 pub use solid::*;
 pub use subdivision::*;
 pub use vec6::*;
 pub use wireframe::*;
+mod axis;
 mod edge;
 mod orientation;
 mod solid;

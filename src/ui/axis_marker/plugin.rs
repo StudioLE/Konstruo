@@ -2,17 +2,7 @@ use bevy::prelude::*;
 
 use super::*;
 
-/// Plugin to enable the creation of [`AxisMarker`].
-pub struct AxisMarkerPlugin;
-
-impl Plugin for AxisMarkerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, AxisMarkerMaterials::startup_system)
-            .add_systems(Startup, AxisMarkerMeshes::startup_system)
-            .add_systems(Update, AxisMarker::added_system);
-    }
-}
-
+/// Plugin to create an [`AxisMarker`] at the origin.
 pub struct OriginMarkerPlugin;
 
 impl Plugin for OriginMarkerPlugin {
@@ -22,14 +12,16 @@ impl Plugin for OriginMarkerPlugin {
 }
 
 impl OriginMarkerPlugin {
-    fn startup_system(mut commands: Commands) {
-        let bundle = (
-            AxisMarker {
-                thickness: 0.1,
-                length: 200.0,
-            },
-            Transform::from_translation(Vec3::ZERO),
-        );
-        commands.spawn(bundle);
+    fn startup_system(
+        commands: Commands,
+        meshes: ResMut<Assets<Mesh>>,
+        materials: ResMut<Assets<StandardMaterial>>,
+    ) {
+        let factory = AxisMarkerFactory {
+            commands,
+            meshes,
+            materials,
+        };
+        factory.spawn(None, Some(0.1), Some(200.0));
     }
 }

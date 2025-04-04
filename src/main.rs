@@ -18,7 +18,6 @@ fn main() {
     App::new()
         .add_plugins(configure_default_plugins())
         .add_plugins(MeshPickingPlugin)
-        .add_plugins(AxisMarkerPlugin)
         .add_plugins(ModularBuildingsPlugin)
         // .add_plugins(CursorGizmoPlugin)
         .add_plugins(DistributionPlugin)

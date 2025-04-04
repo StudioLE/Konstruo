@@ -1,6 +1,9 @@
-use super::*;
+use crate::geometry::{Axis, Cuboid, Vec3Helpers};
+use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
-use bevy::render::view::RenderLayers;
+
+const DEFAULT_THICKNESS: f32 = 0.1;
+const DEFAULT_LENGTH: f32 = 1.0;
 
 /// A mesh representation of the axes.
 ///
@@ -10,53 +13,70 @@ use bevy::render::view::RenderLayers;
 /// Z: Blue
 #[derive(Component, Debug)]
 #[require(InheritedVisibility, Transform)]
-pub struct AxisMarker {
-    pub thickness: f32,
-    pub length: f32,
+pub struct AxisMarker;
+
+/// Factory to spawn an [`AxisMarker`] and its geometry.
+pub struct AxisMarkerFactory<'w> {
+    pub commands: Commands<'w, 'w>,
+    pub meshes: ResMut<'w, Assets<Mesh>>,
+    pub materials: ResMut<'w, Assets<StandardMaterial>>,
 }
 
-impl Default for AxisMarker {
-    fn default() -> Self {
-        Self {
-            thickness: 0.1,
-            length: 1.0,
-        }
+impl AxisMarkerFactory<'_> {
+    /// Create an [`AxisMarker`] and its child geometry.
+    #[allow(clippy::must_use_candidate)]
+    pub fn spawn(
+        mut self,
+        origin: Option<Vec3>,
+        thickness: Option<f32>,
+        length: Option<f32>,
+    ) -> Entity {
+        let thickness = thickness.unwrap_or(DEFAULT_THICKNESS);
+        let length = length.unwrap_or(DEFAULT_LENGTH);
+        let origin = origin.unwrap_or(Vec3::ZERO);
+        let bundle = (AxisMarker, Transform::from_translation(origin));
+        let x = self.axis_geometry(thickness, length, Axis::X);
+        let y = self.axis_geometry(thickness, length, Axis::Y);
+        let z = self.axis_geometry(thickness, length, Axis::Z);
+        self.commands
+            .spawn(bundle)
+            .with_children(|parent| {
+                parent.spawn(x);
+                parent.spawn(y);
+                parent.spawn(z);
+            })
+            .id()
+    }
+
+    fn axis_geometry(&mut self, thickness: f32, length: f32, axis: Axis) -> impl Bundle {
+        let mesh = Cuboid::new(get_transform(thickness, length, axis))
+            .get_triangles()
+            .to_mesh();
+        let material = StandardMaterial {
+            base_color: get_color(axis).into(),
+            alpha_mode: AlphaMode::Opaque,
+            perceptual_roughness: 1.0,
+            unlit: true,
+            ..default()
+        };
+        (
+            MeshMaterial3d(self.materials.add(material)),
+            Mesh3d(self.meshes.add(mesh)),
+        )
     }
 }
 
-impl AxisMarker {
-    /// System to create mesh geometry when an [`AxisMarker`] is added.
-    pub(super) fn added_system(
-        mut commands: Commands,
-        meshes: Res<AxisMarkerMeshes>,
-        materials: Res<AxisMarkerMaterials>,
-        query: Query<(Entity, &AxisMarker, Option<&RenderLayers>), Added<AxisMarker>>,
-    ) {
-        for (entity, marker, layer) in query.iter() {
-            let x = (
-                Mesh3d(meshes.cuboid.clone()),
-                MeshMaterial3d(materials.x.clone()),
-                Transform::from_scale(Vec3::new(marker.length, marker.thickness, marker.thickness)),
-            );
-            let y = (
-                Mesh3d(meshes.cuboid.clone()),
-                MeshMaterial3d(materials.y.clone()),
-                Transform::from_scale(Vec3::new(marker.thickness, marker.length, marker.thickness)),
-            );
-            let z = (
-                Mesh3d(meshes.cuboid.clone()),
-                MeshMaterial3d(materials.z.clone()),
-                Transform::from_scale(Vec3::new(marker.thickness, marker.thickness, marker.length)),
-            );
-            if let Some(layer) = layer {
-                commands.spawn((x, layer.clone())).set_parent(entity);
-                commands.spawn((y, layer.clone())).set_parent(entity);
-                commands.spawn((z, layer.clone())).set_parent(entity);
-            } else {
-                commands.spawn(x).set_parent(entity);
-                commands.spawn(y).set_parent(entity);
-                commands.spawn(z).set_parent(entity);
-            }
-        }
+fn get_color(axis: Axis) -> Srgba {
+    match axis {
+        Axis::X => tailwind::RED_600,
+        Axis::Y => tailwind::GREEN_600,
+        Axis::Z => tailwind::SKY_600,
     }
+}
+
+fn get_transform(thickness: f32, length: f32, axis: Axis) -> Transform {
+    let direction = axis.get_vector();
+    let inverse = Vec3Helpers::invert_0_and_1(direction);
+    let scale = direction * (length + thickness) + inverse * thickness;
+    Transform::from_translation(direction * length * 0.5).with_scale(scale)
 }
