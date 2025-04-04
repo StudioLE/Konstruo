@@ -4,6 +4,7 @@ use crate::distribution::Distributable;
 use crate::geometry::Cuboid;
 use crate::geometry::*;
 use bevy::prelude::*;
+use std::collections::HashMap;
 use Orientation::*;
 
 /// A building module.
@@ -48,6 +49,20 @@ impl Default for BuildingModuleInfo {
 }
 
 impl BuildingModuleInfo {
+    /// Get the scale of [`BuildingModule`].
+    fn get_scale(&self) -> Vec3 {
+        Vec3::new(self.width, self.length, self.height)
+    }
+
+    /// Get the openings by distributing them on each side.
+    fn get_openings(&self) -> HashMap<Orientation, Option<Vec<Cuboid>>> {
+        Orientation::get_all()
+            .into_iter()
+            .map(|side| (side, self.distribute_openings(side)))
+            .collect()
+    }
+
+    /// Distribute openings for the given side.
     fn distribute_openings(&self, side: Orientation) -> Option<Vec<Cuboid>> {
         let (right, up, _back) = side.to_elevation_axis();
         // TODO: This will ignore duplicate orientations
@@ -68,9 +83,39 @@ impl BuildingModuleInfo {
         Some(openings)
     }
 
-    /// Get the scale of [`BuildingModule`].
-    fn get_scale(&self) -> Vec3 {
-        Vec3::new(self.width, self.length, self.height)
+    /// Get the rectangle geometry forming each face by subtracting the openings.
+    fn get_face_rectangles(
+        &self,
+        openings: &HashMap<Orientation, Option<Vec<Cuboid>>>,
+    ) -> Vec<[Vec3; 4]> {
+        let cuboid = Cuboid::new(Transform::from_scale(self.get_scale()));
+        let mut rectangles = Vec::new();
+        for side in Orientation::get_all() {
+            let face = cuboid.get_face(side);
+            let Some(Some(openings)) = openings.get(&side) else {
+                rectangles.push(face);
+                continue;
+            };
+            let mut opening_rectangles = Vec::new();
+            for opening in openings {
+                opening_rectangles.push(opening.get_face_reversed(Front));
+            }
+            let (right, up, _back) = side.to_elevation_axis();
+            let subdivision = Subdivision {
+                bounds: face,
+                openings: opening_rectangles,
+                main_axis: right,
+                cross_axis: up,
+            };
+            match subdivision.execute() {
+                Ok(mut s) => rectangles.append(&mut s),
+                Err(e) => {
+                    rectangles.push(face);
+                    warn!("Failed to create openings in BuildingModule {side} facade: {e:?}");
+                }
+            }
+        }
+        rectangles
     }
 }
 
@@ -89,64 +134,36 @@ impl ModularBuildingFactory<'_> {
         }
     }
 
-    /// Spawn a [`BuildingModule`] and hidden [`Edge`].
+    /// Spawn a [`BuildingModule`] with  edge and face geometry and openings.
     fn spawn_cuboid(&mut self, module: &BuildingModuleInfo, order: usize, parent: Entity) {
-        let bundle = Self::bundle(module, order);
-        let module_entity = self.commands.spawn(bundle).set_parent(parent).id();
-        let bundle = self.edge_bundle(module);
-        self.commands.spawn(bundle).set_parent(module_entity);
-        let cuboid = Cuboid::new(Transform::from_scale(module.get_scale()));
-        let mut rectangles = Vec::new();
-        for side in Orientation::get_all() {
-            let face = cuboid.get_face(side);
-            let Some(openings) = module.distribute_openings(side) else {
-                rectangles.push(face);
-                continue;
-            };
-            let mut opening_rectangles = Vec::new();
-            for opening in openings {
-                let bundle = (
-                    Opening,
-                    Edge,
-                    Mesh3d(self.meshes.add(opening.get_edges().to_mesh())),
-                    MeshMaterial3d(self.materials.edges.clone()),
-                    Visibility::Hidden,
-                );
-                self.commands.spawn(bundle).set_parent(module_entity);
-                let mesh = TriangleList::from_rectangles(vec![
-                    opening.get_face_reversed(Back),
-                    opening.get_face_reversed(Left),
-                    opening.get_face_reversed(Right),
-                    opening.get_face_reversed(Top),
-                    opening.get_face_reversed(Bottom),
-                ])
-                .to_mesh();
-                let bundle = (
-                    Opening,
-                    Solid,
-                    Mesh3d(self.meshes.add(mesh)),
-                    MeshMaterial3d(self.materials.face.clone()),
-                );
-                self.commands.spawn(bundle).set_parent(module_entity);
-                opening_rectangles.push(opening.get_face_reversed(Front));
-            }
-            let (right, up, _back) = side.to_elevation_axis();
-            let subdivision = Subdivision {
-                bounds: face,
-                openings: opening_rectangles,
-                main_axis: right,
-                cross_axis: up,
-            };
-            match subdivision.execute() {
-                Ok(mut s) => rectangles.append(&mut s),
-                Err(e) => {
-                    rectangles.push(face);
-                    warn!("Failed to create openings in BuildingModule {side} facade: {e:?}");
-                }
-            }
+        let openings = module.get_openings();
+        let rectangles = module.get_face_rectangles(&openings);
+        let openings = openings
+            .into_iter()
+            .filter_map(|(_, values)| values)
+            .flatten();
+        let module_bundle = Self::module_bundle(module, order);
+        let module_edge_bundle = self.module_edges_bundle(module);
+        let modules_faces_bundle = self.cuboid_faces_bundle(rectangles);
+        let module_entity = self
+            .commands
+            .spawn(module_bundle)
+            .set_parent(parent)
+            .with_children(|commands| {
+                commands.spawn(module_edge_bundle);
+                commands.spawn(modules_faces_bundle);
+            })
+            .id();
+        for opening in openings {
+            let opening_edges_bundle = self.opening_edges_bundle(&opening);
+            self.commands
+                .spawn(opening_edges_bundle)
+                .set_parent(module_entity);
+            let opening_faces_bundle = self.opening_faces_bundle(&opening);
+            self.commands
+                .spawn(opening_faces_bundle)
+                .set_parent(module_entity);
         }
-        let bundle = self.cuboid_solid_bundle(rectangles);
-        self.commands.spawn(bundle).set_parent(module_entity);
     }
 
     /// Spawn a [`BuildingModule`] and hidden [`Edge`].
@@ -157,21 +174,17 @@ impl ModularBuildingFactory<'_> {
         order: usize,
         parent: Entity,
     ) {
-        let module_entity = self
-            .commands
-            .spawn(Self::bundle(module, order))
+        let solid = self.pitched_solid_bundle(module, pitch);
+        let edges = self.module_edges_bundle(module);
+        self.commands
+            .spawn(Self::module_bundle(module, order))
             .set_parent(parent)
-            .id();
-        self.commands
-            .spawn(self.pitched_solid_bundle(module, pitch))
-            .set_parent(module_entity);
-        self.commands
-            .spawn(self.edge_bundle(module))
-            .set_parent(module_entity);
+            .with_child(solid)
+            .with_child(edges);
     }
 
     /// Create a bundle for [`BuildingModule`].
-    fn bundle(module: &BuildingModuleInfo, order: usize) -> (BuildingModule, Level, Distributable) {
+    fn module_bundle(module: &BuildingModuleInfo, order: usize) -> impl Bundle {
         let distributable = Distributable {
             order,
             size: Some(module.get_scale()),
@@ -187,16 +200,7 @@ impl ModularBuildingFactory<'_> {
     }
 
     /// Create a bundle for the cuboid solid geometry of [`BuildingModule`] with subtracted openings.
-    fn cuboid_solid_bundle(
-        &mut self,
-        rectangles: Vec<[Vec3; 4]>,
-    ) -> (
-        Solid,
-        Transform,
-        Mesh3d,
-        MeshMaterial3d<StandardMaterial>,
-        Visibility,
-    ) {
+    fn cuboid_faces_bundle(&mut self, rectangles: Vec<[Vec3; 4]>) -> impl Bundle {
         let mesh = TriangleList::from_rectangles(rectangles).to_mesh();
         (
             Solid,
@@ -208,16 +212,7 @@ impl ModularBuildingFactory<'_> {
     }
 
     /// Create a bundle for the edge geometry of [`BuildingModule`].
-    fn edge_bundle(
-        &self,
-        module: &BuildingModuleInfo,
-    ) -> (
-        Edge,
-        Transform,
-        Mesh3d,
-        MeshMaterial3d<StandardMaterial>,
-        Visibility,
-    ) {
+    fn module_edges_bundle(&self, module: &BuildingModuleInfo) -> impl Bundle {
         let mesh = match module.pitch {
             None => self.building_meshes.cuboid_edges.clone(),
             Some(Pitch::LeftToRight) => self.building_meshes.pitch_left_right_edges.clone(),
@@ -233,17 +228,7 @@ impl ModularBuildingFactory<'_> {
     }
 
     /// Create a bundle for the pitched solid geometry of [`BuildingModule`].
-    fn pitched_solid_bundle(
-        &self,
-        module: &BuildingModuleInfo,
-        pitch: Pitch,
-    ) -> (
-        Solid,
-        Transform,
-        Mesh3d,
-        MeshMaterial3d<StandardMaterial>,
-        Visibility,
-    ) {
+    fn pitched_solid_bundle(&self, module: &BuildingModuleInfo, pitch: Pitch) -> impl Bundle {
         let mesh = match pitch {
             Pitch::LeftToRight => self.building_meshes.pitch_left_right.clone(),
             Pitch::FrontToBack => self.building_meshes.pitch_front_back.clone(),
@@ -254,6 +239,33 @@ impl ModularBuildingFactory<'_> {
             Mesh3d(mesh),
             MeshMaterial3d(self.materials.face.clone()),
             Visibility::Visible,
+        )
+    }
+
+    fn opening_edges_bundle(&mut self, cuboid: &Cuboid) -> impl Bundle {
+        (
+            Opening,
+            Edge,
+            Mesh3d(self.meshes.add(cuboid.get_edges().to_mesh())),
+            MeshMaterial3d(self.materials.edges.clone()),
+            Visibility::Hidden,
+        )
+    }
+
+    /// Create the inside faces of an opening.
+    fn opening_faces_bundle(&mut self, cuboid: &Cuboid) -> impl Bundle {
+        let triangles = TriangleList::from_rectangles(vec![
+            cuboid.get_face_reversed(Back),
+            cuboid.get_face_reversed(Left),
+            cuboid.get_face_reversed(Right),
+            cuboid.get_face_reversed(Top),
+            cuboid.get_face_reversed(Bottom),
+        ]);
+        (
+            Opening,
+            Solid,
+            Mesh3d(self.meshes.add(triangles.to_mesh())),
+            MeshMaterial3d(self.materials.face.clone()),
         )
     }
 }

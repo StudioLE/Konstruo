@@ -12,7 +12,7 @@ use Orientation::*;
 /// An edge is defined by two orientations.
 ///
 /// A corner is defined by three orientations.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Orientation {
     Front,
     Back,
