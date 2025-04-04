@@ -45,6 +45,13 @@ impl Default for Pan {
 }
 
 impl Pan {
+    /// Create a [`Pan`].
+    pub(super) fn bundle() -> impl Bundle {
+        let pan = Pan::default();
+        let transform = pan.get_transform();
+        (pan, transform)
+    }
+
     /// Get the current translation as a transform.
     #[must_use]
     pub fn get_transform(&self) -> Transform {

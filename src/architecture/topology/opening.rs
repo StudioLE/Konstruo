@@ -1,8 +1,6 @@
-use crate::architecture::{BuildingMaterials, BuildingMeshes};
-use crate::distribution::{Container, Distributable, Distribution, FlexBuilder};
+use crate::distribution::{Container, Distributable, FlexBuilder};
 use crate::geometry::{Orientation, Vec6};
 use bevy::prelude::*;
-use Orientation::*;
 
 const DEPTH: f32 = 0.300;
 

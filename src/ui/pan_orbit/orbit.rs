@@ -5,6 +5,7 @@ use crate::geometry::Orientation::{Bottom, Top};
 use crate::kinematics::Translation;
 use crate::mathematics::constants::*;
 use crate::mathematics::SphericalCoordinates;
+use crate::ui::{PrimaryCamera, PRIMARY_CAMERA_ORDER};
 use crate::{CAMERA_MAX, CAMERA_MIN};
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
@@ -47,6 +48,21 @@ impl Default for Orbit {
 }
 
 impl Orbit {
+    /// Create an [`Orbit`] with [`Camera`].
+    pub(super) fn bundle() -> impl Bundle {
+        let orbit = Orbit::default();
+        let transform = orbit.get_cartesian_transform();
+        (
+            PrimaryCamera,
+            orbit,
+            transform,
+            Camera3d::default(),
+            Camera {
+                order: PRIMARY_CAMERA_ORDER,
+                ..default()
+            },
+        )
+    }
     /// Distance from the origin in metres.
     #[must_use]
     pub fn get_spherical_coordinates(&self) -> SphericalCoordinates {
