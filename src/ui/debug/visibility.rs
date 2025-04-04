@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 
-#[allow(clippy::type_complexity)]
 pub fn debug_visibility_hierarchy(
     keys: Res<ButtonInput<KeyCode>>,
     query: Query<(
         Entity,
-        Option<&Parent>,
+        Option<&ChildOf>,
         Option<&Visibility>,
         Option<&InheritedVisibility>,
     )>,
@@ -15,9 +14,9 @@ pub fn debug_visibility_hierarchy(
     }
     for (entity, parent, visibility, inherited_visibility) in query.iter() {
         println!(
-            "Entity: {:?}, Parent: {:?}, Visibility: {:?}, InheritedVisibility: {:?}",
+            "Entity: {:?}, ChildOf: {:?}, Visibility: {:?}, InheritedVisibility: {:?}",
             entity,
-            parent.map(Parent::get),
+            parent.map(|x| x.parent),
             visibility.is_some(),
             inherited_visibility.is_some()
         );

@@ -1,15 +1,9 @@
 use super::*;
-use crate::ui::cursor::Cursor;
-use bevy::hierarchy::Children;
+use crate::ui::Cursor;
 use bevy::input::mouse::MouseMotion;
-use bevy::input::ButtonInput;
-use bevy::log::warn;
-use bevy::math::Vec3;
-use bevy::prelude::KeyCode::{KeyA, KeyD, KeyS, KeyW, ShiftLeft};
-use bevy::prelude::{
-    Camera, EventReader, GlobalTransform, KeyCode, MouseButton, Query, Res, Transform, Window, With,
-};
+use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use KeyCode::{KeyA, KeyD, KeyS, KeyW, ShiftLeft};
 
 impl Pan {
     /// System to update [`Pan`] in response to keyboard input events.
@@ -22,7 +16,8 @@ impl Pan {
             warn!("Failed to get Pan");
             return;
         };
-        let Some(orbit) = children.iter().find_map(|&child| orbits.get(child).ok()) else {
+        // TODO: This can be simplified by getting Orbit first and fetching its parent
+        let Some(orbit) = children.iter().find_map(|child| orbits.get(child).ok()) else {
             warn!("Failed to get Orbit from Pan");
             return;
         };

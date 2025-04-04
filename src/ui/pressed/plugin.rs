@@ -69,7 +69,7 @@ impl PressedKeysPlugin {
 
 fn fullscreen(camera: Entity) -> impl Bundle {
     (
-        TargetCamera(camera),
+        UiTargetCamera(camera),
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
@@ -78,7 +78,7 @@ fn fullscreen(camera: Entity) -> impl Bundle {
             ..default()
         },
         ZIndex(PRESSED_KEYS_Z),
-        PickingBehavior::IGNORE,
+        Pickable::IGNORE,
     )
 }
 
@@ -90,6 +90,6 @@ fn container() -> impl Bundle {
             align_items: AlignItems::Center,
             ..default()
         },
-        PickingBehavior::IGNORE,
+        Pickable::IGNORE,
     )
 }

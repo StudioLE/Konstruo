@@ -88,7 +88,7 @@ impl Distribution {
             (Added<Distribution>, Without<Distributable>),
         >,
         mut containers: Query<
-            (&Parent, &mut Transform),
+            (&ChildOf, &mut Transform),
             (
                 With<DiagnosticContainer>,
                 Without<Distributable>,
@@ -109,7 +109,7 @@ impl Distribution {
                 translate_to_ground(&container, &mut transform);
             }
             for (parent, mut transform) in containers.iter_mut() {
-                if parent.get() != entity {
+                if parent.parent != entity {
                     continue;
                 }
                 *transform = transform.with_scale(container.size);

@@ -54,7 +54,7 @@ fn on_pointer_over(
     materials: Res<ViewCubeMaterials>,
     mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    let Ok(mut material) = query.get_mut(event.entity()) else {
+    let Ok(mut material) = query.get_mut(event.target()) else {
         error!("Failed to get material of ViewCubeFace");
         return;
     };
@@ -66,7 +66,7 @@ fn on_pointer_out(
     materials: Res<ViewCubeMaterials>,
     mut query: Query<(&ViewCubeFace, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((face, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((face, mut material)) = query.get_mut(event.target()) else {
         error!("Failed to get material of ViewCubeFace");
         return;
     };
@@ -78,7 +78,7 @@ fn on_pointer_click(
     side: Query<&ViewCubeFace>,
     mut orbit: Query<&mut Orbit>,
 ) {
-    let Ok(face) = side.get(event.entity()) else {
+    let Ok(face) = side.get(event.target()) else {
         error!("Failed to get clicked ViewCubeFace");
         return;
     };

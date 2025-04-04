@@ -71,9 +71,9 @@ fn interceptor_bundle(
 ) -> (
     Interceptor,
     Node,
-    PickingBehavior,
+    Pickable,
     ZIndex,
-    TargetCamera,
+    UiTargetCamera,
     Visibility,
 ) {
     (
@@ -83,9 +83,9 @@ fn interceptor_bundle(
             height: Val::Percent(100.0),
             ..default()
         },
-        PickingBehavior::default(),
+        Pickable::default(),
         ZIndex(INTERCEPTOR_Z),
-        TargetCamera(camera),
+        UiTargetCamera(camera),
         Visibility::Hidden,
     )
 }

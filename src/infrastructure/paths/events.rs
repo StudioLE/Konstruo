@@ -29,7 +29,7 @@ impl SplineChanged {
         mut writer: EventWriter<SplineChanged>,
     ) {
         for event in events.read() {
-            writer.send(SplineChanged {
+            writer.write(SplineChanged {
                 path: event.path,
                 spline: event.spline.clone(),
             });
@@ -42,7 +42,7 @@ impl SplineChanged {
         mut writer: EventWriter<SplineChanged>,
     ) {
         for event in events.read() {
-            writer.send(SplineChanged {
+            writer.write(SplineChanged {
                 path: event.path,
                 spline: event.spline.clone(),
             });

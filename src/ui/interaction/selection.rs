@@ -36,19 +36,19 @@ impl Selection {
         ]
     }
 
-    fn add_buildings_action(_trigger: Trigger<Pointer<Up>>) {
+    fn add_buildings_action(_trigger: Trigger<Pointer<Released>>) {
         trace!("Add buildings button was pressed.");
         warn!("Add buildings action not implemented");
     }
 
-    fn add_surface_action(_trigger: Trigger<Pointer<Up>>) {
+    fn add_surface_action(_trigger: Trigger<Pointer<Released>>) {
         trace!("Add surface button was pressed.");
         warn!("Add surface action not implemented");
     }
 
     /// Deselect the selected entity on action button press.
     fn deselect_action(
-        _trigger: Trigger<Pointer<Up>>,
+        _trigger: Trigger<Pointer<Released>>,
         mut changed: EventWriter<EntityStateChanged>,
         mut entity_states: Query<&mut EntityState>,
         mut interface: ResMut<InterfaceState>,
@@ -63,21 +63,21 @@ impl Selection {
             return;
         };
         *entity_state = EntityState::Default;
-        changed.send(EntityStateChanged {
+        changed.write(EntityStateChanged {
             entity: path,
             state: EntityState::Default,
         });
         *interface = InterfaceState::Default;
     }
 
-    fn info_action(_trigger: Trigger<Pointer<Up>>) {
+    fn info_action(_trigger: Trigger<Pointer<Released>>) {
         trace!("Info button was pressed.");
         warn!("Info action not implemented");
     }
 
     /// Remove the selected entity on action button press
     fn remove_action(
-        _trigger: Trigger<Pointer<Up>>,
+        _trigger: Trigger<Pointer<Released>>,
         mut commands: Commands,
         mut interface: ResMut<InterfaceState>,
     ) {

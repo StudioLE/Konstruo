@@ -46,7 +46,7 @@ impl Path {
         mut events: EventReader<SplineChanged>,
         mut meshes: ResMut<Assets<Mesh>>,
         mut paths: Query<&mut Mesh3d, With<Path>>,
-        mut distributions: Query<(&mut Distribution, &Parent), Without<Distributable>>,
+        mut distributions: Query<(&mut Distribution, &ChildOf), Without<Distributable>>,
     ) {
         for event in events.read() {
             let Ok(mut mesh) = paths.get_mut(event.path) else {
@@ -84,11 +84,11 @@ impl PathFactory<'_> {
 }
 
 fn redistribute_on_spline_changed(
-    distributions: &mut Query<(&mut Distribution, &Parent), Without<Distributable>>,
+    distributions: &mut Query<(&mut Distribution, &ChildOf), Without<Distributable>>,
     event: &SplineChanged,
 ) {
     for (mut distribution, parent) in distributions {
-        if parent.get() != event.path {
+        if parent.parent != event.path {
             continue;
         }
         let spline = if let Some(offset) = distribution.spline_offset {

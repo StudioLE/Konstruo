@@ -20,7 +20,7 @@ impl PressedKey {
     /// acceptable given it's only intended for diagnostic and tutorial purposes.
     pub(super) fn update_system(
         mut keys: Query<(Entity, &mut Visibility), With<PressedKey>>,
-        mut labels: Query<(&Parent, &mut Text), With<PressedKeyLabel>>,
+        mut labels: Query<(&ChildOf, &mut Text), With<PressedKeyLabel>>,
         input: Res<ButtonInput<KeyCode>>,
     ) {
         let pressed: Vec<_> = Self::KEYS
@@ -35,7 +35,7 @@ impl PressedKey {
             *visibility = Visibility::Visible;
             let Some((_, mut label)) = labels
                 .iter_mut()
-                .find(|(parent, _text)| parent.get() == entity)
+                .find(|(parent, _text)| parent.parent == entity)
             else {
                 warn!("Failed to find PressedKeyLabel for PressedKey: {index}");
                 continue;
@@ -57,7 +57,7 @@ impl PressedKey {
             },
             BackgroundColor(PressedKeysPlugin::ACTIVE.into()),
             BorderRadius::all(Val::Px(8.0)),
-            PickingBehavior::IGNORE,
+            Pickable::IGNORE,
         )
     }
 

@@ -34,7 +34,7 @@ impl PressedMouseButton {
                 row_gap: Val::Px(4.0),
                 ..default()
             },
-            PickingBehavior::IGNORE,
+            Pickable::IGNORE,
         )
     }
 
@@ -47,7 +47,7 @@ impl PressedMouseButton {
                 column_gap: Val::Px(4.0),
                 ..default()
             },
-            PickingBehavior::IGNORE,
+            Pickable::IGNORE,
         )
     }
 
@@ -61,7 +61,7 @@ impl PressedMouseButton {
             },
             BackgroundColor(PressedKeysPlugin::inactive_color()),
             BorderRadius::bottom(Val::Px(8.0)),
-            PickingBehavior::IGNORE,
+            Pickable::IGNORE,
         )
     }
 
@@ -76,7 +76,7 @@ impl PressedMouseButton {
             },
             BackgroundColor(PressedKeysPlugin::inactive_color()),
             BorderRadius::top_left(Val::Px(8.0)),
-            PickingBehavior::IGNORE,
+            Pickable::IGNORE,
         )
     }
 
@@ -91,7 +91,7 @@ impl PressedMouseButton {
             },
             BackgroundColor(PressedKeysPlugin::inactive_color()),
             BorderRadius::all(Val::Px(8.0)),
-            PickingBehavior::IGNORE,
+            Pickable::IGNORE,
         )
     }
 
@@ -106,7 +106,7 @@ impl PressedMouseButton {
             },
             BackgroundColor(PressedKeysPlugin::inactive_color()),
             BorderRadius::top_right(Val::Px(12.0)),
-            PickingBehavior::IGNORE,
+            Pickable::IGNORE,
         )
     }
 }

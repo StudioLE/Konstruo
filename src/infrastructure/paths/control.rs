@@ -31,11 +31,11 @@ impl PathControl {
     /// Update the [`Transform`] when a control is moved.
     pub(super) fn on_control_moved(
         mut events: EventReader<ControlMoved>,
-        mut controls: Query<(&PathControl, &Parent, &mut Transform)>,
+        mut controls: Query<(&PathControl, &ChildOf, &mut Transform)>,
     ) {
         for event in events.read() {
             for (control, parent, mut transform) in &mut controls {
-                if parent.get() != event.path {
+                if parent.parent != event.path {
                     continue;
                 }
                 let Some(translation) = event
@@ -54,7 +54,7 @@ impl PathControl {
     pub(super) fn on_curve_added(
         mut events: EventReader<CurveAdded>,
         commands: Commands,
-        controls: Query<(Entity, &Parent), With<PathControl>>,
+        controls: Query<(Entity, &ChildOf), With<PathControl>>,
         meshes: ResMut<Assets<Mesh>>,
         path_meshes: Res<PathMeshes>,
         materials: Res<PathMaterials>,
@@ -74,11 +74,11 @@ impl PathControl {
     /// Update the [`PathControl`] visibility when the [`EntityState`] of the [`Path`] changes.
     pub(super) fn on_state_changed(
         mut events: EventReader<EntityStateChanged>,
-        mut controls: Query<(&Parent, &mut Visibility), With<PathControl>>,
+        mut controls: Query<(&ChildOf, &mut Visibility), With<PathControl>>,
     ) {
         for event in events.read() {
             for (parent, mut visibility) in &mut controls {
-                if parent.get() != event.entity {
+                if parent.parent != event.entity {
                     continue;
                 }
                 *visibility = match event.state {
@@ -171,7 +171,7 @@ fn on_pointer_over(
     materials: Res<PathMaterials>,
     mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((state, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((state, mut material)) = query.get_mut(event.target()) else {
         error!("Failed to get material of PathControl");
         return;
     };
@@ -185,7 +185,7 @@ fn on_pointer_out(
     materials: Res<PathMaterials>,
     mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((state, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((state, mut material)) = query.get_mut(event.target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -199,7 +199,7 @@ fn on_pointer_drag_start(
     materials: Res<PathMaterials>,
     mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((mut state, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((mut state, mut material)) = query.get_mut(event.target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -211,12 +211,12 @@ fn on_pointer_drag_start(
 fn on_pointer_drag(
     event: Trigger<Pointer<Drag>>,
     mut event_writer: EventWriter<ControlMoved>,
-    controls: Query<(&PathControl, &Parent, &mut Transform)>,
+    controls: Query<(&PathControl, &ChildOf, &mut Transform)>,
     mut paths: Query<(&mut Path, Entity)>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
 ) {
-    let Ok((control, parent, _transform)) = controls.get(event.entity()) else {
+    let Ok((control, parent, _transform)) = controls.get(event.target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -224,13 +224,13 @@ fn on_pointer_drag(
         warn!("Failed to get cursor on ground");
         return;
     };
-    let Ok((mut path, entity)) = paths.get_mut(parent.get()) else {
+    let Ok((mut path, entity)) = paths.get_mut(parent.parent) else {
         warn!("Failed to get Path");
         return;
     };
     path.spline
         .update_control(control.control_type, control.curve, translation);
-    event_writer.send(ControlMoved {
+    event_writer.write(ControlMoved {
         path: entity,
         spline: path.spline.clone(),
     });
@@ -241,7 +241,7 @@ fn on_pointer_drag_end(
     materials: Res<PathMaterials>,
     mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((mut state, mut material)) = query.get_mut(event.entity()) else {
+    let Ok((mut state, mut material)) = query.get_mut(event.target()) else {
         error!("Failed to get PathControl");
         return;
     };

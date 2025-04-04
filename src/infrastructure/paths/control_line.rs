@@ -26,11 +26,11 @@ impl PathControlLine {
     /// Update the [`PathControlLine`] visibility when the [`EntityState`] of the [`Path`] changes.
     pub(super) fn on_state_changed(
         mut events: EventReader<EntityStateChanged>,
-        mut lines: Query<(&Parent, &mut Visibility), With<PathControlLine>>,
+        mut lines: Query<(&ChildOf, &mut Visibility), With<PathControlLine>>,
     ) {
         for event in events.read() {
             for (parent, mut visibility) in &mut lines {
-                if parent.get() != event.entity {
+                if parent.parent != event.entity {
                     continue;
                 }
                 *visibility = match event.state {
@@ -44,12 +44,12 @@ impl PathControlLine {
     /// Update the [`Transform`] when a control is moved.
     pub(super) fn on_control_moved(
         mut events: EventReader<ControlMoved>,
-        mut lines: Query<(&PathControlLine, &Parent, &mut Mesh3d), Without<Path>>,
+        mut lines: Query<(&PathControlLine, &ChildOf, &mut Mesh3d), Without<Path>>,
         mut meshes: ResMut<Assets<Mesh>>,
     ) {
         for event in events.read() {
             for (line, parent, mut mesh) in &mut lines {
-                if parent.get() != event.path {
+                if parent.parent != event.path {
                     continue;
                 }
                 let anchor = if line.is_start { Start } else { End };
@@ -76,7 +76,7 @@ impl PathControlLine {
     /// Re-spawn [`PathControlLine`] when a curve is added or removed.
     pub(super) fn on_curve_added(
         mut events: EventReader<CurveAdded>,
-        lines: Query<(Entity, &Parent), With<PathControlLine>>,
+        lines: Query<(Entity, &ChildOf), With<PathControlLine>>,
         commands: Commands,
         meshes: ResMut<Assets<Mesh>>,
         path_meshes: Res<PathMeshes>,

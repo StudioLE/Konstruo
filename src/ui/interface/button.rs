@@ -67,7 +67,7 @@ fn on_pointer_over(
     event: Trigger<Pointer<Over>>,
     mut query: Query<&mut BackgroundColor, With<FloatingActionButton>>,
 ) {
-    let Ok(mut bg) = query.get_mut(event.entity()) else {
+    let Ok(mut bg) = query.get_mut(event.target()) else {
         error!("Failed to get FloatingActionButton");
         return;
     };
@@ -78,7 +78,7 @@ fn on_pointer_out(
     event: Trigger<Pointer<Out>>,
     mut query: Query<&mut BackgroundColor, With<FloatingActionButton>>,
 ) {
-    let Ok(mut bg) = query.get_mut(event.entity()) else {
+    let Ok(mut bg) = query.get_mut(event.target()) else {
         error!("Failed to get FloatingActionButton");
         return;
     };

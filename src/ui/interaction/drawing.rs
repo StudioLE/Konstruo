@@ -96,7 +96,7 @@ impl Drawing {
         } else {
             drawing.is_ready = true;
         }
-        curve_added.send(CurveAdded {
+        curve_added.write(CurveAdded {
             path: drawing.path,
             spline: path.spline.clone(),
         });
@@ -120,7 +120,7 @@ impl Drawing {
 
     /// Update the [`Path`] on action button pressed.
     fn complete_action(
-        _trigger: Trigger<Pointer<Up>>,
+        _trigger: Trigger<Pointer<Released>>,
         mut commands: Commands,
         mut interface: ResMut<InterfaceState>,
         drawing: Res<Drawing>,
@@ -144,7 +144,7 @@ impl Drawing {
             return;
         };
         *path = Path::new(spline);
-        curve_added.send(CurveAdded {
+        curve_added.write(CurveAdded {
             path: drawing.path,
             spline: path.spline.clone(),
         });
@@ -153,7 +153,7 @@ impl Drawing {
 
     /// Activate [`InterfaceState::DrawPath`].
     pub(crate) fn start_action(
-        _trigger: Trigger<Pointer<Up>>,
+        _trigger: Trigger<Pointer<Released>>,
         mut interface: ResMut<InterfaceState>,
         commands: Commands,
         meshes: ResMut<Assets<Mesh>>,
@@ -173,7 +173,7 @@ impl Drawing {
     }
 
     /// Remove the last control and handle.
-    fn undo_action(_trigger: Trigger<Pointer<Up>>, mut drawing: ResMut<Drawing>) {
+    fn undo_action(_trigger: Trigger<Pointer<Released>>, mut drawing: ResMut<Drawing>) {
         trace!("Undo button was pressed.");
         drawing.handles.pop();
         drawing.origins.pop();
@@ -181,7 +181,7 @@ impl Drawing {
 
     /// Add origin controls on pointer down.
     pub(crate) fn on_pointer_down(
-        trigger: Trigger<Pointer<Down>>,
+        trigger: Trigger<Pointer<Pressed>>,
         drawing: Option<ResMut<Drawing>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {
@@ -200,7 +200,7 @@ impl Drawing {
 
     /// Add handle controls on pointer up.
     pub(crate) fn on_pointer_up(
-        trigger: Trigger<Pointer<Up>>,
+        trigger: Trigger<Pointer<Released>>,
         drawing: Option<ResMut<Drawing>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {

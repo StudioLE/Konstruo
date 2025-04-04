@@ -5,7 +5,7 @@ edition = "2021"
 resolver = "2"
 
 [dependencies]
-bevy = { version = "0.15.3" }
+bevy = { version = "0.16.0-rc.3" }
 kurbo = "0.11.1"
 taffy = "0.8.0"
 

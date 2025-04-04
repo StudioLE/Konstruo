@@ -46,9 +46,9 @@ impl ActionBar {
     }
 }
 
-fn parent_bundle(camera: Entity) -> (TargetCamera, Node, ZIndex, PickingBehavior) {
+fn parent_bundle(camera: Entity) -> impl Bundle {
     (
-        TargetCamera(camera),
+        UiTargetCamera(camera),
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
@@ -57,11 +57,11 @@ fn parent_bundle(camera: Entity) -> (TargetCamera, Node, ZIndex, PickingBehavior
             ..default()
         },
         ZIndex(ACTION_BAR_Z),
-        PickingBehavior::IGNORE,
+        Pickable::IGNORE,
     )
 }
 
-fn bundle() -> (ActionBar, Node, PickingBehavior) {
+fn bundle() -> impl Bundle {
     (
         ActionBar,
         Node {
@@ -70,7 +70,7 @@ fn bundle() -> (ActionBar, Node, PickingBehavior) {
             justify_content: JustifyContent::End,
             ..default()
         },
-        PickingBehavior::IGNORE,
+        Pickable::IGNORE,
     )
 }
 

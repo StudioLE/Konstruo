@@ -42,7 +42,7 @@ fn default_actions() -> Vec<Action> {
     ]
 }
 
-fn settings_action(_trigger: Trigger<Pointer<Up>>) {
+fn settings_action(_trigger: Trigger<Pointer<Released>>) {
     trace!("Settings button was pressed.");
     warn!("Settings was pressed but it is not implemented.");
 }
