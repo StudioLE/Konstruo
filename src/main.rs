@@ -64,18 +64,19 @@ fn configure_log_plugin() -> LogPlugin {
     filter.insert(
         "info",
         vec![
+            "bevy_app",
+            "bevy_pbr",
             "bevy_render",
             "calloop",
             "cosmic_text",
-            "naga",
+            "gilrs",
             "offset_allocator",
             "polling",
             "wgpu_core",
-            "wgpu_hal",
             "winit",
         ],
     );
-    filter.insert("warn", vec!["wgpu_hal"]);
+    filter.insert("warn", vec!["bevy_winit", "wgpu_hal", "naga"]);
     LogPlugin {
         level: Level::TRACE,
         filter: create_log_filter(filter),
