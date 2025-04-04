@@ -31,7 +31,7 @@ pub struct BuildingModuleInfo {
     /// Is this a pitched module?
     pub pitch: Option<Pitch>,
     /// Is this a pitched module?
-    pub openings: Option<Vec<OpeningFactory>>,
+    pub openings: Option<Vec<OpeningDistribution>>,
 }
 
 impl Default for BuildingModuleInfo {

@@ -21,9 +21,9 @@ pub struct OpeningInfo {
     pub margin: Option<Vec6>,
 }
 
-/// Factory to create and distribute [`Opening`].
+/// A set of [`Opening`] and the logic to distribute them.
 #[derive(Clone, Debug)]
-pub struct OpeningFactory {
+pub struct OpeningDistribution {
     /// Side to apply openings.
     pub side: Orientation,
     /// Justify the content.
@@ -32,57 +32,7 @@ pub struct OpeningFactory {
     pub openings: Vec<OpeningInfo>,
 }
 
-impl OpeningFactory {
-    /// Spawn and distribute [`Opening`].
-    pub fn spawn(
-        &self,
-        commands: &mut Commands,
-        meshes: &Res<BuildingMeshes>,
-        materials: &Res<BuildingMaterials>,
-        size: Vec3,
-        parent: Entity,
-    ) {
-        let bounds = match self.side {
-            Left | Right => Vec3::new(size.y, 0.0, size.z),
-            _ => Vec3::new(size.x, 0.0, size.z),
-        };
-        let translation = (size - DEPTH) * self.side.to_facing_in() * 0.5;
-        let rotation = self.side.get_z_rotation();
-        let transform =
-            Transform::from_rotation(Quat::from_rotation_z(rotation)).with_translation(translation);
-        let bundle = (
-            transform,
-            Distribution {
-                flex: FlexBuilder::new()
-                    .with_axis(Vec3::X, Vec3::Z)
-                    .with_bounds(bounds)
-                    .with_justify_content(self.justify_content)
-                    .with_align_items_cross(AlignItems::End)
-                    .with_align_items_normal(AlignItems::Center)
-                    .build(),
-                ..default()
-            },
-        );
-        let distribution = commands.spawn(bundle).set_parent(parent).id();
-        for (order, opening) in self.openings.iter().enumerate() {
-            let scale = Vec3::new(opening.width, DEPTH, opening.height);
-            let distributable = Distributable {
-                order,
-                size: Some(scale),
-                margin: opening.margin,
-            };
-            let mesh = meshes.cuboid_edges.clone();
-            let bundle = (
-                Opening,
-                Transform::from_scale(scale),
-                distributable,
-                Mesh3d(mesh),
-                MeshMaterial3d(materials.edges.clone()),
-            );
-            commands.spawn(bundle).set_parent(distribution);
-        }
-    }
-
+impl OpeningDistribution {
     /// Distribute the openings.
     #[must_use]
     pub fn distribute(&self, bounds: Vec3, right: Vec3, up: Vec3) -> Container {

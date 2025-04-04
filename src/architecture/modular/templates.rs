@@ -102,7 +102,7 @@ impl StackTemplates {
                     width: 10.200,
                     length: 8.400,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -123,7 +123,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -173,7 +173,7 @@ impl StackTemplates {
                     width: 8.400,
                     length: 10.200,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -194,7 +194,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -238,7 +238,7 @@ impl StackTemplates {
                     width: 12.000,
                     length: 7.200,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -259,7 +259,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -309,7 +309,7 @@ impl StackTemplates {
                     width: 7.200,
                     length: 12.000,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -330,7 +330,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -375,7 +375,7 @@ impl StackTemplates {
                     width: 10.200,
                     length: 6.000,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -396,7 +396,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -425,7 +425,7 @@ impl StackTemplates {
                     width: 10.200,
                     length: 6.000,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -446,7 +446,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -496,7 +496,7 @@ impl StackTemplates {
                     width: 6.000,
                     length: 10.200,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -517,7 +517,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -541,7 +541,7 @@ impl StackTemplates {
                     width: 6.000,
                     length: 10.200,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -562,7 +562,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -612,7 +612,7 @@ impl StackTemplates {
                     width: 10.200,
                     length: 7.200,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -633,7 +633,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -662,7 +662,7 @@ impl StackTemplates {
                     width: 10.200,
                     length: 7.200,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -683,7 +683,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -732,7 +732,7 @@ impl StackTemplates {
                     width: 7.200,
                     length: 10.200,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -753,7 +753,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -777,7 +777,7 @@ impl StackTemplates {
                     width: 7.200,
                     length: 10.200,
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -798,7 +798,7 @@ impl StackTemplates {
                                 },
                             ],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
@@ -846,7 +846,7 @@ impl StackTemplates {
                     length: 5.400,
                     margin: Some(Vec6::default().with_back(0.600)),
                     openings: Some(vec![
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Front,
                             justify_content: JustifyContent::Center,
                             openings: vec![OpeningInfo {
@@ -855,7 +855,7 @@ impl StackTemplates {
                                 margin: Some(Vec6::default().with_top(0.300)),
                             }],
                         },
-                        OpeningFactory {
+                        OpeningDistribution {
                             side: Orientation::Back,
                             justify_content: JustifyContent::SpaceEvenly,
                             openings: vec![
