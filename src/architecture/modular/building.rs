@@ -14,7 +14,7 @@ pub struct ModularBuildingInfo {
 
 impl ModularBuilding {
     /// Create a bundle for [`ModularBuildingInfo`].
-    fn bundle() -> (ModularBuilding, Distribution) {
+    fn bundle() -> impl Bundle {
         (
             ModularBuilding,
             Distribution {

@@ -1,6 +1,6 @@
 use crate::mathematics::*;
 use crate::{CAMERA_MAX, ENVIRONMENT_MAX};
-use bevy::pbr::{CascadeShadowConfig, CascadeShadowConfigBuilder, DirectionalLightShadowMap};
+use bevy::pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
 use bevy::prelude::*;
 
 /// A directional light source representing the sun.
@@ -35,10 +35,7 @@ impl Sun {
         ));
     }
 
-    fn bundle(
-        azimuth: f32,
-        illuminance: f32,
-    ) -> (Sun, DirectionalLight, Transform, CascadeShadowConfig) {
+    fn bundle(azimuth: f32, illuminance: f32) -> impl Bundle {
         let translation =
             SphericalCoordinates::new(ENVIRONMENT_MAX - 1000.0, PI / 7.0, azimuth).to_cartesian();
         (
