@@ -49,10 +49,11 @@ fn spawn_rectangle(
         } else {
             ExampleMaterials::red_edge()
         };
+        let lines = LineList::new(triangle.to_lines().to_vec());
         let bundle = (
-            Edge,
+            Wireframe,
             MeshMaterial3d(materials.add(material)),
-            Mesh3d(meshes.add(triangle.get_edges().to_mesh())),
+            Mesh3d(meshes.add(lines.to_mesh())),
         );
         commands.spawn(bundle);
     }

@@ -1,4 +1,3 @@
-use crate::geometry::LineList;
 use bevy::math::Vec3;
 
 /// A [`Triangle`].
@@ -40,14 +39,14 @@ impl Triangle {
         normal.normalize()
     }
 
-    /// Get the edges as a [`LineList`]
+    /// Get the edges as a lines.
     #[must_use]
-    pub fn get_edges(&self) -> LineList {
-        LineList::new(vec![
+    pub fn to_lines(&self) -> [[Vec3; 2]; 3] {
+        [
             [self.vertices[0], self.vertices[1]],
             [self.vertices[1], self.vertices[2]],
             [self.vertices[2], self.vertices[0]],
-        ])
+        ]
     }
 
     /// Get the normal vector of the [`Triangle`].

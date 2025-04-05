@@ -51,6 +51,16 @@ impl Polyline {
         Self { vertices }
     }
 
+    /// Get the individual lines that form the [`Polyline`].
+    #[must_use]
+    #[allow(clippy::indexing_slicing)]
+    pub fn to_lines(&self) -> Vec<[Vec3; 2]> {
+        self.vertices
+            .windows(2)
+            .map(|pair| [pair[0], pair[1]])
+            .collect()
+    }
+
     /// Create a [`PrimitiveTopology::LineStrip`].
     ///
     /// Picking requires [`RenderAssetUsages::default()`].

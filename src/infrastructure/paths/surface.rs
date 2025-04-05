@@ -1,5 +1,5 @@
 use super::*;
-use crate::geometry::{Edge, Polyline, Sweep, TriangleList, Vec6, Wireframe};
+use crate::geometry::*;
 use crate::infrastructure::SurfaceType::{Carriageway, Footway};
 use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
 use crate::{Helpers, PATH_ELEVATION};
@@ -179,39 +179,39 @@ impl PathFactory<'_> {
         )
     }
 
-    // TODO: Revise to create a single wireframe
     fn spawn_wireframe(&mut self, triangles: TriangleList, parent: Entity) {
-        for triangle in triangles.get_triangles() {
-            let polyline = Polyline::new(triangle.get_vertices().to_vec());
-            let bundle = (
-                Wireframe,
-                Mesh3d(self.meshes.add(polyline.to_mesh())),
-                MeshMaterial3d(self.materials.wireframe.clone()),
-                ChildOf { parent },
-            );
-            self.commands.spawn(bundle);
-        }
+        let lines = triangles
+            .get_triangles()
+            .iter()
+            .flat_map(Triangle::to_lines)
+            .collect();
+        let bundle = (
+            Wireframe,
+            Mesh3d(self.meshes.add(LineList::new(lines).to_mesh())),
+            MeshMaterial3d(self.materials.wireframe.clone()),
+            ChildOf { parent },
+        );
+        self.commands.spawn(bundle);
     }
 
-    // TODO: Revise to create a single edges entity
     fn spawn_edges(&mut self, sweep: Sweep, parent: Entity, is_selected: bool) {
         let edges = sweep.get_edges();
+        let lines = edges.iter().flat_map(Polyline::to_lines).collect();
+        let lines = LineList::new(lines);
         let material = self.materials.edge.clone();
         let visibility = if is_selected {
             Visibility::Visible
         } else {
             Visibility::Hidden
         };
-        for edge in edges {
-            let bundle = (
-                Edge,
-                visibility,
-                Mesh3d(self.meshes.add(edge.to_mesh())),
-                MeshMaterial3d(material.clone()),
-                ChildOf { parent },
-            );
-            self.commands.spawn(bundle);
-        }
+        let bundle = (
+            Edge,
+            visibility,
+            Mesh3d(self.meshes.add(lines.to_mesh())),
+            MeshMaterial3d(material.clone()),
+            ChildOf { parent },
+        );
+        self.commands.spawn(bundle);
     }
 }
 
