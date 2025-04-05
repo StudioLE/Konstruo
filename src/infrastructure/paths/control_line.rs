@@ -29,8 +29,8 @@ impl PathControlLine {
         mut lines: Query<(&ChildOf, &mut Visibility), With<PathControlLine>>,
     ) {
         for event in events.read() {
-            for (parent, mut visibility) in &mut lines {
-                if parent.parent != event.entity {
+            for (child_of, mut visibility) in &mut lines {
+                if child_of.parent != event.entity {
                     continue;
                 }
                 *visibility = match event.state {
@@ -48,8 +48,8 @@ impl PathControlLine {
         mut meshes: ResMut<Assets<Mesh>>,
     ) {
         for event in events.read() {
-            for (line, parent, mut mesh) in &mut lines {
-                if parent.parent != event.path {
+            for (line, child_of, mut mesh) in &mut lines {
+                if child_of.parent != event.path {
                     continue;
                 }
                 let anchor = if line.is_start { Start } else { End };

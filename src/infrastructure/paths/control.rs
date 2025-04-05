@@ -34,8 +34,8 @@ impl PathControl {
         mut controls: Query<(&PathControl, &ChildOf, &mut Transform)>,
     ) {
         for event in events.read() {
-            for (control, parent, mut transform) in &mut controls {
-                if parent.parent != event.path {
+            for (control, child_of, mut transform) in &mut controls {
+                if child_of.parent != event.path {
                     continue;
                 }
                 let Some(translation) = event
@@ -77,8 +77,8 @@ impl PathControl {
         mut controls: Query<(&ChildOf, &mut Visibility), With<PathControl>>,
     ) {
         for event in events.read() {
-            for (parent, mut visibility) in &mut controls {
-                if parent.parent != event.entity {
+            for (child_of, mut visibility) in &mut controls {
+                if child_of.parent != event.entity {
                     continue;
                 }
                 *visibility = match event.state {
@@ -216,7 +216,7 @@ fn on_pointer_drag(
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
 ) {
-    let Ok((control, parent, _transform)) = controls.get(event.target()) else {
+    let Ok((control, child_of, _transform)) = controls.get(event.target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -224,7 +224,7 @@ fn on_pointer_drag(
         warn!("Failed to get cursor on ground");
         return;
     };
-    let Ok((mut path, entity)) = paths.get_mut(parent.parent) else {
+    let Ok((mut path, entity)) = paths.get_mut(child_of.parent) else {
         warn!("Failed to get Path");
         return;
     };

@@ -87,8 +87,8 @@ fn redistribute_on_spline_changed(
     distributions: &mut Query<(&mut Distribution, &ChildOf), Without<Distributable>>,
     event: &SplineChanged,
 ) {
-    for (mut distribution, parent) in distributions {
-        if parent.parent != event.path {
+    for (mut distribution, child_of) in distributions {
+        if child_of.parent != event.path {
             continue;
         }
         let spline = if let Some(offset) = distribution.spline_offset {

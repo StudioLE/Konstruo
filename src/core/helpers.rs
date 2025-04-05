@@ -10,8 +10,8 @@ impl Helpers {
         entities: &Query<(Entity, &ChildOf), F>,
         parent_entity: Entity,
     ) {
-        for (entity, parent) in entities.iter() {
-            if parent.parent != parent_entity {
+        for (entity, child_of) in entities.iter() {
+            if child_of.parent != parent_entity {
                 continue;
             }
             commands.entity(entity).despawn();

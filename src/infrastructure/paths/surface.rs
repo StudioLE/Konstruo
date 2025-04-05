@@ -86,8 +86,8 @@ impl PathSurface {
                 duplicates += 1;
                 continue;
             }
-            for (entity, surface, parent, mut mesh, mut aabb) in &mut surfaces {
-                if parent.parent != event.path {
+            for (entity, surface, child_of, mut mesh, mut aabb) in &mut surfaces {
+                if child_of.parent != event.path {
                     continue;
                 }
                 let sweep = Sweep::new(&event.spline, surface.offsets);
@@ -123,11 +123,11 @@ impl PathSurface {
                 duplicates += 1;
                 continue;
             }
-            for (parent, mut visibility) in &mut edges {
-                let Ok(surface_parent) = surfaces.get(parent.parent) else {
+            for (child_of, mut visibility) in &mut edges {
+                let Ok(surface_child_of) = surfaces.get(child_of.parent) else {
                     continue;
                 };
-                if surface_parent.parent != event.entity {
+                if surface_child_of.parent != event.entity {
                     continue;
                 }
                 *visibility = match event.state {
@@ -221,18 +221,18 @@ fn on_pointer_over(
     mut paths: Query<&mut EntityState, With<Path>>,
     surfaces: Query<&ChildOf, (With<PathSurface>, Without<Path>)>,
 ) {
-    let Ok(parent) = surfaces.get(trigger.target()) else {
+    let Ok(child_of) = surfaces.get(trigger.target()) else {
         error!("Failed to get parent of PathSurface");
         return;
     };
-    let Ok(mut state) = paths.get_mut(parent.parent) else {
+    let Ok(mut state) = paths.get_mut(child_of.parent) else {
         warn!("Failed to get Path");
         return;
     };
     if *state != EntityState::Selected {
         *state = EntityState::Hovered;
         changed.write(EntityStateChanged {
-            entity: parent.parent,
+            entity: child_of.parent,
             state: EntityState::Hovered,
         });
     }
@@ -244,18 +244,18 @@ fn on_pointer_out(
     mut paths: Query<&mut EntityState, With<Path>>,
     surfaces: Query<&ChildOf, (With<PathSurface>, Without<Path>)>,
 ) {
-    let Ok(parent) = surfaces.get(trigger.target()) else {
+    let Ok(child_of) = surfaces.get(trigger.target()) else {
         error!("Failed to get parent of PathSurface");
         return;
     };
-    let Ok(mut state) = paths.get_mut(parent.parent) else {
+    let Ok(mut state) = paths.get_mut(child_of.parent) else {
         warn!("Failed to get Path");
         return;
     };
     if *state != EntityState::Selected {
         *state = EntityState::Default;
         changed.write(EntityStateChanged {
-            entity: parent.parent,
+            entity: child_of.parent,
             state: EntityState::Default,
         });
     }
@@ -268,22 +268,22 @@ fn on_pointer_click(
     mut interface: ResMut<InterfaceState>,
     mut changed: EventWriter<EntityStateChanged>,
 ) {
-    let Ok(parent) = surfaces.get(trigger.target()) else {
+    let Ok(child_of) = surfaces.get(trigger.target()) else {
         error!("Failed to get parent of PathSurface");
         return;
     };
-    let Ok(mut path_state) = paths.get_mut(parent.parent) else {
+    let Ok(mut path_state) = paths.get_mut(child_of.parent) else {
         warn!("Failed to get Path");
         return;
     };
     if *path_state != EntityState::Selected {
         *path_state = EntityState::Selected;
         *interface = InterfaceState::PathSelected {
-            path: parent.parent,
+            path: child_of.parent,
             surface: trigger.target(),
         };
         changed.write(EntityStateChanged {
-            entity: parent.parent,
+            entity: child_of.parent,
             state: EntityState::Selected,
         });
     }
