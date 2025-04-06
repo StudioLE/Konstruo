@@ -1,7 +1,7 @@
 use super::*;
 use crate::geometry::*;
 use crate::infrastructure::SurfaceType::{Carriageway, Footway};
-use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
+use crate::ui::{EntityState, EntityStateChanged, Selectable};
 use crate::{Helpers, PATH_ELEVATION};
 use bevy::prelude::*;
 use bevy::render::mesh::MeshAabb;
@@ -148,13 +148,7 @@ impl PathFactory<'_> {
         let sweep = Sweep::new(&path.spline, surface.offsets);
         let triangles = sweep.clone().to_triangle_list();
         let surface_bundle = self.surface_bundle(surface, triangles.clone(), path_entity);
-        let surface_entity = self
-            .commands
-            .spawn(surface_bundle)
-            .observe(on_pointer_over)
-            .observe(on_pointer_out)
-            .observe(on_pointer_click)
-            .id();
+        let surface_entity = self.commands.spawn(surface_bundle).id();
         if WIREFRAME_ENABLED {
             self.spawn_wireframe(triangles, surface_entity);
         }
@@ -174,6 +168,7 @@ impl PathFactory<'_> {
             Mesh3d(self.meshes.add(triangles.clone().to_mesh())),
             MeshMaterial3d(material),
             Transform::from_translation(Vec3::new(0.0, 0.0, PATH_ELEVATION)),
+            Selectable { generation: 1 },
             Pickable::default(),
             ChildOf { parent },
         )
@@ -212,79 +207,5 @@ impl PathFactory<'_> {
             ChildOf { parent },
         );
         self.commands.spawn(bundle);
-    }
-}
-
-fn on_pointer_over(
-    trigger: Trigger<Pointer<Over>>,
-    mut changed: EventWriter<EntityStateChanged>,
-    mut paths: Query<&mut EntityState, With<Path>>,
-    surfaces: Query<&ChildOf, (With<PathSurface>, Without<Path>)>,
-) {
-    let Ok(child_of) = surfaces.get(trigger.target()) else {
-        error!("Failed to get parent of PathSurface");
-        return;
-    };
-    let Ok(mut state) = paths.get_mut(child_of.parent) else {
-        warn!("Failed to get Path");
-        return;
-    };
-    if *state != EntityState::Selected {
-        *state = EntityState::Hovered;
-        changed.write(EntityStateChanged {
-            entity: child_of.parent,
-            state: EntityState::Hovered,
-        });
-    }
-}
-
-fn on_pointer_out(
-    trigger: Trigger<Pointer<Out>>,
-    mut changed: EventWriter<EntityStateChanged>,
-    mut paths: Query<&mut EntityState, With<Path>>,
-    surfaces: Query<&ChildOf, (With<PathSurface>, Without<Path>)>,
-) {
-    let Ok(child_of) = surfaces.get(trigger.target()) else {
-        error!("Failed to get parent of PathSurface");
-        return;
-    };
-    let Ok(mut state) = paths.get_mut(child_of.parent) else {
-        warn!("Failed to get Path");
-        return;
-    };
-    if *state != EntityState::Selected {
-        *state = EntityState::Default;
-        changed.write(EntityStateChanged {
-            entity: child_of.parent,
-            state: EntityState::Default,
-        });
-    }
-}
-
-fn on_pointer_click(
-    trigger: Trigger<Pointer<Click>>,
-    surfaces: Query<&ChildOf, (With<PathSurface>, Without<Path>)>,
-    mut paths: Query<&mut EntityState, With<Path>>,
-    mut interface: ResMut<InterfaceState>,
-    mut changed: EventWriter<EntityStateChanged>,
-) {
-    let Ok(child_of) = surfaces.get(trigger.target()) else {
-        error!("Failed to get parent of PathSurface");
-        return;
-    };
-    let Ok(mut path_state) = paths.get_mut(child_of.parent) else {
-        warn!("Failed to get Path");
-        return;
-    };
-    if *path_state != EntityState::Selected {
-        *path_state = EntityState::Selected;
-        *interface = InterfaceState::PathSelected {
-            path: child_of.parent,
-            surface: trigger.target(),
-        };
-        changed.write(EntityStateChanged {
-            entity: child_of.parent,
-            state: EntityState::Selected,
-        });
     }
 }

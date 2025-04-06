@@ -8,5 +8,6 @@ pub mod conversion;
 pub mod distribution;
 pub mod geometry;
 mod helpers;
+pub mod hierarchy;
 pub mod kinematics;
 pub mod mathematics;

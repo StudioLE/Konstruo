@@ -30,6 +30,7 @@ fn main() {
         .add_plugins(PanOrbitCameraPlugin)
         .add_plugins(PressedKeysPlugin)
         .add_plugins(SkyPlugin)
+        .add_plugins(SelectionPlugin)
         .add_plugins(SunPlugin)
         .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)
