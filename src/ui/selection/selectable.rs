@@ -35,7 +35,7 @@ fn get_ancestor_state<'a>(
         warn!("Failed to get Selectable for {entity}");
         return None;
     };
-    let Some(ancestor) = Ancestry::get_ancestor(&ancestors, entity, selectable.generation) else {
+    let Ok(ancestor) = Ancestry::get_ancestor(&ancestors, entity, selectable.generation) else {
         warn!("Failed to get Ancestor for {entity}");
         return None;
     };

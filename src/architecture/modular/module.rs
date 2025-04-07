@@ -68,7 +68,7 @@ impl BuildingModule {
                 continue;
             }
             for (entity, mut visibility) in &mut edges {
-                let Some(ancestor) =
+                let Ok(ancestor) =
                     Ancestry::get_ancestor(&ancestors, entity, EDGES_TO_BUILDING_GENERATIONS)
                 else {
                     continue;
