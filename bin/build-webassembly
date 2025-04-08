@@ -8,7 +8,7 @@ source ./bin/logging
 
 log-information "${BOLD}Building${RESET} WebAssembly release with cargo"
 
-if cargo build --no-default-features --release --target "${TARGET}"
+if cargo build --release --target "${TARGET}"
 then
   log-debug "${BOLD}Successfully${RESET} built WebAssembly release"
 else

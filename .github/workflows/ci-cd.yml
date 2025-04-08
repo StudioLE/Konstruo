@@ -109,7 +109,7 @@ jobs:
         name: Cargo.toml
 
     - name: Cargo Build
-      run: cargo build --release
+      run: cargo build --release --features bevy/dynamic_linking
 
     - name: Cache Cargo
       if: always()
@@ -197,8 +197,7 @@ jobs:
       run: git push
 
     - name: Cargo Test
-      run: cargo test --release --no-fail-fast
-
+      run: cargo test --release --features bevy/dynamic_linking --no-fail-fast
 
   build:
     name: Build
@@ -268,7 +267,7 @@ jobs:
       run: rustup target add ${{ matrix.target }}
 
     - name: Cargo Build
-      run: cargo build --no-default-features --release --target ${{ matrix.target }}
+      run: cargo build --release --target ${{ matrix.target }}
 
     - name: Cache Cargo
       if: always()

@@ -17,23 +17,21 @@ cd Konstruo
 
 2. Build a release binary with cargo
 
-By default Konstruo is built with Bevy's [dynamic linking(https://bevy-cheatbook.github.io/setup/bevy-config.html#dynamic-linking). This makes recompilation much quicker for development but it creates a dependency on shared libraries so the generated binary isn't standalone.
-
-Compile a binary **with** dynamic linking:
+Compile a binary **with** [dynamic linking](https://bevyengine.org/learn/quick-start/getting-started/setup/#dynamic-linking):
 
 ```bash
-cargo build --release
+cargo build --release --features bevy/dynamic_linking
 ```
 
 Compile a standalone binary **without** dynamic linking:
 
 ```bash
-cargo build --no-default-features --release
+cargo build --release
 ```
 
 3. Run the compiled binary
 
-Cargo compiles binaries to `target/release` therefore to run the binary directly : 
+Cargo compiles binaries to `target/release` therefore to run the binary directly :
 
 On Linux/Mac:
 
