@@ -1,6 +1,6 @@
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
-use konstruo_core::Vec3Helpers;
+use konstruo_core::Vec3Extensions;
 use konstruo_geometry::{Axis, Cuboid};
 
 const DEFAULT_THICKNESS: f32 = 0.1;
@@ -77,7 +77,7 @@ fn get_color(axis: Axis) -> Srgba {
 
 fn get_transform(thickness: f32, length: f32, axis: Axis) -> Transform {
     let direction = axis.get_vector();
-    let inverse = Vec3Helpers::invert_0_and_1(direction);
+    let inverse = Vec3Extensions::invert_0_and_1(direction);
     let scale = direction * (length + thickness) + inverse * thickness;
     Transform::from_translation(direction * length * 0.5).with_scale(scale)
 }

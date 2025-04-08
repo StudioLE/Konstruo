@@ -1,6 +1,6 @@
 use crate::Polygon;
 use bevy::prelude::*;
-use konstruo_core::Vec3Helpers;
+use konstruo_core::{Vec3Extensions, VecVec3Extensions};
 use std::ops::Neg;
 // TODO: Rename to RectangularOpeningSubtraction
 
@@ -27,7 +27,7 @@ impl Subdivision {
     /// Divide into multiple rectangles.
     pub fn execute(self) -> Result<Vec<[Vec3; 4]>, SubdivisionError> {
         let normal = self.main_axis.cross(self.cross_axis).normalize();
-        if !Vec3Helpers::is_ccw(&self.bounds, normal).expect("bounds should be valid") {
+        if !&self.bounds.is_ccw(normal).expect("bounds should be valid") {
             return Err(SubdivisionError::BoundWinding);
         }
         let mut top_bound = get_edge_by_direction(&get_edges(self.bounds), self.main_axis.neg())
@@ -36,7 +36,7 @@ impl Subdivision {
             .ok_or(SubdivisionError::GetBoundTop)?;
         let mut rectangles = Vec::new();
         for (index, opening) in self.openings.into_iter().enumerate() {
-            if Vec3Helpers::is_ccw(&opening, normal).expect("opening should be valid") {
+            if opening.is_ccw(normal).expect("opening should be valid") {
                 return Err(SubdivisionError::OpeningWinding(index));
             }
             let edges = get_edges(opening);
@@ -47,8 +47,8 @@ impl Subdivision {
             // Create rectangle to the left of the opening
             let full = [
                 bottom_bound[0],
-                Vec3Helpers::project_point_to_line(left[0], bottom_bound),
-                Vec3Helpers::project_point_to_line(left[0], top_bound),
+                Vec3Extensions::project_point_to_line(left[0], bottom_bound),
+                Vec3Extensions::project_point_to_line(left[0], top_bound),
                 top_bound[1],
             ];
             top_bound[1] = full[2];
@@ -58,13 +58,13 @@ impl Subdivision {
             let above = [
                 left[1],
                 right[0],
-                Vec3Helpers::project_point_to_line(right[0], top_bound),
-                Vec3Helpers::project_point_to_line(left[1], top_bound),
+                Vec3Extensions::project_point_to_line(right[0], top_bound),
+                Vec3Extensions::project_point_to_line(left[1], top_bound),
             ];
             // Create rectangle below the opening
             let below = [
-                Vec3Helpers::project_point_to_line(left[0], bottom_bound),
-                Vec3Helpers::project_point_to_line(right[1], bottom_bound),
+                Vec3Extensions::project_point_to_line(left[0], bottom_bound),
+                Vec3Extensions::project_point_to_line(right[1], bottom_bound),
                 right[1],
                 left[0],
             ];
@@ -145,7 +145,7 @@ fn get_edge_by_direction(edges: &[[Vec3; 2]], direction: Vec3) -> Option<[Vec3; 
         .find(|&edge| {
             let vector = edge[1] - edge[0];
             let direction2 = vector.normalize();
-            Vec3Helpers::is_almost_equal_to(direction, direction2)
+            Vec3Extensions::is_almost_equal_to(direction, direction2)
         })
         .copied()
 }

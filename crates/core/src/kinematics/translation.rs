@@ -31,7 +31,7 @@ impl Translation {
             return;
         };
         let total_displacement = self.get_displacement_to(target);
-        if Vec3Helpers::is_almost_zero(total_displacement) {
+        if total_displacement.is_almost_zero() {
             self.current = target;
             self.remove_target();
             return;
@@ -69,7 +69,7 @@ impl Translation {
     /// Translation is clamped to the constraints.
     pub fn set_target(&mut self, target: Vec3) {
         let target = self.clamp.clamp(target);
-        if Vec3Helpers::is_almost_equal_to(self.current, target) {
+        if self.current.is_almost_equal_to(target) {
             self.remove_target();
         } else {
             self.target = Some(target);

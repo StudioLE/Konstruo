@@ -1,6 +1,6 @@
 use crate::examples::ExampleMaterials;
 use bevy::prelude::*;
-use konstruo_core::Vec3Helpers;
+use konstruo_core::{Vec3Extensions, VecVec3Extensions};
 use konstruo_geometry::*;
 
 pub struct SubdivisionExample;
@@ -32,7 +32,7 @@ fn spawn_rectangle(
     rectangle: [Vec3; 4],
 ) {
     let triangles = Triangle::from_rectangle(rectangle);
-    let is_ccw = Vec3Helpers::is_ccw(&rectangle, Vec3::Z).expect("should be valid");
+    let is_ccw = rectangle.is_ccw(Vec3::Z).expect("should be valid");
     let material = if is_ccw {
         ExampleMaterials::blue_face_transparent()
     } else {

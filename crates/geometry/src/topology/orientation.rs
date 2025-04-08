@@ -1,5 +1,5 @@
 use bevy::math::Vec3;
-use konstruo_core::{Vec3Helpers, HALF_PI, PI};
+use konstruo_core::{Vec3Extensions, HALF_PI, PI};
 use std::fmt::{Display, Formatter};
 use std::ops::Neg;
 use Orientation::*;
@@ -112,9 +112,9 @@ impl Orientation {
     #[must_use]
     pub fn to_elevation_axis(&self) -> (Vec3, Vec3, Vec3) {
         let back = self.to_facing_to();
-        let up = if Vec3Helpers::is_almost_equal_to(back, Vec3::Z) {
+        let up = if Vec3Extensions::is_almost_equal_to(back, Vec3::Z) {
             Vec3::NEG_Y
-        } else if Vec3Helpers::is_almost_equal_to(back, Vec3::NEG_Z) {
+        } else if Vec3Extensions::is_almost_equal_to(back, Vec3::NEG_Z) {
             Vec3::Y
         } else {
             Vec3::Z

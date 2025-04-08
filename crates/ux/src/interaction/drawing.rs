@@ -3,7 +3,7 @@ use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use konstruo_beziers::{ControlType, CubicBezierSpline};
-use konstruo_core::Vec3Helpers;
+use konstruo_core::Vec3Extensions;
 use konstruo_geometry::Polyline;
 use konstruo_paths::*;
 use konstruo_ui::{Cursor, PrimaryCamera};
@@ -258,7 +258,7 @@ impl Drawing {
             .origins
             .last()
             .expect("Should be a matching pressed");
-        if Vec3Helpers::is_almost_equal_to(cursor, *last_pressed) {
+        if Vec3Extensions::is_almost_equal_to(cursor, *last_pressed) {
             warn!("Press and release are too close");
             drawing.origins.pop();
             return;
