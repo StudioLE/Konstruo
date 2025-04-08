@@ -96,6 +96,9 @@ fn on_pointer_click(
     mut changed: EventWriter<EntityStateChanged>,
     mut interface: ResMut<InterfaceState>,
 ) {
+    if trigger.button != PointerButton::Primary {
+        return;
+    }
     let Some((ancestor, mut state)) =
         get_ancestor_state(selectables, ancestors, &mut states, trigger.target())
     else {
