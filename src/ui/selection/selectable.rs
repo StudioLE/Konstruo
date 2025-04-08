@@ -5,10 +5,16 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Selectable {
     /// The number of levels above in the ancestry
-    pub generation: usize,
+    generation: usize,
 }
 
 impl Selectable {
+    /// Create a new [`Selectable`].
+    #[must_use]
+    pub fn new(generation: usize) -> Self {
+        Self { generation }
+    }
+
     /// System to create [`Observer`] when [`Selectable`] is added.
     pub fn added_system(mut commands: Commands, entities: Query<Entity, Added<Selectable>>) {
         for entity in entities.iter() {

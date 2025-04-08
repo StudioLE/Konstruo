@@ -8,6 +8,7 @@ use bevy::render::mesh::MeshAabb;
 use bevy::render::primitives::Aabb;
 use std::collections::HashSet;
 
+const SURFACE_TO_PATH_GENERATIONS: usize = 1;
 static WIREFRAME_ENABLED: bool = false;
 
 /// A surface formed by two lines from a [`Path`].
@@ -168,7 +169,7 @@ impl PathFactory<'_> {
             Mesh3d(self.meshes.add(triangles.clone().to_mesh())),
             MeshMaterial3d(material),
             Transform::from_translation(Vec3::new(0.0, 0.0, PATH_ELEVATION)),
-            Selectable { generation: 1 },
+            Selectable::new(SURFACE_TO_PATH_GENERATIONS),
             Pickable::default(),
             ChildOf { parent },
         )
