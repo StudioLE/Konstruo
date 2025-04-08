@@ -1,5 +1,6 @@
 use crate::architecture::*;
 use crate::distribution::{Distribution, FlexBuilder};
+use crate::ui::EntityState;
 use bevy::prelude::*;
 
 /// A modular building formed of [`BuildingModuleStack`] and [`BuildingModule`].
@@ -16,7 +17,9 @@ impl ModularBuilding {
     /// Create a bundle for [`ModularBuildingInfo`].
     fn bundle() -> impl Bundle {
         (
+            Name::new("Modular Building"),
             ModularBuilding,
+            EntityState::Default,
             Distribution {
                 flex: FlexBuilder::new()
                     .with_axis(Vec3::X, Vec3::Y)
@@ -30,7 +33,7 @@ impl ModularBuilding {
 }
 
 impl ModularBuildingFactory<'_> {
-    /// Spawn the full hierarchy of [`BuildingPlot`] > [`BuildingModuleStack`] > [`BuildingModule`].
+    /// Spawn the full hierarchy of [`ModularBuilding`] > [`BuildingModuleStack`] > [`BuildingModule`].
     pub fn spawn(&mut self, building: ModularBuildingInfo) -> Entity {
         let bundle = ModularBuilding::bundle();
         let plot = self.commands.spawn(bundle).id();

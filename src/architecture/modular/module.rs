@@ -3,9 +3,14 @@ use crate::architecture::*;
 use crate::distribution::Distributable;
 use crate::geometry::Cuboid;
 use crate::geometry::*;
+use crate::hierarchy::Ancestry;
+use crate::ui::{EntityState, EntityStateChanged, Selectable};
 use bevy::prelude::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use Orientation::*;
+
+const EDGES_TO_BUILDING_GENERATIONS: usize = 3;
+const MESH_TO_BUILDING_GENERATIONS: usize = 3;
 
 /// A building module.
 #[derive(Clone, Component, Debug, Default)]
@@ -44,6 +49,41 @@ impl Default for BuildingModuleInfo {
             margin: None,
             pitch: None,
             openings: None,
+        }
+    }
+}
+
+impl BuildingModule {
+    /// Update the [`Edge`] visibility when the [`EntityState`] of the [`ModularBuilding`] changes.
+    pub(super) fn on_state_changed(
+        mut events: EventReader<EntityStateChanged>,
+        mut edges: Query<(Entity, &mut Visibility), With<Edge>>,
+        ancestors: Query<Option<&ChildOf>>,
+    ) {
+        let mut duplicates = 0;
+        let mut updated = HashSet::new();
+        for event in events.read() {
+            if !updated.insert(event) {
+                duplicates += 1;
+                continue;
+            }
+            for (entity, mut visibility) in &mut edges {
+                let Some(ancestor) =
+                    Ancestry::get_ancestor(&ancestors, entity, EDGES_TO_BUILDING_GENERATIONS)
+                else {
+                    continue;
+                };
+                if ancestor != event.entity {
+                    continue;
+                }
+                *visibility = match event.state {
+                    EntityState::Default => Visibility::Hidden,
+                    EntityState::Hovered | EntityState::Selected => Visibility::Visible,
+                };
+            }
+        }
+        if duplicates > 0 {
+            trace!("Ignored {duplicates} duplicate EntityStateChanged events");
         }
     }
 }
@@ -185,6 +225,7 @@ impl ModularBuildingFactory<'_> {
             margin: module.margin,
         };
         (
+            Name::new("Building Module"),
             BuildingModule,
             Level {
                 level: module.level,
@@ -198,7 +239,9 @@ impl ModularBuildingFactory<'_> {
     fn cuboid_faces_bundle(&mut self, rectangles: Vec<[Vec3; 4]>) -> impl Bundle {
         let mesh = TriangleList::from_rectangles(rectangles).to_mesh();
         (
+            Name::new("Faces of Building Module"),
             Solid,
+            Selectable::new(MESH_TO_BUILDING_GENERATIONS),
             Transform::default(),
             Mesh3d(self.meshes.add(mesh)),
             MeshMaterial3d(self.materials.face.clone()),
@@ -214,6 +257,7 @@ impl ModularBuildingFactory<'_> {
             Some(Pitch::FrontToBack) => self.building_meshes.pitch_front_back_edges.clone(),
         };
         (
+            Name::new("Edges of Building Module"),
             Edge,
             Transform::from_scale(module.get_scale()),
             Mesh3d(mesh),
@@ -229,7 +273,9 @@ impl ModularBuildingFactory<'_> {
             Pitch::FrontToBack => self.building_meshes.pitch_front_back.clone(),
         };
         (
+            Name::new("Pitched Faces of Building Module"),
             Solid,
+            Selectable::new(MESH_TO_BUILDING_GENERATIONS),
             Transform::from_scale(module.get_scale()),
             Mesh3d(mesh),
             MeshMaterial3d(self.materials.face.clone()),
@@ -239,6 +285,7 @@ impl ModularBuildingFactory<'_> {
 
     fn opening_edges_bundle(&mut self, cuboid: &Cuboid, parent: Entity) -> impl Bundle {
         (
+            Name::new("Opening Edges of Building Module"),
             Opening,
             Edge,
             Mesh3d(self.meshes.add(cuboid.get_edges().to_mesh())),
@@ -258,6 +305,7 @@ impl ModularBuildingFactory<'_> {
             cuboid.get_face_reversed(Bottom),
         ]);
         (
+            Name::new("Opening Faces of Building Module"),
             Opening,
             Solid,
             Mesh3d(self.meshes.add(triangles.to_mesh())),

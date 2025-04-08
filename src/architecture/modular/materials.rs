@@ -23,7 +23,7 @@ impl BuildingMaterials {
                 ..Default::default()
             }),
             edges: materials.add(StandardMaterial {
-                base_color: tailwind::STONE_400.into(),
+                base_color: tailwind::BLUE_500.into(),
                 alpha_mode: AlphaMode::Opaque,
                 depth_bias: 10.0,
                 unlit: true,

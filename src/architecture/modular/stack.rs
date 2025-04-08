@@ -1,5 +1,6 @@
 use super::*;
 use crate::distribution::{Distributable, Distribution, FlexBuilder};
+use crate::ui::EntityState;
 use bevy::prelude::*;
 
 /// A vertical stack of [`BuildingModuleInfo`].
@@ -16,7 +17,9 @@ impl BuildingModuleStack {
     /// Create a bundle for [`BuildingModuleStack`].
     pub(super) fn bundle(index: usize, parent: Entity) -> impl Bundle {
         (
+            Name::new("Building Module Stack"),
             BuildingModuleStack,
+            EntityState::Default,
             Distributable {
                 order: index,
                 ..default()
