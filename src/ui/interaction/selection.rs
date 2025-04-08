@@ -54,17 +54,17 @@ impl Selection {
         mut interface: ResMut<InterfaceState>,
     ) {
         trace!("Deselect button was pressed.");
-        let InterfaceState::PathSelected { path, .. } = *interface else {
+        let InterfaceState::Selected { entity, .. } = *interface else {
             warn!("Expected InterfaceState::PathSelected: {interface:?}");
             return;
         };
-        let Ok(mut entity_state) = entity_states.get_mut(path) else {
-            warn!("Failed to get EntityState for {path:?}");
+        let Ok(mut entity_state) = entity_states.get_mut(entity) else {
+            warn!("Failed to get EntityState for {entity:?}");
             return;
         };
         *entity_state = EntityState::Default;
         changed.write(EntityStateChanged {
-            entity: path,
+            entity,
             state: EntityState::Default,
         });
         *interface = InterfaceState::Default;
@@ -82,11 +82,11 @@ impl Selection {
         mut interface: ResMut<InterfaceState>,
     ) {
         trace!("Remove button was pressed.");
-        let InterfaceState::PathSelected { path, .. } = *interface else {
-            warn!("Expected InterfaceState::PathSelected: {interface:?}");
+        let InterfaceState::Selected { entity, .. } = *interface else {
+            warn!("Expected InterfaceState::Selected: {interface:?}");
             return;
         };
-        commands.entity(path).despawn();
+        commands.entity(entity).despawn();
         *interface = InterfaceState::Default;
     }
 }

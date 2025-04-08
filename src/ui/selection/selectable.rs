@@ -1,6 +1,6 @@
 use crate::extensions::*;
 use crate::hierarchy::Ancestry;
-use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
+use crate::ui::{EntityState, EntityStateChanged};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -93,7 +93,6 @@ fn on_pointer_click(
     ancestors: Query<Option<&ChildOf>>,
     mut states: Query<&mut EntityState>,
     mut changed: EventWriter<EntityStateChanged>,
-    mut interface: ResMut<InterfaceState>,
 ) {
     if trigger.button != PointerButton::Primary {
         return;
@@ -105,10 +104,6 @@ fn on_pointer_click(
     };
     if *state != EntityState::Selected {
         *state = EntityState::Selected;
-        *interface = InterfaceState::PathSelected {
-            path: ancestor,
-            surface: trigger.target(),
-        };
         changed.write(EntityStateChanged {
             entity: ancestor,
             state: EntityState::Selected,

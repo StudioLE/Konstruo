@@ -11,6 +11,7 @@ impl Plugin for InterfacePlugin {
         app.insert_resource(InterfaceState::Default)
             .add_systems(PostStartup, ActionBar::startup_system)
             .add_systems(PostStartup, Interceptor::startup_system)
+            .add_systems(Update, InterfaceState::on_entity_state_changed)
             .add_systems(Update, Interceptor::update_system)
             .add_systems(Update, ActionBar::update_system);
     }

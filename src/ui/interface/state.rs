@@ -6,12 +6,9 @@ pub enum InterfaceState {
     #[default]
     Default,
     DrawPath,
-    /// A [`Path`] was selected by clicking on a [`PathSurface`].
-    PathSelected {
-        /// [`Path`]
-        path: Entity,
-        /// [`PathSurface`] that was selected
-        surface: Entity,
+    /// An entity was selected.
+    Selected {
+        entity: Entity,
     },
 }
 
@@ -22,7 +19,22 @@ impl InterfaceState {
         match self {
             InterfaceState::Default => default_actions(),
             InterfaceState::DrawPath => Drawing::actions(),
-            InterfaceState::PathSelected { .. } => Selection::actions(),
+            InterfaceState::Selected { .. } => Selection::actions(),
+        }
+    }
+
+    /// Update [`InterfaceState`] on [`EntityStateChanged`].
+    pub(super) fn on_entity_state_changed(
+        mut events: EventReader<EntityStateChanged>,
+        mut interface: ResMut<InterfaceState>,
+    ) {
+        for event in events.read() {
+            trace!("EntityStateChanged: {event:?}");
+            if event.state == EntityState::Selected {
+                *interface = InterfaceState::Selected {
+                    entity: event.entity,
+                }
+            }
         }
     }
 }
