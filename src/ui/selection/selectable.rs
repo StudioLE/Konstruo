@@ -111,7 +111,7 @@ fn on_pointer_click(
         };
         changed.write(EntityStateChanged {
             entity: ancestor,
-            state: EntityState::Default,
+            state: EntityState::Selected,
         });
     }
 }
