@@ -1,3 +1,4 @@
+use crate::extensions::*;
 use crate::hierarchy::Ancestry;
 use crate::ui::{EntityState, EntityStateChanged, InterfaceState};
 use bevy::prelude::*;
@@ -31,18 +32,16 @@ fn get_ancestor_state<'a>(
     states: &'a mut Query<&mut EntityState>,
     entity: Entity,
 ) -> Option<(Entity, Mut<'a, EntityState>)> {
-    let Ok(selectable) = selectables.get(entity) else {
-        warn!("Failed to get Selectable for {entity}");
-        return None;
-    };
-    let Ok(ancestor) = Ancestry::get_ancestor(&ancestors, entity, selectable.generation) else {
-        warn!("Failed to get Ancestor for {entity}");
-        return None;
-    };
-    let Ok(state) = states.get_mut(ancestor) else {
-        warn!("Failed to get EntityState for {ancestor}");
-        return None;
-    };
+    let selectable = selectables.get(entity).handle_error(|e| {
+        warn!("Failed to get Selectable for {entity}: {e}");
+    })?;
+    let ancestor =
+        Ancestry::get_ancestor(&ancestors, entity, selectable.generation).handle_error(|e| {
+            warn!("Failed to get ancestor for {entity}: {e}");
+        })?;
+    let state = states.get_mut(ancestor).handle_error(|e| {
+        warn!("Failed to get EntityState for {ancestor}: {e}");
+    })?;
     Some((ancestor, state))
 }
 
