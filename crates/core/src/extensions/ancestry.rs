@@ -2,15 +2,26 @@ use bevy::ecs::query::{QueryEntityError, QueryFilter};
 use bevy::prelude::*;
 use std::fmt::{Display, Formatter};
 
-pub struct Ancestry;
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum AncestorError {
     Query(QueryEntityError),
     Count { expected: usize, actual: usize },
 }
 
-impl Ancestry {
+pub trait AncestryExtensions {
+    fn get_ancestors<F: QueryFilter>(
+        self,
+        entities: &Query<Option<&ChildOf>, F>,
+        max: Option<usize>,
+    ) -> Result<Vec<Entity>, QueryEntityError>;
+    fn get_ancestor<F: QueryFilter>(
+        self,
+        entities: &Query<Option<&ChildOf>, F>,
+        generation: usize,
+    ) -> Result<Entity, AncestorError>;
+}
+
+impl AncestryExtensions for Entity {
     /// Get all the ancestors of an [`Entity`].
     ///
     /// An optional `max` number of generations can be
@@ -18,13 +29,13 @@ impl Ancestry {
     /// A [`QueryFilter`] may be applied but is not recommended.
     ///
     /// May return a [`QueryEntityError`] if [`Query`] does not contain an ancestor.
-    pub fn get_ancestors<F: QueryFilter>(
+    fn get_ancestors<F: QueryFilter>(
+        self,
         entities: &Query<Option<&ChildOf>, F>,
-        entity: Entity,
         max: Option<usize>,
     ) -> Result<Vec<Entity>, QueryEntityError> {
         let mut ancestors = Vec::new();
-        let mut current = entity;
+        let mut current = self;
         let mut generation = 0;
         loop {
             let Some(child_of) = entities.get(current)? else {
@@ -44,12 +55,13 @@ impl Ancestry {
 
     /// Get a specific ancestor of the specified entity.
     #[allow(clippy::indexing_slicing)]
-    pub fn get_ancestor<F: QueryFilter>(
+    fn get_ancestor<F: QueryFilter>(
+        self,
         entities: &Query<Option<&ChildOf>, F>,
-        entity: Entity,
         generation: usize,
     ) -> Result<Entity, AncestorError> {
-        let ancestors = Ancestry::get_ancestors(entities, entity, Some(generation))
+        let ancestors = self
+            .get_ancestors(entities, Some(generation))
             .map_err(AncestorError::Query)?;
         if ancestors.len() < generation {
             Err(AncestorError::Count {

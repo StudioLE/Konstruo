@@ -1,6 +1,6 @@
 use crate::{EntityState, EntityStateChanged};
 use bevy::prelude::*;
-use konstruo_core::{Ancestry, HandleError};
+use konstruo_core::{AncestryExtensions, HandleError};
 
 #[derive(Component)]
 pub struct Selectable {
@@ -34,8 +34,9 @@ fn get_ancestor_state<'a>(
     let selectable = selectables.get(entity).handle_error(|e| {
         warn!("Failed to get Selectable for {entity}: {e}");
     })?;
-    let ancestor =
-        Ancestry::get_ancestor(&ancestors, entity, selectable.generation).handle_error(|e| {
+    let ancestor = entity
+        .get_ancestor(&ancestors, selectable.generation)
+        .handle_error(|e| {
             warn!("Failed to get ancestor for {entity}: {e}");
         })?;
     let state = states.get_mut(ancestor).handle_error(|e| {

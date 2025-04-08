@@ -1,7 +1,7 @@
 use crate::Pitch;
 use crate::*;
 use bevy::prelude::*;
-use konstruo_core::Ancestry;
+use konstruo_core::AncestryExtensions;
 use konstruo_distribution::Distributable;
 use konstruo_geometry::Cuboid;
 use konstruo_geometry::*;
@@ -68,8 +68,7 @@ impl BuildingModule {
                 continue;
             }
             for (entity, mut visibility) in &mut edges {
-                let Ok(ancestor) =
-                    Ancestry::get_ancestor(&ancestors, entity, EDGES_TO_BUILDING_GENERATIONS)
+                let Ok(ancestor) = entity.get_ancestor(&ancestors, EDGES_TO_BUILDING_GENERATIONS)
                 else {
                     continue;
                 };
