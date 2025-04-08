@@ -1,9 +1,9 @@
 use super::*;
 use crate::beziers::{ControlType, CubicBezierSpline};
+use crate::extensions::*;
 use crate::mathematics::QUARTER_PI;
 use crate::ui::{Cursor, EntityState};
 use crate::ui::{EntityStateChanged, PrimaryCamera};
-use crate::Helpers;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use ControlType::*;
@@ -66,7 +66,9 @@ impl PathControl {
             materials,
         };
         for event in events.read() {
-            Helpers::despawn_children(&mut factory.commands, &controls, event.path);
+            event
+                .path
+                .despawn_children(&mut factory.commands, &controls);
             factory.spawn_controls(&event.spline, event.path, Visibility::Visible);
         }
     }

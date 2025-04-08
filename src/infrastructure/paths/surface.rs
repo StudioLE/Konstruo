@@ -1,8 +1,9 @@
 use super::*;
+use crate::extensions::*;
 use crate::geometry::*;
 use crate::infrastructure::SurfaceType::{Carriageway, Footway};
 use crate::ui::{EntityState, EntityStateChanged, Selectable};
-use crate::{Helpers, PATH_ELEVATION};
+use crate::PATH_ELEVATION;
 use bevy::prelude::*;
 use bevy::render::mesh::MeshAabb;
 use bevy::render::primitives::Aabb;
@@ -98,10 +99,10 @@ impl PathSurface {
                 // https://github.com/bevyengine/bevy/issues/18221
                 *aabb = m.compute_aabb().expect("Should be able to compute AABB");
                 *mesh = Mesh3d(factory.meshes.add(m));
-                Helpers::despawn_children(&mut factory.commands, &edges, entity);
+                entity.despawn_children(&mut factory.commands, &edges);
                 factory.spawn_edges(sweep, entity, true);
                 if WIREFRAME_ENABLED {
-                    Helpers::despawn_children(&mut factory.commands, &wireframes, entity);
+                    entity.despawn_children(&mut factory.commands, &wireframes);
                     factory.spawn_wireframe(triangles, entity);
                 }
             }

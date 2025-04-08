@@ -1,9 +1,9 @@
 use super::*;
 use crate::beziers::ControlType::*;
 use crate::beziers::CubicBezierSpline;
+use crate::extensions::*;
 use crate::geometry::Polyline;
 use crate::ui::{EntityState, EntityStateChanged};
-use crate::Helpers;
 use bevy::prelude::*;
 
 /// A line between control points of a [`Path`].
@@ -89,7 +89,7 @@ impl PathControlLine {
             materials,
         };
         for event in events.read() {
-            Helpers::despawn_children(&mut factory.commands, &lines, event.path);
+            event.path.despawn_children(&mut factory.commands, &lines);
             factory.spawn_control_lines(&event.spline, event.path, Visibility::Visible);
         }
     }

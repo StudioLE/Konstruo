@@ -1,13 +1,12 @@
 pub use constants::*;
-pub use helpers::*;
 
 pub mod beziers;
 mod constants;
 pub mod constraints;
 pub mod conversion;
 pub mod distribution;
+pub mod extensions;
 pub mod geometry;
-mod helpers;
 pub mod hierarchy;
 pub mod kinematics;
 pub mod mathematics;
