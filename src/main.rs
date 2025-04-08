@@ -1,3 +1,6 @@
+mod examples;
+
+use crate::examples::*;
 use bevy::app::PluginGroupBuilder;
 use bevy::asset::AssetMetaCheck;
 use bevy::log::Level;
@@ -5,13 +8,13 @@ use bevy::log::LogPlugin;
 use bevy::prelude::*;
 use bevy::render::settings::{Backends, RenderCreation, WgpuSettings};
 use bevy::render::RenderPlugin;
-use konstruo::architecture::*;
-use konstruo::distribution::DistributionPlugin;
-use konstruo::environment::*;
-use konstruo::examples::*;
-use konstruo::infrastructure::*;
-use konstruo::ui::InteractionPlugin;
-use konstruo::ui::*;
+use konstruo_architecture::*;
+use konstruo_distribution::DistributionPlugin;
+use konstruo_environment::*;
+use konstruo_paths::*;
+use konstruo_ui::*;
+use konstruo_ux::InteractionPlugin;
+use konstruo_ux::*;
 use std::collections::HashMap;
 
 fn main() {

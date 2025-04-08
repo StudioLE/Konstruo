@@ -1,7 +1,7 @@
-use crate::distribution::*;
 use crate::examples::ExampleMaterials;
-use crate::geometry::{Cuboid, Edge, Solid};
 use bevy::prelude::*;
+use konstruo_distribution::*;
+use konstruo_geometry::{Cuboid, Edge, Solid};
 
 pub struct ExampleFactory<'w> {
     pub commands: Commands<'w, 'w>,

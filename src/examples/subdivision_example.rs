@@ -1,6 +1,7 @@
 use crate::examples::ExampleMaterials;
-use crate::geometry::*;
 use bevy::prelude::*;
+use konstruo_core::Vec3Helpers;
+use konstruo_geometry::*;
 
 pub struct SubdivisionExample;
 

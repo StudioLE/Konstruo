@@ -1,6 +1,6 @@
-use crate::distribution::*;
 use crate::examples::ExampleFactory;
 use bevy::prelude::*;
+use konstruo_distribution::*;
 
 pub struct FlexVerticallyExample;
 

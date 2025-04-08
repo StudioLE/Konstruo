@@ -1,6 +1,6 @@
-use crate::beziers::CubicBezierSpline;
-use crate::infrastructure::*;
 use bevy::prelude::*;
+use konstruo_beziers::CubicBezierSpline;
+use konstruo_paths::*;
 
 pub struct PathExample;
 

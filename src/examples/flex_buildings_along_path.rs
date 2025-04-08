@@ -1,7 +1,8 @@
-use crate::architecture::*;
-use crate::distribution::*;
-use crate::infrastructure::{Path, LENGTH_ACCURACY, OFFSET_ACCURACY};
 use bevy::prelude::*;
+use konstruo_architecture::*;
+use konstruo_beziers::constants::{LENGTH_ACCURACY, OFFSET_ACCURACY};
+use konstruo_distribution::*;
+use konstruo_paths::Path;
 
 const SPLINE_OFFSET: f32 = 10.0;
 
@@ -25,21 +26,20 @@ impl Default for State {
     }
 }
 
-impl ModularBuildingFactory<'_> {
-    fn spawn_example(&mut self, entity: Entity, path: &Path) -> Entity {
-        let distribution = distribution_bundle(path, entity);
-        let distribution_entity = self.commands.spawn(distribution).id();
-        for (distributable, building) in get_items() {
-            let plot = self.spawn(building);
-            self.commands
-                .entity(plot)
-                .insert(distributable)
-                .insert(ChildOf {
-                    parent: distribution_entity,
-                });
-        }
-        distribution_entity
+fn spawn_example(factory: &mut ModularBuildingFactory<'_>, entity: Entity, path: &Path) -> Entity {
+    let distribution = distribution_bundle(path, entity);
+    let distribution_entity = factory.commands.spawn(distribution).id();
+    for (distributable, building) in get_items() {
+        let plot = factory.spawn(building);
+        factory
+            .commands
+            .entity(plot)
+            .insert(distributable)
+            .insert(ChildOf {
+                parent: distribution_entity,
+            });
     }
+    distribution_entity
 }
 
 fn distribution_bundle(path: &Path, parent: Entity) -> impl Bundle {
@@ -81,7 +81,7 @@ fn path_added_system(
         materials,
     };
     for (entity, path) in query.iter() {
-        factory.spawn_example(entity, path);
+        spawn_example(&mut factory, entity, path);
         state.enabled = false;
     }
 }

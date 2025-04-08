@@ -4,11 +4,20 @@ version = "0.0.0"
 edition = "2021"
 resolver = "2"
 
+[workspace]
+members = ["crates/*"]
+
 [dependencies]
-bevy = { version = "0.16.0-rc.3" }
-kurbo = "0.11.1"
-taffy = "0.8.0"
-regex = "1.11.1"
+bevy = "0.16.0-rc.3"
+konstruo_architecture = { path = "crates/architecture" }
+konstruo_beziers = { path = "crates/beziers" }
+konstruo_core = { path = "crates/core" }
+konstruo_distribution = { path = "crates/distribution" }
+konstruo_environment = { path = "crates/environment" }
+konstruo_geometry = { path = "crates/geometry" }
+konstruo_paths = { path = "crates/paths" }
+konstruo_ui = { path = "crates/ui" }
+konstruo_ux = { path = "crates/ux" }
 
 [profile.dev]
 opt-level = 1

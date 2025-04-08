@@ -1,4 +1,4 @@
-use crate::ui::AxisMarkerFactory;
+use crate::AxisMarkerFactory;
 use bevy::prelude::*;
 
 pub struct AxisMarkerExample;

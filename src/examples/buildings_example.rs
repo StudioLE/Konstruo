@@ -1,4 +1,4 @@
-use crate::architecture::*;
+use crate::*;
 use bevy::prelude::*;
 
 pub struct BuildingsExample;

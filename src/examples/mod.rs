@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 pub use axis_marker_example::*;
 pub use buildings_example::*;
 pub use factory::*;

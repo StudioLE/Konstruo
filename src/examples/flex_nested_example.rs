@@ -1,8 +1,8 @@
-use crate::distribution::*;
 use crate::examples::ExampleFactory;
-use crate::geometry::Cuboid;
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
+use konstruo_distribution::*;
+use konstruo_geometry::Cuboid;
 
 pub struct FlexNestedExample;
 

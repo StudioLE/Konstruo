@@ -1,7 +1,7 @@
 use crate::examples::ExampleMaterials;
-use crate::geometry::{Cuboid, Edge, Solid, TriangularPrism};
-use crate::mathematics::QUARTER_PI;
 use bevy::prelude::*;
+use konstruo_core::QUARTER_PI;
+use konstruo_geometry::{Cuboid, Edge, Solid, TriangularPrism};
 
 pub struct Shapes3DExample;
 

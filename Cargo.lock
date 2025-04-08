@@ -2516,9 +2516,105 @@ name = "konstruo"
 version = "0.0.0"
 dependencies = [
  "bevy",
+ "konstruo_architecture",
+ "konstruo_beziers",
+ "konstruo_core",
+ "konstruo_distribution",
+ "konstruo_environment",
+ "konstruo_geometry",
+ "konstruo_paths",
+ "konstruo_ui",
+ "konstruo_ux",
+]
+
+[[package]]
+name = "konstruo_architecture"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "konstruo_core",
+ "konstruo_distribution",
+ "konstruo_geometry",
+ "konstruo_ui",
+]
+
+[[package]]
+name = "konstruo_beziers"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "konstruo_core",
  "kurbo",
+]
+
+[[package]]
+name = "konstruo_core"
+version = "0.0.0"
+dependencies = [
+ "bevy",
  "regex",
+]
+
+[[package]]
+name = "konstruo_distribution"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "konstruo_beziers",
+ "konstruo_core",
+ "konstruo_geometry",
  "taffy 0.8.0",
+]
+
+[[package]]
+name = "konstruo_environment"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "konstruo_core",
+ "konstruo_geometry",
+]
+
+[[package]]
+name = "konstruo_geometry"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "konstruo_beziers",
+ "konstruo_core",
+]
+
+[[package]]
+name = "konstruo_paths"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "konstruo_beziers",
+ "konstruo_core",
+ "konstruo_distribution",
+ "konstruo_geometry",
+ "konstruo_ui",
+]
+
+[[package]]
+name = "konstruo_ui"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "konstruo_core",
+ "konstruo_geometry",
+]
+
+[[package]]
+name = "konstruo_ux"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "konstruo_beziers",
+ "konstruo_core",
+ "konstruo_geometry",
+ "konstruo_paths",
+ "konstruo_ui",
 ]
 
 [[package]]

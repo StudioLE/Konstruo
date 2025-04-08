@@ -1,0 +1,9 @@
+[package]
+name = "konstruo_environment"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.16.0-rc.3"
+konstruo_core = { path = "../core" }
+konstruo_geometry = { path = "../geometry" }

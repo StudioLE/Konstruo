@@ -1,8 +1,8 @@
-use crate::distribution::*;
 use crate::examples::ExampleMaterials;
-use crate::infrastructure::Path;
 use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
+use konstruo_distribution::*;
+use konstruo_paths::Path;
 
 const ACCURACY: f32 = 1e-3;
 
