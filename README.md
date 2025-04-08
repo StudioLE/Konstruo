@@ -6,8 +6,6 @@ Download binaries for Windows and Linux from [GitHub releases](https://github.co
 
 Or build from source by following the [build instructions](BUILD.md).
 
-See the current status with videos of [implemented features](https://github.com/StudioLE/Konstruo/issues/28)
-
 ## About
 
 With Konstruo you can design, plan, and build villages, towns, and cities.
@@ -67,9 +65,11 @@ https://github.com/user-attachments/assets/9a177f4b-45d0-4533-bc2f-b34eca606dfa
 
 Konstruo is implemented as a series of [Bevy](https://bevyengine.org/) plugins complimented by core libraries.
 
-## Core Libraries
+### [Architecture](tree/main/crates/architecture/src)
 
-#### Bezier library [`src/core/beziers`](tree/main/src/core/beziers)
+Procedurally generate modular buildings.
+
+### [Béziers](tree/main/crates/beziers/src)
 
 Cubic béziers are the primary curve used by vector graphics applications such as Inkscape or Adobe Illustrator. They're intuitive to work with and provide incredible freedom for drawing curves that exceed the historic reliance on lines and arcs that are the standard in AEC software.
 
@@ -77,7 +77,21 @@ Cubic béziers are geometrically and mathematically simple so from a software pr
 
 The bezier library provides `CubicBezier` and `CubicBezierSpline` struct for Bevy with essential geometric manipulation methods integrated from the [Kurbo](https://github.com/linebender/kurbo) library. Kurbo was developed by Raph Levien and Nicolas Silva and provides a Rust implemention of some of Raph Levien's primary research such as [Parallel curves of cubic Béziers](https://raphlinus.github.io/curves/2022/09/09/parallel-beziers.html).
 
-#### Distribution library [`src/core/distribution`](tree/main/src/core/distribution)
+### [Core](tree/main/crates/core/src)
+
+#### [Extensions library](tree/main/crates/core/extensions)
+
+Extension methods for `Entity`, `Result`, `Vec3`.
+
+#### [Kinematics library](tree/main/crates/core/kinematics)
+
+A basic `Translation` struct to move an entity towards a target location on every frame update.
+
+#### [Mathematics library](tree/main/crates/core/mathematics)
+
+Basic essentials for `f32` along with methods for working with [spherical coordiantes](https://mathworld.wolfram.com/SphericalCoordinates.html).
+
+### [Distribution](tree/main/crates/distribution/src)
 
 Logic to distribute enitites in 3D based on [CSS flexbox layout](https://css-tricks.com/snippets/css/a-guide-to-flexbox/).
 
@@ -85,15 +99,21 @@ The distribution library provides an intuitive fluent `FlexboxBuilder` struct. Y
 
 The distribution library is powered by the [taffy](https://github.com/DioxusLabs/taffy) layout library that already powers Bevy's 2D UI layout.
 
-#### Primitive geometry library [`src/core/geometry/primitives`](tree/main/src/core/geometry)
+### [Environment](tree/main/crates/environment)
+
+Environmental components to handle lighting and shadows based on sun, sky, and ground.
+
+### [Geometry](tree/main/crates/geometry/src)
+
+#### [Primitive geometry](tree/main/crates/geometry/src/primitives)
 
 Includes struct for `Polyline` (`LineStrip`), `LineList`, `TriangleList` and `TriangleStrip` to simplify the generation of `Mesh` without the abstract complexity of Bevy's `PrimitiveTopology`.
 
-#### Transform based 3D shape library [`src/core/geometry/shapes_3d`](tree/main/src/core/geometry)
+#### [Transform based 3D shape library](tree/main/crates/geometry/src/shapes_3d)
 
 Includes struct for `Cuboid`, `TrianglularPrism`, and `Sweep` that are transformable and have methods to get specific vertices, edges, and faces.
 
-#### Geometry topolology library [`src/core/geometry/topology`](tree/main/src/core/geometry)
+#### [Geometry topolology library](tree/main/crates/geometry/src/topology)
 
 Includes:
 - `Orientation` enum for identifting individual faces of a cuboid (eg: `Front`), edges as a pair (eg: `[Front, Left]`), or vertices as a triplet: (`[Top, Front Left]`).
@@ -101,35 +121,23 @@ Includes:
 - `Vec6` a struct for defining 3D margins or offsets.
 - `Edge`, `Solid`, `Wireframe` marker components.
 
-#### Kinematics library [`src/core/kinematics`](tree/main/src/core/kinematics)
-
-A basic `Translation` struct to move an entity towards a target location on every frame update.
-
-#### Mathematics library [`src/core/mathematics`](tree/main/src/core/mathematics)
-
-Basic essentials for `f32` along with methods for working with [spherical coordiantes](https://mathworld.wolfram.com/SphericalCoordinates.html).
-
-### Bevy Plugins
-
-#### Architecture plugins [`src/architecture`](tree/main/src/architecture)
-
-Procedurally generate modular buildings
-
-#### Environment plugins [`src/environment`](tree/main/src/environment)
-
-Graphical components for the sun, sky, and ground.
-
-#### Infrastructure plugins [`src/infrastructure`](tree/main/src/infrastructure)
+### [Paths](tree/main/crates/geometry/src/paths)
 
 `Path` components for Bevy's entity component system that are drawn as a cubic bézier.
 
 `Path` are the foundational component of Konstruo. In its most basic use a way defines the centerline of a road so the way is used to generate the 3D representation of the road surface, the footway (pavement or sidewalk) alongside, and then is defines the zones where buildings are distributed alongside the road.
 
-#### UI plugins [`src/ui`](tree/main/src/ui)
+### [UI](tree/main/crates/ui/src)
+
+Components that are visible to the user or visualize other entities.
 
 A pan and orbit based camera using spherical coordiantes.
 
 Axis markers, grid, view cube and other UI components essential to working in 3D.
+
+### [UX](tree/main/crates/ux/src)
+
+Logic controlling how users interact.
 
 ## License
 
