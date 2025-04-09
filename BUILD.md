@@ -46,14 +46,14 @@ On windows:
 
 4. Run with Cargo
 
-Run konstruo **with** dynamic linking:
+Run konstruo **with** [dynamic linking](https://bevyengine.org/learn/quick-start/getting-started/setup/#dynamic-linking):
 
 ```bash
-cargo run --release
+cargo run --release --features bevy/dynamic_linking
 ```
 
 Run konstruo **without** dynamic linking:
 
 ```bash
-cargo run --no-default-features --release
+cargo run --release
 ```

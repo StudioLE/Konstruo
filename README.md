@@ -65,11 +65,11 @@ https://github.com/user-attachments/assets/9a177f4b-45d0-4533-bc2f-b34eca606dfa
 
 Konstruo is implemented as a series of [Bevy](https://bevyengine.org/) plugins complimented by core libraries.
 
-### [Architecture](tree/main/crates/architecture/src)
+### [Architecture](crates/architecture/src)
 
 Procedurally generate modular buildings.
 
-### [Béziers](tree/main/crates/beziers/src)
+### [Béziers](crates/beziers/src)
 
 Cubic béziers are the primary curve used by vector graphics applications such as Inkscape or Adobe Illustrator. They're intuitive to work with and provide incredible freedom for drawing curves that exceed the historic reliance on lines and arcs that are the standard in AEC software.
 
@@ -77,21 +77,21 @@ Cubic béziers are geometrically and mathematically simple so from a software pr
 
 The bezier library provides `CubicBezier` and `CubicBezierSpline` struct for Bevy with essential geometric manipulation methods integrated from the [Kurbo](https://github.com/linebender/kurbo) library. Kurbo was developed by Raph Levien and Nicolas Silva and provides a Rust implemention of some of Raph Levien's primary research such as [Parallel curves of cubic Béziers](https://raphlinus.github.io/curves/2022/09/09/parallel-beziers.html).
 
-### [Core](tree/main/crates/core/src)
+### [Core](crates/core/src)
 
-#### [Extensions library](tree/main/crates/core/extensions)
+#### [Extensions library](crates/core/extensions)
 
 Extension methods for `Entity`, `Result`, `Vec3`.
 
-#### [Kinematics library](tree/main/crates/core/kinematics)
+#### [Kinematics library](crates/core/kinematics)
 
 A basic `Translation` struct to move an entity towards a target location on every frame update.
 
-#### [Mathematics library](tree/main/crates/core/mathematics)
+#### [Mathematics library](crates/core/mathematics)
 
 Basic essentials for `f32` along with methods for working with [spherical coordiantes](https://mathworld.wolfram.com/SphericalCoordinates.html).
 
-### [Distribution](tree/main/crates/distribution/src)
+### [Distribution](crates/distribution/src)
 
 Logic to distribute enitites in 3D based on [CSS flexbox layout](https://css-tricks.com/snippets/css/a-guide-to-flexbox/).
 
@@ -99,21 +99,21 @@ The distribution library provides an intuitive fluent `FlexboxBuilder` struct. Y
 
 The distribution library is powered by the [taffy](https://github.com/DioxusLabs/taffy) layout library that already powers Bevy's 2D UI layout.
 
-### [Environment](tree/main/crates/environment)
+### [Environment](crates/environment)
 
 Environmental components to handle lighting and shadows based on sun, sky, and ground.
 
-### [Geometry](tree/main/crates/geometry/src)
+### [Geometry](crates/geometry/src)
 
-#### [Primitive geometry](tree/main/crates/geometry/src/primitives)
+#### [Primitive geometry](crates/geometry/src/primitives)
 
 Includes struct for `Polyline` (`LineStrip`), `LineList`, `TriangleList` and `TriangleStrip` to simplify the generation of `Mesh` without the abstract complexity of Bevy's `PrimitiveTopology`.
 
-#### [Transform based 3D shape library](tree/main/crates/geometry/src/shapes_3d)
+#### [Transform based 3D shape library](crates/geometry/src/shapes_3d)
 
 Includes struct for `Cuboid`, `TrianglularPrism`, and `Sweep` that are transformable and have methods to get specific vertices, edges, and faces.
 
-#### [Geometry topolology library](tree/main/crates/geometry/src/topology)
+#### [Geometry topolology library](crates/geometry/src/topology)
 
 Includes:
 - `Orientation` enum for identifting individual faces of a cuboid (eg: `Front`), edges as a pair (eg: `[Front, Left]`), or vertices as a triplet: (`[Top, Front Left]`).
@@ -121,13 +121,13 @@ Includes:
 - `Vec6` a struct for defining 3D margins or offsets.
 - `Edge`, `Solid`, `Wireframe` marker components.
 
-### [Paths](tree/main/crates/geometry/src/paths)
+### [Paths](crates/geometry/src/paths)
 
 `Path` components for Bevy's entity component system that are drawn as a cubic bézier.
 
 `Path` are the foundational component of Konstruo. In its most basic use a way defines the centerline of a road so the way is used to generate the 3D representation of the road surface, the footway (pavement or sidewalk) alongside, and then is defines the zones where buildings are distributed alongside the road.
 
-### [UI](tree/main/crates/ui/src)
+### [UI](crates/ui/src)
 
 Components that are visible to the user or visualize other entities.
 
@@ -135,7 +135,7 @@ A pan and orbit based camera using spherical coordiantes.
 
 Axis markers, grid, view cube and other UI components essential to working in 3D.
 
-### [UX](tree/main/crates/ux/src)
+### [UX](crates/ux/src)
 
 Logic controlling how users interact.
 
