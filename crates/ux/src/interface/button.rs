@@ -72,10 +72,10 @@ impl FloatingActionButton {
 }
 
 fn on_pointer_over(
-    event: Trigger<Pointer<Over>>,
+    trigger: Trigger<Pointer<Over>>,
     mut query: Query<&mut BackgroundColor, With<FloatingActionButton>>,
 ) {
-    let Ok(mut bg) = query.get_mut(event.target()) else {
+    let Ok(mut bg) = query.get_mut(trigger.target()) else {
         error!("Failed to get FloatingActionButton");
         return;
     };
@@ -83,10 +83,10 @@ fn on_pointer_over(
 }
 
 fn on_pointer_out(
-    event: Trigger<Pointer<Out>>,
+    trigger: Trigger<Pointer<Out>>,
     mut query: Query<&mut BackgroundColor, With<FloatingActionButton>>,
 ) {
-    let Ok(mut bg) = query.get_mut(event.target()) else {
+    let Ok(mut bg) = query.get_mut(trigger.target()) else {
         error!("Failed to get FloatingActionButton");
         return;
     };

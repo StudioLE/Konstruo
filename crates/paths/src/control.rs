@@ -150,11 +150,11 @@ fn get_transform(control_type: ControlType, position: Vec3) -> Transform {
 }
 
 fn on_pointer_over(
-    event: Trigger<Pointer<Over>>,
+    trigger: Trigger<Pointer<Over>>,
     materials: Res<PathMaterials>,
     mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((state, mut material)) = query.get_mut(event.target()) else {
+    let Ok((state, mut material)) = query.get_mut(trigger.target()) else {
         error!("Failed to get material of PathControl");
         return;
     };
@@ -164,11 +164,11 @@ fn on_pointer_over(
 }
 
 fn on_pointer_out(
-    event: Trigger<Pointer<Out>>,
+    trigger: Trigger<Pointer<Out>>,
     materials: Res<PathMaterials>,
     mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((state, mut material)) = query.get_mut(event.target()) else {
+    let Ok((state, mut material)) = query.get_mut(trigger.target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -178,11 +178,14 @@ fn on_pointer_out(
 }
 
 fn on_pointer_drag_start(
-    event: Trigger<Pointer<DragStart>>,
+    trigger: Trigger<Pointer<DragStart>>,
     materials: Res<PathMaterials>,
     mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((mut state, mut material)) = query.get_mut(event.target()) else {
+    if trigger.button != PointerButton::Primary {
+        return;
+    }
+    let Ok((mut state, mut material)) = query.get_mut(trigger.target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -192,14 +195,17 @@ fn on_pointer_drag_start(
 
 #[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn on_pointer_drag(
-    event: Trigger<Pointer<Drag>>,
+    trigger: Trigger<Pointer<Drag>>,
     mut event_writer: EventWriter<ControlMoved>,
     controls: Query<(&PathControl, &ChildOf, &mut Transform)>,
     mut paths: Query<(&mut Path, Entity)>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
 ) {
-    let Ok((control, child_of, _transform)) = controls.get(event.target()) else {
+    if trigger.button != PointerButton::Primary {
+        return;
+    }
+    let Ok((control, child_of, _transform)) = controls.get(trigger.target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -220,11 +226,14 @@ fn on_pointer_drag(
 }
 
 fn on_pointer_drag_end(
-    event: Trigger<Pointer<DragEnd>>,
+    trigger: Trigger<Pointer<DragEnd>>,
     materials: Res<PathMaterials>,
     mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((mut state, mut material)) = query.get_mut(event.target()) else {
+    if trigger.button != PointerButton::Primary {
+        return;
+    }
+    let Ok((mut state, mut material)) = query.get_mut(trigger.target()) else {
         error!("Failed to get PathControl");
         return;
     };

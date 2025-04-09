@@ -38,23 +38,32 @@ impl SelectionMode {
         actions
     }
 
-    fn add_buildings_action(_trigger: Trigger<Pointer<Released>>) {
+    fn add_buildings_action(trigger: Trigger<Pointer<Released>>) {
+        if trigger.button != PointerButton::Primary {
+            return;
+        }
         trace!("Add buildings button was pressed.");
         warn!("Add buildings action not implemented");
     }
 
-    fn add_surface_action(_trigger: Trigger<Pointer<Released>>) {
+    fn add_surface_action(trigger: Trigger<Pointer<Released>>) {
+        if trigger.button != PointerButton::Primary {
+            return;
+        }
         trace!("Add surface button was pressed.");
         warn!("Add surface action not implemented");
     }
 
     /// Deselect the selected entity on action button press.
     fn deselect_action(
-        _trigger: Trigger<Pointer<Released>>,
+        trigger: Trigger<Pointer<Released>>,
         mut changed: EventWriter<EntityStateChanged>,
         mut entity_states: Query<&mut EntityState>,
         mut interface: ResMut<InterfaceState>,
     ) {
+        if trigger.button != PointerButton::Primary {
+            return;
+        }
         trace!("Deselect button was pressed.");
         let InterfaceState::Selection(_, entity) = *interface else {
             warn!("Expected InterfaceState::Selection: {interface:?}");
@@ -72,17 +81,23 @@ impl SelectionMode {
         *interface = InterfaceState::Default;
     }
 
-    fn info_action(_trigger: Trigger<Pointer<Released>>) {
+    fn info_action(trigger: Trigger<Pointer<Released>>) {
+        if trigger.button != PointerButton::Primary {
+            return;
+        }
         trace!("Info button was pressed.");
         warn!("Info action not implemented");
     }
 
     /// Remove the selected entity on action button press
     fn remove_action(
-        _trigger: Trigger<Pointer<Released>>,
+        trigger: Trigger<Pointer<Released>>,
         mut commands: Commands,
         mut interface: ResMut<InterfaceState>,
     ) {
+        if trigger.button != PointerButton::Primary {
+            return;
+        }
         trace!("Remove button was pressed.");
         let InterfaceState::Selection(_, entity) = *interface else {
             warn!("Expected InterfaceState::Selection: {interface:?}");

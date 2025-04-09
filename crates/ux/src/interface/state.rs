@@ -66,7 +66,10 @@ fn default_actions() -> Vec<Action> {
     ]
 }
 
-fn settings_action(_trigger: Trigger<Pointer<Released>>) {
+fn settings_action(trigger: Trigger<Pointer<Released>>) {
+    if trigger.button != PointerButton::Primary {
+        return;
+    }
     trace!("Settings button was pressed.");
     warn!("Settings was pressed but it is not implemented.");
 }

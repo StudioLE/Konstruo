@@ -24,13 +24,16 @@ impl DrawMode {
 
     /// Update the [`Path`] on action button pressed.
     fn complete_action(
-        _trigger: Trigger<Pointer<Released>>,
+        trigger: Trigger<Pointer<Released>>,
         mut commands: Commands,
         mut interface: ResMut<InterfaceState>,
         drawing: Res<DrawMode>,
         mut paths: Query<&mut Path>,
         mut curve_added: EventWriter<CurveAdded>,
     ) {
+        if trigger.button != PointerButton::Primary {
+            return;
+        }
         trace!("Complete button was pressed.");
         *interface = InterfaceState::Default;
         let spline = match CubicBezierSpline::by_origins_and_handles(
@@ -57,13 +60,16 @@ impl DrawMode {
 
     /// Activate [`InterfaceState::DrawPath`].
     pub(crate) fn start_action(
-        _trigger: Trigger<Pointer<Released>>,
+        trigger: Trigger<Pointer<Released>>,
         mut interface: ResMut<InterfaceState>,
         commands: Commands,
         meshes: ResMut<Assets<Mesh>>,
         path_meshes: Res<PathMeshes>,
         materials: Res<PathMaterials>,
     ) {
+        if trigger.button != PointerButton::Primary {
+            return;
+        }
         trace!("Draw Path button was pressed.");
         *interface = InterfaceState::DrawPath;
         let mut factory = PathFactory {
@@ -77,7 +83,10 @@ impl DrawMode {
     }
 
     /// Remove the last control and handle.
-    fn undo_action(_trigger: Trigger<Pointer<Released>>, mut drawing: ResMut<DrawMode>) {
+    fn undo_action(trigger: Trigger<Pointer<Released>>, mut drawing: ResMut<DrawMode>) {
+        if trigger.button != PointerButton::Primary {
+            return;
+        }
         trace!("Undo button was pressed.");
         drawing.handles.pop();
         drawing.origins.pop();

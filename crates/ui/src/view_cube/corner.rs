@@ -35,11 +35,11 @@ impl ViewCubeCorner {
 }
 
 fn on_pointer_over(
-    event: Trigger<Pointer<Over>>,
+    trigger: Trigger<Pointer<Over>>,
     materials: Res<ViewCubeMaterials>,
     mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    let Ok(mut material) = query.get_mut(event.target()) else {
+    let Ok(mut material) = query.get_mut(trigger.target()) else {
         error!("Failed to get material of ViewCorner");
         return;
     };
@@ -47,11 +47,11 @@ fn on_pointer_over(
 }
 
 fn on_pointer_out(
-    event: Trigger<Pointer<Out>>,
+    trigger: Trigger<Pointer<Out>>,
     materials: Res<ViewCubeMaterials>,
     mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    let Ok(mut material) = query.get_mut(event.target()) else {
+    let Ok(mut material) = query.get_mut(trigger.target()) else {
         error!("Failed to get material of ViewCorner");
         return;
     };
@@ -59,11 +59,14 @@ fn on_pointer_out(
 }
 
 fn on_pointer_click(
-    event: Trigger<Pointer<Click>>,
+    trigger: Trigger<Pointer<Click>>,
     corner: Query<&ViewCubeCorner>,
     mut orbit: Query<&mut Orbit>,
 ) {
-    let Ok(corner) = corner.get(event.target()) else {
+    if trigger.button != PointerButton::Primary {
+        return;
+    }
+    let Ok(corner) = corner.get(trigger.target()) else {
         error!("Failed to get clicked ViewCubeCorner");
         return;
     };
