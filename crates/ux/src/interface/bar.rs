@@ -12,7 +12,7 @@ pub struct ActionBar;
 
 impl ActionBar {
     /// System to create an [`ActionBar`] positioned to the bottom left of the [`PrimaryCamera`].
-    pub(super) fn startup_system(
+    pub(crate) fn startup_system(
         mut commands: Commands,
         query: Query<Entity, With<PrimaryCamera>>,
     ) {
@@ -26,7 +26,7 @@ impl ActionBar {
     }
 
     /// System to update the [`ActionBar`] when [`InterfaceState`] is changed.
-    pub(super) fn update_system(
+    pub(crate) fn update_system(
         mut commands: Commands,
         state: Res<InterfaceState>,
         assets: Res<AssetServer>,

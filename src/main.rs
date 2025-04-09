@@ -13,7 +13,6 @@ use konstruo_distribution::DistributionPlugin;
 use konstruo_environment::*;
 use konstruo_paths::*;
 use konstruo_ui::*;
-use konstruo_ux::InteractionPlugin;
 use konstruo_ux::*;
 use std::collections::HashMap;
 
@@ -24,8 +23,6 @@ fn main() {
         .add_plugins(ModularBuildingsPlugin)
         // .add_plugins(CursorGizmoPlugin)
         .add_plugins(DistributionPlugin)
-        .add_plugins(InterfacePlugin)
-        .add_plugins(InteractionPlugin)
         .add_plugins(GizmoPlugin)
         .add_plugins(GridPlugin)
         .add_plugins(GroundPlugin)
@@ -35,6 +32,7 @@ fn main() {
         .add_plugins(SkyPlugin)
         .add_plugins(SelectionPlugin)
         .add_plugins(SunPlugin)
+        .add_plugins(UxPlugin)
         .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)
         .add_plugins(PathPlugin)

@@ -16,7 +16,7 @@ pub struct InterceptorLabel;
 
 impl Interceptor {
     /// System to spawn [`Interceptor`] on startup.
-    pub(super) fn startup_system(
+    pub(crate) fn startup_system(
         mut commands: Commands,
         query: Query<Entity, With<PrimaryCamera>>,
         assets: Res<AssetServer>,
@@ -35,12 +35,12 @@ impl Interceptor {
                         .with_child(label_text_bundle(font));
                 });
             })
-            .observe(Drawing::on_pointer_down)
-            .observe(Drawing::on_pointer_up);
+            .observe(DrawMode::on_pointer_down)
+            .observe(DrawMode::on_pointer_up);
     }
 
     /// System to update the [`Interceptor`] visibility when [`InterfaceState`] is changed.
-    pub(super) fn update_system(
+    pub(crate) fn update_system(
         interface: Res<InterfaceState>,
         mut interceptors: Query<&mut Visibility, With<Interceptor>>,
         mut labels: Query<&mut Text, With<InterceptorLabel>>,

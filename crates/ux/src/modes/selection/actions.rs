@@ -3,36 +3,34 @@ use bevy::log::warn;
 use bevy::prelude::*;
 use konstruo_ui::{EntityState, EntityStateChanged};
 
-pub struct Selection;
-
-impl Selection {
-    /// Get the actions when [`Selection`] is active.
+impl SelectionMode {
+    /// Get the actions when [`SelectionMode`] is active.
     pub(crate) fn actions() -> Vec<Action> {
         vec![
             Action {
                 label: String::from("Deselect"),
                 icon: Icon::font_awesome("times"),
-                on_press: Observer::new(Selection::deselect_action),
+                on_press: Observer::new(SelectionMode::deselect_action),
             },
             Action {
                 label: String::from("Remove"),
                 icon: Icon::font_awesome("trash"),
-                on_press: Observer::new(Selection::remove_action),
+                on_press: Observer::new(SelectionMode::remove_action),
             },
             Action {
                 label: String::from("Info"),
                 icon: Icon::font_awesome("info"),
-                on_press: Observer::new(Selection::info_action),
+                on_press: Observer::new(SelectionMode::info_action),
             },
             Action {
                 label: String::from("Add Surface"),
                 icon: Icon::font_awesome("road"),
-                on_press: Observer::new(Selection::add_surface_action),
+                on_press: Observer::new(SelectionMode::add_surface_action),
             },
             Action {
                 label: String::from("Add Buildings"),
                 icon: Icon::font_awesome("home"),
-                on_press: Observer::new(Selection::add_buildings_action),
+                on_press: Observer::new(SelectionMode::add_buildings_action),
             },
         ]
     }

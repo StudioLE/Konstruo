@@ -19,13 +19,13 @@ impl InterfaceState {
     pub(super) fn get_actions(&self) -> Vec<Action> {
         match self {
             InterfaceState::Default => default_actions(),
-            InterfaceState::DrawPath => Drawing::actions(),
-            InterfaceState::Selected { .. } => Selection::actions(),
+            InterfaceState::DrawPath => DrawMode::actions(),
+            InterfaceState::Selected { .. } => SelectionMode::actions(),
         }
     }
 
     /// Update [`InterfaceState`] on [`EntityStateChanged`].
-    pub(super) fn on_entity_state_changed(
+    pub(crate) fn on_entity_state_changed(
         mut events: EventReader<EntityStateChanged>,
         mut interface: ResMut<InterfaceState>,
     ) {
@@ -49,7 +49,7 @@ fn default_actions() -> Vec<Action> {
         Action {
             label: String::from("Draw Path"),
             icon: Icon::font_awesome("bezier-curve"),
-            on_press: Observer::new(Drawing::start_action),
+            on_press: Observer::new(DrawMode::start_action),
         },
     ]
 }
