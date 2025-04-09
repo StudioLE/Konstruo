@@ -237,6 +237,6 @@ fn on_pointer_drag_end(
         error!("Failed to get PathControl");
         return;
     };
-    *state = EntityState::Selected;
+    *state = EntityState::Default;
     *material = MeshMaterial3d(materials.control_node.clone());
 }
