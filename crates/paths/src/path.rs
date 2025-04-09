@@ -66,6 +66,7 @@ impl PathFactory<'_> {
     pub fn path_bundle(&mut self, path: Path) -> impl Bundle {
         let polyline = path.spline.flatten(FLATTEN_TOLERANCE);
         (
+            Name::new("Path"),
             path,
             Mesh3d(self.meshes.add(Polyline::new(polyline).to_mesh())),
             MeshMaterial3d(self.materials.center_line.clone()),
