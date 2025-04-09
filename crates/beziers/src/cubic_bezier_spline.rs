@@ -194,10 +194,17 @@ impl CubicBezierSpline {
         clippy::cast_possible_truncation,
         clippy::cast_precision_loss
     )]
-    fn get_curve_at_param(&self, param: f32) -> (&CubicBezier, f32) {
+    fn get_curve_index_at_param(&self, param: f32) -> (usize, f32) {
         let scaled_param = param * self.curves.len() as f32;
         let index = scaled_param.floor() as usize;
         let param = scaled_param - index as f32;
+        (index, param)
+    }
+
+    /// Get the curve at the param and recalculate the param so it's relative to the curve.
+    #[must_use]
+    fn get_curve_at_param(&self, param: f32) -> (&CubicBezier, f32) {
+        let (index, param) = self.get_curve_index_at_param(param);
         let curve = self
             .curves
             .get(index)
@@ -227,7 +234,8 @@ impl CubicBezierSpline {
     }
 
     /// Compute the extrema of the curve.
-    /// Only extrema within the interior of the curve count. At most four extrema can be reported, which is sufficient for cubic Béziers.
+    /// Only extrema within the interior of the curve count. At most four extrema can be reported,
+    /// which is sufficient for cubic Béziers.
     /// The extrema should be reported in increasing parameter order.
     #[must_use]
     pub fn get_extrema(&self) -> Vec<f32> {
@@ -288,6 +296,27 @@ impl CubicBezierSpline {
                 }
             }
         }
+    }
+
+    /// Split the bezier at parameter with De Casteljau's algorithm.
+    /// - <https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm>
+    ///
+    /// May fail if the param is too close to the start or end of the spline.
+    pub fn split_at_param(
+        mut self,
+        param: f32,
+    ) -> Result<[CubicBezierSpline; 2], CubicBezierSplineError> {
+        let (index, param) = self.get_curve_index_at_param(param);
+        let mut right: Vec<_> = self.curves.drain(index + 1..).collect();
+        let curve = self.curves.pop().expect("Vec should not be empty");
+        let mut left = self.curves;
+        let [c0, c1] = curve.split_at_param(param).map_err(Curve)?;
+        left.push(c0);
+        right.insert(0, c1);
+        Ok([
+            CubicBezierSpline::new(left)?,
+            CubicBezierSpline::new(right)?,
+        ])
     }
 
     /// Flatten a [`CubicBezier`] into a polyline.

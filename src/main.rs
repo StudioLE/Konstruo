@@ -43,6 +43,7 @@ fn main() {
         // .add_plugins(FlexNestedExample)
         // .add_plugins(FlexVerticallyExample)
         // .add_plugins(FlexWrappingExample)
+        // .add_plugins(IntersectionExample)
         .add_plugins(PathExample)
         // .add_plugins(Shapes3DExample)
         // .add_plugins(SubdivisionExample)

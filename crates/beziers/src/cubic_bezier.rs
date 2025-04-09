@@ -150,4 +150,19 @@ impl CubicBezier {
             vec3_from_kurbo(quad_bez.p2).expect("should not exceed f32 range"),
         ]
     }
+
+    /// Split the bezier at parameter with De Casteljau's algorithm.
+    /// - <https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm>
+    pub fn split_at_param(self, param: f32) -> Result<[CubicBezier; 2], CubicBezierError> {
+        let start_handle_0 = self.start.lerp(self.start_handle, param);
+        let between_handles = self.start_handle.lerp(self.end_handle, param);
+        let end_handle_1 = self.end_handle.lerp(self.end, param);
+        let end_handle_0 = start_handle_0.lerp(between_handles, param);
+        let start_handle_1 = between_handles.lerp(end_handle_1, param);
+        let point_at_param = end_handle_0.lerp(start_handle_1, param);
+        Ok([
+            CubicBezier::new(self.start, start_handle_0, end_handle_0, point_at_param)?,
+            CubicBezier::new(point_at_param, start_handle_1, end_handle_1, self.end)?,
+        ])
+    }
 }
