@@ -2,7 +2,7 @@ use super::*;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use konstruo_beziers::{ControlType, CubicBezierSpline};
-use konstruo_core::{EntityExtensions, QUARTER_PI};
+use konstruo_core::EntityExtensions;
 use konstruo_ui::*;
 use ControlType::*;
 
@@ -43,7 +43,7 @@ impl PathControl {
                     warn!("Failed to set PathControl transform. Control does not exist");
                     continue;
                 };
-                *transform = get_transform(control.control_type, translation);
+                *transform = Transform::from_translation(translation);
             }
         }
     }
@@ -132,20 +132,11 @@ impl PathFactory<'_> {
         (
             PathControl::new(control_type, curve),
             OnEntityState::new(1, vec![EntityState::Selected]),
-            get_transform(control_type, position),
+            Transform::from_translation(position),
             Mesh3d(mesh),
             MeshMaterial3d(self.materials.control_node.clone()),
             visibility,
         )
-    }
-}
-
-fn get_transform(control_type: ControlType, position: Vec3) -> Transform {
-    match control_type {
-        Start | End => {
-            Transform::from_translation(position).with_rotation(Quat::from_rotation_z(QUARTER_PI))
-        }
-        _ => Transform::from_translation(position),
     }
 }
 
