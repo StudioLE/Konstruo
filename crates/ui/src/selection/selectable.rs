@@ -1,6 +1,6 @@
 use crate::{EntityState, EntityStateChanged};
 use bevy::prelude::*;
-use konstruo_core::{AncestryExtensions, HandleError};
+use konstruo_core::{AncestryExtensions, EntityExtensions, HandleError};
 
 #[derive(Component)]
 pub struct Selectable {
@@ -28,7 +28,7 @@ impl Selectable {
 fn get_ancestor_state<'a>(
     selectables: Query<&Selectable>,
     ancestors: Query<Option<&ChildOf>>,
-    states: &'a mut Query<&mut EntityState>,
+    states: &'a mut Query<(Entity, &mut EntityState)>,
     entity: Entity,
 ) -> Option<(Entity, Mut<'a, EntityState>)> {
     let selectable = selectables.get(entity).handle_error(|e| {
@@ -39,17 +39,16 @@ fn get_ancestor_state<'a>(
         .handle_error(|e| {
             warn!("Failed to get ancestor for {entity}: {e}");
         })?;
-    let state = states.get_mut(ancestor).handle_error(|e| {
+    states.get_mut(ancestor).handle_error(|e| {
         warn!("Failed to get EntityState for {ancestor}: {e}");
-    })?;
-    Some((ancestor, state))
+    })
 }
 
 fn on_pointer_over(
     trigger: Trigger<Pointer<Over>>,
     selectables: Query<&Selectable>,
     ancestors: Query<Option<&ChildOf>>,
-    mut states: Query<&mut EntityState>,
+    mut states: Query<(Entity, &mut EntityState)>,
     mut changed: EventWriter<EntityStateChanged>,
 ) {
     let Some((ancestor, mut state)) =
@@ -70,7 +69,7 @@ fn on_pointer_out(
     trigger: Trigger<Pointer<Out>>,
     selectables: Query<&Selectable>,
     ancestors: Query<Option<&ChildOf>>,
-    mut states: Query<&mut EntityState>,
+    mut states: Query<(Entity, &mut EntityState)>,
     mut changed: EventWriter<EntityStateChanged>,
 ) {
     let Some((ancestor, mut state)) =
@@ -91,8 +90,9 @@ fn on_pointer_click(
     trigger: Trigger<Pointer<Click>>,
     selectables: Query<&Selectable>,
     ancestors: Query<Option<&ChildOf>>,
-    mut states: Query<&mut EntityState>,
+    mut states: Query<(Entity, &mut EntityState)>,
     mut changed: EventWriter<EntityStateChanged>,
+    names: Query<&Name>,
 ) {
     if trigger.button != PointerButton::Primary {
         return;
@@ -104,9 +104,23 @@ fn on_pointer_click(
     };
     if *state != EntityState::Selected {
         *state = EntityState::Selected;
+        trace!("Selected `{}`", ancestor.id_with_name(&names));
         changed.write(EntityStateChanged {
             entity: ancestor,
             state: EntityState::Selected,
         });
+        for (entity, mut state) in &mut states {
+            if entity == ancestor {
+                continue;
+            }
+            if *state == EntityState::Selected {
+                trace!("De-selected `{}`", entity.id_with_name(&names));
+                *state = EntityState::Default;
+                changed.write(EntityStateChanged {
+                    entity,
+                    state: EntityState::Default,
+                });
+            }
+        }
     }
 }
