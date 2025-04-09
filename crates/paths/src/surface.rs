@@ -6,10 +6,11 @@ use bevy::render::primitives::Aabb;
 use konstruo_core::constants::PATH_ELEVATION;
 use konstruo_core::EntityExtensions;
 use konstruo_geometry::*;
-use konstruo_ui::{EntityState, EntityStateChanged, Selectable};
+use konstruo_ui::{EntityState, OnEntityState, Selectable};
 use std::collections::HashSet;
 
 const SURFACE_TO_PATH_GENERATIONS: usize = 1;
+const EDGE_TO_PATH_GENERATIONS: usize = 2;
 static WIREFRAME_ENABLED: bool = false;
 
 /// A surface formed by two lines from a [`Path`].
@@ -111,37 +112,6 @@ impl PathSurface {
             trace!("Ignored {duplicates} duplicate SplineChanged events");
         }
     }
-
-    /// Update the [`Edge`] visibility when the [`EntityState`] of the [`Path`] changes.
-    pub(super) fn on_state_changed(
-        mut events: EventReader<EntityStateChanged>,
-        surfaces: Query<&ChildOf, (Without<Edge>, With<PathSurface>)>,
-        mut edges: Query<(&ChildOf, &mut Visibility), With<Edge>>,
-    ) {
-        let mut duplicates = 0;
-        let mut updated = HashSet::new();
-        for event in events.read() {
-            if !updated.insert(event) {
-                duplicates += 1;
-                continue;
-            }
-            for (child_of, mut visibility) in &mut edges {
-                let Ok(surface_child_of) = surfaces.get(child_of.parent) else {
-                    continue;
-                };
-                if surface_child_of.parent != event.entity {
-                    continue;
-                }
-                *visibility = match event.state {
-                    EntityState::Default => Visibility::Hidden,
-                    EntityState::Hovered | EntityState::Selected => Visibility::Visible,
-                };
-            }
-        }
-        if duplicates > 0 {
-            trace!("Ignored {duplicates} duplicate EntityStateChanged events");
-        }
-    }
 }
 
 impl PathFactory<'_> {
@@ -203,6 +173,10 @@ impl PathFactory<'_> {
         };
         let bundle = (
             Edge,
+            OnEntityState::new(
+                EDGE_TO_PATH_GENERATIONS,
+                vec![EntityState::Hovered, EntityState::Selected],
+            ),
             visibility,
             Mesh3d(self.meshes.add(lines.to_mesh())),
             MeshMaterial3d(material.clone()),

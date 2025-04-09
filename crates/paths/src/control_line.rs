@@ -4,7 +4,7 @@ use konstruo_beziers::ControlType::*;
 use konstruo_beziers::CubicBezierSpline;
 use konstruo_core::EntityExtensions;
 use konstruo_geometry::Polyline;
-use konstruo_ui::{EntityState, EntityStateChanged};
+use konstruo_ui::*;
 
 /// A line between control points of a [`Path`].
 #[derive(Component)]
@@ -21,24 +21,6 @@ impl PathControlLine {
     #[must_use]
     pub fn new(curve: usize, is_start: bool) -> Self {
         Self { curve, is_start }
-    }
-
-    /// Update the [`PathControlLine`] visibility when the [`EntityState`] of the [`Path`] changes.
-    pub(super) fn on_state_changed(
-        mut events: EventReader<EntityStateChanged>,
-        mut lines: Query<(&ChildOf, &mut Visibility), With<PathControlLine>>,
-    ) {
-        for event in events.read() {
-            for (child_of, mut visibility) in &mut lines {
-                if child_of.parent != event.entity {
-                    continue;
-                }
-                *visibility = match event.state {
-                    EntityState::Selected => Visibility::Visible,
-                    EntityState::Hovered | EntityState::Default => Visibility::Hidden,
-                };
-            }
-        }
     }
 
     /// Update the [`Transform`] when a control is moved.
@@ -107,6 +89,7 @@ impl PathFactory<'_> {
             let line = vec![bezier.get_control(Start), bezier.get_control(StartHandle)];
             let start = (
                 PathControlLine::new(curve, true),
+                OnEntityState::new(1, vec![EntityState::Selected]),
                 Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(self.materials.control_line.clone()),
                 visibility,
@@ -115,6 +98,7 @@ impl PathFactory<'_> {
             let line = vec![bezier.get_control(End), bezier.get_control(EndHandle)];
             let end = (
                 PathControlLine::new(curve, false),
+                OnEntityState::new(1, vec![EntityState::Selected]),
                 Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(self.materials.control_line.clone()),
                 visibility,

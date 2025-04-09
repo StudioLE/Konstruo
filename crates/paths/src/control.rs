@@ -3,8 +3,7 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use konstruo_beziers::{ControlType, CubicBezierSpline};
 use konstruo_core::{EntityExtensions, QUARTER_PI};
-use konstruo_ui::{Cursor, EntityState};
-use konstruo_ui::{EntityStateChanged, PrimaryCamera};
+use konstruo_ui::*;
 use ControlType::*;
 
 /// A control point that manipulates a [`Path`].
@@ -71,24 +70,6 @@ impl PathControl {
             factory.spawn_controls(&event.spline, event.path, Visibility::Visible);
         }
     }
-
-    /// Update the [`PathControl`] visibility when the [`EntityState`] of the [`Path`] changes.
-    pub(super) fn on_state_changed(
-        mut events: EventReader<EntityStateChanged>,
-        mut controls: Query<(&ChildOf, &mut Visibility), With<PathControl>>,
-    ) {
-        for event in events.read() {
-            for (child_of, mut visibility) in &mut controls {
-                if child_of.parent != event.entity {
-                    continue;
-                }
-                *visibility = match event.state {
-                    EntityState::Selected => Visibility::Visible,
-                    _ => Visibility::Hidden,
-                };
-            }
-        }
-    }
 }
 
 impl PathFactory<'_> {
@@ -150,6 +131,7 @@ impl PathFactory<'_> {
         };
         (
             PathControl::new(control_type, curve),
+            OnEntityState::new(1, vec![EntityState::Selected]),
             get_transform(control_type, position),
             Mesh3d(mesh),
             MeshMaterial3d(self.materials.control_node.clone()),

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 /// Selection state of an entity.
-#[derive(Component, Debug, Default, Eq, Hash, PartialEq)]
+#[derive(Clone, Component, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub enum EntityState {
     #[default]
     Default,
