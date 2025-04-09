@@ -2610,6 +2610,7 @@ name = "konstruo_ux"
 version = "0.0.0"
 dependencies = [
  "bevy",
+ "konstruo_architecture",
  "konstruo_beziers",
  "konstruo_core",
  "konstruo_geometry",

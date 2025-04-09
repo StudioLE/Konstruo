@@ -5,8 +5,8 @@ use konstruo_ui::{EntityState, EntityStateChanged};
 
 impl SelectionMode {
     /// Get the actions when [`SelectionMode`] is active.
-    pub(crate) fn actions() -> Vec<Action> {
-        vec![
+    pub(crate) fn actions(self) -> Vec<Action> {
+        let mut actions = vec![
             Action {
                 label: String::from("Deselect"),
                 icon: Icon::font_awesome("times"),
@@ -22,17 +22,20 @@ impl SelectionMode {
                 icon: Icon::font_awesome("info"),
                 on_press: Observer::new(SelectionMode::info_action),
             },
-            Action {
+        ];
+        if self == SelectionMode::Path {
+            actions.push(Action {
                 label: String::from("Add Surface"),
                 icon: Icon::font_awesome("road"),
                 on_press: Observer::new(SelectionMode::add_surface_action),
-            },
-            Action {
+            });
+            actions.push(Action {
                 label: String::from("Add Buildings"),
                 icon: Icon::font_awesome("home"),
                 on_press: Observer::new(SelectionMode::add_buildings_action),
-            },
-        ]
+            });
+        }
+        actions
     }
 
     fn add_buildings_action(_trigger: Trigger<Pointer<Released>>) {
@@ -53,8 +56,8 @@ impl SelectionMode {
         mut interface: ResMut<InterfaceState>,
     ) {
         trace!("Deselect button was pressed.");
-        let InterfaceState::Selected { entity, .. } = *interface else {
-            warn!("Expected InterfaceState::PathSelected: {interface:?}");
+        let InterfaceState::Selection(_, entity) = *interface else {
+            warn!("Expected InterfaceState::Selection: {interface:?}");
             return;
         };
         let Ok(mut entity_state) = entity_states.get_mut(entity) else {
@@ -81,8 +84,8 @@ impl SelectionMode {
         mut interface: ResMut<InterfaceState>,
     ) {
         trace!("Remove button was pressed.");
-        let InterfaceState::Selected { entity, .. } = *interface else {
-            warn!("Expected InterfaceState::Selected: {interface:?}");
+        let InterfaceState::Selection(_, entity) = *interface else {
+            warn!("Expected InterfaceState::Selection: {interface:?}");
             return;
         };
         commands.entity(entity).despawn();

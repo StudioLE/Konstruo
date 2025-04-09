@@ -1,5 +1,8 @@
 use crate::*;
 use bevy::prelude::*;
+use konstruo_architecture::ModularBuilding;
+use konstruo_core::HandleError;
+use konstruo_paths::Path;
 use konstruo_ui::{EntityState, EntityStateChanged};
 
 #[derive(Debug, Resource, Default, PartialEq)]
@@ -7,10 +10,7 @@ pub enum InterfaceState {
     #[default]
     Default,
     DrawPath,
-    /// An entity was selected.
-    Selected {
-        entity: Entity,
-    },
+    Selection(SelectionMode, Entity),
 }
 
 impl InterfaceState {
@@ -20,7 +20,7 @@ impl InterfaceState {
         match self {
             InterfaceState::Default => default_actions(),
             InterfaceState::DrawPath => DrawMode::actions(),
-            InterfaceState::Selected { .. } => SelectionMode::actions(),
+            InterfaceState::Selection(mode, _) => mode.actions(),
         }
     }
 
@@ -28,12 +28,24 @@ impl InterfaceState {
     pub(crate) fn on_entity_state_changed(
         mut events: EventReader<EntityStateChanged>,
         mut interface: ResMut<InterfaceState>,
+        query: Query<(Option<&ModularBuilding>, Option<&Path>)>,
     ) {
         for event in events.read() {
             if event.state == EntityState::Selected {
-                *interface = InterfaceState::Selected {
-                    entity: event.entity,
-                }
+                let Some((building, path)) = query
+                    .get(event.entity)
+                    .handle_error(|e| warn!("Failed to get entity: {e}"))
+                else {
+                    continue;
+                };
+                let mode = if building.is_some() {
+                    SelectionMode::Building
+                } else if path.is_some() {
+                    SelectionMode::Path
+                } else {
+                    SelectionMode::Default
+                };
+                *interface = InterfaceState::Selection(mode, event.entity);
             }
         }
     }

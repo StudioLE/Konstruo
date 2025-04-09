@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.16.0-rc.3"
+konstruo_architecture = { path = "../architecture" }
 konstruo_beziers = { path = "../beziers" }
 konstruo_core = { path = "../core" }
 konstruo_geometry = { path = "../geometry" }
