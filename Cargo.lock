@@ -2602,6 +2602,7 @@ version = "0.0.0"
 dependencies = [
  "bevy",
  "konstruo_core",
+ "konstruo_environment",
  "konstruo_geometry",
 ]
 

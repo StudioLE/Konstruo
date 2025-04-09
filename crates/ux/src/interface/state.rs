@@ -32,6 +32,10 @@ impl InterfaceState {
     ) {
         for event in events.read() {
             if event.state == EntityState::Selected {
+                if event.entity == Entity::PLACEHOLDER {
+                    *interface = InterfaceState::Default;
+                    continue;
+                }
                 let Some((building, path)) = query
                     .get(event.entity)
                     .handle_error(|e| warn!("Failed to get entity: {e}"))

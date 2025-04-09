@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 bevy = "0.16.0-rc.3"
 konstruo_core = { path = "../core" }
+konstruo_environment = { path = "../environment" }
 konstruo_geometry = { path = "../geometry" }

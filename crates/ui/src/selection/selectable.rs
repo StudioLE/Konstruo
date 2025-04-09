@@ -1,6 +1,7 @@
 use crate::{EntityState, EntityStateChanged};
 use bevy::prelude::*;
 use konstruo_core::{AncestryExtensions, EntityExtensions, HandleError};
+use konstruo_environment::Ground;
 
 #[derive(Component)]
 pub struct Selectable {
@@ -13,6 +14,17 @@ impl Selectable {
     #[must_use]
     pub fn new(generation: usize) -> Self {
         Self { generation }
+    }
+
+    /// System to create [`Observer`] when [`Selectable`] is added.
+    pub fn startup_system(mut commands: Commands, grounds: Query<Entity, With<Ground>>) {
+        let Some(entity) = grounds
+            .single()
+            .handle_error(|e| warn!("Failed to get Ground: {e}"))
+        else {
+            return;
+        };
+        commands.spawn(Observer::new(ground_on_pointer_click).with_entity(entity));
     }
 
     /// System to create [`Observer`] when [`Selectable`] is added.
@@ -122,5 +134,31 @@ fn on_pointer_click(
                 });
             }
         }
+    }
+}
+
+fn ground_on_pointer_click(
+    trigger: Trigger<Pointer<Click>>,
+    mut states: Query<(Entity, &mut EntityState)>,
+    mut changed: EventWriter<EntityStateChanged>,
+    names: Query<&Name>,
+) {
+    if trigger.button != PointerButton::Primary {
+        return;
+    }
+    for (entity, mut state) in &mut states {
+        if *state != EntityState::Selected {
+            continue;
+        }
+        trace!("De-selected `{}`", entity.id_with_name(&names));
+        *state = EntityState::Default;
+        changed.write(EntityStateChanged {
+            entity,
+            state: EntityState::Default,
+        });
+        changed.write(EntityStateChanged {
+            entity: Entity::PLACEHOLDER,
+            state: EntityState::Selected,
+        });
     }
 }
