@@ -89,6 +89,37 @@ impl Polyline {
             Ordering::Equal => {}
         }
     }
+
+    /// Get the points of intersection with [`Line`].
+    pub fn get_intersections(&self, other: &Line) -> Option<Vec<Vec3>> {
+        let intersections: Vec<_> = self
+            .to_lines()
+            .clone()
+            .iter()
+            .filter_map(|line| line.get_intersection(other))
+            .collect();
+        if intersections.is_empty() {
+            None
+        } else {
+            Some(intersections)
+        }
+    }
+
+    /// Get the points of intersection with [`Polyline`].
+    pub fn get_intersections_with_polyline(&self, other: &Self) -> Option<Vec<Vec3>> {
+        let intersections: Vec<_> = self
+            .to_lines()
+            .clone()
+            .iter()
+            .filter_map(|line| other.get_intersections(line))
+            .flatten()
+            .collect();
+        if intersections.is_empty() {
+            None
+        } else {
+            Some(intersections)
+        }
+    }
 }
 
 #[allow(clippy::indexing_slicing)]
