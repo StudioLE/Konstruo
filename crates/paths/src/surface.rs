@@ -154,7 +154,7 @@ impl PathFactory<'_> {
             .collect();
         let bundle = (
             Wireframe,
-            Mesh3d(self.meshes.add(LineList::new(lines).to_mesh())),
+            Mesh3d(self.meshes.add(LineList::from_lines(lines).to_mesh())),
             MeshMaterial3d(self.materials.wireframe.clone()),
             ChildOf { parent },
         );
@@ -164,7 +164,7 @@ impl PathFactory<'_> {
     fn spawn_edges(&mut self, sweep: Sweep, parent: Entity, is_selected: bool) {
         let edges = sweep.get_edges();
         let lines = edges.iter().flat_map(Polyline::to_lines).collect();
-        let lines = LineList::new(lines);
+        let lines = LineList::from_lines(lines);
         let material = self.materials.edge.clone();
         let visibility = if is_selected {
             Visibility::Visible

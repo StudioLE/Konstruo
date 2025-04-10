@@ -1,3 +1,4 @@
+use crate::Line;
 use bevy::math::Vec3;
 
 /// A [`Triangle`].
@@ -41,11 +42,11 @@ impl Triangle {
 
     /// Get the edges as a lines.
     #[must_use]
-    pub fn to_lines(&self) -> [[Vec3; 2]; 3] {
+    pub fn to_lines(&self) -> [Line; 3] {
         [
-            [self.vertices[0], self.vertices[1]],
-            [self.vertices[1], self.vertices[2]],
-            [self.vertices[2], self.vertices[0]],
+            Line::new(self.vertices[0], self.vertices[1]),
+            Line::new(self.vertices[1], self.vertices[2]),
+            Line::new(self.vertices[2], self.vertices[0]),
         ]
     }
 

@@ -1,4 +1,4 @@
-use crate::Polygon;
+use crate::{Line, Polygon};
 use bevy::prelude::*;
 use konstruo_core::{Vec3Extensions, VecVec3Extensions};
 use std::ops::Neg;
@@ -46,35 +46,40 @@ impl Subdivision {
                 .ok_or(SubdivisionError::GetOpeningRight(index))?;
             // Create rectangle to the left of the opening
             let full = [
-                bottom_bound[0],
-                Vec3Extensions::project_point_to_line(left[0], bottom_bound),
-                Vec3Extensions::project_point_to_line(left[0], top_bound),
-                top_bound[1],
+                bottom_bound.start,
+                bottom_bound.project(left.start),
+                top_bound.project(left.start),
+                top_bound.end,
             ];
-            top_bound[1] = full[2];
-            bottom_bound[0] = full[1];
+            top_bound.end = full[2];
+            bottom_bound.start = full[1];
             push_if_not_zero(&mut rectangles, full);
             // Create rectangle above the opening
             let above = [
-                left[1],
-                right[0],
-                Vec3Extensions::project_point_to_line(right[0], top_bound),
-                Vec3Extensions::project_point_to_line(left[1], top_bound),
+                left.end,
+                right.start,
+                top_bound.project(right.start),
+                top_bound.project(left.end),
             ];
             // Create rectangle below the opening
             let below = [
-                Vec3Extensions::project_point_to_line(left[0], bottom_bound),
-                Vec3Extensions::project_point_to_line(right[1], bottom_bound),
-                right[1],
-                left[0],
+                bottom_bound.project(left.start),
+                bottom_bound.project(right.end),
+                right.end,
+                left.start,
             ];
-            top_bound[1] = above[2];
-            bottom_bound[0] = below[1];
+            top_bound.end = above[2];
+            bottom_bound.start = below[1];
             push_if_not_zero(&mut rectangles, above);
             push_if_not_zero(&mut rectangles, below);
         }
         // Create last rectangle
-        let last = [bottom_bound[0], bottom_bound[1], top_bound[0], top_bound[1]];
+        let last = [
+            bottom_bound.start,
+            bottom_bound.end,
+            top_bound.start,
+            top_bound.end,
+        ];
         push_if_not_zero(&mut rectangles, last);
         Ok(rectangles)
     }
@@ -133,21 +138,17 @@ fn push_if_not_zero(rectangles: &mut Vec<[Vec3; 4]>, rectangle: [Vec3; 4]) {
 }
 
 #[allow(clippy::indexing_slicing)]
-fn get_edges(rectangle: [Vec3; 4]) -> Vec<[Vec3; 2]> {
+fn get_edges(rectangle: [Vec3; 4]) -> Vec<Line> {
     let polygon = Polygon::from_open(rectangle.to_vec()).expect("polygon should be valid");
-    polygon.get_edges()
+    polygon.to_lines()
 }
 
 #[allow(clippy::indexing_slicing)]
-fn get_edge_by_direction(edges: &[[Vec3; 2]], direction: Vec3) -> Option<[Vec3; 2]> {
+fn get_edge_by_direction(edges: &[Line], direction: Vec3) -> Option<Line> {
     edges
         .iter()
-        .find(|&edge| {
-            let vector = edge[1] - edge[0];
-            let direction2 = vector.normalize();
-            Vec3Extensions::is_almost_equal_to(direction, direction2)
-        })
-        .copied()
+        .find(|&edge| edge.get_direction().is_almost_equal_to(direction))
+        .cloned()
 }
 
 #[cfg(test)]

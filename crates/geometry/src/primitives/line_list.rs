@@ -1,3 +1,4 @@
+use crate::Line;
 use bevy::asset::RenderAssetUsages;
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
@@ -14,6 +15,16 @@ impl LineList {
     #[must_use]
     pub fn new(lines: Vec<[Vec3; 2]>) -> Self {
         Self { lines }
+    }
+
+    /// Create a [`LineList`].
+    #[must_use]
+    pub fn from_lines(value: Vec<Line>) -> Self {
+        let value = value
+            .into_iter()
+            .map(|line| [line.start, line.end])
+            .collect();
+        Self::new(value)
     }
 
     /// Create a [`PrimitiveTopology::LineList`].

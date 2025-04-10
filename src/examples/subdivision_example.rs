@@ -50,7 +50,7 @@ fn spawn_rectangle(
         } else {
             ExampleMaterials::red_edge()
         };
-        let lines = LineList::new(triangle.to_lines().to_vec());
+        let lines = LineList::from_lines(triangle.to_lines().to_vec());
         let bundle = (
             Wireframe,
             MeshMaterial3d(materials.add(material)),

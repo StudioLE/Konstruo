@@ -1,7 +1,6 @@
 use crate::Cuboid;
 use crate::*;
 use bevy::prelude::*;
-use konstruo_core::VecVec3Extensions;
 use Orientation::*;
 
 /// A triangular prism where the bottom is a rectangle and the front and back faces are triangles.
@@ -33,7 +32,7 @@ impl TriangularPrism {
     #[must_use]
     fn get_front_top(&self) -> Vec3 {
         let edge = self.bounds.get_edge([Top, Front]);
-        edge.mean()
+        edge.get_midpoint()
     }
 
     #[must_use]
@@ -49,7 +48,7 @@ impl TriangularPrism {
     #[must_use]
     fn get_back_top(&self) -> Vec3 {
         let edge = self.bounds.get_edge([Top, Back]);
-        edge.mean()
+        edge.get_midpoint()
     }
 
     /// Get the triangules as a [`TriangleList`].

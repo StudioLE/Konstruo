@@ -10,8 +10,7 @@ pub trait Vec3Extensions {
     fn fix_floating_vectors(self) -> Vec3;
     fn angle_between_on_plane(self, v2: Vec3, plane_normal: Vec3) -> f32;
     fn invert_0_and_1(self) -> Vec3;
-    fn project_point_to_line(self, line: [Vec3; 2]) -> Vec3;
-    fn project_point_to_line_internal(self, point_on_line: Vec3, direction: Vec3) -> Vec3;
+    fn project_point_to_line(self, point_on_line: Vec3, direction: Vec3) -> Vec3;
 }
 
 pub trait VecVec3Extensions {
@@ -81,13 +80,7 @@ impl Vec3Extensions for Vec3 {
     }
 
     #[must_use]
-    fn project_point_to_line(self, line: [Vec3; 2]) -> Vec3 {
-        let vector = line[1] - line[0];
-        self.project_point_to_line_internal(line[0], vector.normalize())
-    }
-
-    #[must_use]
-    fn project_point_to_line_internal(self, point_on_line: Vec3, direction: Vec3) -> Vec3 {
+    fn project_point_to_line(self, point_on_line: Vec3, direction: Vec3) -> Vec3 {
         // Vector from line point to the point being projected
         let vector = self - point_on_line;
         // Projection of vector on line

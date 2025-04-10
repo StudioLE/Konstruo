@@ -1,3 +1,4 @@
+use crate::Line;
 use bevy::asset::RenderAssetUsages;
 use bevy::prelude::*;
 use bevy::render::mesh::PrimitiveTopology;
@@ -54,10 +55,10 @@ impl Polyline {
     /// Get the individual lines that form the [`Polyline`].
     #[must_use]
     #[allow(clippy::indexing_slicing)]
-    pub fn to_lines(&self) -> Vec<[Vec3; 2]> {
+    pub fn to_lines(&self) -> Vec<Line> {
         self.vertices
             .windows(2)
-            .map(|pair| [pair[0], pair[1]])
+            .map(|pair| Line::new(pair[0], pair[1]))
             .collect()
     }
 
