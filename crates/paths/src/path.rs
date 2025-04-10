@@ -1,6 +1,6 @@
 use super::*;
 use bevy::prelude::*;
-use konstruo_beziers::constants::{FLATTEN_TOLERANCE, LENGTH_ACCURACY, OFFSET_ACCURACY};
+use konstruo_beziers::constants::*;
 use konstruo_beziers::CubicBezierSpline;
 use konstruo_distribution::{Distributable, Distribution, FlexFactory};
 use konstruo_geometry::Polyline;

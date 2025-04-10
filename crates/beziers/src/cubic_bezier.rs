@@ -1,6 +1,7 @@
 use crate::*;
 use bevy::prelude::*;
 use konstruo_core::Vec3Extensions;
+use konstruo_geometry::Line;
 use kurbo::offset::CubicOffset;
 use kurbo::{
     fit_to_bezpath, ParamCurve, ParamCurveArclen, ParamCurveCurvature, ParamCurveDeriv,
@@ -46,6 +47,13 @@ impl CubicBezier {
             end_handle,
             end,
         })
+    }
+
+    /// Create a new [`CubicBezier`] from a [`Line`].
+    pub fn from_line(line: Line) -> Result<Self, CubicBezierError> {
+        let start_handle = line.get_point_at_param(0.333333);
+        let end_handle = line.get_point_at_param(0.666666);
+        Self::new(line.start, start_handle, end_handle, line.end)
     }
 
     /// Get a control.

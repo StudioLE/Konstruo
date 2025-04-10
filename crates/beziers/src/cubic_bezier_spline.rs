@@ -1,9 +1,14 @@
 use crate::CubicBezier;
 use crate::*;
 use bevy::prelude::*;
+use konstruo_core::Vec3Extensions;
+use konstruo_geometry::Polyline;
 use kurbo::{flatten, stroke, Cap, Join, PathEl, Stroke, StrokeOptLevel, StrokeOpts};
 use ControlType::*;
 use CubicBezierSplineError::*;
+
+/// Tolerance used to determine if curves in a spline are connected.
+const CONNECTION_TOLERANCE: f32 = 0.010;
 
 /// A spline formed of one or more connected [`CubicBezier`].
 #[derive(Clone, Debug, Default)]
@@ -29,11 +34,16 @@ impl CubicBezierSpline {
         for (i, pair) in curves.windows(2).enumerate() {
             let end = pair[0].end;
             let start = pair[1].start;
-            if start != end {
+            if !start.abs_diff_eq(end, CONNECTION_TOLERANCE) {
                 return Err(NotConnected(i, start, end));
             }
         }
         Ok(Self { curves })
+    }
+
+    /// Create a new [`CubicBezierSpline`].
+    pub fn new_unchecked(curves: Vec<CubicBezier>) -> Self {
+        Self { curves }
     }
 
     /// Create a new [`CubicBezierSpline`] from lists of origins and handles.
@@ -371,7 +381,7 @@ impl CubicBezierSpline {
     /// Offset a bezier curve by a given distance.
     /// - <https://raphlinus.github.io/curves/2022/09/09/parallel-beziers.html>
     ///
-    /// TODO: Offset works on segments individually therefore it doesn't handle sharp joins
+    /// Kurbo's algorithm only handles offseting smooth curves.
     pub fn offset(
         &self,
         distance: f32,
@@ -380,9 +390,66 @@ impl CubicBezierSpline {
         let mut curves = Vec::new();
         for curve in self.curves.iter() {
             let mut offset = curve.offset(distance, accuracy).map_err(Conversion)?;
-            // TODO: if curves in offset are not connected then find the intersection and cut them back
             curves.append(&mut offset);
         }
+        CubicBezierSpline::new(curves)
+    }
+
+    /// Offset a bezier curve by a given distance.
+    /// - <https://raphlinus.github.io/curves/2022/09/09/parallel-beziers.html>
+    ///
+    /// Kurbo's algorithm only handles offseting smooth curves.
+    /// 
+    /// In order to handle concave corners:
+    /// - Each bezier is offset individually.
+    /// - If adjacent beziers intersect then they're both split at the point of intersection and 
+    ///   the remainder discarded.
+    pub fn offset_without_intersection(
+        &self,
+        distance: f32,
+        accuracy: f32,
+        intersection_tolerance: f32,
+        intersection_accuracy: f32,
+    ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
+        let mut curves = Vec::new();
+        for curve in self.curves.iter() {
+            let offset = curve.offset(distance, accuracy).map_err(Conversion)?;
+            if curves.is_empty() {
+                curves.push(offset);
+                continue;
+            }
+            let end = curves
+                .last()
+                .expect("should be at least one")
+                .last()
+                .expect("should be at least one")
+                .end;
+            let start = offset.first().expect("should be at least one").start;
+            if start.is_almost_equal_to(end) {
+                curves.push(offset);
+                continue;
+            }
+            let previous = curves.last().expect("should be at least one").clone();
+            let spline_a = CubicBezierSpline::new(previous)?;
+            let spline_b = CubicBezierSpline::new(offset)?;
+            let Some(intersections) =
+                spline_a.get_intersections_with_spline(&spline_b, intersection_tolerance)
+            else {
+                return Err(NotConnected(curves.len() - 1, end, start));
+            };
+            if intersections.len() > 1 {
+                warn!("More than one intersection found. Offset may not be accurate.");
+            }
+            let intersection = *intersections.first().expect("should be at least one");
+            let param_a = spline_a.get_param_nearest_to(intersection, intersection_accuracy);
+            let param_b = spline_b.get_param_nearest_to(intersection, intersection_accuracy);
+            let [split_a, _] = spline_a.split_at_param(param_a)?;
+            let [_, split_b] = spline_b.split_at_param(param_b)?;
+            let _ = curves.pop();
+            curves.push(split_a.curves);
+            curves.push(split_b.curves);
+        }
+        let curves = curves.into_iter().flatten().collect();
         CubicBezierSpline::new(curves)
     }
 
@@ -438,6 +505,18 @@ impl CubicBezierSpline {
         let options = StrokeOpts::default().opt_level(level);
         let result = stroke(path, &style, &options, f64::from(tolerance));
         CubicBezierSpline::from_kurbo(result)
+    }
+
+    /// Get the intersections with [`CubicBezierSpline`].
+    ///
+    /// This is done by by flattening move splines to polyline so performance may not be optimal.
+    pub fn get_intersections_with_spline(
+        &self,
+        other: &CubicBezierSpline,
+        tolerance: f32,
+    ) -> Option<Vec<Vec3>> {
+        Polyline::new(self.flatten(tolerance))
+            .get_intersections_with_polyline(&Polyline::new(other.flatten(tolerance)))
     }
 }
 
