@@ -6,15 +6,19 @@ use ControlType::*;
 
 const KURBO_EPSILON: f32 = 0.000_1;
 
+pub trait Vec3ToPoint {
+    fn to_kurbo(&self) -> Point;
+}
+
 impl CubicBezier {
     /// Convert to a kurbo [`CubicBez`].
     #[must_use]
     pub fn to_kurbo(&self) -> CubicBez {
         CubicBez::new(
-            vec3_to_kurbo(self.get_control(Start)),
-            vec3_to_kurbo(self.get_control(StartHandle)),
-            vec3_to_kurbo(self.get_control(EndHandle)),
-            vec3_to_kurbo(self.get_control(End)),
+            self.get_control(Start).to_kurbo(),
+            self.get_control(StartHandle).to_kurbo(),
+            self.get_control(EndHandle).to_kurbo(),
+            self.get_control(End).to_kurbo(),
         )
     }
 
@@ -24,9 +28,9 @@ impl CubicBezier {
     #[must_use]
     fn to_kurbo_path(&self) -> PathEl {
         PathEl::CurveTo(
-            vec3_to_kurbo(self.get_control(StartHandle)),
-            vec3_to_kurbo(self.get_control(EndHandle)),
-            vec3_to_kurbo(self.get_control(End)),
+            self.get_control(StartHandle).to_kurbo(),
+            self.get_control(EndHandle).to_kurbo(),
+            self.get_control(End).to_kurbo(),
         )
     }
 }
@@ -34,7 +38,7 @@ impl CubicBezier {
 impl CubicBezierSpline {
     /// Convert to a kurbo [`BezPath`].
     pub(super) fn to_kurbo(&self) -> BezPath {
-        let start = vec3_to_kurbo(self.get_start());
+        let start = self.get_start().to_kurbo();
         let mut path = BezPath::new();
         path.push(PathEl::MoveTo(start));
         for curve in self.get_curves() {
@@ -44,13 +48,15 @@ impl CubicBezierSpline {
     }
 }
 
-/// Convert from a [`Vec3`] to a kurbo [`Point`].
-pub fn vec3_to_kurbo(vector: Vec3) -> Point {
-    if vector.z.abs() > KURBO_EPSILON {
-        warn!(
-            "Kurbo only supports 2D coordinates. Ignoring Z value: {}",
-            vector.z
-        );
+impl Vec3ToPoint for Vec3 {
+    /// Convert from a [`Vec3`] to a kurbo [`Point`].
+    fn to_kurbo(&self) -> Point {
+        if self.z.abs() > KURBO_EPSILON {
+            warn!(
+                "Kurbo only supports 2D coordinates. Ignoring Z value: {}",
+                self.z
+            );
+        }
+        Point::new(f64::from(self.x), f64::from(self.y))
     }
-    Point::new(f64::from(vector.x), f64::from(vector.y))
 }

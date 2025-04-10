@@ -7,7 +7,7 @@ impl CubicBezierSpline {
         let controls: Vec<_> = self
             .get_curves()
             .iter()
-            .map(super::cubic_bezier::CubicBezier::get_controls)
+            .map(CubicBezier::get_controls)
             .collect();
         BevyCubicBezier::new(controls)
     }

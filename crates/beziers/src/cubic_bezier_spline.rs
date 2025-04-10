@@ -1,4 +1,3 @@
-use crate::from_kurbo::{vec3_from_kurbo, F32ConversionError};
 use crate::CubicBezier;
 use crate::*;
 use bevy::prelude::*;
@@ -361,7 +360,7 @@ impl CubicBezierSpline {
         let mut points = Vec::new();
         flatten(path, tolerance.into(), &mut |segment| match segment {
             PathEl::MoveTo(point) | PathEl::LineTo(point) => {
-                let point = vec3_from_kurbo(point).expect("should not exceed f32 range");
+                let point = point.to_vec3().expect("should not exceed f32 range");
                 points.push(point);
             }
             value => unreachable!("Expected `MoveTo` or `LineTo` but was: {value:?}",),
