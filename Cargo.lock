@@ -2544,6 +2544,7 @@ version = "0.0.0"
 dependencies = [
  "bevy",
  "konstruo_core",
+ "konstruo_geometry",
  "kurbo",
 ]
 
@@ -2580,7 +2581,6 @@ name = "konstruo_geometry"
 version = "0.0.0"
 dependencies = [
  "bevy",
- "konstruo_beziers",
  "konstruo_core",
 ]
 

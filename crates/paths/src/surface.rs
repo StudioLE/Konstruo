@@ -3,6 +3,7 @@ use crate::SurfaceType::{Carriageway, Footway};
 use bevy::prelude::*;
 use bevy::render::mesh::MeshAabb;
 use bevy::render::primitives::Aabb;
+use konstruo_beziers::Sweep;
 use konstruo_core::constants::PATH_ELEVATION;
 use konstruo_core::EntityExtensions;
 use konstruo_geometry::*;

@@ -1,7 +1,8 @@
+use crate::constants::*;
 use crate::*;
 use bevy::prelude::*;
-use konstruo_beziers::constants::{FLATTEN_TOLERANCE, OFFSET_ACCURACY};
-use konstruo_beziers::CubicBezierSpline;
+use konstruo_geometry::*;
+// TODO: Replace Sweep with an Extrude
 
 /// A geometric sweep with parallel edges on the ground plane.
 ///
