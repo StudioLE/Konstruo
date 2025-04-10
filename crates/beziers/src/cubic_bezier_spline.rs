@@ -106,11 +106,35 @@ impl CubicBezierSpline {
         &self.curves
     }
 
+    /// Get the curves.
+    #[must_use]
+    pub fn to_curves(self) -> Vec<CubicBezier> {
+        self.curves
+    }
+
     /// Get a control.
     #[must_use]
     pub fn get_control(&self, control_type: ControlType, curve: usize) -> Option<Vec3> {
         let control = self.curves.get(curve)?.get_control(control_type);
         Some(control)
+    }
+
+    /// Get the start.
+    #[must_use]
+    pub fn get_start(&self) -> Vec3 {
+        self.curves
+            .first()
+            .expect("curves should not be empty")
+            .get_control(Start)
+    }
+
+    /// Get the start.
+    #[must_use]
+    pub fn get_end(&self) -> Vec3 {
+        self.curves
+            .last()
+            .expect("curves should not be empty")
+            .get_control(End)
     }
 
     /// Get the control points.
@@ -295,6 +319,14 @@ impl CubicBezierSpline {
                     self.curves[curve + 1].start_handle += translation;
                 }
             }
+        }
+    }
+
+    /// Reverse the direction of the spline.
+    pub fn reverse(&mut self) {
+        self.curves.reverse();
+        for curve in self.curves.iter_mut() {
+            curve.reverse();
         }
     }
 

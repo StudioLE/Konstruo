@@ -151,6 +151,16 @@ impl CubicBezier {
         ]
     }
 
+    /// Reverse the direction of the curve.
+    pub fn reverse(&mut self) {
+        let start = self.start;
+        let start_handle = self.start_handle;
+        self.start = self.end;
+        self.start_handle = self.end_handle;
+        self.end_handle = start_handle;
+        self.end = start;
+    }
+
     /// Split the bezier at parameter with De Casteljau's algorithm.
     /// - <https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm>
     pub fn split_at_param(self, param: f32) -> Result<[CubicBezier; 2], CubicBezierError> {
