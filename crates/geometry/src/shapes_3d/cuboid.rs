@@ -29,7 +29,7 @@ impl Cuboid {
     pub fn get_edge(&self, edge: [Orientation; 2]) -> Line {
         let facing = Orientation::get_facing_in(&edge);
         let center = 0.5 * facing;
-        let cross = Vec3Extensions::invert_0_and_1(facing);
+        let cross = facing.invert_0_and_1();
         let start = center - cross * 0.5;
         let end = center + cross * 0.5;
         let start = self.transform.transform_point(start);
@@ -44,7 +44,7 @@ impl Cuboid {
     pub fn get_face(&self, face: Orientation) -> [Vec3; 4] {
         let facing = face.to_facing_in();
         let center = 0.5 * facing;
-        let normal = if Vec3Extensions::is_almost_equal_to(facing.abs(), Vec3::X) {
+        let normal = if facing.abs().is_almost_equal_to(Vec3::X) {
             Vec3::Y
         } else {
             Vec3::X
@@ -105,22 +105,12 @@ mod tests {
 
         // Act
         // Assert
-        Vec3Extensions::assert_almost_equal_to(
-            center - half,
-            cuboid.get_vertex([Bottom, Front, Left]),
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            center + half * Vec3::new(1.0, -1.0, -1.0),
-            cuboid.get_vertex([Bottom, Front, Right]),
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            center + half * Vec3::new(1.0, -1.0, 1.0),
-            cuboid.get_vertex([Top, Front, Right]),
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            center + half,
-            cuboid.get_vertex([Top, Back, Right]),
-        );
+        (center - half).assert_almost_equal_to(cuboid.get_vertex([Bottom, Front, Left]));
+        (center + half * Vec3::new(1.0, -1.0, -1.0))
+            .assert_almost_equal_to(cuboid.get_vertex([Bottom, Front, Right]));
+        (center + half * Vec3::new(1.0, -1.0, 1.0))
+            .assert_almost_equal_to(cuboid.get_vertex([Top, Front, Right]));
+        (center + half).assert_almost_equal_to(cuboid.get_vertex([Top, Back, Right]));
     }
 
     #[test]
@@ -137,43 +127,36 @@ mod tests {
         let top_back = cuboid.get_edge([Top, Back]);
 
         // Assert
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Bottom, Front, Left]),
-            bottom_front.start,
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Bottom, Front, Right]),
-            bottom_front.end,
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Top, Front, Left]),
-            top_front.start,
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Top, Front, Right]),
-            top_front.end,
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Bottom, Front, Left]),
-            left_front.start,
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Top, Front, Left]),
-            left_front.end,
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Bottom, Front, Left]),
-            front_left.start,
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Top, Front, Left]),
-            front_left.end,
-        );
-        Vec3Extensions::assert_almost_equal_to(
-            cuboid.get_vertex([Top, Back, Left]),
-            top_back.start,
-        );
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Back, Right]), top_back.end);
+        cuboid
+            .get_vertex([Bottom, Front, Left])
+            .assert_almost_equal_to(bottom_front.start);
+        cuboid
+            .get_vertex([Bottom, Front, Right])
+            .assert_almost_equal_to(bottom_front.end);
+        cuboid
+            .get_vertex([Top, Front, Left])
+            .assert_almost_equal_to(top_front.start);
+        cuboid
+            .get_vertex([Top, Front, Right])
+            .assert_almost_equal_to(top_front.end);
+        cuboid
+            .get_vertex([Bottom, Front, Left])
+            .assert_almost_equal_to(left_front.start);
+        cuboid
+            .get_vertex([Top, Front, Left])
+            .assert_almost_equal_to(left_front.end);
+        cuboid
+            .get_vertex([Bottom, Front, Left])
+            .assert_almost_equal_to(front_left.start);
+        cuboid
+            .get_vertex([Top, Front, Left])
+            .assert_almost_equal_to(front_left.end);
+        cuboid
+            .get_vertex([Top, Back, Left])
+            .assert_almost_equal_to(top_back.start);
+        cuboid
+            .get_vertex([Top, Back, Right])
+            .assert_almost_equal_to(top_back.end);
     }
 
     #[test]
@@ -189,21 +172,53 @@ mod tests {
         let right = cuboid.get_face(Right);
 
         // Assert
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Bottom, Front, Left]), front[0]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Bottom, Front, Right]), front[1]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Front, Right]), front[2]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Front, Left]), front[3]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Back, Left]), back[0]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Back, Right]), back[1]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Bottom, Back, Right]), back[2]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Bottom, Back, Left]), back[3]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Front, Left]), left[0]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Back, Left]), left[1]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Bottom, Back, Left]), left[2]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Bottom, Front, Left]), left[3]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Bottom, Front, Right]), right[0]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Bottom, Back, Right]), right[1]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Back, Right]), right[2]);
-        Vec3Extensions::assert_almost_equal_to(cuboid.get_vertex([Top, Front, Right]), right[3]);
+        cuboid
+            .get_vertex([Bottom, Front, Left])
+            .assert_almost_equal_to(front[0]);
+        cuboid
+            .get_vertex([Bottom, Front, Right])
+            .assert_almost_equal_to(front[1]);
+        cuboid
+            .get_vertex([Top, Front, Right])
+            .assert_almost_equal_to(front[2]);
+        cuboid
+            .get_vertex([Top, Front, Left])
+            .assert_almost_equal_to(front[3]);
+        cuboid
+            .get_vertex([Top, Back, Left])
+            .assert_almost_equal_to(back[0]);
+        cuboid
+            .get_vertex([Top, Back, Right])
+            .assert_almost_equal_to(back[1]);
+        cuboid
+            .get_vertex([Bottom, Back, Right])
+            .assert_almost_equal_to(back[2]);
+        cuboid
+            .get_vertex([Bottom, Back, Left])
+            .assert_almost_equal_to(back[3]);
+        cuboid
+            .get_vertex([Top, Front, Left])
+            .assert_almost_equal_to(left[0]);
+        cuboid
+            .get_vertex([Top, Back, Left])
+            .assert_almost_equal_to(left[1]);
+        cuboid
+            .get_vertex([Bottom, Back, Left])
+            .assert_almost_equal_to(left[2]);
+        cuboid
+            .get_vertex([Bottom, Front, Left])
+            .assert_almost_equal_to(left[3]);
+        cuboid
+            .get_vertex([Bottom, Front, Right])
+            .assert_almost_equal_to(right[0]);
+        cuboid
+            .get_vertex([Bottom, Back, Right])
+            .assert_almost_equal_to(right[1]);
+        cuboid
+            .get_vertex([Top, Back, Right])
+            .assert_almost_equal_to(right[2]);
+        cuboid
+            .get_vertex([Top, Front, Right])
+            .assert_almost_equal_to(right[3]);
     }
 }

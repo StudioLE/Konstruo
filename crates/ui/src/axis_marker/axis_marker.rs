@@ -77,7 +77,7 @@ fn get_color(axis: Axis) -> Srgba {
 
 fn get_transform(thickness: f32, length: f32, axis: Axis) -> Transform {
     let direction = axis.get_vector();
-    let inverse = Vec3Extensions::invert_0_and_1(direction);
+    let inverse = direction.invert_0_and_1();
     let scale = direction * (length + thickness) + inverse * thickness;
     Transform::from_translation(direction * length * 0.5).with_scale(scale)
 }

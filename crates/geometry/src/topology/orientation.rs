@@ -112,9 +112,9 @@ impl Orientation {
     #[must_use]
     pub fn to_elevation_axis(&self) -> (Vec3, Vec3, Vec3) {
         let back = self.to_facing_to();
-        let up = if Vec3Extensions::is_almost_equal_to(back, Vec3::Z) {
+        let up = if back.is_almost_equal_to(Vec3::Z) {
             Vec3::NEG_Y
-        } else if Vec3Extensions::is_almost_equal_to(back, Vec3::NEG_Z) {
+        } else if back.is_almost_equal_to(Vec3::NEG_Z) {
             Vec3::Y
         } else {
             Vec3::Z
