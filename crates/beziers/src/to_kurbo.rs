@@ -1,7 +1,7 @@
 use crate::CubicBezier;
 use crate::*;
 use bevy::prelude::*;
-use kurbo::{BezPath, CubicBez, PathSeg, Point, Shape};
+use kurbo::{BezPath, CubicBez, PathEl, Point};
 use ControlType::*;
 
 const KURBO_EPSILON: f32 = 0.000_1;
@@ -17,25 +17,30 @@ impl CubicBezier {
             vec3_to_kurbo(self.get_control(End)),
         )
     }
+
+    /// Convert to a kurbo [`PathEl`].
+    ///
+    /// CAUTION: This excludes the start therefore that will need to be manually specified.
+    #[must_use]
+    fn to_kurbo_path(&self) -> PathEl {
+        PathEl::CurveTo(
+            vec3_to_kurbo(self.get_control(StartHandle)),
+            vec3_to_kurbo(self.get_control(EndHandle)),
+            vec3_to_kurbo(self.get_control(End)),
+        )
+    }
 }
 
 impl CubicBezierSpline {
-    /// Convert to a collection of kurbo [`CubicBez`].
-    pub(super) fn to_kurbo(&self) -> Vec<CubicBez> {
-        self.get_curves()
-            .iter()
-            .map(CubicBezier::to_kurbo)
-            .collect()
-    }
-
     /// Convert to a kurbo [`BezPath`].
-    #[must_use]
-    pub fn to_kurbo_bez_path(&self) -> BezPath {
-        let segments = self
-            .to_kurbo()
-            .into_iter()
-            .flat_map(|bezier| bezier.path_segments(1.0).collect::<Vec<PathSeg>>());
-        BezPath::from_path_segments(segments)
+    pub(super) fn to_kurbo(&self) -> BezPath {
+        let start = vec3_to_kurbo(self.get_start());
+        let mut path = BezPath::new();
+        path.push(PathEl::MoveTo(start));
+        for curve in self.get_curves() {
+            path.push(curve.to_kurbo_path());
+        }
+        path
     }
 }
 

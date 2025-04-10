@@ -1,13 +1,8 @@
-use crate::from_kurbo::{f32_from_f64, vec3_from_kurbo, F32ConversionError};
-use crate::internal_kurbo::bezpath_to_cubics;
+use crate::from_kurbo::{vec3_from_kurbo, F32ConversionError};
 use crate::CubicBezier;
 use crate::*;
 use bevy::prelude::*;
-use kurbo::offset::CubicOffset;
-use kurbo::{
-    fit_to_bezpath, flatten, stroke, Cap, CubicBez, Join, ParamCurveArclen, PathEl, Stroke,
-    StrokeOpts,
-};
+use kurbo::{flatten, stroke, Cap, Join, PathEl, Stroke, StrokeOptLevel, StrokeOpts};
 use ControlType::*;
 use CubicBezierSplineError::*;
 
@@ -17,11 +12,11 @@ pub struct CubicBezierSpline {
     curves: Vec<CubicBezier>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 pub enum CubicBezierSplineError {
     NoCurves,
     InvalidCounts(usize, usize),
+    NotConnected(usize, Vec3, Vec3),
     Curve(CubicBezierError),
     Conversion(F32ConversionError),
 }
@@ -31,6 +26,13 @@ impl CubicBezierSpline {
     pub fn new(curves: Vec<CubicBezier>) -> Result<Self, CubicBezierSplineError> {
         if curves.is_empty() {
             return Err(NoCurves);
+        }
+        for (i, pair) in curves.windows(2).enumerate() {
+            let end = pair[0].end;
+            let start = pair[1].start;
+            if start != end {
+                return Err(NotConnected(i, start, end));
+            }
         }
         Ok(Self { curves })
     }
@@ -156,12 +158,10 @@ impl CubicBezierSpline {
     /// and an error estimate to decide when to subdivide.
     #[must_use]
     pub fn get_length(&self, accuracy: f32) -> f32 {
-        let kurbo = self.to_kurbo();
-        let length = kurbo
+        self.curves
             .iter()
-            .map(|&bezier| bezier.arclen(accuracy.into()))
-            .sum();
-        f32_from_f64(length).expect("should not exceed f32 range")
+            .map(|cubic| cubic.get_length(accuracy))
+            .sum()
     }
 
     /// Get the param at the length along the curve.
@@ -357,37 +357,34 @@ impl CubicBezierSpline {
     #[must_use]
     #[allow(clippy::panic)]
     pub fn flatten(&self, tolerance: f32) -> Vec<Vec3> {
-        let path = self.to_kurbo_bez_path();
+        let path = self.to_kurbo();
         let mut points = Vec::new();
         flatten(path, tolerance.into(), &mut |segment| match segment {
             PathEl::MoveTo(point) | PathEl::LineTo(point) => {
                 let point = vec3_from_kurbo(point).expect("should not exceed f32 range");
                 points.push(point);
             }
-            PathEl::QuadTo(_, _) => panic!("Failed to flatten CubicBezier. Unexpected QuadTo"),
-            PathEl::CurveTo(_, _, _) => panic!("Failed to flatten CubicBezier. Unexpected CurveTo"),
-            PathEl::ClosePath => panic!("Failed to flatten CubicBezier. Unexpected ClosePath"),
+            value => unreachable!("Expected `MoveTo` or `LineTo` but was: {value:?}",),
         });
         points
     }
 
     /// Offset a bezier curve by a given distance.
     /// - <https://raphlinus.github.io/curves/2022/09/09/parallel-beziers.html>
+    ///
+    /// TODO: Offset works on segments individually therefore it doesn't handle sharp joins
     pub fn offset(
         &self,
         distance: f32,
         accuracy: f32,
     ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
-        let kurbo_bezier = self.to_kurbo();
-        let segments: Vec<CubicBez> = kurbo_bezier
-            .iter()
-            .flat_map(|&segment| {
-                let offset = CubicOffset::new(segment, f64::from(distance));
-                let path = fit_to_bezpath(&offset, f64::from(accuracy));
-                bezpath_to_cubics(path)
-            })
-            .collect();
-        CubicBezierSpline::from_kurbo(segments)
+        let mut curves = Vec::new();
+        for curve in self.curves.iter() {
+            let mut offset = curve.offset(distance, accuracy).map_err(Conversion)?;
+            // TODO: if curves in offset are not connected then find the intersection and cut them back
+            curves.append(&mut offset);
+        }
+        CubicBezierSpline::new(curves)
     }
 
     /// Expand a stroke into a fill.
@@ -408,21 +405,40 @@ impl CubicBezierSpline {
         distance: f32,
         tolerance: f32,
     ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
-        let path = self.to_kurbo_bez_path();
-        // let style = Stroke::new(distance);
         let style = Stroke {
             width: f64::from(distance),
             join: Join::Miter,
-            miter_limit: 0.1,
+            miter_limit: 100.0,
             start_cap: Cap::Butt,
             end_cap: Cap::Butt,
             ..Stroke::default()
         };
-        let options = StrokeOpts::default();
-        // let options = StrokeOpts::default().opt_level(StrokeOptLevel::Optimized);
+        self.stroke_advanced(style, StrokeOptLevel::Subdivide, tolerance)
+    }
+
+    /// Expand a stroke into a fill.
+    ///
+    /// The tolerance parameter controls the accuracy of the result. In general, the number
+    /// of subdivisions in the output scales to the -1/6 power of the parameter, for example
+    /// making it 1/64 as big generates twice as many segments. The appropriate value depends
+    /// on the application; if the result of the stroke will be scaled up, a smaller value is
+    /// needed.
+    ///
+    /// This method attempts a fairly high degree of correctness, but ultimately is based on
+    /// computing parallel curves and adding joins and caps, rather than computing the rigorously
+    /// correct parallel sweep (which requires evolutes in the general case).
+    ///
+    /// See Nehab 2020 for more discussion.
+    pub fn stroke_advanced(
+        &self,
+        style: Stroke,
+        level: StrokeOptLevel,
+        tolerance: f32,
+    ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
+        let path = self.to_kurbo();
+        let options = StrokeOpts::default().opt_level(level);
         let result = stroke(path, &style, &options, f64::from(tolerance));
-        let segments = bezpath_to_cubics(result);
-        CubicBezierSpline::from_kurbo(segments)
+        CubicBezierSpline::from_kurbo(result)
     }
 }
 

@@ -1,6 +1,7 @@
+use crate::CubicBezierSplineError::Conversion;
 use crate::*;
 use bevy::prelude::Vec3;
-use kurbo::{CubicBez, Point};
+use kurbo::{BezPath, CubicBez, Point};
 use F32ConversionError::*;
 
 /// Convert from a Kurbo [`Point`] to a [`Vec3`].
@@ -48,15 +49,13 @@ impl CubicBezier {
 }
 
 impl CubicBezierSpline {
-    /// Convert from a collection of Kurbo [`CubicBez`] to a [`CubicBezierSpline`].
-    pub fn from_kurbo(
-        segments: Vec<CubicBez>,
-    ) -> Result<CubicBezierSpline, CubicBezierSplineError> {
-        let curves = segments
-            .iter()
-            .map(CubicBezier::from_kurbo)
-            .collect::<Result<_, _>>()
-            .map_err(CubicBezierSplineError::Conversion)?;
+    /// Convert from a Kurbo [`BezPath`] to a [`CubicBezierSpline`].
+    pub fn from_kurbo(path: BezPath) -> Result<CubicBezierSpline, CubicBezierSplineError> {
+        let mut curves = Vec::new();
+        for seg in path.segments() {
+            let curve = CubicBezier::from_kurbo(&seg.to_cubic()).map_err(Conversion)?;
+            curves.push(curve);
+        }
         CubicBezierSpline::new(curves)
     }
 }
