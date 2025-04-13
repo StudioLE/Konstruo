@@ -1,5 +1,4 @@
 use super::*;
-use crate::SurfaceType::{Carriageway, Footway};
 use bevy::prelude::*;
 use bevy::render::mesh::MeshAabb;
 use bevy::render::primitives::Aabb;
@@ -9,25 +8,52 @@ use konstruo_core::EntityExtensions;
 use konstruo_geometry::*;
 use konstruo_ui::{EntityState, OnEntityState, Selectable};
 use std::collections::HashSet;
+use PathSurfacePosition::*;
+use PathSurfaceType::*;
 
 const SURFACE_TO_PATH_GENERATIONS: usize = 1;
 const EDGE_TO_PATH_GENERATIONS: usize = 2;
 static WIREFRAME_ENABLED: bool = false;
 
 /// A surface formed by two lines from a [`Path`].
+///
+/// At present the surface is extruded up but this will change:
+/// <https://github.com/StudioLE/Konstruo/issues/34>
 #[derive(Component)]
 #[require(InheritedVisibility, Transform)]
 pub struct PathSurface {
-    /// Offsets from the path.
-    ///
-    /// Front and Back values are ignored.
-    offsets: Vec6,
+    info: PathSurfaceInfo,
+}
+
+/// A definition for creating a [`PathSurface`].
+#[derive(Clone, Debug)]
+pub struct PathSurfaceInfo {
+    /// Width from side to side.
+    pub width: f32,
+    /// Depth from top to bottom.
+    pub depth: f32,
+    /// Is it centered over or offset from the path?
+    pub position: PathSurfacePosition,
     /// Type of surface.
-    purpose: SurfaceType,
+    pub purpose: PathSurfaceType,
+}
+
+/// Positioning of the surface.
+///
+/// Is it centered over or offset from the path?
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum PathSurfacePosition {
+    /// Centered over the [`Path`].
+    Centered,
+    /// Offset by value to the side of the [`Path`].
+    ///
+    /// Values can be positive or negative to indicate which side.
+    Offset(f32),
 }
 
 /// Type of surface.
-pub enum SurfaceType {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum PathSurfaceType {
     /// - <https://en.wikipedia.org/wiki/Carriagepath>
     Carriageway,
     /// - <https://en.wikipedia.org/wiki/Footpath>
@@ -36,29 +62,51 @@ pub enum SurfaceType {
     Verge,
 }
 
+impl PathSurfaceInfo {
+    #[must_use]
+    pub fn get_vec6(&self) -> Vec6 {
+        match self.position {
+            Offset(offset) => Vec6 {
+                left: self.width * -0.5 + offset,
+                right: self.width * 0.5 + offset,
+                top: self.depth,
+                ..default()
+            },
+            Centered => Vec6 {
+                left: self.width * -0.5,
+                right: self.width * 0.5,
+                top: self.depth,
+                ..default()
+            },
+        }
+    }
+}
+
 impl PathSurface {
     /// Create a new [`PathSurface`] offset from [`Path`].
     #[must_use]
-    pub fn new(offsets: Vec6, purpose: SurfaceType) -> Self {
-        let offsets = offsets.fix_order();
-        Self { offsets, purpose }
-    }
-
-    /// Create a new [`PathSurface`] centered at [`Path`].
-    #[must_use]
-    pub fn centered(width: f32, depth: f32, purpose: SurfaceType) -> Self {
-        Self::new(
-            Vec6::new(width * -0.5, width * 0.5, 0.0, 0.0, 0.0, depth),
-            purpose,
-        )
+    pub fn new(
+        width: f32,
+        depth: f32,
+        position: PathSurfacePosition,
+        purpose: PathSurfaceType,
+    ) -> Self {
+        Self {
+            info: PathSurfaceInfo {
+                width,
+                depth,
+                position,
+                purpose,
+            },
+        }
     }
 
     #[must_use]
     pub fn default_surfaces() -> Vec<PathSurface> {
         vec![
-            PathSurface::centered(4.8, 0.025, Carriageway),
-            PathSurface::new(Vec6::new(2.4, 4.4, 0.0, 0.0, 0.0, 0.125), Footway),
-            PathSurface::new(Vec6::new(-4.4, -2.4, 0.0, 0.0, 0.0, 0.125), Footway),
+            PathSurface::new(4.8, 0.025, Centered, Carriageway),
+            PathSurface::new(2.0, 0.125, Offset(3.4), Footway),
+            PathSurface::new(2.0, 0.125, Offset(-3.4), Footway),
         ]
     }
 
@@ -94,7 +142,7 @@ impl PathSurface {
                 if child_of.parent != event.path {
                     continue;
                 }
-                let sweep = Sweep::new(&event.spline, surface.offsets);
+                let sweep = Sweep::new(&event.spline, surface.info.get_vec6());
                 let triangles = sweep.clone().to_triangle_list();
                 let m = triangles.clone().to_mesh();
                 // TODO: Due to entity picking bug the AABB must also be updated. This will likely be fixed in the future.
@@ -118,7 +166,7 @@ impl PathSurface {
 impl PathFactory<'_> {
     /// Spawn a [`PathSurface`] with its mesh geometry.
     pub fn spawn_surface(&mut self, surface: PathSurface, path: &Path, path_entity: Entity) {
-        let sweep = Sweep::new(&path.spline, surface.offsets);
+        let sweep = Sweep::new(&path.spline, surface.info.get_vec6());
         let triangles = sweep.clone().to_triangle_list();
         let surface_bundle = self.surface_bundle(surface, triangles.clone(), path_entity);
         let surface_entity = self.commands.spawn(surface_bundle).id();
@@ -135,7 +183,7 @@ impl PathFactory<'_> {
         triangles: TriangleList,
         parent: Entity,
     ) -> impl Bundle {
-        let material = self.materials.get_surface(&surface.purpose);
+        let material = self.materials.get_surface(&surface.info.purpose);
         (
             surface,
             Mesh3d(self.meshes.add(triangles.clone().to_mesh())),

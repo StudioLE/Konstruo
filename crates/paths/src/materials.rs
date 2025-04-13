@@ -1,4 +1,4 @@
-use crate::SurfaceType;
+use crate::PathSurfaceType;
 use bevy::color::palettes::*;
 use bevy::prelude::*;
 
@@ -114,11 +114,11 @@ impl PathMaterials {
     }
 
     #[must_use]
-    pub fn get_surface(&self, surface: &SurfaceType) -> Handle<StandardMaterial> {
+    pub fn get_surface(&self, surface: &PathSurfaceType) -> Handle<StandardMaterial> {
         match surface {
-            SurfaceType::Carriageway => self.carriageway.clone(),
-            SurfaceType::Footway => self.footway.clone(),
-            SurfaceType::Verge => self.verge.clone(),
+            PathSurfaceType::Carriageway => self.carriageway.clone(),
+            PathSurfaceType::Footway => self.footway.clone(),
+            PathSurfaceType::Verge => self.verge.clone(),
         }
     }
 }
