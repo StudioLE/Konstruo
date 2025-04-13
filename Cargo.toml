@@ -25,7 +25,7 @@ opt-level = 1
 [profile.dev.package."*"]
 opt-level = 3
 
-[lints.clippy]
+[workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }
 absolute_paths = "warn"
 arithmetic_side_effects = "allow"

@@ -51,8 +51,8 @@ impl CubicBezier {
 
     /// Create a new [`CubicBezier`] from a [`Line`].
     pub fn from_line(line: Line) -> Result<Self, CubicBezierError> {
-        let start_handle = line.get_point_at_param(0.333333);
-        let end_handle = line.get_point_at_param(0.666666);
+        let start_handle = line.get_point_at_param(0.333_333);
+        let end_handle = line.get_point_at_param(0.666_666);
         Self::new(line.start, start_handle, end_handle, line.end)
     }
 
@@ -195,7 +195,7 @@ impl CubicBezier {
         let path = fit_to_bezpath(&offset, f64::from(accuracy));
         let mut curves = Vec::new();
         for seg in path.segments() {
-            curves.push(CubicBezier::from_kurbo(&seg.to_cubic())?)
+            curves.push(CubicBezier::from_kurbo(&seg.to_cubic())?);
         }
         Ok(curves)
     }

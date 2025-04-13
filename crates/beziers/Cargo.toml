@@ -8,3 +8,6 @@ bevy = "0.16.0-rc.3"
 kurbo = "0.11.1"
 konstruo_core = { path = "../core" }
 konstruo_geometry = { path = "../geometry" }
+
+[lints]
+workspace = true

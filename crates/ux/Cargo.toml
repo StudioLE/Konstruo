@@ -11,3 +11,6 @@ konstruo_core = { path = "../core" }
 konstruo_geometry = { path = "../geometry" }
 konstruo_paths = { path = "../paths" }
 konstruo_ui = { path = "../ui" }
+
+[lints]
+workspace = true

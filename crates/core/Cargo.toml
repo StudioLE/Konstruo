@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 bevy = "0.16.0-rc.3"
 regex = "1.11.1"
+
+[lints]
+workspace = true

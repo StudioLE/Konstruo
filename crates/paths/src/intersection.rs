@@ -13,10 +13,13 @@ impl PathIntersection {
         Self { entities }
     }
 
+    #[must_use]
     pub fn get_splines(&self) -> Vec<&CubicBezierSpline> {
         self.entities.iter().map(|(_, spline)| spline).collect()
     }
 
+    #[must_use]
+    #[allow(clippy::indexing_slicing)]
     pub fn get_corners(&self) -> Vec<CubicBezierSpline> {
         let mut source = self.get_splines();
         let mut corners = Vec::with_capacity(source.len());

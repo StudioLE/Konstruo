@@ -28,11 +28,12 @@ impl PathIntersectionBuilder {
             return Err(PathIntersectionError::Count(self.entities.len()));
         }
         let entities = start_from_intersection(self.entities)?;
-        let entities = wind_ccw(entities)?;
+        let entities = wind_ccw(entities);
         Ok(PathIntersection::new(entities))
     }
 }
 
+#[allow(clippy::indexing_slicing)]
 fn start_from_intersection(
     source: Vec<(Entity, CubicBezierSpline)>,
 ) -> Result<Vec<(Entity, CubicBezierSpline)>, PathIntersectionError> {
@@ -61,16 +62,15 @@ fn start_from_intersection(
     Ok(entities)
 }
 
-fn wind_ccw(
-    mut entities: Vec<(Entity, CubicBezierSpline)>,
-) -> Result<Vec<(Entity, CubicBezierSpline)>, PathIntersectionError> {
+#[allow(clippy::indexing_slicing)]
+fn wind_ccw(mut entities: Vec<(Entity, CubicBezierSpline)>) -> Vec<(Entity, CubicBezierSpline)> {
     let origin = entities[0].1.get_start();
     entities.sort_by(|(_, a), (_, b)| {
         let a = angle_from_x(origin, a);
         let b = angle_from_x(origin, b);
         a.partial_cmp(&b).expect("should be valid")
     });
-    Ok(entities)
+    entities
 }
 
 fn angle_from_x(origin: Vec3, spline: &CubicBezierSpline) -> f32 {

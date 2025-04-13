@@ -84,6 +84,7 @@ impl Subdivision {
         Ok(rectangles)
     }
 
+    #[must_use]
     pub fn example() -> Self {
         Self {
             bounds: [
@@ -148,7 +149,7 @@ fn get_edge_by_direction(edges: &[Line], direction: Vec3) -> Option<Line> {
     edges
         .iter()
         .find(|&edge| edge.get_direction().is_almost_equal_to(direction))
-        .cloned()
+        .copied()
 }
 
 #[cfg(test)]

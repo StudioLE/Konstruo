@@ -91,6 +91,7 @@ impl Polyline {
     }
 
     /// Get the points of intersection with [`Line`].
+    #[must_use]
     pub fn get_intersections(&self, other: &Line) -> Option<Vec<Vec3>> {
         let intersections: Vec<_> = self
             .to_lines()
@@ -106,6 +107,7 @@ impl Polyline {
     }
 
     /// Get the points of intersection with [`Polyline`].
+    #[must_use]
     pub fn get_intersections_with_polyline(&self, other: &Self) -> Option<Vec<Vec3>> {
         let intersections: Vec<_> = self
             .to_lines()

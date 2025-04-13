@@ -23,6 +23,7 @@ impl F64Extensions for f64 {
     ///
     /// Returns an [`F32ConversionError`] if the value is outside the range of an [`f32`].
     /// Therefore [`cast_possible_truncation`](https://rust-lang.github.io/rust-clippy/master/index.html#cast_possible_truncation) are avoided.
+    #[allow(clippy::as_conversions, clippy::cast_possible_truncation)]
     fn to_f32(self) -> Result<f32, F32ConversionError> {
         let max = f64::from(f32::MAX);
         let min = f64::from(f32::MIN);

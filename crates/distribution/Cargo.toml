@@ -9,3 +9,7 @@ konstruo_core = { path = "../core" }
 konstruo_beziers = { path = "../beziers" }
 konstruo_geometry = { path = "../geometry" }
 taffy = "0.8.0"
+
+[lints]
+workspace = true
+

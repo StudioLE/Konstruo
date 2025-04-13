@@ -27,6 +27,7 @@ pub enum CubicBezierSplineError {
 
 impl CubicBezierSpline {
     /// Create a new [`CubicBezierSpline`].
+    #[allow(clippy::indexing_slicing)]
     pub fn new(curves: Vec<CubicBezier>) -> Result<Self, CubicBezierSplineError> {
         if curves.is_empty() {
             return Err(NoCurves);
@@ -42,6 +43,7 @@ impl CubicBezierSpline {
     }
 
     /// Create a new [`CubicBezierSpline`].
+    #[must_use]
     pub fn new_unchecked(curves: Vec<CubicBezier>) -> Self {
         Self { curves }
     }
@@ -399,10 +401,10 @@ impl CubicBezierSpline {
     /// - <https://raphlinus.github.io/curves/2022/09/09/parallel-beziers.html>
     ///
     /// Kurbo's algorithm only handles offseting smooth curves.
-    /// 
+    ///
     /// In order to handle concave corners:
     /// - Each bezier is offset individually.
-    /// - If adjacent beziers intersect then they're both split at the point of intersection and 
+    /// - If adjacent beziers intersect then they're both split at the point of intersection and
     ///   the remainder discarded.
     pub fn offset_without_intersection(
         &self,
@@ -510,6 +512,7 @@ impl CubicBezierSpline {
     /// Get the intersections with [`CubicBezierSpline`].
     ///
     /// This is done by by flattening move splines to polyline so performance may not be optimal.
+    #[must_use]
     pub fn get_intersections_with_spline(
         &self,
         other: &CubicBezierSpline,

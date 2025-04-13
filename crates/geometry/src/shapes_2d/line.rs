@@ -9,26 +9,31 @@ pub struct Line {
 
 impl Line {
     /// Create a new [`Line`].
+    #[must_use]
     pub fn new(start: Vec3, end: Vec3) -> Self {
         Self { start, end }
     }
 
     /// Get the vector from start to end.
+    #[must_use]
     pub fn get_vector(&self) -> Vec3 {
         self.end - self.start
     }
 
     /// Get the length.
+    #[must_use]
     pub fn get_length(&self) -> f32 {
         self.get_vector().length()
     }
 
     /// Get the direction.
+    #[must_use]
     pub fn get_direction(&self) -> Vec3 {
         self.get_vector().normalize()
     }
 
     /// Get the center.
+    #[must_use]
     pub fn get_midpoint(&self) -> Vec3 {
         (self.start + self.end) / 2.0
     }
@@ -43,7 +48,12 @@ impl Line {
     }
 
     /// Get the point of intersection with another [`Line`].
-    #[allow(clippy::manual_range_contains)]
+    #[allow(
+        clippy::manual_range_contains,
+        clippy::similar_names,
+        clippy::if_then_some_else_none
+    )]
+    #[must_use]
     pub fn get_intersection(&self, other: &Line) -> Option<Vec3> {
         // Direction vectors for both segments
         let dir_a = self.end - self.start;
@@ -140,18 +150,18 @@ mod tests {
     fn get_intersection_alt() {
         // Arrange
         let a = Line::new(
-            Vec3::new(35.065994, -31.019102, 0.0),
-            Vec3::new(33.01777, -33.01777, 0.0),
+            Vec3::new(35.065_994, -31.019_102, 0.0),
+            Vec3::new(33.017_77, -33.017_77, 0.0),
         );
         let b = Line::new(
-            Vec3::new(33.01777, -29.482233, 0.0),
-            Vec3::new(101.76777, -98.23223, 0.0),
+            Vec3::new(33.017_77, -29.482_233, 0.0),
+            Vec3::new(101.767_77, -98.232_23, 0.0),
         );
 
         // Act
         let result = a.get_intersection(&b);
 
         // Assert
-        assert_eq!(result, Some(Vec3::new(34.807186, -31.271648, 0.0)));
+        assert_eq!(result, Some(Vec3::new(34.807_186, -31.271_648, 0.0)));
     }
 }
