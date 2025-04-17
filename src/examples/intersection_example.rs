@@ -1,7 +1,10 @@
 use bevy::prelude::*;
-use konstruo_beziers::constants::{INTERSECTION_ACCURACY, INTERSECTION_TOLERANCE, OFFSET_ACCURACY};
 use konstruo_beziers::{CubicBezier, CubicBezierSpline};
-use konstruo_paths::{Path, PathFactory, PathIntersectionBuilder, PathMaterials, PathMeshes};
+use konstruo_paths::PathSurfacePosition::Centered;
+use konstruo_paths::PathSurfaceType::Carriageway;
+use konstruo_paths::{
+    Path, PathFactory, PathIntersectionBuilder, PathMaterials, PathMeshes, PathSurfaceInfo,
+};
 
 pub struct IntersectionExample;
 
@@ -31,6 +34,12 @@ impl IntersectionExample {
             .to_vec();
         splines.push(spline_b());
         let mut intersection = PathIntersectionBuilder::default();
+        let info = PathSurfaceInfo {
+            width: 4.8,
+            depth: 0.025,
+            position: Centered,
+            purpose: Carriageway,
+        };
         for spline in splines {
             let path = Path::new(spline);
             let entity = factory.spawn_path(path.clone());
@@ -41,23 +50,14 @@ impl IntersectionExample {
             // for surface in PathSurface::default_surfaces() {
             //     factory.spawn_surface(surface, &path, entity);
             // }
-            intersection.add(entity, path.spline.clone());
+            intersection.add(entity, path.spline.clone(), info.clone());
         }
         let intersection = intersection.build().expect("should be valid");
-
-        let corners = intersection.get_corners();
-        for spline in corners {
-            let offset = spline
-                .offset_without_intersection(
-                    2.5,
-                    OFFSET_ACCURACY,
-                    INTERSECTION_TOLERANCE,
-                    INTERSECTION_ACCURACY,
-                )
-                .expect("should be valid");
-            let path = Path::new(offset);
-            let _ = factory.spawn_path(path.clone());
-        }
+        let polygon = intersection
+            .get_centered_polygon()
+            .expect("should be valid");
+        let path = Path::new(polygon);
+        let _ = factory.spawn_path(path.clone());
     }
 }
 

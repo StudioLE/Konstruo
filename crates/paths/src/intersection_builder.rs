@@ -9,7 +9,7 @@ use PathIntersectionError::Mismatch;
 #[derive(Component, Default)]
 #[require(InheritedVisibility, Transform)]
 pub struct PathIntersectionBuilder {
-    entities: Vec<(Entity, CubicBezierSpline)>,
+    paths: Vec<PathIntersectionInfo>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -19,15 +19,19 @@ pub enum PathIntersectionError {
 }
 
 impl PathIntersectionBuilder {
-    pub fn add(&mut self, path: Entity, spline: CubicBezierSpline) {
-        self.entities.push((path, spline));
+    pub fn add(&mut self, entity: Entity, spline: CubicBezierSpline, info: PathSurfaceInfo) {
+        self.paths.push(PathIntersectionInfo {
+            entity,
+            spline,
+            info,
+        });
     }
 
     pub fn build(self) -> Result<PathIntersection, PathIntersectionError> {
-        if self.entities.len() < 2 {
-            return Err(PathIntersectionError::Count(self.entities.len()));
+        if self.paths.len() < 2 {
+            return Err(PathIntersectionError::Count(self.paths.len()));
         }
-        let entities = start_from_intersection(self.entities)?;
+        let entities = start_from_intersection(self.paths)?;
         let entities = wind_ccw(entities);
         Ok(PathIntersection::new(entities))
     }
@@ -35,42 +39,42 @@ impl PathIntersectionBuilder {
 
 #[allow(clippy::indexing_slicing)]
 fn start_from_intersection(
-    source: Vec<(Entity, CubicBezierSpline)>,
-) -> Result<Vec<(Entity, CubicBezierSpline)>, PathIntersectionError> {
-    let mut entities = Vec::with_capacity(source.len());
-    for (i, (entity, mut spline)) in source.into_iter().enumerate() {
+    source: Vec<PathIntersectionInfo>,
+) -> Result<Vec<PathIntersectionInfo>, PathIntersectionError> {
+    let mut paths = Vec::with_capacity(source.len());
+    for (i, mut path) in source.into_iter().enumerate() {
         if i == 0 {
-            entities.push((entity, spline));
+            paths.push(path);
             continue;
         }
-        let start = spline.get_start();
-        let end = spline.get_end();
+        let start = path.spline.get_start();
+        let end = path.spline.get_end();
         if i == 1 {
-            let first_end = entities[0].1.get_end();
+            let first_end = paths[0].spline.get_end();
             if first_end.is_almost_equal_to(start) || first_end.is_almost_equal_to(end) {
-                entities[0].1.reverse();
+                paths[0].spline.reverse();
             }
         }
-        let origin = entities[0].1.get_start();
+        let origin = paths[0].spline.get_start();
         if end.is_almost_equal_to(origin) {
-            spline.reverse();
+            path.spline.reverse();
         } else if !start.is_almost_equal_to(origin) {
             return Err(Mismatch(i));
         }
-        entities.push((entity, spline));
+        paths.push(path);
     }
-    Ok(entities)
+    Ok(paths)
 }
 
 #[allow(clippy::indexing_slicing)]
-fn wind_ccw(mut entities: Vec<(Entity, CubicBezierSpline)>) -> Vec<(Entity, CubicBezierSpline)> {
-    let origin = entities[0].1.get_start();
-    entities.sort_by(|(_, a), (_, b)| {
-        let a = angle_from_x(origin, a);
-        let b = angle_from_x(origin, b);
+fn wind_ccw(mut paths: Vec<PathIntersectionInfo>) -> Vec<PathIntersectionInfo> {
+    let origin = paths[0].spline.get_start();
+    paths.sort_by(|a, b| {
+        let a = angle_from_x(origin, &a.spline);
+        let b = angle_from_x(origin, &b.spline);
         a.partial_cmp(&b).expect("should be valid")
     });
-    entities
+    paths
 }
 
 fn angle_from_x(origin: Vec3, spline: &CubicBezierSpline) -> f32 {
