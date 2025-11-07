@@ -1,6 +1,6 @@
+use bevy::camera::visibility::Layer;
 use super::*;
 use bevy::prelude::*;
-use bevy::render::view::Layer;
 
 pub(super) const RENDER_LAYER: Layer = 1;
 

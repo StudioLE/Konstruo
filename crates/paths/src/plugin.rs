@@ -6,9 +6,9 @@ pub struct PathPlugin;
 
 impl Plugin for PathPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<ControlMoved>()
-            .add_event::<CurveAdded>()
-            .add_event::<SplineChanged>()
+        app.add_message::<ControlMoved>()
+            .add_message::<CurveAdded>()
+            .add_message::<SplineChanged>()
             .add_systems(Startup, PathMaterials::startup_system)
             .add_systems(Startup, PathMeshes::startup_system)
             .add_systems(Update, Path::on_spline_changed)

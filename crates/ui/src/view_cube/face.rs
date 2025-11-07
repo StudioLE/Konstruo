@@ -1,7 +1,7 @@
 use super::*;
 use crate::Orbit;
+use bevy::camera::visibility::RenderLayers;
 use bevy::prelude::*;
-use bevy::render::view::RenderLayers;
 use konstruo_geometry::Orientation;
 use konstruo_geometry::Orientation::*;
 
@@ -50,11 +50,11 @@ fn match_material(
 }
 
 fn on_pointer_over(
-    trigger: Trigger<Pointer<Over>>,
+    trigger: On<Pointer<Over>>,
     materials: Res<ViewCubeMaterials>,
     mut query: Query<&mut MeshMaterial3d<StandardMaterial>>,
 ) {
-    let Ok(mut material) = query.get_mut(trigger.target()) else {
+    let Ok(mut material) = query.get_mut(trigger.original_event_target()) else {
         error!("Failed to get material of ViewCubeFace");
         return;
     };
@@ -62,11 +62,11 @@ fn on_pointer_over(
 }
 
 fn on_pointer_out(
-    trigger: Trigger<Pointer<Out>>,
+    trigger: On<Pointer<Out>>,
     materials: Res<ViewCubeMaterials>,
     mut query: Query<(&ViewCubeFace, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((face, mut material)) = query.get_mut(trigger.target()) else {
+    let Ok((face, mut material)) = query.get_mut(trigger.original_event_target()) else {
         error!("Failed to get material of ViewCubeFace");
         return;
     };
@@ -74,14 +74,14 @@ fn on_pointer_out(
 }
 
 fn on_pointer_click(
-    trigger: Trigger<Pointer<Click>>,
+    trigger: On<Pointer<Click>>,
     side: Query<&ViewCubeFace>,
     mut orbit: Query<&mut Orbit>,
 ) {
     if trigger.button != PointerButton::Primary {
         return;
     }
-    let Ok(face) = side.get(trigger.target()) else {
+    let Ok(face) = side.get(trigger.original_event_target()) else {
         error!("Failed to get clicked ViewCubeFace");
         return;
     };

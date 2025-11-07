@@ -1,7 +1,7 @@
 use crate::Line;
 use bevy::asset::RenderAssetUsages;
 use bevy::prelude::*;
-use bevy::render::mesh::PrimitiveTopology;
+use bevy::mesh::PrimitiveTopology;
 use std::cmp::Ordering;
 
 /// A polyline or [`PrimitiveTopology::LineStrip`]

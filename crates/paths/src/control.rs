@@ -28,7 +28,7 @@ impl PathControl {
 
     /// Update the [`Transform`] when a control is moved.
     pub(super) fn on_control_moved(
-        mut events: EventReader<ControlMoved>,
+        mut events: MessageReader<ControlMoved>,
         mut controls: Query<(&PathControl, &ChildOf, &mut Transform)>,
     ) {
         for event in events.read() {
@@ -50,7 +50,7 @@ impl PathControl {
 
     /// Re-spawn [`PathControl`] when a curve is added or removed.
     pub(super) fn on_curve_added(
-        mut events: EventReader<CurveAdded>,
+        mut events: MessageReader<CurveAdded>,
         commands: Commands,
         controls: Query<(Entity, &ChildOf), With<PathControl>>,
         meshes: ResMut<Assets<Mesh>>,
@@ -141,11 +141,11 @@ impl PathFactory<'_> {
 }
 
 fn on_pointer_over(
-    trigger: Trigger<Pointer<Over>>,
+    trigger: On<Pointer<Over>>,
     materials: Res<PathMaterials>,
     mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((state, mut material)) = query.get_mut(trigger.target()) else {
+    let Ok((state, mut material)) = query.get_mut(trigger.original_event_target()) else {
         error!("Failed to get material of PathControl");
         return;
     };
@@ -155,11 +155,11 @@ fn on_pointer_over(
 }
 
 fn on_pointer_out(
-    trigger: Trigger<Pointer<Out>>,
+    trigger: On<Pointer<Out>>,
     materials: Res<PathMaterials>,
     mut query: Query<(&EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
-    let Ok((state, mut material)) = query.get_mut(trigger.target()) else {
+    let Ok((state, mut material)) = query.get_mut(trigger.original_event_target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -169,14 +169,14 @@ fn on_pointer_out(
 }
 
 fn on_pointer_drag_start(
-    trigger: Trigger<Pointer<DragStart>>,
+    trigger: On<Pointer<DragStart>>,
     materials: Res<PathMaterials>,
     mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
     if trigger.button != PointerButton::Primary {
         return;
     }
-    let Ok((mut state, mut material)) = query.get_mut(trigger.target()) else {
+    let Ok((mut state, mut material)) = query.get_mut(trigger.original_event_target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -186,8 +186,8 @@ fn on_pointer_drag_start(
 
 #[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn on_pointer_drag(
-    trigger: Trigger<Pointer<Drag>>,
-    mut event_writer: EventWriter<ControlMoved>,
+    trigger: On<Pointer<Drag>>,
+    mut event_writer: MessageWriter<ControlMoved>,
     controls: Query<(&PathControl, &ChildOf, &mut Transform)>,
     mut paths: Query<(&mut Path, Entity)>,
     window: Query<&Window, With<PrimaryWindow>>,
@@ -196,7 +196,7 @@ fn on_pointer_drag(
     if trigger.button != PointerButton::Primary {
         return;
     }
-    let Ok((control, child_of, _transform)) = controls.get(trigger.target()) else {
+    let Ok((control, child_of, _transform)) = controls.get(trigger.original_event_target()) else {
         error!("Failed to get PathControl");
         return;
     };
@@ -217,14 +217,14 @@ fn on_pointer_drag(
 }
 
 fn on_pointer_drag_end(
-    trigger: Trigger<Pointer<DragEnd>>,
+    trigger: On<Pointer<DragEnd>>,
     materials: Res<PathMaterials>,
     mut query: Query<(&mut EntityState, &mut MeshMaterial3d<StandardMaterial>)>,
 ) {
     if trigger.button != PointerButton::Primary {
         return;
     }
-    let Ok((mut state, mut material)) = query.get_mut(trigger.target()) else {
+    let Ok((mut state, mut material)) = query.get_mut(trigger.original_event_target()) else {
         error!("Failed to get PathControl");
         return;
     };

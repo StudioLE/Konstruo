@@ -25,7 +25,7 @@ impl PathControlLine {
 
     /// Update the [`Transform`] when a control is moved.
     pub(super) fn on_control_moved(
-        mut events: EventReader<ControlMoved>,
+        mut events: MessageReader<ControlMoved>,
         mut lines: Query<(&PathControlLine, &ChildOf, &mut Mesh3d), Without<Path>>,
         mut meshes: ResMut<Assets<Mesh>>,
     ) {
@@ -57,7 +57,7 @@ impl PathControlLine {
 
     /// Re-spawn [`PathControlLine`] when a curve is added or removed.
     pub(super) fn on_curve_added(
-        mut events: EventReader<CurveAdded>,
+        mut events: MessageReader<CurveAdded>,
         lines: Query<(Entity, &ChildOf), With<PathControlLine>>,
         commands: Commands,
         meshes: ResMut<Assets<Mesh>>,

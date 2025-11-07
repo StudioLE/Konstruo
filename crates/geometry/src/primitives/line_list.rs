@@ -1,7 +1,7 @@
 use crate::Line;
 use bevy::asset::RenderAssetUsages;
+use bevy::mesh::PrimitiveTopology;
 use bevy::prelude::*;
-use bevy::render::mesh::PrimitiveTopology;
 
 /// A [`PrimitiveTopology::LineList`]
 #[derive(Clone, Debug, PartialEq)]

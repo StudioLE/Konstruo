@@ -57,15 +57,18 @@ fn get_ancestor_state<'a>(
 }
 
 fn on_pointer_over(
-    trigger: Trigger<Pointer<Over>>,
+    trigger: On<Pointer<Over>>,
     selectables: Query<&Selectable>,
     ancestors: Query<Option<&ChildOf>>,
     mut states: Query<(Entity, &mut EntityState)>,
-    mut changed: EventWriter<EntityStateChanged>,
+    mut changed: MessageWriter<EntityStateChanged>,
 ) {
-    let Some((ancestor, mut state)) =
-        get_ancestor_state(selectables, ancestors, &mut states, trigger.target())
-    else {
+    let Some((ancestor, mut state)) = get_ancestor_state(
+        selectables,
+        ancestors,
+        &mut states,
+        trigger.original_event_target(),
+    ) else {
         return;
     };
     if *state != EntityState::Selected {
@@ -78,15 +81,18 @@ fn on_pointer_over(
 }
 
 fn on_pointer_out(
-    trigger: Trigger<Pointer<Out>>,
+    trigger: On<Pointer<Out>>,
     selectables: Query<&Selectable>,
     ancestors: Query<Option<&ChildOf>>,
     mut states: Query<(Entity, &mut EntityState)>,
-    mut changed: EventWriter<EntityStateChanged>,
+    mut changed: MessageWriter<EntityStateChanged>,
 ) {
-    let Some((ancestor, mut state)) =
-        get_ancestor_state(selectables, ancestors, &mut states, trigger.target())
-    else {
+    let Some((ancestor, mut state)) = get_ancestor_state(
+        selectables,
+        ancestors,
+        &mut states,
+        trigger.original_event_target(),
+    ) else {
         return;
     };
     if *state != EntityState::Selected {
@@ -99,19 +105,22 @@ fn on_pointer_out(
 }
 
 fn on_pointer_click(
-    trigger: Trigger<Pointer<Click>>,
+    trigger: On<Pointer<Click>>,
     selectables: Query<&Selectable>,
     ancestors: Query<Option<&ChildOf>>,
     mut states: Query<(Entity, &mut EntityState)>,
-    mut changed: EventWriter<EntityStateChanged>,
+    mut changed: MessageWriter<EntityStateChanged>,
     names: Query<&Name>,
 ) {
     if trigger.button != PointerButton::Primary {
         return;
     }
-    let Some((ancestor, mut state)) =
-        get_ancestor_state(selectables, ancestors, &mut states, trigger.target())
-    else {
+    let Some((ancestor, mut state)) = get_ancestor_state(
+        selectables,
+        ancestors,
+        &mut states,
+        trigger.original_event_target(),
+    ) else {
         return;
     };
     if *state != EntityState::Selected {
@@ -138,9 +147,9 @@ fn on_pointer_click(
 }
 
 fn ground_on_pointer_click(
-    trigger: Trigger<Pointer<Click>>,
+    trigger: On<Pointer<Click>>,
     mut states: Query<(Entity, &mut EntityState)>,
-    mut changed: EventWriter<EntityStateChanged>,
+    mut changed: MessageWriter<EntityStateChanged>,
     names: Query<&Name>,
 ) {
     if trigger.button != PointerButton::Primary {

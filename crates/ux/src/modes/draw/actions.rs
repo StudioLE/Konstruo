@@ -24,12 +24,12 @@ impl DrawMode {
 
     /// Update the [`Path`] on action button pressed.
     fn complete_action(
-        trigger: Trigger<Pointer<Released>>,
+        trigger: On<Pointer<Release>>,
         mut commands: Commands,
         mut interface: ResMut<InterfaceState>,
         drawing: Res<DrawMode>,
         mut paths: Query<&mut Path>,
-        mut curve_added: EventWriter<CurveAdded>,
+        mut curve_added: MessageWriter<CurveAdded>,
     ) {
         if trigger.button != PointerButton::Primary {
             return;
@@ -60,7 +60,7 @@ impl DrawMode {
 
     /// Activate [`InterfaceState::DrawPath`].
     pub(crate) fn start_action(
-        trigger: Trigger<Pointer<Released>>,
+        trigger: On<Pointer<Release>>,
         mut interface: ResMut<InterfaceState>,
         commands: Commands,
         meshes: ResMut<Assets<Mesh>>,
@@ -83,7 +83,7 @@ impl DrawMode {
     }
 
     /// Remove the last control and handle.
-    fn undo_action(trigger: Trigger<Pointer<Released>>, mut drawing: ResMut<DrawMode>) {
+    fn undo_action(trigger: On<Pointer<Release>>, mut drawing: ResMut<DrawMode>) {
         if trigger.button != PointerButton::Primary {
             return;
         }
@@ -94,7 +94,7 @@ impl DrawMode {
 
     /// Add origin controls on pointer down.
     pub(crate) fn on_pointer_down(
-        trigger: Trigger<Pointer<Pressed>>,
+        trigger: On<Pointer<Press>>,
         drawing: Option<ResMut<DrawMode>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {
@@ -113,7 +113,7 @@ impl DrawMode {
 
     /// Add handle controls on pointer up.
     pub(crate) fn on_pointer_up(
-        trigger: Trigger<Pointer<Released>>,
+        trigger: On<Pointer<Release>>,
         drawing: Option<ResMut<DrawMode>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {

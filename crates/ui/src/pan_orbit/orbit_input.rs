@@ -67,7 +67,7 @@ impl Orbit {
     pub(super) fn mouse_motion_input_system(
         mut query: Query<&mut Orbit>,
         keys: Res<ButtonInput<KeyCode>>,
-        mut motion_event: EventReader<MouseMotion>,
+        mut motion_event: MessageReader<MouseMotion>,
     ) {
         let Ok(mut orbit) = query.single_mut() else {
             warn!("Failed to get Orbit");
@@ -86,7 +86,7 @@ impl Orbit {
     /// System to update [`Orbit`] in response to scroll wheel input events.
     pub(super) fn scroll_wheel_input_system(
         mut query: Query<&mut Orbit>,
-        mut wheel_event: EventReader<MouseWheel>,
+        mut wheel_event: MessageReader<MouseWheel>,
     ) {
         let Ok(mut orbit) = query.single_mut() else {
             warn!("Failed to get Orbit");

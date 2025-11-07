@@ -1,4 +1,4 @@
-use bevy::pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
+use bevy::light::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
 use bevy::prelude::*;
 use konstruo_core::constants::{CAMERA_MAX, ENVIRONMENT_MAX};
 use konstruo_core::{ONE_DEGREE_IN_RADIANS, PI};

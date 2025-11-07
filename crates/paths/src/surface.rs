@@ -1,13 +1,12 @@
 use super::*;
 use bevy::prelude::*;
-use bevy::render::mesh::MeshAabb;
-use bevy::render::primitives::Aabb;
 use konstruo_beziers::Sweep;
 use konstruo_core::constants::PATH_ELEVATION;
 use konstruo_core::EntityExtensions;
 use konstruo_geometry::*;
 use konstruo_ui::{EntityState, OnEntityState, Selectable};
 use std::collections::HashSet;
+use bevy::camera::primitives::{Aabb, MeshAabb};
 use PathSurfacePosition::*;
 use PathSurfaceType::*;
 
@@ -117,7 +116,7 @@ impl PathSurface {
         meshes: ResMut<Assets<Mesh>>,
         path_meshes: Res<PathMeshes>,
         materials: Res<PathMaterials>,
-        mut events: EventReader<SplineChanged>,
+        mut events: MessageReader<SplineChanged>,
         mut surfaces: Query<(Entity, &PathSurface, &ChildOf, &mut Mesh3d, &mut Aabb)>,
         edges: Query<(Entity, &ChildOf), (With<Edge>, Without<PathSurface>)>,
         wireframes: Query<

@@ -38,7 +38,7 @@ impl SelectionMode {
         actions
     }
 
-    fn add_buildings_action(trigger: Trigger<Pointer<Released>>) {
+    fn add_buildings_action(trigger: On<Pointer<Release>>) {
         if trigger.button != PointerButton::Primary {
             return;
         }
@@ -46,7 +46,7 @@ impl SelectionMode {
         warn!("Add buildings action not implemented");
     }
 
-    fn add_surface_action(trigger: Trigger<Pointer<Released>>) {
+    fn add_surface_action(trigger: On<Pointer<Release>>) {
         if trigger.button != PointerButton::Primary {
             return;
         }
@@ -56,8 +56,8 @@ impl SelectionMode {
 
     /// Deselect the selected entity on action button press.
     fn deselect_action(
-        trigger: Trigger<Pointer<Released>>,
-        mut changed: EventWriter<EntityStateChanged>,
+        trigger: On<Pointer<Release>>,
+        mut changed: MessageWriter<EntityStateChanged>,
         mut entity_states: Query<&mut EntityState>,
         mut interface: ResMut<InterfaceState>,
     ) {
@@ -81,7 +81,7 @@ impl SelectionMode {
         *interface = InterfaceState::Default;
     }
 
-    fn info_action(trigger: Trigger<Pointer<Released>>) {
+    fn info_action(trigger: On<Pointer<Release>>) {
         if trigger.button != PointerButton::Primary {
             return;
         }
@@ -91,7 +91,7 @@ impl SelectionMode {
 
     /// Remove the selected entity on action button press
     fn remove_action(
-        trigger: Trigger<Pointer<Released>>,
+        trigger: On<Pointer<Release>>,
         mut commands: Commands,
         mut interface: ResMut<InterfaceState>,
     ) {

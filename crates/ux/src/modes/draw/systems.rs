@@ -19,8 +19,8 @@ impl DrawMode {
             (&mut Mesh3d, &mut Visibility),
             (With<PathControlLine>, Without<Path>, Without<PathControl>),
         >,
-        mut curve_added: EventWriter<CurveAdded>,
-        motion: EventReader<MouseMotion>,
+        mut curve_added: MessageWriter<CurveAdded>,
+        motion: MessageReader<MouseMotion>,
         window: Query<&Window, With<PrimaryWindow>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
     ) {

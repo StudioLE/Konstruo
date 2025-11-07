@@ -26,7 +26,7 @@ impl InterfaceState {
 
     /// Update [`InterfaceState`] on [`EntityStateChanged`].
     pub(crate) fn on_entity_state_changed(
-        mut events: EventReader<EntityStateChanged>,
+        mut events: MessageReader<EntityStateChanged>,
         mut interface: ResMut<InterfaceState>,
         query: Query<(Option<&ModularBuilding>, Option<&Path>)>,
     ) {
@@ -70,7 +70,7 @@ fn default_actions() -> Vec<Action> {
     ]
 }
 
-fn settings_action(trigger: Trigger<Pointer<Released>>) {
+fn settings_action(trigger: On<Pointer<Release>>) {
     if trigger.button != PointerButton::Primary {
         return;
     }

@@ -23,7 +23,7 @@ impl OnEntityState {
 
     /// Update the visibility when the [`EntityState`] of an ancestor changes.
     pub(super) fn on_state_changed(
-        mut events: EventReader<EntityStateChanged>,
+        mut events: MessageReader<EntityStateChanged>,
         filter: Query<(Entity, &OnEntityState)>,
         ancestors: Query<Option<&ChildOf>>,
         mut visibilities: Query<&mut Visibility>,

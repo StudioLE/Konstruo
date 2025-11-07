@@ -10,7 +10,7 @@ pub enum EntityState {
 }
 
 /// An event indicating the state of an entity has changed.
-#[derive(Debug, Event, Eq, Hash, PartialEq)]
+#[derive(Debug, Eq, Hash, Message, PartialEq)]
 pub struct EntityStateChanged {
     pub entity: Entity,
     pub state: EntityState,

@@ -33,7 +33,7 @@ impl Path {
 
     /// Update [`Mesh3d`] and [`Distribution`] when the spline changes.
     pub(super) fn on_spline_changed(
-        mut events: EventReader<SplineChanged>,
+        mut events: MessageReader<SplineChanged>,
         mut meshes: ResMut<Assets<Mesh>>,
         mut paths: Query<&mut Mesh3d, With<Path>>,
         mut distributions: Query<(&mut Distribution, &ChildOf), Without<Distributable>>,

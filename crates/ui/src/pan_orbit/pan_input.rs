@@ -78,7 +78,7 @@ impl Pan {
         keys: Res<ButtonInput<KeyCode>>,
         window: Query<&Window, With<PrimaryWindow>>,
         camera: Query<(&Camera, &GlobalTransform), With<PrimaryCamera>>,
-        mut motion: EventReader<MouseMotion>,
+        mut motion: MessageReader<MouseMotion>,
     ) {
         let Ok((mut pan, transform)) = pan.single_mut() else {
             warn!("Failed to get Pan");
