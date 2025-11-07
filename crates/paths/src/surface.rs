@@ -1,4 +1,5 @@
 use super::*;
+use bevy::camera::primitives::{Aabb, MeshAabb};
 use bevy::prelude::*;
 use konstruo_beziers::Sweep;
 use konstruo_core::constants::PATH_ELEVATION;
@@ -6,7 +7,6 @@ use konstruo_core::EntityExtensions;
 use konstruo_geometry::*;
 use konstruo_ui::{EntityState, OnEntityState, Selectable};
 use std::collections::HashSet;
-use bevy::camera::primitives::{Aabb, MeshAabb};
 use PathSurfacePosition::*;
 use PathSurfaceType::*;
 

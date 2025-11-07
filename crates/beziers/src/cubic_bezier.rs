@@ -4,8 +4,8 @@ use konstruo_core::Vec3Extensions;
 use konstruo_geometry::Line;
 use kurbo::offset::offset_cubic;
 use kurbo::{
-    BezPath, ParamCurve, ParamCurveArclen, ParamCurveCurvature, ParamCurveDeriv,
-    ParamCurveExtrema, ParamCurveNearest,
+    BezPath, ParamCurve, ParamCurveArclen, ParamCurveCurvature, ParamCurveDeriv, ParamCurveExtrema,
+    ParamCurveNearest,
 };
 use ControlType::*;
 use CubicBezierError::*;

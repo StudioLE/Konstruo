@@ -1,10 +1,10 @@
 use super::*;
 use crate::{Orbit, VIEW_CUBE_CAMERA_ORDER};
-use bevy::prelude::Projection::Orthographic;
-use bevy::prelude::*;
+use bevy::camera::visibility::RenderLayers;
 use bevy::camera::ScalingMode::Fixed;
 use bevy::camera::Viewport;
-use bevy::camera::visibility::RenderLayers;
+use bevy::prelude::Projection::Orthographic;
+use bevy::prelude::*;
 
 /// A camera looking at a geoemtric view cube that rotates according to [`Orbit`].
 #[derive(Component)]

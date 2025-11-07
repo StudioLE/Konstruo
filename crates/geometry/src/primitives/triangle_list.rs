@@ -1,7 +1,7 @@
 use crate::*;
 use bevy::asset::RenderAssetUsages;
-use bevy::prelude::*;
 use bevy::mesh::PrimitiveTopology;
+use bevy::prelude::*;
 
 /// A [`PrimitiveTopology::TriangleList`]
 #[derive(Clone, Debug, Default, PartialEq)]
