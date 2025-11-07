@@ -1,4 +1,4 @@
-#![allow(unused_imports)]
+#![allow(dead_code, unused_imports)]
 
 pub use axis_marker_example::*;
 pub use buildings_example::*;

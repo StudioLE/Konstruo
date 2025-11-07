@@ -19,12 +19,10 @@ pub trait VecVec3Extensions {
 }
 
 impl Vec3Extensions for Vec3 {
-    #[must_use]
     fn is_almost_zero(self) -> bool {
         self.abs_diff_eq(Vec3::ZERO, EPSILON)
     }
 
-    #[must_use]
     fn is_almost_equal_to(self, b: Vec3) -> bool {
         self.abs_diff_eq(b, EPSILON)
     }
@@ -34,7 +32,6 @@ impl Vec3Extensions for Vec3 {
         assert!(result, "Expected: {self}, Actual: {actual}");
     }
 
-    #[must_use]
     fn fix_floating_vectors(self) -> Vec3 {
         let x = fix_floating(self.x);
         let y = fix_floating(self.y);
@@ -47,7 +44,6 @@ impl Vec3Extensions for Vec3 {
     ///
     /// Positive angle typically means that `v1` counter-clockwise relative to `v2` around the normal of the plane.
     /// Negative Angle generally means that `v1` is clockwise relative to `v2` around the normal of the plane.
-    #[must_use]
     fn angle_between_on_plane(self, v2: Vec3, plane_normal: Vec3) -> f32 {
         // Project vectors onto the plane
         let v1_proj = self - plane_normal * self.dot(plane_normal);
@@ -71,7 +67,6 @@ impl Vec3Extensions for Vec3 {
         }
     }
 
-    #[must_use]
     fn invert_0_and_1(self) -> Vec3 {
         let x = if self.x == 0.0 { 1.0 } else { 0.0 };
         let y = if self.y == 0.0 { 1.0 } else { 0.0 };
@@ -79,7 +74,6 @@ impl Vec3Extensions for Vec3 {
         Vec3::new(x, y, z)
     }
 
-    #[must_use]
     fn project_point_to_line(self, point_on_line: Vec3, direction: Vec3) -> Vec3 {
         // Vector from line point to the point being projected
         let vector = self - point_on_line;
@@ -91,7 +85,6 @@ impl Vec3Extensions for Vec3 {
 }
 
 impl VecVec3Extensions for &[Vec3] {
-    #[must_use]
     #[allow(clippy::as_conversions, clippy::cast_precision_loss)]
     fn mean(self) -> Vec3 {
         let total = self.iter().sum::<Vec3>();
@@ -99,7 +92,6 @@ impl VecVec3Extensions for &[Vec3] {
         total / count
     }
 
-    #[must_use]
     #[allow(clippy::indexing_slicing)]
     fn is_ccw(self, normal: Vec3) -> Option<bool> {
         if self.len() < 3 {

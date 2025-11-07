@@ -14,7 +14,6 @@ impl EntityExtensions for Entity {
     /// Get the id of the [`Entity`].
     ///
     /// Include [`Name`] if it exists.
-    #[must_use]
     fn id_with_name<F: QueryFilter>(self, names: &Query<&Name, F>) -> String {
         let mut output = String::new();
         if let Ok(name) = names.get(self) {
