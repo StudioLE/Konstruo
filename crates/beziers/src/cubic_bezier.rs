@@ -2,9 +2,9 @@ use crate::*;
 use bevy::prelude::*;
 use konstruo_core::Vec3Extensions;
 use konstruo_geometry::Line;
-use kurbo::offset::CubicOffset;
+use kurbo::offset::offset_cubic;
 use kurbo::{
-    fit_to_bezpath, ParamCurve, ParamCurveArclen, ParamCurveCurvature, ParamCurveDeriv,
+    BezPath, ParamCurve, ParamCurveArclen, ParamCurveCurvature, ParamCurveDeriv,
     ParamCurveExtrema, ParamCurveNearest,
 };
 use ControlType::*;
@@ -191,8 +191,8 @@ impl CubicBezier {
         accuracy: f32,
     ) -> Result<Vec<CubicBezier>, F32ConversionError> {
         let bez = self.to_kurbo();
-        let offset = CubicOffset::new(bez, f64::from(distance));
-        let path = fit_to_bezpath(&offset, f64::from(accuracy));
+        let mut path = BezPath::new();
+        offset_cubic(bez, f64::from(distance), f64::from(accuracy), &mut path);
         let mut curves = Vec::new();
         for seg in path.segments() {
             curves.push(CubicBezier::from_kurbo(&seg.to_cubic())?);
