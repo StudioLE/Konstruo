@@ -4,12 +4,12 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.16.0-rc.3"
-konstruo_beziers = { path = "../beziers" }
-konstruo_core = { path = "../core" }
-konstruo_distribution = { path = "../distribution" }
-konstruo_geometry = { path = "../geometry" }
-konstruo_ui = { path = "../ui" }
+bevy = { workspace = true }
+konstruo_beziers = { workspace = true }
+konstruo_core = { workspace = true }
+konstruo_distribution = { workspace = true }
+konstruo_geometry = { workspace = true }
+konstruo_ui = { workspace = true }
 
 [lints]
 workspace = true

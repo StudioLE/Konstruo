@@ -4,10 +4,31 @@ version = "0.0.0"
 edition = "2021"
 resolver = "2"
 
+[dependencies]
+bevy = { workspace = true }
+konstruo_architecture = { workspace = true }
+konstruo_beziers = { workspace = true }
+konstruo_core = { workspace = true }
+konstruo_distribution = { workspace = true }
+konstruo_environment = { workspace = true }
+konstruo_geometry = { workspace = true }
+konstruo_paths = { workspace = true }
+konstruo_ui = { workspace = true }
+konstruo_ux = { workspace = true }
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[lints]
+workspace = true
+
 [workspace]
 members = ["crates/*"]
 
-[dependencies]
+[workspace.dependencies]
 bevy = "0.16.0-rc.3"
 konstruo_architecture = { path = "crates/architecture" }
 konstruo_beziers = { path = "crates/beziers" }
@@ -18,12 +39,9 @@ konstruo_geometry = { path = "crates/geometry" }
 konstruo_paths = { path = "crates/paths" }
 konstruo_ui = { path = "crates/ui" }
 konstruo_ux = { path = "crates/ux" }
-
-[profile.dev]
-opt-level = 1
-
-[profile.dev.package."*"]
-opt-level = 3
+kurbo = "0.11.1"
+regex = "1.11.1"
+taffy = "0.8.0"
 
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }

@@ -2562,7 +2562,6 @@ version = "0.0.0"
 dependencies = [
  "bevy",
  "konstruo_beziers",
- "konstruo_core",
  "konstruo_geometry",
  "taffy 0.8.0",
 ]

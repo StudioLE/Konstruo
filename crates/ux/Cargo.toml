@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.16.0-rc.3"
+bevy = { workspace = true }
 konstruo_architecture = { path = "../architecture" }
 konstruo_beziers = { path = "../beziers" }
 konstruo_core = { path = "../core" }
