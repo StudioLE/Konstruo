@@ -16,7 +16,7 @@ pub fn debug_visibility_hierarchy(
         println!(
             "Entity: {:?}, ChildOf: {:?}, Visibility: {:?}, InheritedVisibility: {:?}",
             entity,
-            parent.map(|x| x.parent),
+            parent.map(|x| x.parent()),
             visibility.is_some(),
             inherited_visibility.is_some()
         );

@@ -31,7 +31,7 @@ impl PathControlLine {
     ) {
         for event in events.read() {
             for (line, child_of, mut mesh) in &mut lines {
-                if child_of.parent != event.path {
+                if child_of.parent() != event.path {
                     continue;
                 }
                 let anchor = if line.is_start { Start } else { End };
@@ -93,7 +93,7 @@ impl PathFactory<'_> {
                 Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(self.materials.control_line.clone()),
                 visibility,
-                ChildOf { parent: path },
+                ChildOf(path),
             );
             let line = vec![bezier.get_control(End), bezier.get_control(EndHandle)];
             let end = (
@@ -102,7 +102,7 @@ impl PathFactory<'_> {
                 Mesh3d(self.meshes.add(Polyline::new(line).to_mesh())),
                 MeshMaterial3d(self.materials.control_line.clone()),
                 visibility,
-                ChildOf { parent: path },
+                ChildOf(path),
             );
             self.commands.spawn(start);
             self.commands.spawn(end);

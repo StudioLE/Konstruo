@@ -195,7 +195,7 @@ impl ModularBuildingFactory<'_> {
                 level: module.level,
             },
             distributable,
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 
@@ -259,7 +259,7 @@ impl ModularBuildingFactory<'_> {
             Mesh3d(self.meshes.add(cuboid.get_edges().to_mesh())),
             MeshMaterial3d(self.materials.edges.clone()),
             Visibility::Hidden,
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 
@@ -278,7 +278,7 @@ impl ModularBuildingFactory<'_> {
             Solid,
             Mesh3d(self.meshes.add(triangles.to_mesh())),
             MeshMaterial3d(self.materials.face.clone()),
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 }

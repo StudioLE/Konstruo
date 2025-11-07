@@ -50,7 +50,7 @@ impl FloatingActionButton {
         };
         (
             FloatingActionButton,
-            ChildOf { parent },
+            ChildOf(parent),
             Node {
                 padding: UiRect::all(Val::Px(padding)),
                 margin: UiRect::all(Val::Px(margin)),

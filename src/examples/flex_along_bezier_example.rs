@@ -65,7 +65,7 @@ impl Factory<'_> {
                 ..default()
             },
             MeshMaterial3d(self.materials.add(material)),
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 

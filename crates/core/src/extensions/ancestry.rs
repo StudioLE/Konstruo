@@ -41,8 +41,8 @@ impl AncestryExtensions for Entity {
             let Some(child_of) = entities.get(current)? else {
                 break;
             };
-            ancestors.push(child_of.parent);
-            current = child_of.parent;
+            ancestors.push(child_of.parent());
+            current = child_of.parent();
             generation += 1;
             if let Some(max) = max {
                 if generation > max {

@@ -31,7 +31,7 @@ impl EntityExtensions for Entity {
         entities: &Query<(Entity, &ChildOf), F>,
     ) {
         for (entity, child_of) in entities.iter() {
-            if child_of.parent != self {
+            if child_of.parent() != self {
                 continue;
             }
             commands.entity(entity).despawn();

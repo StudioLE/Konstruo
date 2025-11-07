@@ -35,9 +35,7 @@ fn spawn_example(factory: &mut ModularBuildingFactory<'_>, entity: Entity, path:
             .commands
             .entity(plot)
             .insert(distributable)
-            .insert(ChildOf {
-                parent: distribution_entity,
-            });
+            .insert(ChildOf(distribution_entity));
     }
     distribution_entity
 }
@@ -59,7 +57,7 @@ fn distribution_bundle(path: &Path, parent: Entity) -> impl Bundle {
             spline_offset: Some(SPLINE_OFFSET),
             translate_to_ground: true,
         },
-        ChildOf { parent },
+        ChildOf(parent),
     )
 }
 

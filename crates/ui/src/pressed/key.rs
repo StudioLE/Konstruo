@@ -35,7 +35,7 @@ impl PressedKey {
             *visibility = Visibility::Visible;
             let Some((_, mut label)) = labels
                 .iter_mut()
-                .find(|(child_of, _text)| child_of.parent == entity)
+                .find(|(child_of, _text)| child_of.parent() == entity)
             else {
                 warn!("Failed to find PressedKeyLabel for PressedKey: {index}");
                 continue;

@@ -139,7 +139,7 @@ impl PathSurface {
                 continue;
             }
             for (entity, surface, child_of, mut mesh, mut aabb) in &mut surfaces {
-                if child_of.parent != event.path {
+                if child_of.parent() != event.path {
                     continue;
                 }
                 let sweep = Sweep::new(&event.spline, surface.info.get_vec6());
@@ -191,7 +191,7 @@ impl PathFactory<'_> {
             Transform::from_translation(Vec3::new(0.0, 0.0, PATH_ELEVATION)),
             Selectable::new(SURFACE_TO_PATH_GENERATIONS),
             Pickable::default(),
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 
@@ -205,7 +205,7 @@ impl PathFactory<'_> {
             Wireframe,
             Mesh3d(self.meshes.add(LineList::from_lines(lines).to_mesh())),
             MeshMaterial3d(self.materials.wireframe.clone()),
-            ChildOf { parent },
+            ChildOf(parent),
         );
         self.commands.spawn(bundle);
     }
@@ -229,7 +229,7 @@ impl PathFactory<'_> {
             visibility,
             Mesh3d(self.meshes.add(lines.to_mesh())),
             MeshMaterial3d(material.clone()),
-            ChildOf { parent },
+            ChildOf(parent),
         );
         self.commands.spawn(bundle);
     }

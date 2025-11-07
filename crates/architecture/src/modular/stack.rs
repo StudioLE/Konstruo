@@ -29,7 +29,7 @@ impl BuildingModuleStack {
                 translate_to_ground: true,
                 ..default()
             },
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 }

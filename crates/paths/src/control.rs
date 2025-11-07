@@ -33,7 +33,7 @@ impl PathControl {
     ) {
         for event in events.read() {
             for (control, child_of, mut transform) in &mut controls {
-                if child_of.parent != event.path {
+                if child_of.parent() != event.path {
                     continue;
                 }
                 let Some(translation) = event
@@ -106,7 +106,7 @@ impl PathFactory<'_> {
             for bundle in bundles {
                 self.commands
                     .spawn(bundle)
-                    .insert(ChildOf { parent: path })
+                    .insert(ChildOf(path))
                     .observe(on_pointer_over)
                     .observe(on_pointer_out)
                     .observe(on_pointer_drag_start)
@@ -204,7 +204,7 @@ fn on_pointer_drag(
         warn!("Failed to get cursor on ground");
         return;
     };
-    let Ok((mut path, entity)) = paths.get_mut(child_of.parent) else {
+    let Ok((mut path, entity)) = paths.get_mut(child_of.parent()) else {
         warn!("Failed to get Path");
         return;
     };

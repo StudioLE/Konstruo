@@ -70,7 +70,7 @@ impl ExampleFactory<'_> {
             Mesh3d::default(),
             Transform::default(),
             MeshMaterial3d(material),
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 
@@ -89,7 +89,7 @@ impl ExampleFactory<'_> {
             Mesh3d::default(),
             Transform::default(),
             MeshMaterial3d(material),
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 
@@ -105,7 +105,7 @@ impl ExampleFactory<'_> {
             distributable,
             Mesh3d(self.meshes.add(cuboid.get_triangles().to_mesh())),
             MeshMaterial3d(material.clone()),
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 

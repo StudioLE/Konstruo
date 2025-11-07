@@ -109,7 +109,7 @@ impl Distribution {
                 translate_to_ground(&container, &mut transform);
             }
             for (child_of, mut transform) in containers.iter_mut() {
-                if child_of.parent != entity {
+                if child_of.parent() != entity {
                     continue;
                 }
                 *transform = transform.with_scale(container.size);

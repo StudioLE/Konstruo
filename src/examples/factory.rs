@@ -92,7 +92,7 @@ impl ExampleFactory<'_> {
             Solid,
             Mesh3d(self.meshes.add(cuboid.clone().get_triangles().to_mesh())),
             MeshMaterial3d(material),
-            ChildOf { parent },
+            ChildOf(parent),
         )
     }
 
