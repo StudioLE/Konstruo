@@ -1,6 +1,6 @@
 [package]
 name = "konstruo"
-version = "0.0.0"
+version = { workspace = true }
 edition = "2021"
 resolver = "2"
 
@@ -27,6 +27,9 @@ workspace = true
 
 [workspace]
 members = ["crates/*"]
+
+[workspace.package]
+version = "0.0.0"
 
 [workspace.dependencies]
 bevy = "0.17.2"
