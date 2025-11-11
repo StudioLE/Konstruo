@@ -17,6 +17,7 @@ jobs:
       assets_repo_name: StudioLE/KonstruoWeb
       assets_repo_path: assets
       wasm_bindgen_version: 0.2.105
+      web_repo_name: StudioLE/KonstruoWeb
     secrets:
       cargo_registry_token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       assets_repo_token: ${{ secrets.WEB_REPO_TOKEN }}
