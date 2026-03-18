@@ -53,10 +53,10 @@ impl PressedKey {
                 padding: UiRect::axes(Val::Px(8.0), Val::Px(2.0)),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
+                border_radius: BorderRadius::all(Val::Px(8.0)),
                 ..default()
             },
             BackgroundColor(PressedKeysPlugin::ACTIVE.into()),
-            BorderRadius::all(Val::Px(8.0)),
             Pickable::IGNORE,
         )
     }

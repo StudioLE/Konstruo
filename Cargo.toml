@@ -32,7 +32,7 @@ members = ["crates/*"]
 version = "0.0.0"
 
 [workspace.dependencies]
-bevy = "0.17.3"
+bevy = "0.18.1"
 konstruo_architecture = { path = "crates/architecture" }
 konstruo_beziers = { path = "crates/beziers" }
 konstruo_core = { path = "crates/core" }

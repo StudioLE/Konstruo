@@ -59,10 +59,10 @@ impl FloatingActionButton {
                 overflow: Overflow::visible(),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
+                border_radius: BorderRadius::all(Val::Px(radius)),
                 ..default()
             },
             BackgroundColor(ENABLED.into()),
-            BorderRadius::all(Val::Px(radius)),
         )
     }
 

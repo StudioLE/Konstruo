@@ -57,10 +57,10 @@ impl PressedMouseButton {
             Node {
                 width: Val::Px(48.0),
                 height: Val::Px(48.0),
+                border_radius: BorderRadius::bottom(Val::Px(8.0)),
                 ..default()
             },
             BackgroundColor(PressedKeysPlugin::inactive_color()),
-            BorderRadius::bottom(Val::Px(8.0)),
             Pickable::IGNORE,
         )
     }
@@ -72,10 +72,10 @@ impl PressedMouseButton {
             Node {
                 height: Val::Px(32.0),
                 width: Val::Px(16.0),
+                border_radius: BorderRadius::top_left(Val::Px(8.0)),
                 ..default()
             },
             BackgroundColor(PressedKeysPlugin::inactive_color()),
-            BorderRadius::top_left(Val::Px(8.0)),
             Pickable::IGNORE,
         )
     }
@@ -87,10 +87,10 @@ impl PressedMouseButton {
             Node {
                 height: Val::Px(24.0),
                 width: Val::Px(8.0),
+                border_radius: BorderRadius::all(Val::Px(8.0)),
                 ..default()
             },
             BackgroundColor(PressedKeysPlugin::inactive_color()),
-            BorderRadius::all(Val::Px(8.0)),
             Pickable::IGNORE,
         )
     }
@@ -102,10 +102,10 @@ impl PressedMouseButton {
             Node {
                 height: Val::Px(32.0),
                 width: Val::Px(16.0),
+                border_radius: BorderRadius::top_right(Val::Px(12.0)),
                 ..default()
             },
             BackgroundColor(PressedKeysPlugin::inactive_color()),
-            BorderRadius::top_right(Val::Px(12.0)),
             Pickable::IGNORE,
         )
     }

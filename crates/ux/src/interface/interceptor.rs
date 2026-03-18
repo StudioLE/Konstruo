@@ -91,10 +91,10 @@ fn frame_bundle() -> impl Bundle {
             flex_grow: 1.0,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::End,
+            border_radius: BorderRadius::all(Val::Px(32.0)),
             ..default()
         },
         BorderColor::from(FRAME_COLOR),
-        BorderRadius::all(Val::Px(32.0)),
     )
 }
 
@@ -103,11 +103,11 @@ fn label_container_bundle() -> impl Bundle {
     (
         Node {
             padding: UiRect::px(8.0, 8.0, 4.0, 4.0),
+            border_radius: BorderRadius::px(8.0, 8.0, 0.0, 0.0),
             ..default()
         },
         BackgroundColor::from(FRAME_COLOR),
         BorderColor::from(FRAME_COLOR),
-        BorderRadius::px(8.0, 8.0, 0.0, 0.0),
     )
 }
 
