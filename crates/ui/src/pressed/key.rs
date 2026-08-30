@@ -68,8 +68,8 @@ impl PressedKey {
             Text::new(""),
             TextColor::from(BLACK),
             TextFont {
-                font,
-                font_size: 16.0,
+                font: FontSource::from(font),
+                font_size: FontSize::Px(16.0),
                 ..default()
             },
         )

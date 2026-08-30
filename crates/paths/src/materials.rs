@@ -46,7 +46,13 @@ impl PathMaterials {
             center_line: materials.add(StandardMaterial {
                 base_color: tailwind::SLATE_500.into(),
                 alpha_mode: AlphaMode::Opaque,
-                depth_bias: 1.0,
+                // TODO(bevy#23774): Restore once bevy guards depth bias for
+                // non-triangle topology. wgpu 29 rejects depth bias on the
+                // Polyline and LineList meshes used for paths, so pipeline
+                // creation fails and the app quits. bevyengine/bevy#23782
+                // added the guard for wireframes but missed StandardMaterial.
+                // https://github.com/bevyengine/bevy/issues/23774
+                // depth_bias: 1.0,
                 unlit: true,
                 ..default()
             }),
@@ -74,21 +80,21 @@ impl PathMaterials {
             control_line: materials.add(StandardMaterial {
                 base_color: tailwind::SLATE_500.into(),
                 alpha_mode: AlphaMode::Opaque,
-                depth_bias: 1.0,
+                // TODO(bevy#23774): depth_bias: 1.0,
                 unlit: true,
                 ..default()
             }),
             edge: materials.add(StandardMaterial {
                 base_color: tailwind::BLUE_500.into(),
                 alpha_mode: AlphaMode::Opaque,
-                depth_bias: 10.0,
+                // TODO(bevy#23774): depth_bias: 10.0,
                 unlit: true,
                 ..default()
             }),
             wireframe: materials.add(StandardMaterial {
                 base_color: tailwind::SLATE_500.into(),
                 alpha_mode: AlphaMode::Opaque,
-                depth_bias: 1.0,
+                // TODO(bevy#23774): depth_bias: 1.0,
                 unlit: true,
                 ..default()
             }),

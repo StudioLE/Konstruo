@@ -43,7 +43,7 @@ impl Sun {
             Sun,
             DirectionalLight {
                 illuminance,
-                shadows_enabled: true,
+                shadow_maps_enabled: true,
                 ..default()
             },
             Transform::from_translation(translation).looking_at(Vec3::ZERO, Vec3::Z),

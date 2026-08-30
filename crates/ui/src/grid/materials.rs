@@ -20,7 +20,13 @@ impl GridMaterials {
                 base_color: tailwind::LIME_900.with_alpha(0.3).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
-                depth_bias: -2.0,
+                // TODO(bevy#23774): Restore once bevy guards depth bias for
+                // non-triangle topology. wgpu 29 rejects depth bias on the
+                // LineList grid meshes, so pipeline creation fails and the app
+                // quits. bevyengine/bevy#23782 added the guard for wireframes
+                // but missed StandardMaterial.
+                // https://github.com/bevyengine/bevy/issues/23774
+                // depth_bias: -2.0,
                 unlit: true,
                 ..Default::default()
             }),
@@ -28,7 +34,7 @@ impl GridMaterials {
                 base_color: tailwind::LIME_900.with_alpha(0.6).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
-                depth_bias: -2.0,
+                // TODO(bevy#23774): depth_bias: -2.0,
                 unlit: true,
                 ..Default::default()
             }),
@@ -36,7 +42,7 @@ impl GridMaterials {
                 base_color: tailwind::LIME_700.with_alpha(0.4).into(),
                 alpha_mode: AlphaMode::Blend,
                 perceptual_roughness: 1.0,
-                depth_bias: 1.0,
+                // TODO(bevy#23774): depth_bias: 1.0,
                 unlit: true,
                 ..Default::default()
             }),

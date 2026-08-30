@@ -124,10 +124,10 @@ fn configure_webassembly(plugins: PluginGroupBuilder) -> PluginGroupBuilder {
 fn configure_windows(plugins: PluginGroupBuilder) -> PluginGroupBuilder {
     trace!("Configuring DefaultPlugins for Windows");
     plugins.set(RenderPlugin {
-        render_creation: RenderCreation::Automatic(WgpuSettings {
+        render_creation: RenderCreation::Automatic(Box::new(WgpuSettings {
             backends: Some(Backends::VULKAN),
             ..default()
-        }),
+        })),
         ..default()
     })
 }
