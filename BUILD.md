@@ -17,17 +17,19 @@ cd Konstruo
 
 2. Build a release binary with cargo
 
-Compile a binary **with** [dynamic linking](https://bevyengine.org/learn/quick-start/getting-started/setup/#dynamic-linking):
-
-```bash
-cargo build --release --features bevy/dynamic_linking
-```
-
-Compile a standalone binary **without** dynamic linking:
+Compile a standalone binary:
 
 ```bash
 cargo build --release
 ```
+
+To iterate on the source, [dynamic linking](https://bevy.org/learn/book/development-practices/fast-compiles/) cuts link time:
+
+```bash
+cargo build --features bevy/dynamic_linking
+```
+
+A binary built this way is not standalone. It needs `libbevy_dylib` beside it, so use it for development only.
 
 3. Run the compiled binary
 
@@ -46,14 +48,14 @@ On windows:
 
 4. Run with Cargo
 
-Run konstruo **with** [dynamic linking](https://bevyengine.org/learn/quick-start/getting-started/setup/#dynamic-linking):
-
-```bash
-cargo run --release --features bevy/dynamic_linking
-```
-
-Run konstruo **without** dynamic linking:
+Run konstruo:
 
 ```bash
 cargo run --release
+```
+
+Or with dynamic linking for a faster edit-compile-run loop:
+
+```bash
+cargo run --features bevy/dynamic_linking
 ```
