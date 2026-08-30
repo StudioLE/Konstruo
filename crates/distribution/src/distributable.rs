@@ -1,9 +1,10 @@
 use crate::Distributed;
 use bevy::prelude::*;
 use konstruo_geometry::Vec6;
+use serde::Serialize;
 
 /// Properties that define how the entity will be distributed.
-#[derive(Clone, Component, Debug, PartialEq)]
+#[derive(Clone, Component, Debug, PartialEq, Serialize)]
 #[require(InheritedVisibility, Transform)]
 pub struct Distributable {
     /// Order in which the item is distributed.

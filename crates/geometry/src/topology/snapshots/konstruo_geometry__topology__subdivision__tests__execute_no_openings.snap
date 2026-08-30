@@ -1,0 +1,17 @@
+---
+source: crates/geometry/src/topology/subdivision.rs
+assertion_line: 197
+expression: rectangles
+---
+- - - 0
+    - 0
+    - 0
+  - - 10
+    - 0
+    - 0
+  - - 10
+    - 10
+    - 0
+  - - 0
+    - 10
+    - 0

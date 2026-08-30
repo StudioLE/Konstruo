@@ -1,0 +1,55 @@
+---
+source: crates/distribution/src/flex_factory.rs
+assertion_line: 102
+expression: container
+---
+size:
+  - 4.5
+  - 2
+  - 2
+items:
+  - size:
+      - 1
+      - 1
+      - 0
+    translation:
+      - -1.75
+      - -0.5
+      - -0.5
+    source:
+      order: 0
+      size:
+        - 1
+        - 1
+        - 1
+      margin: ~
+  - size:
+      - 2
+      - 2
+      - 0
+    translation:
+      - -0.25
+      - 0
+      - 0
+    source:
+      order: 1
+      size:
+        - 2
+        - 2
+        - 2
+      margin: ~
+  - size:
+      - 1.5
+      - 1.5
+      - 0
+    translation:
+      - 1.5
+      - -0.25
+      - -0.25
+    source:
+      order: 2
+      size:
+        - 1.5
+        - 1.5
+        - 1.5
+      margin: ~

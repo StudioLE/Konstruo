@@ -67,3 +67,98 @@ impl FlexFactory {
         container
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use insta::assert_yaml_snapshot;
+
+    #[test]
+    fn execute_default() {
+        // Arrange
+        let factory = FlexFactory::default();
+        let items = vec![
+            Distributable {
+                order: 0,
+                size: Some(Vec3::new(1.0, 1.0, 1.0)),
+                margin: None,
+            },
+            Distributable {
+                order: 1,
+                size: Some(Vec3::new(2.0, 2.0, 2.0)),
+                margin: None,
+            },
+            Distributable {
+                order: 2,
+                size: Some(Vec3::new(1.5, 1.5, 1.5)),
+                margin: None,
+            },
+        ];
+
+        // Act
+        let container = factory.execute(items);
+
+        // Assert
+        assert_yaml_snapshot!(container);
+    }
+
+    #[test]
+    fn execute_with_gap() {
+        // Arrange
+        let factory = FlexFactory {
+            gap: Vec3::new(0.5, 0.5, 0.5),
+            ..default()
+        };
+        let items = vec![
+            Distributable {
+                order: 0,
+                size: Some(Vec3::new(1.0, 1.0, 1.0)),
+                margin: None,
+            },
+            Distributable {
+                order: 1,
+                size: Some(Vec3::new(2.0, 2.0, 2.0)),
+                margin: None,
+            },
+        ];
+
+        // Act
+        let container = factory.execute(items);
+
+        // Assert
+        assert_yaml_snapshot!(container);
+    }
+
+    #[test]
+    fn execute_space_evenly() {
+        // Arrange
+        let factory = FlexFactory {
+            justify_content: JustifyContent::SpaceEvenly,
+            align_items_cross: AlignItems::Center,
+            ..default()
+        };
+        let items = vec![
+            Distributable {
+                order: 0,
+                size: Some(Vec3::new(1.0, 1.0, 1.0)),
+                margin: None,
+            },
+            Distributable {
+                order: 1,
+                size: Some(Vec3::new(2.0, 1.0, 1.0)),
+                margin: None,
+            },
+            Distributable {
+                order: 2,
+                size: Some(Vec3::new(1.0, 1.0, 1.0)),
+                margin: None,
+            },
+        ];
+
+        // Act
+        let container = factory.execute(items);
+
+        // Assert
+        assert_yaml_snapshot!(container);
+    }
+}

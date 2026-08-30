@@ -1,8 +1,9 @@
 use super::*;
 use bevy::prelude::*;
+use serde::Serialize;
 
 /// Container of distributed items
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Container {
     /// Size
     pub size: Vec3,

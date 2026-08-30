@@ -155,9 +155,10 @@ fn get_edge_by_direction(edges: &[Line], direction: Vec3) -> Option<Line> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use insta::assert_yaml_snapshot;
 
     #[test]
-    fn execute() {
+    fn execute_example() {
         // Arrange
         let subdivision = Subdivision::example();
 
@@ -166,6 +167,111 @@ mod tests {
 
         // Assert
         assert!(result.is_ok());
-        assert_eq!(result.expect("should be some").len(), 12);
+        let rectangles = result.expect("should be some");
+        assert_eq!(rectangles.len(), 12);
+        assert_yaml_snapshot!(rectangles);
+    }
+
+    #[test]
+    fn execute_no_openings() {
+        // Arrange
+        let subdivision = Subdivision {
+            bounds: [
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(10.0, 0.0, 0.0),
+                Vec3::new(10.0, 10.0, 0.0),
+                Vec3::new(0.0, 10.0, 0.0),
+            ],
+            openings: vec![],
+            main_axis: Vec3::X,
+            cross_axis: Vec3::Y,
+        };
+
+        // Act
+        let result = subdivision.execute();
+
+        // Assert
+        assert!(result.is_ok());
+        let rectangles = result.expect("should be some");
+        assert_eq!(rectangles.len(), 1);
+        assert_yaml_snapshot!(rectangles);
+    }
+
+    #[test]
+    fn execute_single_opening() {
+        // Arrange
+        let subdivision = Subdivision {
+            bounds: [
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(10.0, 0.0, 0.0),
+                Vec3::new(10.0, 10.0, 0.0),
+                Vec3::new(0.0, 10.0, 0.0),
+            ],
+            openings: vec![[
+                Vec3::new(3.0, 3.0, 0.0),
+                Vec3::new(3.0, 7.0, 0.0),
+                Vec3::new(7.0, 7.0, 0.0),
+                Vec3::new(7.0, 3.0, 0.0),
+            ]],
+            main_axis: Vec3::X,
+            cross_axis: Vec3::Y,
+        };
+
+        // Act
+        let result = subdivision.execute();
+
+        // Assert
+        assert!(result.is_ok());
+        let rectangles = result.expect("should be some");
+        assert_yaml_snapshot!(rectangles);
+    }
+
+    #[test]
+    fn execute_bound_winding_error() {
+        // Arrange
+        let subdivision = Subdivision {
+            bounds: [
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(0.0, 10.0, 0.0),
+                Vec3::new(10.0, 10.0, 0.0),
+                Vec3::new(10.0, 0.0, 0.0),
+            ],
+            openings: vec![],
+            main_axis: Vec3::X,
+            cross_axis: Vec3::Y,
+        };
+
+        // Act
+        let result = subdivision.execute();
+
+        // Assert
+        assert!(matches!(result, Err(SubdivisionError::BoundWinding)));
+    }
+
+    #[test]
+    fn execute_opening_winding_error() {
+        // Arrange
+        let subdivision = Subdivision {
+            bounds: [
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(10.0, 0.0, 0.0),
+                Vec3::new(10.0, 10.0, 0.0),
+                Vec3::new(0.0, 10.0, 0.0),
+            ],
+            openings: vec![[
+                Vec3::new(3.0, 3.0, 0.0),
+                Vec3::new(7.0, 3.0, 0.0),
+                Vec3::new(7.0, 7.0, 0.0),
+                Vec3::new(3.0, 7.0, 0.0),
+            ]],
+            main_axis: Vec3::X,
+            cross_axis: Vec3::Y,
+        };
+
+        // Act
+        let result = subdivision.execute();
+
+        // Assert
+        assert!(matches!(result, Err(SubdivisionError::OpeningWinding(0))));
     }
 }

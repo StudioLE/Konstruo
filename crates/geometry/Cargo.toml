@@ -6,6 +6,11 @@ edition = "2021"
 [dependencies]
 bevy = { workspace = true }
 konstruo_core = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+bevy = { workspace = true, features = ["serialize"] }
+insta = { workspace = true, features = ["yaml"] }
 
 [lints]
 workspace = true

@@ -1,8 +1,9 @@
 use super::*;
 use bevy::prelude::*;
+use serde::Serialize;
 
 /// Distributed item
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Distributed {
     /// Cuboid bounds
     ///

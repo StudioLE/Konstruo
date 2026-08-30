@@ -10,5 +10,9 @@ konstruo_distribution = { workspace = true }
 konstruo_geometry = { workspace = true }
 konstruo_ui = { workspace = true }
 
+[dev-dependencies]
+bevy = { workspace = true, features = ["serialize"] }
+insta = { workspace = true, features = ["yaml"] }
+
 [lints]
 workspace = true

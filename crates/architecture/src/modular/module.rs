@@ -282,3 +282,73 @@ impl ModularBuildingFactory<'_> {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use insta::assert_yaml_snapshot;
+
+    #[test]
+    fn get_face_rectangles_no_openings() {
+        // Arrange
+        let module = BuildingModuleInfo {
+            width: 10.0,
+            length: 8.0,
+            height: 3.0,
+            ..default()
+        };
+
+        // Act
+        let openings = module.get_openings();
+        let rectangles = module.get_face_rectangles(&openings);
+
+        // Assert
+        assert_eq!(rectangles.len(), 6);
+        assert_yaml_snapshot!(rectangles);
+    }
+
+    #[test]
+    fn get_face_rectangles_with_openings() {
+        // Arrange
+        let module = BuildingModuleInfo {
+            width: 10.0,
+            length: 8.0,
+            height: 3.0,
+            openings: Some(vec![
+                OpeningDistribution {
+                    side: Orientation::Front,
+                    justify_content: JustifyContent::SpaceEvenly,
+                    openings: vec![
+                        OpeningInfo {
+                            width: 2.0,
+                            height: 2.0,
+                            margin: None,
+                        },
+                        OpeningInfo {
+                            width: 1.0,
+                            height: 2.5,
+                            margin: None,
+                        },
+                    ],
+                },
+                OpeningDistribution {
+                    side: Orientation::Back,
+                    justify_content: JustifyContent::Center,
+                    openings: vec![OpeningInfo {
+                        width: 4.0,
+                        height: 2.0,
+                        margin: None,
+                    }],
+                },
+            ]),
+            ..default()
+        };
+
+        // Act
+        let openings = module.get_openings();
+        let rectangles = module.get_face_rectangles(&openings);
+
+        // Assert
+        assert_yaml_snapshot!(rectangles);
+    }
+}

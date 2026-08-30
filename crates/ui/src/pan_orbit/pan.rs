@@ -78,3 +78,79 @@ impl Pan {
         self.translation.remove_target();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[allow(clippy::float_cmp)]
+    fn in_direction_positive() {
+        // Arrange
+        let mut pan = Pan::default();
+
+        // Act
+        pan.in_direction(Vec3::X);
+
+        // Assert
+        let target = pan.translation.target.expect("target should be set");
+        assert!(target.x > 0.0);
+        assert_eq!(target.y, 0.0);
+        assert_eq!(target.z, 0.0);
+    }
+
+    #[test]
+    #[allow(clippy::float_cmp)]
+    fn in_direction_negative() {
+        // Arrange
+        let mut pan = Pan::default();
+
+        // Act
+        pan.in_direction(-Vec3::Y);
+
+        // Assert
+        let target = pan.translation.target.expect("target should be set");
+        assert_eq!(target.x, 0.0);
+        assert!(target.y < 0.0);
+        assert_eq!(target.z, 0.0);
+    }
+
+    #[test]
+    fn in_direction_zero() {
+        // Arrange
+        let mut pan = Pan::default();
+
+        // Act
+        pan.in_direction(Vec3::ZERO);
+
+        // Assert
+        assert!(pan.translation.target.is_none());
+    }
+
+    #[test]
+    fn stop_removes_target() {
+        // Arrange
+        let mut pan = Pan::default();
+        pan.in_direction(Vec3::X);
+        assert!(pan.translation.target.is_some());
+
+        // Act
+        pan.stop();
+
+        // Assert
+        assert!(pan.translation.target.is_none());
+    }
+
+    #[test]
+    fn get_transform() {
+        // Arrange
+        let mut pan = Pan::default();
+        pan.translation.current = Vec3::new(1.0, 2.0, 3.0);
+
+        // Act
+        let transform = pan.get_transform();
+
+        // Assert
+        assert_eq!(transform.translation, Vec3::new(1.0, 2.0, 3.0));
+    }
+}

@@ -198,6 +198,63 @@ fn translate_to_ground(container: &Container, transform: &mut Transform) {
         .with_scale(transform.scale);
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn added_system() {
+        // Arrange
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins)
+            .add_plugins(DistributionPlugin);
+
+        let parent = app
+            .world_mut()
+            .spawn((Distribution::default(), Transform::default()))
+            .id();
+
+        let mut child_a = Entity::PLACEHOLDER;
+        let mut child_b = Entity::PLACEHOLDER;
+        app.world_mut().entity_mut(parent).with_children(|parent| {
+            child_a = parent
+                .spawn((
+                    Distributable {
+                        order: 0,
+                        size: Some(Vec3::new(1.0, 1.0, 1.0)),
+                        margin: None,
+                    },
+                    Transform::default(),
+                ))
+                .id();
+            child_b = parent
+                .spawn((
+                    Distributable {
+                        order: 1,
+                        size: Some(Vec3::new(2.0, 2.0, 2.0)),
+                        margin: None,
+                    },
+                    Transform::default(),
+                ))
+                .id();
+        });
+
+        // Act
+        app.update();
+
+        // Assert
+        let child_a_transform = app
+            .world()
+            .get::<Transform>(child_a)
+            .expect("child_a should exist");
+        let child_b_transform = app
+            .world()
+            .get::<Transform>(child_b)
+            .expect("child_b should exist");
+        assert_ne!(child_a_transform.translation, child_b_transform.translation);
+    }
+}
+
 fn get_transform_along_spline(
     spline: &CubicBezierSpline,
     distributed: &Distributed,

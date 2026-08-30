@@ -131,3 +131,117 @@ impl Orbit {
         self.translation.remove_target();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use konstruo_geometry::Orientation::{Bottom, Front, Left, Top};
+
+    #[test]
+    #[allow(clippy::float_cmp)]
+    fn orientate_top() {
+        // Arrange
+        let mut orbit = Orbit::default();
+
+        // Act
+        orbit.orientate(&[Top]);
+
+        // Assert
+        let target = orbit.translation.target.expect("target should be set");
+        assert_eq!(target.x, DEFAULT_RADIUS);
+        assert_eq!(target.y, 0.0);
+        // -HALF_PI wrapped to [0, TWO_PI) equals 3 * HALF_PI
+        assert_eq!(target.z, 3.0 * HALF_PI);
+    }
+
+    #[test]
+    #[allow(clippy::float_cmp)]
+    fn orientate_bottom() {
+        // Arrange
+        let mut orbit = Orbit::default();
+
+        // Act
+        orbit.orientate(&[Bottom]);
+
+        // Assert
+        let target = orbit.translation.target.expect("target should be set");
+        assert_eq!(target.x, DEFAULT_RADIUS);
+        assert_eq!(target.y, PI);
+        assert_eq!(target.z, 3.0 * HALF_PI);
+    }
+
+    #[test]
+    #[allow(clippy::float_cmp)]
+    fn orientate_front() {
+        // Arrange
+        let mut orbit = Orbit::default();
+
+        // Act
+        orbit.orientate(&[Front]);
+
+        // Assert
+        let target = orbit.translation.target.expect("target should be set");
+        assert_eq!(target.x, DEFAULT_RADIUS);
+        assert_eq!(target.y, HALF_PI);
+        // atan2(-1, 0) = -PI/2, wrapped to [0, TWO_PI) = 3*PI/2
+        assert_eq!(target.z, 3.0 * HALF_PI);
+    }
+
+    #[test]
+    #[allow(clippy::float_cmp)]
+    fn orientate_left() {
+        // Arrange
+        let mut orbit = Orbit::default();
+
+        // Act
+        orbit.orientate(&[Left]);
+
+        // Assert
+        let target = orbit.translation.target.expect("target should be set");
+        assert_eq!(target.x, DEFAULT_RADIUS);
+        assert_eq!(target.y, HALF_PI);
+        assert_eq!(target.z, PI);
+    }
+
+    #[test]
+    fn stop_removes_target() {
+        // Arrange
+        let mut orbit = Orbit::default();
+        orbit.orientate(&[Top]);
+        assert!(orbit.translation.target.is_some());
+
+        // Act
+        orbit.stop();
+
+        // Assert
+        assert!(orbit.translation.target.is_none());
+    }
+
+    #[test]
+    #[allow(clippy::float_cmp)]
+    fn get_spherical_coordinates_default() {
+        // Arrange
+        let orbit = Orbit::default();
+
+        // Act
+        let spherical = orbit.get_spherical_coordinates();
+
+        // Assert
+        assert_eq!(spherical.get_radius(), DEFAULT_RADIUS);
+        assert_eq!(spherical.get_polar(), 0.0);
+        assert_eq!(spherical.get_azimuth(), -HALF_PI);
+    }
+
+    #[test]
+    #[allow(clippy::float_cmp)]
+    fn get_cartesian_translation_default() {
+        // Arrange
+        let orbit = Orbit::default();
+
+        // Act
+        let translation = orbit.get_cartesian_translation();
+
+        // Assert
+        assert_eq!(translation, Vec3::new(0.0, 0.0, DEFAULT_RADIUS));
+    }
+}

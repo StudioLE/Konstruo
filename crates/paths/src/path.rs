@@ -102,3 +102,27 @@ fn redistribute_on_spline_changed(
         };
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use konstruo_beziers::CubicBezier;
+
+    #[test]
+    fn new() {
+        // Arrange
+        let spline = CubicBezierSpline::new_unchecked(vec![CubicBezier::new(
+            Vec3::ZERO,
+            Vec3::X,
+            Vec3::Y,
+            Vec3::new(1.0, 1.0, 0.0),
+        )
+        .expect("bezier should be valid")]);
+
+        // Act
+        let path = Path::new(spline.clone());
+
+        // Assert
+        assert_eq!(path.spline.get_curves().len(), 1);
+    }
+}

@@ -1,6 +1,7 @@
 use bevy::prelude::*;
+use serde::Serialize;
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize)]
 pub struct Vec6 {
     /// Left (-x)
     pub left: f32,
