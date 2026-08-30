@@ -148,41 +148,41 @@ impl TaffyFlexFactory {
 
 fn align_content_to_taffy(align_content: AlignContent) -> taffy::AlignContent {
     match align_content {
-        AlignContent::Start => taffy::AlignContent::Start,
-        AlignContent::End => taffy::AlignContent::End,
-        AlignContent::Default | AlignContent::FlexStart => taffy::AlignContent::FlexStart,
-        AlignContent::FlexEnd => taffy::AlignContent::FlexEnd,
-        AlignContent::Center => taffy::AlignContent::Center,
-        AlignContent::Stretch => taffy::AlignContent::Stretch,
-        AlignContent::SpaceBetween => taffy::AlignContent::SpaceBetween,
-        AlignContent::SpaceEvenly => taffy::AlignContent::SpaceEvenly,
-        AlignContent::SpaceAround => taffy::AlignContent::SpaceAround,
+        AlignContent::Start => taffy::AlignContent::START,
+        AlignContent::End => taffy::AlignContent::END,
+        AlignContent::Default | AlignContent::FlexStart => taffy::AlignContent::FLEX_START,
+        AlignContent::FlexEnd => taffy::AlignContent::FLEX_END,
+        AlignContent::Center => taffy::AlignContent::CENTER,
+        AlignContent::Stretch => taffy::AlignContent::STRETCH,
+        AlignContent::SpaceBetween => taffy::AlignContent::SPACE_BETWEEN,
+        AlignContent::SpaceEvenly => taffy::AlignContent::SPACE_EVENLY,
+        AlignContent::SpaceAround => taffy::AlignContent::SPACE_AROUND,
     }
 }
 
 fn justify_content_to_taffy(justify_content: JustifyContent) -> taffy::JustifyContent {
     match justify_content {
-        JustifyContent::Start => taffy::JustifyContent::Start,
-        JustifyContent::End => taffy::JustifyContent::End,
-        JustifyContent::Default | JustifyContent::FlexStart => taffy::JustifyContent::FlexStart,
-        JustifyContent::FlexEnd => taffy::JustifyContent::FlexEnd,
-        JustifyContent::Center => taffy::JustifyContent::Center,
-        JustifyContent::Stretch => taffy::JustifyContent::Stretch,
-        JustifyContent::SpaceBetween => taffy::JustifyContent::SpaceBetween,
-        JustifyContent::SpaceEvenly => taffy::JustifyContent::SpaceEvenly,
-        JustifyContent::SpaceAround => taffy::JustifyContent::SpaceAround,
+        JustifyContent::Start => taffy::JustifyContent::START,
+        JustifyContent::End => taffy::JustifyContent::END,
+        JustifyContent::Default | JustifyContent::FlexStart => taffy::JustifyContent::FLEX_START,
+        JustifyContent::FlexEnd => taffy::JustifyContent::FLEX_END,
+        JustifyContent::Center => taffy::JustifyContent::CENTER,
+        JustifyContent::Stretch => taffy::JustifyContent::STRETCH,
+        JustifyContent::SpaceBetween => taffy::JustifyContent::SPACE_BETWEEN,
+        JustifyContent::SpaceEvenly => taffy::JustifyContent::SPACE_EVENLY,
+        JustifyContent::SpaceAround => taffy::JustifyContent::SPACE_AROUND,
     }
 }
 
 fn align_items_to_taffy(align_items: AlignItems) -> taffy::AlignItems {
     match align_items {
-        AlignItems::Start => taffy::AlignItems::Start,
-        AlignItems::End => taffy::AlignItems::End,
-        AlignItems::Default | AlignItems::FlexStart => taffy::AlignItems::FlexStart,
-        AlignItems::FlexEnd => taffy::AlignItems::FlexEnd,
-        AlignItems::Center => taffy::AlignItems::Center,
-        AlignItems::Stretch => taffy::AlignItems::Stretch,
-        AlignItems::Baseline => taffy::AlignItems::Baseline,
+        AlignItems::Start => taffy::AlignItems::START,
+        AlignItems::End => taffy::AlignItems::END,
+        AlignItems::Default | AlignItems::FlexStart => taffy::AlignItems::FLEX_START,
+        AlignItems::FlexEnd => taffy::AlignItems::FLEX_END,
+        AlignItems::Center => taffy::AlignItems::CENTER,
+        AlignItems::Stretch => taffy::AlignItems::STRETCH,
+        AlignItems::Baseline => taffy::AlignItems::BASELINE,
     }
 }
 

@@ -42,10 +42,10 @@ konstruo_geometry = { path = "crates/geometry" }
 konstruo_paths = { path = "crates/paths" }
 konstruo_ui = { path = "crates/ui" }
 konstruo_ux = { path = "crates/ux" }
-insta = "1.42.0"
-kurbo = "0.13.0"
-regex = "1.12.3"
-taffy = "0.9.2"
+insta = "1.48.0"
+kurbo = "0.13.1"
+regex = "1.13.1"
+taffy = "0.14.0"
 
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }
