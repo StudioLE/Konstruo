@@ -1,4 +1,4 @@
-use crate::{Line, Polygon};
+use crate::{Line, LinearRing};
 use bevy::prelude::*;
 use konstruo_core::{Vec3Extensions, VecVec3Extensions};
 use std::ops::Neg;
@@ -132,16 +132,16 @@ impl Subdivision {
 }
 
 fn push_if_not_zero(rectangles: &mut Vec<[Vec3; 4]>, rectangle: [Vec3; 4]) {
-    let polygon = Polygon::from_open(rectangle.to_vec()).expect("polygon should be valid");
-    if polygon.get_area() > 0.0 {
+    let ring = LinearRing::from_open(rectangle.to_vec()).expect("ring should be valid");
+    if ring.get_area() > 0.0 {
         rectangles.push(rectangle);
     }
 }
 
 #[allow(clippy::indexing_slicing)]
 fn get_edges(rectangle: [Vec3; 4]) -> Vec<Line> {
-    let polygon = Polygon::from_open(rectangle.to_vec()).expect("polygon should be valid");
-    polygon.to_lines()
+    let ring = LinearRing::from_open(rectangle.to_vec()).expect("ring should be valid");
+    ring.to_lines()
 }
 
 #[allow(clippy::indexing_slicing)]

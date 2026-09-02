@@ -5,7 +5,7 @@ use konstruo_geometry::LineList;
 
 #[allow(clippy::integer_division)]
 const RADIUS: u32 = GRID_MAX / 2;
-const SPACING: [u32; 3] = [1, 10, 100];
+const SPACING: [u32; 3] = [10, 100, 1000];
 
 #[allow(clippy::integer_division)]
 const COUNT: u32 = (RADIUS * 2) / SPACING[0] + 1;
@@ -55,16 +55,17 @@ fn create_lines() -> [LineList; 3] {
     let mut medium = Vec::new();
     let mut major = Vec::new();
     for i in range {
-        let a = i as f32 - radius;
+        let offset = i * SPACING[0];
+        let a = offset as f32 - radius;
         let b = (radius.powi(2) - a.powi(2)).sqrt();
         let start_x = Vec3::new(a, b, GRID_ELEVATION);
         let end_x = Vec3::new(a, -b, GRID_ELEVATION);
         let start_y = Vec3::new(-b, a, GRID_ELEVATION);
         let end_y = Vec3::new(b, a, GRID_ELEVATION);
-        if i % SPACING[2] == 0 {
+        if offset.is_multiple_of(SPACING[2]) {
             major.push([start_x, end_x]);
             major.push([start_y, end_y]);
-        } else if i % SPACING[1] == 0 {
+        } else if offset.is_multiple_of(SPACING[1]) {
             medium.push([start_x, end_x]);
             medium.push([start_y, end_y]);
         } else {

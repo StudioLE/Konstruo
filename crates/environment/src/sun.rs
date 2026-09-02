@@ -1,6 +1,6 @@
 use bevy::light::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
 use bevy::prelude::*;
-use konstruo_core::constants::{CAMERA_MAX, ENVIRONMENT_MAX};
+use konstruo_core::constants::{ENVIRONMENT_MAX, SHADOW_MAX};
 use konstruo_core::{ONE_DEGREE_IN_RADIANS, PI};
 use konstruo_geometry::SphericalCoordinates;
 
@@ -48,7 +48,7 @@ impl Sun {
             },
             Transform::from_translation(translation).looking_at(Vec3::ZERO, Vec3::Z),
             CascadeShadowConfigBuilder {
-                maximum_distance: CAMERA_MAX,
+                maximum_distance: SHADOW_MAX,
                 ..default()
             }
             .build(),

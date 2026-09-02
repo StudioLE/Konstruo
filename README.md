@@ -103,11 +103,23 @@ The distribution library is powered by the [taffy](https://github.com/DioxusLabs
 
 Environmental components to handle lighting and shadows based on sun, sky, and ground.
 
+Surface water is generated from GIS polygons, triangulated with any islands cut out as holes.
+
 ### [Geometry](crates/geometry/src)
 
 #### [Primitive geometry](crates/geometry/src/primitives)
 
-Includes struct for `Polyline` (`LineStrip`), `LineList`, `TriangleList` and `TriangleStrip` to simplify the generation of `Mesh` without the abstract complexity of Bevy's `PrimitiveTopology`.
+Includes struct for `Polyline` (`LineStrip`), `LineList`, `TriangleList`, `IndexedTriangleList` and `TriangleStrip` to simplify the generation of `Mesh` without the abstract complexity of Bevy's `PrimitiveTopology`.
+
+`IndexedTriangleList` shares vertices between triangles so it suits planar surfaces where every vertex has a single normal. `TriangleList` suits faceted solids where a shared vertex needs several.
+
+#### [2D shape library](crates/geometry/src/shapes_2d)
+
+Includes struct for `Line`, `Triangle`, `LinearRing` and `Polygon`.
+
+A `LinearRing` is a closed ring of coplanar vertices. Its area and normal are derived by the Newell method, summing the cross product of each edge pair, so both hold on any plane and for concave rings.
+
+A `Polygon` is a surface bounded by one exterior ring and any number of interior rings, each cutting a hole. Interior rings are wound opposite the exterior as [OGC Simple Features](https://www.ogc.org/standards/sfa/) requires. Triangulation is powered by the [earcut](https://github.com/georust/earcut) library.
 
 #### [Transform based 3D shape library](crates/geometry/src/shapes_3d)
 
@@ -120,6 +132,14 @@ Includes:
 - `Subdivision` logic for creating a rectangular openings in a rectangle.
 - `Vec6` a struct for defining 3D margins or offsets.
 - `Edge`, `Solid`, `Wireframe` marker components.
+
+### [GIS](crates/gis/src)
+
+Load geospatial data as Bevy assets.
+
+`GeoJsonLoader` reads polygonal [GeoJSON](https://datatracker.ietf.org/doc/html/rfc7946) into a `GeoJsonPolygons` asset. Geometry that violates the specification is rejected rather than silently mangled, and geometry that is valid but not polygonal is skipped with a warning.
+
+Source coordinates are [British National Grid](https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid) (EPSG:27700). `NationalGrid` translates eastings and northings to world space in metres, so no projected coordinate reaches downstream code.
 
 ### [Paths](crates/geometry/src/paths)
 

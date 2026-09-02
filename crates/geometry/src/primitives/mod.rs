@@ -1,7 +1,9 @@
+pub use indexed_triangle_list::*;
 pub use line_list::*;
 pub use polyline::*;
 pub use triangle_list::*;
 pub use triangle_strip::*;
+mod indexed_triangle_list;
 mod line_list;
 mod polyline;
 mod triangle_list;

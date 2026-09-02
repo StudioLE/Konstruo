@@ -5,8 +5,10 @@ edition = "2021"
 
 [dependencies]
 bevy = { workspace = true }
+earcut = { workspace = true }
 konstruo_core = { workspace = true }
 serde = { version = "1", features = ["derive"] }
+thiserror = { workspace = true }
 
 [dev-dependencies]
 bevy = { workspace = true, features = ["serialize"] }

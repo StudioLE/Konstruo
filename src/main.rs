@@ -32,6 +32,7 @@ fn main() {
         .add_plugins(SkyPlugin)
         .add_plugins(SelectionPlugin)
         .add_plugins(SunPlugin)
+        .add_plugins(SurfaceWaterPlugin)
         .add_plugins(UxPlugin)
         .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)

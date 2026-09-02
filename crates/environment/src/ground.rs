@@ -1,4 +1,3 @@
-use bevy::asset::Assets;
 use bevy::color::palettes::*;
 use bevy::prelude::*;
 use bevy::render::render_resource::Face;
@@ -22,22 +21,32 @@ impl Ground {
             normal: Dir3::Z,
             ..default()
         };
-        let mesh = plane.mesh().size(ENVIRONMENT_MAX, ENVIRONMENT_MAX);
-        let material = StandardMaterial {
+        let mesh = meshes.add(plane.mesh().size(ENVIRONMENT_MAX, ENVIRONMENT_MAX));
+        let material = materials.add(Ground::material());
+        let bundle = Ground::bundle(mesh, material);
+        commands.spawn(bundle);
+    }
+
+    /// Create a bundle for [`Ground`].
+    fn bundle(mesh: Handle<Mesh>, material: Handle<StandardMaterial>) -> impl Bundle {
+        (
+            Ground,
+            Mesh3d(mesh),
+            MeshMaterial3d(material),
+            Transform::from_xyz(0.0, 0.0, GROUND_ELEVATION),
+        )
+    }
+
+    /// Create the [`Ground`] material.
+    fn material() -> StandardMaterial {
+        StandardMaterial {
             base_color: tailwind::LIME_800.into(),
             perceptual_roughness: 1.0,
             depth_bias: -3.0,
             double_sided: true,
             cull_mode: Some(Face::Back),
             ..default()
-        };
-        let bundle = (
-            Ground,
-            Mesh3d(meshes.add(mesh)),
-            MeshMaterial3d(materials.add(material)),
-            Transform::from_xyz(0.0, 0.0, GROUND_ELEVATION),
-        );
-        commands.spawn(bundle);
+        }
     }
 }
 
