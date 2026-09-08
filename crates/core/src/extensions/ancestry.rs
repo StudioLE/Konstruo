@@ -29,6 +29,7 @@ impl AncestryExtensions for Entity {
     /// A [`QueryFilter`] may be applied but is not recommended.
     ///
     /// May return a [`QueryEntityError`] if [`Query`] does not contain an ancestor.
+    #[expect(clippy::while_let_loop)]
     fn get_ancestors<F: QueryFilter>(
         self,
         entities: &Query<Option<&ChildOf>, F>,
@@ -80,7 +81,7 @@ impl Display for AncestorError {
         let reason = match self {
             AncestorError::Query(e) => e.to_string(),
             AncestorError::Count { expected, actual } => {
-                format!("Expected {expected} ancestors but only found {actual}",)
+                format!("Expected {expected} ancestors but only found {actual}")
             }
         };
         formatter.write_str(&reason)

@@ -139,6 +139,7 @@ impl ModularBuildingFactory<'_> {
     }
 
     /// Spawn a [`BuildingModule`] with  edge and face geometry and openings.
+    #[expect(clippy::iter_kv_map)]
     fn spawn_cuboid(&mut self, module: &BuildingModuleInfo, order: usize, parent: Entity) {
         let openings = module.get_openings();
         let rectangles = module.get_face_rectangles(&openings);

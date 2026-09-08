@@ -8,6 +8,7 @@ use konstruo_geometry::*;
 ///
 /// All edges will have the same number of vertices
 #[derive(Clone)]
+#[expect(clippy::struct_field_names)]
 pub struct Sweep {
     /// Vertices of the bottom left edge
     bottom_left_edge: Polyline,

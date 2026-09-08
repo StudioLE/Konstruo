@@ -198,11 +198,39 @@ fn translate_to_ground(container: &Container, transform: &mut Transform) {
         .with_scale(transform.scale);
 }
 
+fn get_transform_along_spline(
+    spline: &CubicBezierSpline,
+    distributed: &Distributed,
+    scale: Vec3,
+) -> Result<Transform, DistributionError> {
+    let spline_length = spline.get_length(LENGTH_ACCURACY);
+    let distance = distributed.translation.x + spline_length * 0.5;
+    if distance > spline_length {
+        return Err(DistributionError::ExceededSplineLength {
+            actual: spline_length,
+            expected: distance,
+        });
+    }
+    let param = spline
+        .get_param_at_length(distance, LENGTH_ACCURACY)
+        .expect("distance should be in range");
+    let point = spline.get_point_at_param(param);
+    let tangent = spline.get_tangent_at_param(param);
+    let rotation = Quat::from_rotation_arc(Vec3::X, tangent);
+    let translation = point
+        + Transform::from_rotation(rotation).transform_point(distributed.translation.with_x(0.0));
+    let transform = Transform::from_translation(translation)
+        .with_rotation(rotation)
+        .with_scale(scale);
+    Ok(transform)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
+    #[expect(clippy::similar_names)]
     fn added_system() {
         // Arrange
         let mut app = App::new();
@@ -253,31 +281,4 @@ mod tests {
             .expect("child_b should exist");
         assert_ne!(child_a_transform.translation, child_b_transform.translation);
     }
-}
-
-fn get_transform_along_spline(
-    spline: &CubicBezierSpline,
-    distributed: &Distributed,
-    scale: Vec3,
-) -> Result<Transform, DistributionError> {
-    let spline_length = spline.get_length(LENGTH_ACCURACY);
-    let distance = distributed.translation.x + spline_length * 0.5;
-    if distance > spline_length {
-        return Err(DistributionError::ExceededSplineLength {
-            actual: spline_length,
-            expected: distance,
-        });
-    }
-    let param = spline
-        .get_param_at_length(distance, LENGTH_ACCURACY)
-        .expect("distance should be in range");
-    let point = spline.get_point_at_param(param);
-    let tangent = spline.get_tangent_at_param(param);
-    let rotation = Quat::from_rotation_arc(Vec3::X, tangent);
-    let translation = point
-        + Transform::from_rotation(rotation).transform_point(distributed.translation.with_x(0.0));
-    let transform = Transform::from_translation(translation)
-        .with_rotation(rotation)
-        .with_scale(scale);
-    Ok(transform)
 }
