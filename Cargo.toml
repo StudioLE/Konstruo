@@ -41,15 +41,23 @@ konstruo_environment = { path = "crates/environment" }
 konstruo_geometry = { path = "crates/geometry" }
 konstruo_gis = { path = "crates/gis" }
 konstruo_paths = { path = "crates/paths" }
+konstruo_terrain = { path = "crates/terrain" }
 konstruo_ui = { path = "crates/ui" }
 konstruo_ux = { path = "crates/ux" }
+clap = { version = "4.6.6", features = ["derive"] }
 earcut = { version = "0.4.11" }
 geojson = { version = "1.0.0", default-features = false }
 insta = "1.48.0"
 kurbo = "0.13.1"
 regex = "1.13.1"
+studiole-di = { version = "0.6.0" }
+studiole-logging = { version = "0.4.1" }
+studiole-report = { version = "0.4.1" }
 taffy = "0.14.0"
+tempfile = { version = "3.27.0" }
 thiserror = { version = "2.0.20" }
+tracing = { version = "0.1.44" }
+weezl = { version = "0.2.1" }
 
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }

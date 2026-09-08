@@ -1,0 +1,20 @@
+[package]
+name = "konstruo-preprocessor"
+version = { workspace = true }
+edition = "2021"
+
+[dependencies]
+clap = { workspace = true }
+konstruo_terrain = { workspace = true }
+studiole-di = { workspace = true }
+studiole-logging = { workspace = true }
+studiole-report = { workspace = true, features = ["render"] }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+weezl = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[lints]
+workspace = true

@@ -18,9 +18,10 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/ui/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/ux/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/gis/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/terrain/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/preprocessor/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/assets" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
-      <excludeFolder url="file://$MODULE_DIR$/crates/geometry/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
