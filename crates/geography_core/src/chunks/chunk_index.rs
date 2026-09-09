@@ -1,6 +1,6 @@
 //! Position of a chunk within the chunk grid.
 
-use crate::chunk_bounds::CHUNK_SIZE;
+use crate::CHUNK_SIZE;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 use studiole_report::prelude::*;

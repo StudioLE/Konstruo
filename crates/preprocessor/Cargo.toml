@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 clap = { workspace = true }
-konstruo_terrain = { workspace = true }
+konstruo_geography_core = { workspace = true }
 studiole-di = { workspace = true }
 studiole-logging = { workspace = true }
 studiole-report = { workspace = true, features = ["render"] }
@@ -14,6 +14,7 @@ tracing = { workspace = true }
 weezl = { workspace = true }
 
 [dev-dependencies]
+konstruo_geography_core = { workspace = true, features = ["mock"] }
 tempfile = { workspace = true }
 
 [lints]

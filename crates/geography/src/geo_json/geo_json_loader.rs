@@ -1,8 +1,9 @@
-use crate::{GeoJsonPolygons, NationalGrid};
+use crate::GeoJsonPolygons;
 use bevy::asset::io::Reader;
 use bevy::asset::{AssetLoader, LoadContext};
 use bevy::prelude::*;
 use geojson::{FeatureCollection, GeoJson, Geometry, GeometryValue, JsonValue, Position};
+use konstruo_geography_core::BngCoordinates;
 use konstruo_geometry::{LinearRing, LinearRingError, Polygon};
 use std::io::Error as IoError;
 use std::str::FromStr;
@@ -21,7 +22,7 @@ const MINIMUM_RING_POSITIONS: usize = 4;
 /// An [`AssetLoader`] for `GeoJSON` files in British National Grid (EPSG:27700).
 ///
 /// Only polygonal geometry is loaded. Coordinates are converted to world space
-/// by [`NationalGrid`].
+/// by [`BngCoordinates`].
 #[derive(Default, TypePath)]
 pub struct GeoJsonLoader;
 
@@ -179,7 +180,9 @@ fn to_vertex(position: &Position) -> Result<Vec3, GeoJsonLoaderError> {
     let [easting, northing, ..] = *position.as_slice() else {
         return Err(GeoJsonLoaderError::InvalidPosition(position.len()));
     };
-    Ok(NationalGrid::to_world(easting, northing).extend(0.0))
+    Ok(BngCoordinates::new(easting, northing)
+        .to_world()
+        .extend(0.0))
 }
 
 /// Errors returned by [`GeoJsonLoader`].

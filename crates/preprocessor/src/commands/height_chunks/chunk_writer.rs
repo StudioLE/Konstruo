@@ -1,10 +1,7 @@
 //! Write chunk files.
 
-use crate::chunk_path::ChunkPath;
-use crate::height_chunk::HeightChunk;
+use crate::prelude::*;
 use std::fs::{create_dir_all, write};
-use studiole_report::prelude::*;
-use thiserror::Error;
 
 /// Write chunk files.
 pub struct ChunkWriter {
@@ -52,7 +49,6 @@ pub enum ChunkWriteError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::spacing::Spacing;
     use std::fs;
     use tempfile::tempdir;
 
@@ -62,7 +58,7 @@ mod tests {
         let directory = tempdir().expect("should create directory");
         let path = ChunkPath::new(directory.path());
         let writer = ChunkWriter::new(path.clone());
-        let chunk = HeightChunk::mock(Spacing::Sixteen);
+        let chunk = HeightChunk::mock(HeightSpacing::Sixteen);
         // Act
         let output = writer.write(&chunk);
         // Assert

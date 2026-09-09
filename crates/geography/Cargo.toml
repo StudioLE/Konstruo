@@ -1,0 +1,14 @@
+[package]
+name = "konstruo_geography"
+version = { workspace = true }
+edition = "2021"
+
+[dependencies]
+bevy = { workspace = true }
+geojson = { workspace = true }
+konstruo_geography_core = { workspace = true }
+konstruo_geometry = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

@@ -17,8 +17,8 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/paths/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/ui/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/ux/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/crates/gis/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/crates/terrain/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/geography/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/geography_core/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/preprocessor/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/assets" />
       <excludeFolder url="file://$MODULE_DIR$/target" />

@@ -4,7 +4,7 @@ use konstruo_geometry::Polygon;
 /// Polygons loaded from a `GeoJSON` file, in world space.
 ///
 /// Source coordinates are British National Grid (EPSG:27700) and are converted
-/// by [`crate::NationalGrid`] during load, so no easting
+/// by [`konstruo_geography_core::BngCoordinates`] during load, so no easting
 /// or northing reaches downstream code.
 #[derive(Asset, Clone, Debug, TypePath)]
 pub struct GeoJsonPolygons {

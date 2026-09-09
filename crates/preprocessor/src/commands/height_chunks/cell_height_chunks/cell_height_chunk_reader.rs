@@ -220,8 +220,8 @@ impl CellHeightChunkReader {
             .get_f64(at + TIEPOINT_NORTHING)
             .change_context(CellHeightChunkError::Tiff)?;
         Ok(CellHeightChunkBounds::new(
-            easting - Origin::DEFAULT.easting,
-            northing - Origin::DEFAULT.northing,
+            easting - BngCoordinates::ORIGIN.easting,
+            northing - BngCoordinates::ORIGIN.northing,
             columns,
             rows,
         ))
@@ -401,10 +401,10 @@ mod tests {
     use tempfile::{tempdir, TempDir};
 
     /// Easting of the fixture in EPSG:27700, one chunk east of the origin.
-    const EASTING: f64 = 370_512.0;
+    const EASTING: f64 = BngCoordinates::ORIGIN.easting + CHUNK_SIZE_F64;
 
     /// Northing of the fixture in EPSG:27700, at the origin.
-    const NORTHING: f64 = 590_000.0;
+    const NORTHING: f64 = BngCoordinates::ORIGIN.northing;
 
     #[test]
     fn cell_height_chunk_reader_read_bounds() {

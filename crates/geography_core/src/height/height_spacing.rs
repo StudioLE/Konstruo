@@ -1,10 +1,10 @@
 //! Interval between height vertices.
 
-use crate::chunk_bounds::CHUNK_SIZE;
+use crate::CHUNK_SIZE;
 
 /// Interval between height vertices, in meters.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum Spacing {
+pub enum HeightSpacing {
     /// Two meters.
     Two,
     /// Four meters.
@@ -15,7 +15,7 @@ pub enum Spacing {
     Sixteen,
 }
 
-impl Spacing {
+impl HeightSpacing {
     /// Every spacing generated, finest first.
     pub const ALL: [Self; 4] = [Self::Two, Self::Four, Self::Eight, Self::Sixteen];
 
@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn spacing_meters() {
         // Act
-        let meters: Vec<i32> = Spacing::ALL
+        let meters: Vec<i32> = HeightSpacing::ALL
             .iter()
             .map(|spacing| spacing.meters())
             .collect();
@@ -74,7 +74,7 @@ mod tests {
     #[test]
     fn spacing_vertices_across() {
         // Act
-        let across: Vec<usize> = Spacing::ALL
+        let across: Vec<usize> = HeightSpacing::ALL
             .iter()
             .map(|spacing| spacing.vertices_across())
             .collect();
@@ -85,7 +85,7 @@ mod tests {
     #[test]
     fn spacing_directory() {
         // Act
-        let directories: Vec<&str> = Spacing::ALL
+        let directories: Vec<&str> = HeightSpacing::ALL
             .iter()
             .map(|spacing| spacing.directory())
             .collect();

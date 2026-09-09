@@ -38,15 +38,16 @@ konstruo_beziers = { path = "crates/beziers" }
 konstruo_core = { path = "crates/core" }
 konstruo_distribution = { path = "crates/distribution" }
 konstruo_environment = { path = "crates/environment" }
+konstruo_geography = { path = "crates/geography" }
+konstruo_geography_core = { path = "crates/geography_core" }
 konstruo_geometry = { path = "crates/geometry" }
-konstruo_gis = { path = "crates/gis" }
 konstruo_paths = { path = "crates/paths" }
-konstruo_terrain = { path = "crates/terrain" }
 konstruo_ui = { path = "crates/ui" }
 konstruo_ux = { path = "crates/ux" }
 clap = { version = "4.6.6", features = ["derive"] }
 earcut = { version = "0.4.11" }
 geojson = { version = "1.0.0", default-features = false }
+glam = { version = "0.32.1" }
 insta = "1.48.0"
 kurbo = "0.13.1"
 regex = "1.13.1"

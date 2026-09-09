@@ -180,10 +180,14 @@ mod tests {
     use super::*;
 
     /// Easting written to the fixture tiepoint.
-    const EASTING: f64 = 370_512.0;
+    ///
+    /// - Arbitrary, this module reading a tiepoint without interpreting it
+    const EASTING: f64 = 1_000.0;
 
     /// Northing written to the fixture tiepoint.
-    const NORTHING: f64 = 590_000.0;
+    ///
+    /// - Arbitrary, this module reading a tiepoint without interpreting it
+    const NORTHING: f64 = 2_000.0;
 
     /// Byte offset of the easting within `ModelTiepoint`.
     const EASTING_BYTES: usize = 24;

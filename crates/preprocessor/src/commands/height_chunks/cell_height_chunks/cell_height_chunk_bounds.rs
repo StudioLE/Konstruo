@@ -42,7 +42,7 @@ impl CellHeightChunkBounds {
     /// - Reaches `1.5` spacings beyond the chunk, being one border vertex
     ///   plus the half spacing that vertex samples across
     #[must_use]
-    pub fn get_contributions(&self, spacing: Spacing) -> ChunkBounds {
+    pub fn get_contributions(&self, spacing: HeightSpacing) -> ChunkBounds {
         self.get_bounds(f64::from(spacing.meters()) * 1.5)
     }
 
@@ -102,8 +102,8 @@ mod tests {
         // Arrange
         let bounds = CellHeightChunkBounds::new(0.0, 512.0, 512, 512);
         // Act
-        let sixteen = bounds.get_contributions(Spacing::Sixteen);
-        let two = bounds.get_contributions(Spacing::Two);
+        let sixteen = bounds.get_contributions(HeightSpacing::Sixteen);
+        let two = bounds.get_contributions(HeightSpacing::Two);
         // Assert
         assert_eq!(sixteen, ChunkBounds::new(-1, 1, -1, 1));
         assert_eq!(two, ChunkBounds::new(-1, 1, -1, 1));
@@ -115,7 +115,7 @@ mod tests {
         // Arrange
         let bounds = CellHeightChunkBounds::new(100.0, 412.0, 100, 100);
         // Act
-        let output = bounds.get_contributions(Spacing::Two);
+        let output = bounds.get_contributions(HeightSpacing::Two);
         // Assert
         assert_eq!(output, ChunkBounds::new(0, 0, 0, 0));
     }

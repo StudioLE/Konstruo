@@ -6,7 +6,7 @@ pub(crate) use crate::commands::*;
 pub(crate) use crate::utils::*;
 
 pub(crate) use clap::Args;
-pub(crate) use konstruo_terrain::*;
+pub(crate) use konstruo_geography_core::*;
 pub(crate) use std::collections::HashMap;
 pub(crate) use std::convert::Infallible;
 pub(crate) use std::path::{Path, PathBuf};

@@ -9,7 +9,7 @@ use std::ops::Range;
 ///   cells and one drawing on four are not averaged together
 pub struct ChunkAccumulator {
     /// Interval between vertices.
-    spacing: Spacing,
+    spacing: HeightSpacing,
     /// Position of the chunk.
     index: ChunkIndex,
     /// Sum of the surveyed cells of each vertex.
@@ -21,7 +21,7 @@ pub struct ChunkAccumulator {
 impl ChunkAccumulator {
     /// Create a new [`ChunkAccumulator`].
     #[must_use]
-    pub fn new(spacing: Spacing, index: ChunkIndex) -> Self {
+    pub fn new(spacing: HeightSpacing, index: ChunkIndex) -> Self {
         let vertices = spacing.vertices_across().pow(2);
         Self {
             spacing,
@@ -154,7 +154,7 @@ mod tests {
     use super::*;
 
     /// Spacing with the fewest vertices, so tests stay small.
-    const SPACING: Spacing = Spacing::Sixteen;
+    const SPACING: HeightSpacing = HeightSpacing::Sixteen;
 
     /// Column of the vertex on the east edge of a chunk at [`SPACING`].
     const EAST: usize = 33;

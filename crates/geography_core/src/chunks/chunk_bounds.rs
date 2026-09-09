@@ -1,10 +1,7 @@
 //! Rectangle of chunk indices.
 
-use crate::chunk_index::ChunkIndex;
+use crate::ChunkIndex;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-
-/// Side length of a chunk, in meters.
-pub const CHUNK_SIZE: i32 = 512;
 
 /// Rectangle of chunk indices, inclusive on every edge.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

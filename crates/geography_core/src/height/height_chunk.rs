@@ -1,7 +1,7 @@
 //! Heights of one chunk at one spacing.
 
-use crate::chunk_index::ChunkIndex;
-use crate::spacing::Spacing;
+use crate::ChunkIndex;
+use crate::HeightSpacing;
 use studiole_report::prelude::*;
 use thiserror::Error;
 
@@ -12,7 +12,7 @@ use thiserror::Error;
 #[derive(Clone, Debug, PartialEq)]
 pub struct HeightChunk {
     /// Interval between vertices.
-    pub spacing: Spacing,
+    pub spacing: HeightSpacing,
     /// Position of the chunk.
     pub index: ChunkIndex,
     /// Heights in meters.
@@ -26,7 +26,7 @@ impl HeightChunk {
     ///
     /// - IF the height count is not `spacing.vertices_across()` squared
     pub fn new(
-        spacing: Spacing,
+        spacing: HeightSpacing,
         index: ChunkIndex,
         heights: Vec<f32>,
     ) -> Result<Self, Report<HeightChunkError>> {
@@ -72,7 +72,7 @@ impl HeightChunk {
     ///
     /// - IF the byte count is not four times the height count
     pub fn from_bytes(
-        spacing: Spacing,
+        spacing: HeightSpacing,
         index: ChunkIndex,
         bytes: &[u8],
     ) -> Result<Self, Report<HeightChunkError>> {
@@ -94,8 +94,9 @@ impl HeightChunk {
     }
 
     /// Create a mock [`HeightChunk`] with each height set to its own offset.
-    #[cfg(test)]
-    pub(crate) fn mock(spacing: Spacing) -> Self {
+    #[cfg(any(test, feature = "mock"))]
+    #[must_use]
+    pub fn mock(spacing: HeightSpacing) -> Self {
         use std::iter::successors;
         let heights = successors(Some(0.0_f32), |height| Some(height + 1.0))
             .take(spacing.vertices_across().pow(2))
@@ -120,7 +121,7 @@ mod tests {
     use super::*;
 
     /// Spacing with the fewest vertices, so tests stay small.
-    const SPACING: Spacing = Spacing::Sixteen;
+    const SPACING: HeightSpacing = HeightSpacing::Sixteen;
 
     #[test]
     fn height_chunk_new_invalid() {

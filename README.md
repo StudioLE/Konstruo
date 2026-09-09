@@ -133,13 +133,19 @@ Includes:
 - `Vec6` a struct for defining 3D margins or offsets.
 - `Edge`, `Solid`, `Wireframe` marker components.
 
-### [GIS](crates/gis/src)
+### [Geography core](crates/geography_core/src)
+
+Geographic data shared by the game and the preprocessor, free of any Bevy dependency.
+
+Source coordinates are [British National Grid](https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid) (EPSG:27700). `BngCoordinates` is a distinct type from world space, so the two cannot be passed for one another, and `to_world` translates to metres so no projected coordinate reaches downstream code.
+
+`HeightChunk` holds the terrain heights of one chunk at one `HeightSpacing`, addressed by `ChunkIndex` and located on disk by `ChunkPath`. Chunks are encoded as little-endian `f32` without a header, so the preprocessor that writes them and the game that loads them agree on the format without parsing a manifest.
+
+### [Geography](crates/geography/src)
 
 Load geospatial data as Bevy assets.
 
 `GeoJsonLoader` reads polygonal [GeoJSON](https://datatracker.ietf.org/doc/html/rfc7946) into a `GeoJsonPolygons` asset. Geometry that violates the specification is rejected rather than silently mangled, and geometry that is valid but not polygonal is skipped with a warning.
-
-Source coordinates are [British National Grid](https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid) (EPSG:27700). `NationalGrid` translates eastings and northings to world space in metres, so no projected coordinate reaches downstream code.
 
 ### [Paths](crates/geometry/src/paths)
 

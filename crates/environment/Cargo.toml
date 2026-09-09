@@ -7,7 +7,7 @@ edition = "2021"
 bevy = { workspace = true }
 konstruo_core = { path = "../core" }
 konstruo_geometry = { path = "../geometry" }
-konstruo_gis = { workspace = true }
+konstruo_geography = { workspace = true }
 
 [lints]
 workspace = true

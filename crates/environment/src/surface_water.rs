@@ -2,7 +2,7 @@ use bevy::color::palettes::*;
 use bevy::prelude::*;
 use bevy::render::render_resource::Face;
 use konstruo_core::constants::WATER_ELEVATION;
-use konstruo_gis::{GeoJsonPlugin, GeoJsonPolygons};
+use konstruo_geography::{GeoJsonPlugin, GeoJsonPolygons};
 
 /// Path of the surface water asset, relative to `assets/`.
 const SOURCE: &str = "gis/kielder-water.geojson";

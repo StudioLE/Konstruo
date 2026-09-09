@@ -100,10 +100,10 @@ struct Resample {
     /// Chunk file writer.
     writer: ChunkWriter,
     /// Accumulator of every chunk awaiting a source file.
-    accumulators: HashMap<(Spacing, ChunkIndex), ChunkAccumulator>,
-    /// Source files each chunk is still owed, one tracker per [`Spacing`].
+    accumulators: HashMap<(HeightSpacing, ChunkIndex), ChunkAccumulator>,
+    /// Source files each chunk is still owed, one tracker per [`HeightSpacing`].
     ///
-    /// - Ordered to match [`Spacing::ALL`], which [`Resample::add`] zips against
+    /// - Ordered to match [`HeightSpacing::ALL`], which [`Resample::add`] zips against
     completions: Vec<ChunkCompletion>,
     /// Number of chunks written.
     written: usize,
@@ -114,7 +114,7 @@ struct Resample {
 impl Resample {
     /// Create a new [`Resample`], counting the files each chunk is owed.
     fn new(output: &Path, sources: &[Source]) -> Self {
-        let completions = Spacing::ALL
+        let completions = HeightSpacing::ALL
             .iter()
             .map(|spacing| {
                 let mut completion = ChunkCompletion::new();
@@ -141,7 +141,7 @@ impl Resample {
         let mut time_accumulate = Timer::new_stopped();
         let mut time_finish = Timer::new_stopped();
         let mut time_write = Timer::new_stopped();
-        for (spacing, completion) in Spacing::ALL.iter().zip(&mut self.completions) {
+        for (spacing, completion) in HeightSpacing::ALL.iter().zip(&mut self.completions) {
             for index in chunk.bounds.get_contributions(*spacing).indices() {
                 let key = (*spacing, index);
                 time_accumulate.resume();
@@ -215,14 +215,14 @@ pub enum HeightChunksError {
 mod tests {
     use super::*;
     use crate::commands::height_chunks::cell_height_chunks::tiff::tiff_fixture::TiffFixture;
-    use std::fs::{read_dir, write};
+    use std::fs::{read, read_dir, write};
     use tempfile::{tempdir, TempDir};
 
     /// Easting of the fixture in EPSG:27700, one chunk east of the origin.
-    const EASTING: f64 = 370_512.0;
+    const EASTING: f64 = BngCoordinates::ORIGIN.easting + CHUNK_SIZE_F64;
 
     /// Northing of the fixture in EPSG:27700, one chunk north of the origin.
-    const NORTHING: f64 = 590_512.0;
+    const NORTHING: f64 = BngCoordinates::ORIGIN.northing + CHUNK_SIZE_F64;
 
     /// Height every cell of the fixture reads as.
     const HEIGHT: f32 = 10.0;
@@ -243,7 +243,7 @@ mod tests {
         let output = handler.run(request.clone(), DERIVED);
         // Assert
         output.expect("should generate chunks");
-        for spacing in Spacing::ALL {
+        for spacing in HeightSpacing::ALL {
             let written = get_names(&request.output.join(spacing.directory()));
             assert_eq!(written, WRITTEN, "at {spacing:?}");
         }
@@ -260,11 +260,11 @@ mod tests {
             .run(request.clone(), DERIVED)
             .expect("should generate chunks");
         // Assert
-        let reader = ChunkReader::new(ChunkPath::new(&request.output));
-        let chunk = reader
-            .read(Spacing::Sixteen, ChunkIndex::new(1, 0))
-            .expect("should read chunk")
-            .expect("should have chunk");
+        let index = ChunkIndex::new(1, 0);
+        let path = ChunkPath::new(&request.output).get(HeightSpacing::Sixteen, index);
+        let bytes = read(&path).expect("should read chunk");
+        let chunk = HeightChunk::from_bytes(HeightSpacing::Sixteen, index, &bytes)
+            .expect("should decode chunk");
         assert_eq!(chunk.get_height(2, 2), Some(HEIGHT));
     }
 

@@ -3386,7 +3386,7 @@ name = "konstruo-preprocessor"
 version = "0.0.0"
 dependencies = [
  "clap",
- "konstruo_terrain",
+ "konstruo_geography_core",
  "studiole-di",
  "studiole-logging",
  "studiole-report",
@@ -3444,8 +3444,28 @@ version = "0.0.0"
 dependencies = [
  "bevy",
  "konstruo_core",
+ "konstruo_geography",
  "konstruo_geometry",
- "konstruo_gis",
+]
+
+[[package]]
+name = "konstruo_geography"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "geojson",
+ "konstruo_geography_core",
+ "konstruo_geometry",
+ "thiserror 2.0.20",
+]
+
+[[package]]
+name = "konstruo_geography_core"
+version = "0.0.0"
+dependencies = [
+ "glam",
+ "studiole-report",
+ "thiserror 2.0.20",
 ]
 
 [[package]]
@@ -3461,16 +3481,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "konstruo_gis"
-version = "0.0.0"
-dependencies = [
- "bevy",
- "geojson",
- "konstruo_geometry",
- "thiserror 2.0.20",
-]
-
-[[package]]
 name = "konstruo_paths"
 version = "0.0.0"
 dependencies = [
@@ -3480,15 +3490,6 @@ dependencies = [
  "konstruo_distribution",
  "konstruo_geometry",
  "konstruo_ui",
-]
-
-[[package]]
-name = "konstruo_terrain"
-version = "0.0.0"
-dependencies = [
- "studiole-report",
- "tempfile",
- "thiserror 2.0.20",
 ]
 
 [[package]]
