@@ -15,4 +15,4 @@ pub(crate) use studiole_di::prelude::*;
 pub(crate) use studiole_logging::prelude::*;
 pub(crate) use studiole_report::prelude::*;
 pub(crate) use thiserror::Error;
-pub(crate) use tracing::{debug, error, info, trace};
+pub(crate) use tracing::{debug, error, info, trace, warn};

@@ -15,6 +15,9 @@ impl ServiceBuilderExt for ServiceBuilder {
             .with_type::<CellHeightChunkReader>()
             .with_type::<CliArgs>()
             .with_type::<HeightChunksHandler>()
+            .with_type::<PolygonReader>()
+            .with_type::<PolygonWriter>()
+            .with_type::<PolygonsHandler>()
             .with_type::<SubcommandHandler>()
     }
 }

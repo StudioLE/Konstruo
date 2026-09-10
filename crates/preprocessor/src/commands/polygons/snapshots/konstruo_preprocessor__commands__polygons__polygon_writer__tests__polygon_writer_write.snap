@@ -1,0 +1,25 @@
+---
+source: crates/preprocessor/src/commands/polygons/polygon_writer.rs
+expression: output
+---
+crs:
+  properties:
+    name: "urn:ogc:def:crs:EPSG::27700"
+  type: name
+features:
+  - geometry:
+      coordinates:
+        - - - 0
+            - 0
+          - - 100
+            - 0
+          - - 100
+            - 100
+          - - 0
+            - 100
+          - - 0
+            - 0
+      type: Polygon
+    properties: {}
+    type: Feature
+type: FeatureCollection

@@ -5,7 +5,7 @@ use konstruo_core::constants::WATER_ELEVATION;
 use konstruo_geography::{GeoJsonPlugin, GeoJsonPolygons};
 
 /// Path of the surface water asset, relative to `assets/`.
-const SOURCE: &str = "gis/kielder-water.geojson";
+const SOURCE: &str = "polygons/surface-water.geojson";
 
 /// A graphical representation of surface water as a flat filled surface.
 #[derive(Component)]

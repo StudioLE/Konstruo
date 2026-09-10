@@ -5,6 +5,9 @@ edition = "2021"
 
 [dependencies]
 clap = { workspace = true }
+geo-types = { workspace = true }
+geojson = { workspace = true, features = ["geo-types"] }
+geopackage = { workspace = true }
 konstruo_geography_core = { workspace = true }
 studiole-di = { workspace = true }
 studiole-logging = { workspace = true }
@@ -14,6 +17,7 @@ tracing = { workspace = true }
 weezl = { workspace = true }
 
 [dev-dependencies]
+insta = { workspace = true, features = ["yaml"] }
 konstruo_geography_core = { workspace = true, features = ["mock"] }
 tempfile = { workspace = true }
 

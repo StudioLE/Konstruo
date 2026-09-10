@@ -1,6 +1,6 @@
 //! Rectangle of chunk indices.
 
-use crate::ChunkIndex;
+use crate::{BngCoordinates, ChunkExtent, ChunkIndex, CHUNK_SIZE_F64};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 /// Rectangle of chunk indices, inclusive on every edge.
@@ -54,6 +54,23 @@ impl ChunkBounds {
             max_x: self.max_x.max(other.max_x),
             min_y: self.min_y.min(other.min_y),
             max_y: self.max_y.max(other.max_y),
+        }
+    }
+
+    /// Extent of these bounds on the British National Grid.
+    ///
+    /// - Adds one chunk to each maximum, the bounds being inclusive on every edge
+    #[must_use]
+    pub fn get_extent(self) -> ChunkExtent {
+        ChunkExtent {
+            min: BngCoordinates::new(
+                BngCoordinates::ORIGIN.easting + f64::from(self.min_x) * CHUNK_SIZE_F64,
+                BngCoordinates::ORIGIN.northing + f64::from(self.min_y) * CHUNK_SIZE_F64,
+            ),
+            max: BngCoordinates::new(
+                BngCoordinates::ORIGIN.easting + f64::from(self.max_x + 1) * CHUNK_SIZE_F64,
+                BngCoordinates::ORIGIN.northing + f64::from(self.max_y + 1) * CHUNK_SIZE_F64,
+            ),
         }
     }
 
@@ -148,6 +165,24 @@ mod tests {
                 ChunkIndex::new(0, -1),
             ]
         );
+    }
+
+    #[test]
+    fn chunk_bounds_get_extent_union() {
+        // Act
+        let output = ChunkBounds::UNION.get_extent();
+        // Assert
+        assert_eq!(output.min, BngCoordinates::new(354_640.0, 569_520.0));
+        assert_eq!(output.max, BngCoordinates::new(385_360.0, 605_360.0));
+    }
+
+    #[test]
+    fn chunk_bounds_get_extent_origin() {
+        // Act
+        let output = ChunkBounds::new(0, 0, 0, 0).get_extent();
+        // Assert
+        assert_eq!(output.min, BngCoordinates::ORIGIN);
+        assert_eq!(output.max, BngCoordinates::new(370_512.0, 590_512.0));
     }
 
     #[test]

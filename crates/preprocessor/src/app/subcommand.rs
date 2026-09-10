@@ -8,6 +8,8 @@ use clap::Subcommand as ClapSubcommand;
 pub enum Subcommand {
     /// Resample source height data into level-of-detail chunk files.
     HeightChunks(HeightChunksRequest),
+    /// Export source polygon layers as `GeoJSON` files.
+    Polygons(PolygonsRequest),
 }
 
 /// Dispatch the selected [`Subcommand`] to its handler.
@@ -17,6 +19,8 @@ pub struct SubcommandHandler {
     cli: Arc<CliArgs>,
     /// Handler of the `height-chunks` subcommand.
     height_chunks: Arc<HeightChunksHandler>,
+    /// Handler of the `polygons` subcommand.
+    polygons: Arc<PolygonsHandler>,
 }
 
 impl SubcommandHandler {
@@ -25,6 +29,7 @@ impl SubcommandHandler {
         let command = self.cli.command.clone();
         match command {
             Subcommand::HeightChunks(request) => Ok(self.height_chunks.execute(request)?),
+            Subcommand::Polygons(request) => Ok(self.polygons.execute(request)?),
         }
     }
 }
