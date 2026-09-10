@@ -7,7 +7,7 @@ edition = "2021"
 bevy = { workspace = true }
 konstruo_beziers = { workspace = true }
 konstruo_geometry = { workspace = true }
-serde = { version = "1", features = ["derive"] }
+serde = { workspace = true }
 taffy = { workspace = true }
 
 [dev-dependencies]

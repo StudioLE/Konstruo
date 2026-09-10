@@ -11,6 +11,7 @@ use bevy::render::RenderPlugin;
 use konstruo_architecture::*;
 use konstruo_distribution::DistributionPlugin;
 use konstruo_environment::*;
+use konstruo_geography::TerrainPlugin;
 use konstruo_paths::*;
 use konstruo_ui::*;
 use konstruo_ux::*;
@@ -33,6 +34,7 @@ fn main() {
         .add_plugins(SelectionPlugin)
         .add_plugins(SunPlugin)
         .add_plugins(SurfaceWaterPlugin)
+        .add_plugins(TerrainPlugin)
         .add_plugins(UxPlugin)
         .add_plugins(ViewCubePlugin)
         // .add_plugins(debug_plugin)

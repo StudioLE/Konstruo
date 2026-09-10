@@ -1,13 +1,14 @@
 //! Position of a chunk within the chunk grid.
 
 use crate::CHUNK_SIZE;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 use studiole_report::prelude::*;
 use thiserror::Error;
 
 /// Position of a chunk within the chunk grid.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct ChunkIndex {
     /// Index along X, increasing east.
     pub x: i32,

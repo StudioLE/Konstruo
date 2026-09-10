@@ -8,7 +8,12 @@ bevy = { workspace = true }
 geojson = { workspace = true }
 konstruo_geography_core = { workspace = true }
 konstruo_geometry = { workspace = true }
+serde = { workspace = true }
+studiole-report = { workspace = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+konstruo_geography_core = { workspace = true, features = ["mock"] }
 
 [lints]
 workspace = true

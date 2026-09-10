@@ -8,6 +8,7 @@ mock = []
 
 [dependencies]
 glam = { workspace = true }
+serde = { workspace = true }
 studiole-report = { workspace = true }
 thiserror = { workspace = true }
 

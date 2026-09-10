@@ -3375,6 +3375,7 @@ dependencies = [
  "konstruo_core",
  "konstruo_distribution",
  "konstruo_environment",
+ "konstruo_geography",
  "konstruo_geometry",
  "konstruo_paths",
  "konstruo_ui",
@@ -3456,6 +3457,8 @@ dependencies = [
  "geojson",
  "konstruo_geography_core",
  "konstruo_geometry",
+ "serde",
+ "studiole-report",
  "thiserror 2.0.20",
 ]
 
@@ -3464,6 +3467,7 @@ name = "konstruo_geography_core"
 version = "0.0.0"
 dependencies = [
  "glam",
+ "serde",
  "studiole-report",
  "thiserror 2.0.20",
 ]

@@ -1,9 +1,10 @@
 //! Interval between height vertices.
 
 use crate::CHUNK_SIZE;
+use serde::{Deserialize, Serialize};
 
 /// Interval between height vertices, in meters.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub enum HeightSpacing {
     /// Two meters.
     Two,

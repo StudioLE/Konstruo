@@ -11,6 +11,7 @@ konstruo_beziers = { workspace = true }
 konstruo_core = { workspace = true }
 konstruo_distribution = { workspace = true }
 konstruo_environment = { workspace = true }
+konstruo_geography = { workspace = true }
 konstruo_geometry = { workspace = true }
 konstruo_paths = { workspace = true }
 konstruo_ui = { workspace = true }
@@ -51,6 +52,7 @@ glam = { version = "0.32.1" }
 insta = "1.48.0"
 kurbo = "0.13.1"
 regex = "1.13.1"
+serde = { version = "1.0.229", features = ["derive"] }
 studiole-di = { version = "0.6.0" }
 studiole-logging = { version = "0.4.1" }
 studiole-report = { version = "0.4.1" }
