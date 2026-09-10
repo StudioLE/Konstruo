@@ -1,18 +1,32 @@
+use bevy::render::view::Msaa;
+
 /// Minimum camera orbit radius.
 pub const CAMERA_MIN: f32 = 10.0;
 
 /// Extent of the camera pan and orbit radius.
 pub const CAMERA_MAX: f32 = 20_000.0;
 
-/// Extent of the directional light shadow cascades.
-///
-/// - Stays well below [`CAMERA_MAX`], so the cascades keep a usable texel density
-pub const SHADOW_MAX: f32 = 2_500.0;
-
 /// Extent of the grid.
 pub const GRID_MAX: u32 = 40_000;
 
+/// Multisample anti-aliasing of every camera.
+///
+/// - `Off`, which [`ScreenSpaceAmbientOcclusion`](bevy::pbr::ScreenSpaceAmbientOcclusion)
+///   requires, `Smaa` standing in as the anti-aliasing
+/// - MUST match across cameras drawing to one target; differing samples give each its own
+///   intermediate texture, so they stop compositing with one another
+#[cfg(not(target_arch = "wasm32"))]
+pub const CAMERA_MSAA: Msaa = Msaa::Off;
+
+/// Multisample anti-aliasing of every camera.
+///
+/// - `Sample4`, no web backend supporting screen space ambient occlusion
+#[cfg(target_arch = "wasm32")]
+pub const CAMERA_MSAA: Msaa = Msaa::Sample4;
+
 /// Extent of the ground and sky.
+///
+/// - The camera `far` of `1000.0` does not clip this; it only culls objects wholly beyond it
 pub const ENVIRONMENT_MAX: f32 = 40_000.0;
 
 /// Elevation of the ground plane.

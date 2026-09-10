@@ -1,7 +1,14 @@
 use crate::{PrimaryCamera, PRIMARY_CAMERA_ORDER};
+#[cfg(not(target_arch = "wasm32"))]
+use bevy::anti_alias::smaa::{Smaa, SmaaPreset};
+use bevy::camera::Exposure;
 use bevy::input::mouse::MouseMotion;
+use bevy::light::AtmosphereEnvironmentMapLight;
+use bevy::pbr::{AtmosphereMode, AtmosphereSettings};
+#[cfg(not(target_arch = "wasm32"))]
+use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
 use bevy::prelude::*;
-use konstruo_core::constants::{CAMERA_MAX, CAMERA_MIN};
+use konstruo_core::constants::{CAMERA_MAX, CAMERA_MIN, CAMERA_MSAA};
 use konstruo_core::ClampVec3;
 use konstruo_core::Translation;
 use konstruo_core::{ClampFloat, HALF_PI, PI, TWO_PI};
@@ -48,6 +55,10 @@ impl Default for Orbit {
 
 impl Orbit {
     /// Create an [`Orbit`] with [`Camera`].
+    ///
+    /// - Takes ambient light and reflections from the atmosphere, so surfaces facing
+    ///   away from the sun read as sky rather than black
+    /// - If using `ContactShadows` a thickness of `0.6` works for window reveal; lower values are only visible with extreme zoom.
     pub(super) fn bundle() -> impl Bundle {
         let orbit = Orbit::default();
         let transform = orbit.get_cartesian_transform();
@@ -59,6 +70,33 @@ impl Orbit {
             Camera {
                 order: PRIMARY_CAMERA_ORDER,
                 ..default()
+            },
+            Exposure {
+                // Default: `EV100_BLENDER, 9.7` (matches blender's lighting)
+                // Overcast: `12.0`
+                // Sunlight: `15.0`
+                // TODO: Exposure needs proper calibration
+                ev100: 13.5,
+            },
+            AtmosphereSettings {
+                rendering_method: AtmosphereMode::Raymarched,
+                ..default()
+            },
+            AtmosphereEnvironmentMapLight {
+                // Default: `512`
+                // MUST be a power of two.
+                size: UVec2::splat(1024),
+                ..default()
+            },
+            CAMERA_MSAA,
+            #[cfg(not(target_arch = "wasm32"))]
+            ScreenSpaceAmbientOcclusion {
+                quality_level: ScreenSpaceAmbientOcclusionQualityLevel::Ultra,
+                ..default()
+            },
+            #[cfg(not(target_arch = "wasm32"))]
+            Smaa {
+                preset: SmaaPreset::Ultra,
             },
         )
     }

@@ -1,10 +1,13 @@
 use super::*;
 use crate::{Orbit, VIEW_CUBE_CAMERA_ORDER};
+#[cfg(not(target_arch = "wasm32"))]
+use bevy::anti_alias::smaa::{Smaa, SmaaPreset};
 use bevy::camera::visibility::RenderLayers;
 use bevy::camera::ScalingMode::Fixed;
-use bevy::camera::Viewport;
+use bevy::camera::{Hdr, Viewport};
 use bevy::prelude::Projection::Orthographic;
 use bevy::prelude::*;
+use konstruo_core::constants::CAMERA_MSAA;
 
 /// A camera looking at a geoemtric view cube that rotates according to [`Orbit`].
 #[derive(Component)]
@@ -25,7 +28,18 @@ impl ViewCubeCamera {
             Camera {
                 order: VIEW_CUBE_CAMERA_ORDER,
                 viewport,
+                clear_color: ClearColorConfig::None,
                 ..default()
+            },
+            // Matches the `Hdr` that `AtmosphereSettings` requires on the primary camera.
+            // Two cameras share an intermediate render target only when their format
+            // matches, and without this the viewport composites over an empty one, rendering
+            // solid black.
+            Hdr,
+            CAMERA_MSAA,
+            #[cfg(not(target_arch = "wasm32"))]
+            Smaa {
+                preset: SmaaPreset::Ultra,
             },
             Orthographic(OrthographicProjection {
                 scaling_mode: Fixed {
